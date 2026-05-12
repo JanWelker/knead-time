@@ -142,7 +142,7 @@
 
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-5 print:block print:gap-0">
 		<section
-			class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur lg:col-span-2 dark:border-stone-700 dark:bg-stone-900/70 print:hidden"
+			class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur lg:col-span-2 lg:min-w-0 dark:border-stone-700 dark:bg-stone-900/70 print:hidden"
 		>
 			<InputForm state={form} />
 		</section>
