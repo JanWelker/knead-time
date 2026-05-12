@@ -92,6 +92,12 @@ Plus a **"Round numbers" action** next to the ball-weight input:
 - **Responsive, playful** — Italian-themed warmth (think tomato/basil/dough palette), but not cartoonish. Should feel inviting in a kitchen, readable on a phone.
 - Mobile usage is realistic (phone on the counter), so layout must work well at narrow widths even if it's not strictly mobile-first.
 
+## Git workflow
+
+- `main` is protected — never commit or push directly to it.
+- For every change: create a branch, commit, push, and open a PR against `main`.
+- CI (`.github/workflows/ci.yml`) must pass before merge; deploy runs on push to `main` after merge.
+
 ## Project conventions
 
 - Tests live next to the code they cover (`foo.ts` + `foo.test.ts`).
