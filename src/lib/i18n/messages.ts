@@ -1,4 +1,4 @@
-export const LOCALES = ['en', 'de', 'it'] as const;
+export const LOCALES = ['en', 'de', 'it', 'fr', 'nl', 'jam'] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export interface Messages {
@@ -511,13 +511,410 @@ const it: Messages = {
 	}
 };
 
-export const MESSAGES: Record<Locale, Messages> = { en, de, it };
+const fr: Messages = {
+	app: {
+		title: 'Knead Time',
+		tagline: 'Quand voulez-vous cuire ? Tout se calcule à rebours à partir de là.',
+		langLabel: 'Langue',
+		themeLabel: 'Thème',
+		theme_auto: 'Thème du système',
+		theme_light: 'Thème clair',
+		theme_dark: 'Thème sombre'
+	},
+	form: {
+		section_when: 'Quand',
+		section_recipe: 'Recette',
+		section_advanced: 'Avancé',
+		startAt: 'Heure de départ',
+		startAt_help: "Quand vous commencez à planifier. Le programme va d'ici à la cuisson.",
+		startAt_now: 'Maintenant',
+		readyBy: 'Prêt à enfourner',
+		readyBy_help: 'Le moment où la première pizza entre au four.',
+		pizzaCount: 'Pizzas',
+		ballWeight: 'Pâton (g)',
+		ballWeight_round: 'Arrondir',
+		ballWeight_round_help: 'Ajuste le pâton pour que farine et eau tombent sur des valeurs rondes.',
+		hydration: 'Hydratation (%)',
+		hydration_help: 'Eau en pourcentage de la farine.',
+		salt: 'Sel (% de farine)',
+		yeastType: 'Levure',
+		yeast_fresh: 'Levure fraîche (cube)',
+		yeast_sourdough: 'Levain',
+		starterHydration: 'Hydratation du levain (%)',
+		starterHydration_help: "100% signifie autant de farine que d'eau.",
+		roomTemp: 'Température ambiante (°C)',
+		roomTemp_help:
+			"Les cuisines plus chaudes accélèrent la fermentation — c'est ce qui guide le calcul.",
+		preFerment: 'Pré-ferment',
+		preFerment_none: 'Aucun',
+		preFerment_biga: "Biga (ferme, ~50% d'hydratation)",
+		preFerment_poolish: "Poolish (liquide, 100% d'hydratation)",
+		preFermentFlour: 'Farine du pré-ferment (% du total)'
+	},
+	mode: {
+		cold: 'Maturation au froid',
+		room: 'Maturation à température ambiante',
+		cold_blurb: "Longue phase au frigo — l'arôme se développe pendant la nuit.",
+		room_blurb: 'Tout à température ambiante.'
+	},
+	steps: {
+		preferment_mix: 'Préparer le pré-ferment',
+		preferment_mix_desc:
+			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche. Couvrez et laissez maturer à température ambiante pendant {duration} (HH:MM) jusqu'au pétrissage de la pâte principale.",
+		preferment_proof: 'Le pré-ferment mûrit',
+		preferment_proof_desc:
+			"Laissez le pré-ferment couvert maturer sans le déranger à température ambiante jusqu'au pétrissage de la pâte principale.",
+		prep: 'Peser et préparer',
+		prep_desc:
+			"Pesez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Sortez les ingrédients du frigo.",
+		mix: 'Pétrir la pâte',
+		mix_desc:
+			"Mélangez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Pétrissez jusqu'à obtenir une pâte lisse.",
+		mix_desc_with_preferment:
+			"Ajoutez le pré-ferment mûr à {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Pétrissez jusqu'à obtenir une pâte lisse.",
+		bulk_room: 'Pointage (ambiante)',
+		bulk_room_desc: 'Couvrez la pâte et laissez-la lever à température ambiante.',
+		bulk_cold: 'Pointage (frigo)',
+		bulk_cold_desc: 'Mettez la pâte couverte au frigo — fermentation longue et lente.',
+		divide: 'Diviser et bouler',
+		divide_desc: 'Coupez la pâte en {n} pâtons égaux de {weight} g chacun et boulez-les serrés.',
+		warmup: 'Tempérer les pâtons',
+		warmup_desc:
+			"Laissez les pâtons à température ambiante pour qu'ils finissent leur apprêt uniformément.",
+		final_proof: 'Apprêt',
+		final_proof_desc:
+			'Dernier repos avant le façonnage. Les pâtons doivent être gonflés et détendus.',
+		ready: 'Façonner et enfourner',
+		ready_desc: 'Ouvrez chaque pâton, garnissez, au four.'
+	},
+	schedule: {
+		heading: 'Programme',
+		col_when: 'Quand',
+		col_step: 'Étape',
+		col_duration: 'Durée',
+		duration_minutes: '{n} min',
+		duration_hours: '{n} h',
+		duration_hours_minutes: '{h} h {m} min'
+	},
+	ingredients: {
+		heading: 'Ingrédients',
+		flour: 'Farine',
+		water: 'Eau',
+		salt: 'Sel',
+		fresh_yeast: 'Levure fraîche',
+		sourdough_starter: 'Levain',
+		fresh_yeast_inline: 'levure fraîche',
+		sourdough_starter_inline: 'levain',
+		total: 'Pâte totale',
+		preFerment_heading: 'Pré-ferment',
+		preFerment_help: 'À préparer la veille, laisser maturer la nuit à température ambiante.',
+		mainDough_heading: 'Pâte principale',
+		mainDough_help: 'À pétrir le jour de la cuisson, avec le pré-ferment mûr.',
+		totals_heading: 'Total'
+	},
+	actions: {
+		download_ics: 'Télécharger .ics',
+		print: 'Imprimer / Enregistrer en PDF',
+		share: 'Copier le lien',
+		copied: 'Copié !',
+		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte."
+	},
+	print: {
+		recipe_heading: 'Recette',
+		source_label: 'Reproduire cette recette sur'
+	},
+	warnings: {
+		too_short:
+			'Pas assez de temps. Choisissez un moment plus tardif ou acceptez une pâte sous-fermentée.',
+		too_cold: 'Cuisine fraîche — la fermentation sera lente à cette température.',
+		too_warm: 'Cuisine chaude — la pâte risque la sur-fermentation. Surveillez-la.',
+		yeast_tiny: 'Très peu de levure — pesez précisément (une balance au 0,1 g aide).',
+		yeast_large: 'Quantité de levure inhabituelle — vérifiez les valeurs.',
+		night_step:
+			'Une étape tombe encore entre 22:00 et 08:00. Décalez la cuisson pour que toutes les tâches soient en journée.'
+	},
+	footer: {
+		about: 'Calculateur de pâte à pizza napolitaine ancré dans le temps.',
+		source: 'Code source',
+		docs: 'Documentation',
+		support: 'Support',
+		license: '© {year} Jan Welker · Sous licence Apache 2.0'
+	}
+};
+
+const nl: Messages = {
+	app: {
+		title: 'Knead Time',
+		tagline: 'Wanneer wil je bakken? De rest werkt vanaf dat moment terug.',
+		langLabel: 'Taal',
+		themeLabel: 'Thema',
+		theme_auto: 'Systeemthema',
+		theme_light: 'Licht thema',
+		theme_dark: 'Donker thema'
+	},
+	form: {
+		section_when: 'Wanneer',
+		section_recipe: 'Recept',
+		section_advanced: 'Geavanceerd',
+		startAt: 'Starttijd',
+		startAt_help: 'Wanneer je begint te plannen. Het schema loopt van hier tot het bakken.',
+		startAt_now: 'Nu',
+		readyBy: 'Klaar om te bakken',
+		readyBy_help: 'Het moment dat de eerste pizza in de oven gaat.',
+		pizzaCount: "Pizza's",
+		ballWeight: 'Bolletje (g)',
+		ballWeight_round: 'Ronde getallen',
+		ballWeight_round_help: 'Past het bolletje aan zodat bloem en water op nette getallen uitkomen.',
+		hydration: 'Hydratatie (%)',
+		hydration_help: 'Water als percentage van de bloem.',
+		salt: 'Zout (% van bloem)',
+		yeastType: 'Gist',
+		yeast_fresh: 'Verse gist (blokje)',
+		yeast_sourdough: 'Zuurdesem',
+		starterHydration: 'Desem-hydratatie (%)',
+		starterHydration_help: '100% betekent evenveel bloem als water.',
+		roomTemp: 'Kamertemperatuur (°C)',
+		roomTemp_help: 'Warmere keukens rijzen sneller — dat stuurt de berekening.',
+		preFerment: 'Voordeeg',
+		preFerment_none: 'Geen',
+		preFerment_biga: 'Biga (stevig, ~50% hydratatie)',
+		preFerment_poolish: 'Poolish (vloeibaar, 100% hydratatie)',
+		preFermentFlour: 'Voordeeg-bloem (% van totaal)'
+	},
+	mode: {
+		cold: 'Koelkast-rijs',
+		room: 'Kamertemperatuur-rijs',
+		cold_blurb: 'Lange koelkastfase — smaak ontwikkelt zich terwijl je slaapt.',
+		room_blurb: 'Alles op kamertemperatuur.'
+	},
+	steps: {
+		preferment_mix: 'Voordeeg mengen',
+		preferment_mix_desc:
+			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist. Afgedekt {duration} (HH:MM) op kamertemperatuur laten rijpen tot je het hoofddeeg kneedt.',
+		preferment_proof: 'Voordeeg rijpt',
+		preferment_proof_desc:
+			'Laat het afgedekte voordeeg ongestoord rijpen op kamertemperatuur tot je het hoofddeeg kneedt.',
+		prep: 'Wegen en klaarzetten',
+		prep_desc:
+			'Weeg {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label} af. Haal de ingrediënten uit de koelkast.',
+		mix: 'Deeg kneden',
+		mix_desc:
+			'Meng {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label}. Kneed tot een glad deeg.',
+		mix_desc_with_preferment:
+			'Voeg het rijpe voordeeg toe aan {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label}. Kneed tot een glad deeg.',
+		bulk_room: 'Bulkrijs (kamer)',
+		bulk_room_desc: 'Dek het deeg af en laat het rijzen op kamertemperatuur.',
+		bulk_cold: 'Bulkrijs (koelkast)',
+		bulk_cold_desc: 'Zet het afgedekte deeg in de koelkast — lange, langzame rijs.',
+		divide: 'Verdelen en bollen',
+		divide_desc: 'Verdeel het deeg in {n} gelijke bolletjes van {weight} g en bol ze strak op.',
+		warmup: 'Bolletjes laten acclimatiseren',
+		warmup_desc: 'Laat de bolletjes op kamertemperatuur zodat ze gelijkmatig narijzen.',
+		final_proof: 'Narijs',
+		final_proof_desc:
+			'Laatste rust voor het uitrekken. De bolletjes horen luchtig en ontspannen te zijn.',
+		ready: 'Uitrekken en bakken',
+		ready_desc: 'Open elk bolletje, beleg het, en in de oven.'
+	},
+	schedule: {
+		heading: 'Schema',
+		col_when: 'Wanneer',
+		col_step: 'Stap',
+		col_duration: 'Duur',
+		duration_minutes: '{n} min',
+		duration_hours: '{n} u',
+		duration_hours_minutes: '{h} u {m} min'
+	},
+	ingredients: {
+		heading: 'Ingrediënten',
+		flour: 'Bloem',
+		water: 'Water',
+		salt: 'Zout',
+		fresh_yeast: 'Verse gist',
+		sourdough_starter: 'Zuurdesem',
+		fresh_yeast_inline: 'verse gist',
+		sourdough_starter_inline: 'zuurdesem',
+		total: 'Totaal deeg',
+		preFerment_heading: 'Voordeeg',
+		preFerment_help: "De dag ervoor mengen, 's nachts op kamertemperatuur laten rijpen.",
+		mainDough_heading: 'Hoofddeeg',
+		mainDough_help: 'Op de bakdag samen met het rijpe voordeeg kneden.',
+		totals_heading: 'Totaal'
+	},
+	actions: {
+		download_ics: '.ics downloaden',
+		print: 'Afdrukken / Opslaan als PDF',
+		share: 'Deellink kopiëren',
+		copied: 'Gekopieerd!',
+		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.'
+	},
+	print: {
+		recipe_heading: 'Recept',
+		source_label: 'Reproduceer dit recept op'
+	},
+	warnings: {
+		too_short: 'Niet genoeg tijd. Kies een later moment of accepteer dat het deeg ondergerezen is.',
+		too_cold: 'Keuken oogt fris — fermentatie zal traag zijn bij deze temperatuur.',
+		too_warm: 'Keuken oogt warm — deeg kan overgaar worden. Houd het in de gaten.',
+		yeast_tiny:
+			'Heel weinig gist — weeg nauwkeurig (een keukenweegschaal die 0,1 g afleest helpt).',
+		yeast_large: 'Ongebruikelijk veel gist — controleer de invoer.',
+		night_step:
+			'Een stap valt nog tussen 22:00 en 08:00. Schuif de baktijd zodat alle taken overdag vallen.'
+	},
+	footer: {
+		about: 'Tijdgestuurde calculator voor Napolitaans pizzadeeg.',
+		source: 'Broncode',
+		docs: 'Documentatie',
+		support: 'Ondersteuning',
+		license: '© {year} Jan Welker · Gelicentieerd onder Apache 2.0'
+	}
+};
+
+const jam: Messages = {
+	app: {
+		title: 'Knead Time',
+		tagline: 'Wen yu waan bake? Everyting work backward fram dat time deh.',
+		langLabel: 'Language',
+		themeLabel: 'Look',
+		theme_auto: 'Same as di system',
+		theme_light: 'Bright look',
+		theme_dark: 'Dark look'
+	},
+	form: {
+		section_when: 'Wen',
+		section_recipe: 'Recipe',
+		section_advanced: 'Mo settings',
+		startAt: 'Start time',
+		startAt_help: 'Wen yu start plan. Di schedule run fram yah right to wen yu bake.',
+		startAt_now: 'Right now',
+		readyBy: 'Ready fi bake',
+		readyBy_help: 'Di moment di fus pizza go inna di oven.',
+		pizzaCount: 'Pizza dem',
+		ballWeight: 'Ball weight (g)',
+		ballWeight_round: 'Round it off',
+		ballWeight_round_help: 'Nudge di ball weight so flour an wata land pon nice round figga.',
+		hydration: 'Wata percent (%)',
+		hydration_help: 'Wata as a percent a di flour weight.',
+		salt: 'Salt (% a flour)',
+		yeastType: 'Ris-ting',
+		yeast_fresh: 'Fresh ris-ting (cube)',
+		yeast_sourdough: 'Sour starta',
+		starterHydration: 'Starta wata percent (%)',
+		starterHydration_help: '100% mean same amount a flour an wata.',
+		roomTemp: 'Room temperature (°C)',
+		roomTemp_help: 'Hotta kitchen rise fasta — dat ya wat drive di figga dem.',
+		preFerment: 'Befo-dough',
+		preFerment_none: 'None',
+		preFerment_biga: 'Biga (stiff, ~50% wata)',
+		preFerment_poolish: 'Poolish (loose, 100% wata)',
+		preFermentFlour: 'Befo-dough flour (% a di total)'
+	},
+	mode: {
+		cold: 'Cold rise',
+		room: 'Room rise',
+		cold_blurb: 'Long fridge time — di flavour come up while yu a sleep.',
+		room_blurb: 'Everyting a sit a room temperature.'
+	},
+	steps: {
+		preferment_mix: 'Mek di befo-dough',
+		preferment_mix_desc:
+			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting. Cova it an mek it sit a room temperature fi {duration} (HH:MM) til yu mek di main dough.',
+		preferment_proof: 'Befo-dough a sit',
+		preferment_proof_desc:
+			'Mek di cova befo-dough sit in peace a room temperature til yu ready fi mek di main dough.',
+		prep: 'Weigh an set up',
+		prep_desc:
+			'Weigh out {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Tek di tings dem outta di fridge.',
+		mix: 'Knead di dough',
+		mix_desc:
+			'Mix up {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Knead it til smood.',
+		mix_desc_with_preferment:
+			'Add di ripe befo-dough to {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Knead it til smood.',
+		bulk_room: 'Big rise (room)',
+		bulk_room_desc: 'Cova di dough an mek it rise a room temperature.',
+		bulk_cold: 'Big rise (fridge)',
+		bulk_cold_desc: 'Carry di cova dough go a fridge — long, slow rise.',
+		divide: 'Split an roll up',
+		divide_desc: 'Cut up di dough inna {n} same-size ball, {weight} g each, an roll dem up tight.',
+		warmup: 'Warm up di ball dem',
+		warmup_desc: 'Lef di ball dem a room temperature so dem finish rise even-even.',
+		final_proof: 'Las rise',
+		final_proof_desc: 'Las res before yu stretch dem. Di ball dem fi look puff up an relax.',
+		ready: 'Stretch an bake',
+		ready_desc: 'Open up each ball, dash on di topping dem, inna di oven.'
+	},
+	schedule: {
+		heading: 'Schedule',
+		col_when: 'Wen',
+		col_step: 'Step',
+		col_duration: 'How long',
+		duration_minutes: '{n} min',
+		duration_hours: '{n} hr',
+		duration_hours_minutes: '{h} hr {m} min'
+	},
+	ingredients: {
+		heading: 'Tings dem',
+		flour: 'Flour',
+		water: 'Wata',
+		salt: 'Salt',
+		fresh_yeast: 'Fresh ris-ting',
+		sourdough_starter: 'Sour starta',
+		fresh_yeast_inline: 'fresh ris-ting',
+		sourdough_starter_inline: 'sour starta',
+		total: 'Whole dough',
+		preFerment_heading: 'Befo-dough',
+		preFerment_help: 'Mek it di day before, lef it a room temperature ova di night.',
+		mainDough_heading: 'Main dough',
+		mainDough_help: 'Mek it pon baking day, wid di ripe befo-dough.',
+		totals_heading: 'All add up'
+	},
+	actions: {
+		download_ics: 'Download .ics',
+		print: 'Print / Save as PDF',
+		share: 'Copy share link',
+		copied: 'Copy!',
+		share_help: 'Di recipe live inna di URL — anybody wid di link get di same dough.'
+	},
+	print: {
+		recipe_heading: 'Recipe',
+		source_label: 'Mek dis recipe again at'
+	},
+	warnings: {
+		too_short:
+			'Nuff time nuh deh deh. Pick a later time or accept seh di dough a go come out underdone.',
+		too_cold: 'Kitchen look chilly — di rise a go drag at dis temperature.',
+		too_warm: 'Kitchen look hot — di dough might rise too much. Watch it good.',
+		yeast_tiny: 'Ris-ting tiny tiny — measure it careful (a scale weh read 0.1 g help out).',
+		yeast_large: 'Plenty plenty ris-ting — chek di figga dem again.',
+		night_step:
+			'A step still a fall between 22:00 an 08:00. Shift di bake time so every task fall inna waking time.'
+	},
+	footer: {
+		about: 'Time-anchor Neapolitan pizza dough calculator.',
+		source: 'Source code',
+		docs: 'Docs',
+		support: 'Support',
+		license: '© {year} Jan Welker · Licensed under Apache 2.0'
+	}
+};
+
+export const MESSAGES: Record<Locale, Messages> = { en, de, it, fr, nl, jam };
+
+// Map our internal locale codes to BCP-47 tags Intl actually knows. CLDR has no
+// data for `jam`, so we route Patois through en-JM (12-h time, Latin numerals).
+export function intlLocaleTag(locale: Locale): string {
+	return locale === 'jam' ? 'en-JM' : locale;
+}
 
 export function detectLocale(navigatorLanguages: readonly string[] | undefined): Locale {
 	if (!navigatorLanguages) return 'en';
 	for (const raw of navigatorLanguages) {
-		const lang = raw.toLowerCase().slice(0, 2);
-		if ((LOCALES as readonly string[]).includes(lang)) return lang as Locale;
+		const lower = raw.toLowerCase();
+		const three = lower.slice(0, 3);
+		if ((LOCALES as readonly string[]).includes(three)) return three as Locale;
+		const two = lower.slice(0, 2);
+		if ((LOCALES as readonly string[]).includes(two)) return two as Locale;
 	}
 	return 'en';
 }
