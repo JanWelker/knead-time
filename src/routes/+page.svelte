@@ -9,6 +9,7 @@
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
+	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import Warnings from '$lib/components/Warnings.svelte';
 	import { formatBallWeight, formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
@@ -22,7 +23,7 @@
 		'bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
 
 	const cardClass =
-		'border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none';
+		'border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70 print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none';
 
 	const form = new FormState();
 	const t = $derived(i18n.t);
@@ -102,13 +103,18 @@
 <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 print:max-w-none print:px-0 print:py-0">
 	<header class="mb-8 flex flex-wrap items-start justify-between gap-4 print:mb-4 print:block">
 		<div>
-			<h1 class="font-display text-tomato-700 text-4xl sm:text-5xl print:text-3xl">
+			<h1
+				class="font-display text-tomato-700 dark:text-tomato-300 text-4xl sm:text-5xl print:text-3xl"
+			>
 				{t.app.title}
 			</h1>
-			<p class="mt-2 max-w-xl text-stone-600 print:mt-0 print:text-sm">{t.app.tagline}</p>
+			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300 print:mt-0 print:text-sm">
+				{t.app.tagline}
+			</p>
 		</div>
-		<div class="print:hidden">
+		<div class="flex flex-wrap items-center gap-2 print:hidden">
 			<LangSwitcher />
+			<ThemeSwitcher />
 		</div>
 	</header>
 
@@ -136,7 +142,7 @@
 
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-5 print:block print:gap-0">
 		<section
-			class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur lg:col-span-2 print:hidden"
+			class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur lg:col-span-2 dark:border-stone-700 dark:bg-stone-900/70 print:hidden"
 		>
 			<InputForm state={form} />
 		</section>
@@ -145,7 +151,9 @@
 			<div class={cardClass}>
 				<div class="mb-4 flex flex-wrap items-end justify-between gap-3 print:mb-2">
 					<div>
-						<h2 class="font-display text-2xl text-stone-900">{t.schedule.heading}</h2>
+						<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+							{t.schedule.heading}
+						</h2>
 						<div class="mt-2"><ModeBadge mode={form.schedule.mode} /></div>
 					</div>
 					<div class="flex flex-wrap gap-2 print:hidden">
@@ -179,7 +187,7 @@
 
 			<div class="{cardClass} print:break-inside-avoid">
 				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 print:mb-2">
-					<h2 class="font-display text-2xl text-stone-900">
+					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
 						{t.ingredients.heading}
 					</h2>
 					<button
@@ -202,10 +210,12 @@
 		</section>
 	</div>
 
-	<footer class="mt-12 text-center text-xs text-stone-500 print:hidden">
+	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400 print:hidden">
 		<p>{t.footer.about}</p>
-		<p class="mt-1 text-stone-400">{t.actions.share_help}</p>
-		<p class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-400">
+		<p class="mt-1 text-stone-400 dark:text-stone-500">{t.actions.share_help}</p>
+		<p
+			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-400 dark:text-stone-500"
+		>
 			<a
 				href="https://github.com/JanWelker/knead-time"
 				target="_blank"
@@ -233,7 +243,7 @@
 				{t.footer.support}
 			</a>
 		</p>
-		<p class="mt-2 text-stone-400">
+		<p class="mt-2 text-stone-400 dark:text-stone-500">
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
 				target="_blank"

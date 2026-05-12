@@ -6,7 +6,7 @@
 </script>
 
 <fieldset
-	class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm"
+	class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70"
 >
 	<legend class="sr-only">{i18n.t.app.langLabel}</legend>
 	{#each LOCALES as loc (loc)}
@@ -15,7 +15,7 @@
 			type="button"
 			class="px-3 py-1.5 transition-colors {active
 				? 'bg-tomato-500 text-white'
-				: 'hover:bg-dough-100 text-stone-700'}"
+				: 'hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700'}"
 			aria-pressed={active}
 			onclick={() => i18n.set(loc)}
 		>

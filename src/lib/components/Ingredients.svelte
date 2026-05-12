@@ -28,14 +28,14 @@
 </script>
 
 {#snippet row(label: string, value: number, hint: string | null = null)}
-	<tr class="border-dough-200/70 border-b last:border-0">
-		<th class="py-2 pr-3 text-left font-medium text-stone-700">
+	<tr class="border-dough-200/70 border-b last:border-0 dark:border-stone-700/70">
+		<th class="py-2 pr-3 text-left font-medium text-stone-700 dark:text-stone-200">
 			{label}
 			{#if hint}
-				<span class="text-xs font-normal text-stone-500">({hint})</span>
+				<span class="text-xs font-normal text-stone-500 dark:text-stone-400">({hint})</span>
 			{/if}
 		</th>
-		<td class="py-2 text-right tabular-nums">{formatGrams(value)}</td>
+		<td class="py-2 text-right tabular-nums dark:text-stone-100">{formatGrams(value)}</td>
 	</tr>
 {/snippet}
 
@@ -43,8 +43,10 @@
 	{#if ingredients.preFerment}
 		<section>
 			<header class="mb-2">
-				<h3 class="font-display text-tomato-700 text-base">{t.ingredients.preFerment_heading}</h3>
-				<p class="text-xs text-stone-500">{t.ingredients.preFerment_help}</p>
+				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base">
+					{t.ingredients.preFerment_heading}
+				</h3>
+				<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.preFerment_help}</p>
 			</header>
 			<table class="tabular w-full border-collapse">
 				<tbody>
@@ -57,8 +59,10 @@
 
 		<section>
 			<header class="mb-2">
-				<h3 class="font-display text-tomato-700 text-base">{t.ingredients.mainDough_heading}</h3>
-				<p class="text-xs text-stone-500">{t.ingredients.mainDough_help}</p>
+				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base">
+					{t.ingredients.mainDough_heading}
+				</h3>
+				<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.mainDough_help}</p>
 			</header>
 			<table class="tabular w-full border-collapse">
 				<tbody>
@@ -72,7 +76,9 @@
 
 		<section>
 			<header class="mb-2">
-				<h3 class="font-display text-tomato-700 text-base">{t.ingredients.totals_heading}</h3>
+				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base">
+					{t.ingredients.totals_heading}
+				</h3>
 			</header>
 			<table class="tabular w-full border-collapse">
 				<tbody>
@@ -97,8 +103,12 @@
 				{@render row(t.ingredients.salt, ingredients.salt)}
 				{@render row(yeastLabel, ingredients.yeast, formatPercent(yeastPercent))}
 				<tr>
-					<th class="font-display text-tomato-700 py-2 pr-3 text-left">{t.ingredients.total}</th>
-					<td class="font-display text-tomato-700 py-2 text-right tabular-nums">
+					<th class="font-display text-tomato-700 dark:text-tomato-300 py-2 pr-3 text-left">
+						{t.ingredients.total}
+					</th>
+					<td
+						class="font-display text-tomato-700 dark:text-tomato-300 py-2 text-right tabular-nums"
+					>
 						{formatGrams(ingredients.totalDough)}
 					</td>
 				</tr>
