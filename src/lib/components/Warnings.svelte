@@ -26,7 +26,7 @@
 
 {#if warnings.length > 0}
 	<ul class="space-y-2">
-		{#each warnings as w}
+		{#each warnings as w (w)}
 			<li
 				class="rounded-lg border px-3 py-2 text-sm {SEVERITY[w] === 'danger'
 					? 'border-tomato-300 bg-tomato-50 text-tomato-800'

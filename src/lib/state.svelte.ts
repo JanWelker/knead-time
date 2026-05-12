@@ -1,3 +1,4 @@
+import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
 import { computeSchedule } from './dough/schedule';
 import type { ComputedSchedule, DoughInputs, YeastType } from './dough/types';
@@ -6,7 +7,7 @@ import type { SerializableInputs } from './dough/urlState';
 export type PreFermentChoice = 'none' | 'biga' | 'poolish';
 
 function defaultReadyBy(): Date {
-	const d = new Date();
+	const d = new SvelteDate();
 	d.setDate(d.getDate() + 1);
 	d.setHours(19, 0, 0, 0);
 	return d;
@@ -23,7 +24,7 @@ export class FormState {
 	roomTempC: number = $state(22);
 	preFermentType: PreFermentChoice = $state('none');
 	preFermentFlour: number = $state(30);
-	startAt: Date = $state(new Date());
+	startAt: Date = $state(new SvelteDate());
 
 	readonly inputs: DoughInputs = $derived({
 		readyBy: this.readyBy,

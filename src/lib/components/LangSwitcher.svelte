@@ -10,7 +10,7 @@
 	role="group"
 	aria-label={i18n.t.app.langLabel}
 >
-	{#each LOCALES as loc}
+	{#each LOCALES as loc (loc)}
 		{@const active = i18n.locale === loc}
 		<button
 			type="button"
