@@ -10,8 +10,8 @@
 	"timezone": "Europe/Zurich",
 	"labels": ["dependencies"],
 	"constraints": {
-		"node": "22",
-		"npm": "11"
+		"node": "24",
+		"npm": "10"
 	},
 	"lockFileMaintenance": {
 		"enabled": true,
