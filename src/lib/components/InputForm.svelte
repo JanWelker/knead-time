@@ -137,15 +137,6 @@
 				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
 				bind:value={state.ballWeight}
 			/>
-			<button
-				type="button"
-				class="bg-tomato-500 hover:bg-tomato-600 mt-1.5 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold text-white"
-				onclick={() => state.roundBallWeight()}
-				title={t.form.ballWeight_round_help}
-			>
-				<span aria-hidden="true">↻</span>
-				{t.form.ballWeight_round}
-			</button>
 		</div>
 
 		<label class="block">

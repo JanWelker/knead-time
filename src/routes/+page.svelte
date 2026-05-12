@@ -178,9 +178,20 @@
 			<div
 				class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur print:break-inside-avoid print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none"
 			>
-				<h2 class="font-display mb-4 text-2xl text-stone-900 print:mb-2">
-					{t.ingredients.heading}
-				</h2>
+				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 print:mb-2">
+					<h2 class="font-display text-2xl text-stone-900">
+						{t.ingredients.heading}
+					</h2>
+					<button
+						type="button"
+						class="bg-tomato-500 hover:bg-tomato-600 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold text-white print:hidden"
+						onclick={() => form.roundBallWeight()}
+						title={t.form.ballWeight_round_help}
+					>
+						<span aria-hidden="true">↻</span>
+						{t.form.ballWeight_round}
+					</button>
+				</div>
 				<Ingredients
 					ingredients={form.schedule.ingredients}
 					yeastType={form.yeastType}
