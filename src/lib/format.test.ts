@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	combineDateTimeInputs,
+	formatBallWeight,
 	formatDuration,
 	formatDurationHHMM,
 	formatGrams,
@@ -56,6 +57,21 @@ describe('formatGrams', () => {
 	});
 	it('keeps two decimals below 1 g', () => {
 		expect(formatGrams(0.123)).toBe('0.12 g');
+	});
+});
+
+describe('formatBallWeight', () => {
+	it('omits the decimal for integers', () => {
+		expect(formatBallWeight(280)).toBe('280');
+		expect(formatBallWeight(300)).toBe('300');
+	});
+	it('keeps a single decimal for non-integer values', () => {
+		expect(formatBallWeight(288.6)).toBe('288.6');
+		expect(formatBallWeight(259.7)).toBe('259.7');
+	});
+	it('rounds to 0.1 g precision', () => {
+		expect(formatBallWeight(288.55)).toBe('288.6');
+		expect(formatBallWeight(288.04)).toBe('288');
 	});
 });
 

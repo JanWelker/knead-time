@@ -1,5 +1,5 @@
 import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from './dough/types';
-import { formatDurationHHMM, formatGramsValue } from './format';
+import { formatBallWeight, formatDurationHHMM, formatGramsValue } from './format';
 import { interpolate } from './i18n/interpolate';
 import type { Messages } from './i18n/messages';
 
@@ -58,7 +58,7 @@ export function stepDescription(
 		case 'divide':
 			return interpolate(template, {
 				n: schedule.pizzaCount,
-				weight: formatGramsValue(schedule.ballWeight)
+				weight: formatBallWeight(schedule.ballWeight)
 			});
 		case 'preferment-mix': {
 			if (!ingredients.preFerment) return template;

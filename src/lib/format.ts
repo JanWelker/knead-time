@@ -55,6 +55,14 @@ export function formatGrams(value: number): string {
 	return formatGramsValue(value) + ' g';
 }
 
+// Ball weight is stored at 0.1 g precision (the Round-numbers action shifts it by
+// fractional amounts to land flour/water on tidy values). Display it with the
+// same precision so the user sees the round actually moved something.
+export function formatBallWeight(value: number): string {
+	const tenth = Math.round(value * 10) / 10;
+	return Number.isInteger(tenth) ? String(tenth) : tenth.toFixed(1);
+}
+
 export function formatPercent(value: number): string {
 	if (value < 0.1) return value.toFixed(3) + '%';
 	if (value < 1) return value.toFixed(2) + '%';

@@ -10,7 +10,7 @@
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
 	import Warnings from '$lib/components/Warnings.svelte';
-	import { formatDateTime, formatGrams } from '$lib/format';
+	import { formatBallWeight, formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { FormState } from '$lib/state.svelte';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
@@ -110,7 +110,7 @@
 			<dt class="text-stone-600">{t.form.readyBy}</dt>
 			<dd class="font-medium">{formatDateTime(form.readyBy, locale)}</dd>
 			<dt class="text-stone-600">{t.form.pizzaCount}</dt>
-			<dd class="font-medium">{form.pizzaCount} × {formatGrams(form.ballWeight)}</dd>
+			<dd class="font-medium">{form.pizzaCount} × {formatBallWeight(form.ballWeight)} g</dd>
 			<dt class="text-stone-600">{t.form.hydration}</dt>
 			<dd class="font-medium">{form.hydration}%</dd>
 			<dt class="text-stone-600">{t.form.salt}</dt>

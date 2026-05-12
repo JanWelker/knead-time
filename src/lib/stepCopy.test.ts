@@ -26,7 +26,7 @@ describe('stepDescription — divide step', () => {
 		const divide = r.steps.find((s) => s.kind === 'divide')!;
 		const desc = stepDescription(divide, MESSAGES.en, r);
 		expect(desc).toContain('6');
-		expect(desc).toContain('289');
+		expect(desc).toContain('288.5');
 		expect(desc).not.toContain('{n}');
 		expect(desc).not.toContain('{weight}');
 	});
@@ -55,11 +55,19 @@ describe('stepDescription — divide step', () => {
 		expect(stepDescription(divide, MESSAGES.en)).toBe(MESSAGES.en.steps.divide_desc);
 	});
 
-	it('rounds decimal ball weights to the nearest gram', () => {
+	it('shows the ball weight at 0.1 g precision so Round-numbers shifts are visible', () => {
 		const r = computeSchedule(inputs({ ballWeight: 288.5 }));
 		const divide = r.steps.find((s) => s.kind === 'divide')!;
 		const desc = stepDescription(divide, MESSAGES.en, r);
-		expect(desc).toContain('289');
+		expect(desc).toContain('288.5');
+	});
+
+	it('omits the decimal for integer ball weights', () => {
+		const r = computeSchedule(inputs({ ballWeight: 280 }));
+		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const desc = stepDescription(divide, MESSAGES.en, r);
+		expect(desc).toContain('280 g');
+		expect(desc).not.toContain('280.0');
 	});
 });
 
