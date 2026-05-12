@@ -2,7 +2,14 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
 
-	const labels: Record<Locale, string> = { en: 'EN', de: 'DE', it: 'IT' };
+	const labels: Record<Locale, string> = {
+		en: 'EN',
+		de: 'DE',
+		it: 'IT',
+		fr: 'FR',
+		nl: 'NL',
+		jam: 'JAM'
+	};
 </script>
 
 <fieldset

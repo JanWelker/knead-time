@@ -83,7 +83,7 @@ Plus a **"Round numbers" action** next to the ball-weight input:
 
 ## i18n
 
-- Languages: **English, German, Italian** (metric only — grams, °C).
+- Languages: **English, German, Italian, French, Dutch, Jamaican Patois** (metric only — grams, °C). Patois uses the ISO 639-3 code `jam` — `detectLocale` matches a 3-letter prefix as well as a 2-letter one, and `intlLocaleTag` maps it to `en-JM` for `Intl` formatters because CLDR has no `jam` data.
 - Set up i18n scaffolding from the start (e.g. `svelte-i18n` or `paraglide`). All user-facing strings go through it — no hardcoded copy in components.
 - Default language: detect from browser, fall back to English.
 
