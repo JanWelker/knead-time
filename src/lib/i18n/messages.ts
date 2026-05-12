@@ -614,6 +614,29 @@ const fr: Messages = {
 		startAt_now: 'Maintenant',
 		readyBy: 'Prêt à enfourner',
 		readyBy_help: 'Le moment où la première pizza entre au four.',
+		info_heading: 'Mode geek : les maths derrière le programme',
+		info_intro:
+			"Fermentation modélisée comme un processus cinétique ; le programme se déroule à rebours depuis l'heure de cuisson.",
+		info_q10_title: 'Q10 = 2 — la vitesse double par +10 °C',
+		info_q10_caption: 'Facteur de température (référence 22 °C) :',
+		info_units_title: 'Unités de fermentation',
+		info_units_body:
+			'Chaque phase apporte heures × f(T) « heures-équivalentes à 22 °C ». La somme doit atteindre une cible :',
+		info_units_fresh: 'Levure fraîche : 1,6 unités (≈ 0,2% × 8 h à 22 °C)',
+		info_units_sourdough: 'Levain : 160 unités (~100× moins actif par gramme)',
+		info_units_solve: 'Le pourcentage de levure résout la cible :',
+		info_switch_title: 'Bascule frigo ↔ ambiante',
+		info_switch_body:
+			"Fenêtre ≥ 16 h active une phase au frigo à 4 °C (≈ 16× plus lent qu'à 22 °C). Sinon : température ambiante uniquement.",
+		info_mass_title: 'Bilan de masse',
+		info_mass_body:
+			'Pourcentages du boulanger avec farine = 100%. On résout la farine à partir de la masse totale :',
+		info_mass_caption_fresh: 'Levure fraîche — masse nouvelle ajoutée au budget :',
+		info_mass_caption_sourdough:
+			"Levain — c'est juste de la farine + eau prises sur le budget existant :",
+		info_night_title: 'Garde-fou fenêtre nocturne',
+		info_night_body:
+			"Aucune étape active n'est autorisée entre 22:00 et 08:00. La phase au frigo s'ajuste dans [12 h, 48 h] pour garder pétrissage et façonnage aux heures d'éveil.",
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Pâton (g)',
 		ballWeight_round: 'Arrondir',
@@ -745,6 +768,29 @@ const nl: Messages = {
 		startAt_now: 'Nu',
 		readyBy: 'Klaar om te bakken',
 		readyBy_help: 'Het moment dat de eerste pizza in de oven gaat.',
+		info_heading: 'Geek-modus: de wiskunde achter het schema',
+		info_intro:
+			'Fermentatie gemodelleerd als een kinetisch proces; het schema loopt achterwaarts vanaf je baktijd.',
+		info_q10_title: 'Q10 = 2 — snelheid verdubbelt per +10 °C',
+		info_q10_caption: 'Temperatuurfactor (referentie 22 °C):',
+		info_units_title: 'Fermentatie-eenheden',
+		info_units_body:
+			'Elke fase levert uren × f(T) "equivalente uren bij 22 °C". De som moet een doel bereiken:',
+		info_units_fresh: 'Verse gist: 1,6 eenheden (≈ 0,2% × 8 u bij 22 °C)',
+		info_units_sourdough: 'Zuurdesem: 160 eenheden (~100× minder actief per gram)',
+		info_units_solve: 'Het gistpercentage lost het doel op:',
+		info_switch_title: 'Wissel koelkast ↔ kamer',
+		info_switch_body:
+			'Venster ≥ 16 u activeert een koelfase bij 4 °C (≈ 16× trager dan 22 °C). Anders: alleen kamertemperatuur.',
+		info_mass_title: 'Massabalans',
+		info_mass_body:
+			'Bakkerpercentages met bloem = 100%. Bloem wordt opgelost uit de totale deegmassa:',
+		info_mass_caption_fresh: 'Verse gist — nieuwe massa toegevoegd aan het budget:',
+		info_mass_caption_sourdough:
+			'Zuurdesem — desem is alleen bloem + water uit het bestaande budget:',
+		info_night_title: 'Nachtvenster-bescherming',
+		info_night_body:
+			'Geen actieve stap toegestaan tussen 22:00 en 08:00. De koelfase verschuift binnen [12 u, 48 u] om kneden en vormen in de wakkere uren te houden.',
 		pizzaCount: "Pizza's",
 		ballWeight: 'Bolletje (g)',
 		ballWeight_round: 'Ronde getallen',
@@ -874,6 +920,28 @@ const jam: Messages = {
 		startAt_now: 'Right now',
 		readyBy: 'Ready fi bake',
 		readyBy_help: 'Di moment di fus pizza go inna di oven.',
+		info_heading: 'Geek out: di maths behind di schedule',
+		info_intro:
+			'Wi treat fermentation like a kinetic ting; di schedule run backwood fram di bake time.',
+		info_q10_title: 'Q10 = 2 — speed double every +10 °C',
+		info_q10_caption: 'Temperature factor (reference 22 °C):',
+		info_units_title: 'Fermentation units',
+		info_units_body:
+			'Every phase contribute hours × f(T) "equivalent-hours-at-22 °C". Di sum haffi reach a target:',
+		info_units_fresh: 'Fresh ris-ting: 1.6 units (≈ 0.2% × 8 h at 22 °C)',
+		info_units_sourdough: 'Sour starta: 160 units (~100× less active per gram)',
+		info_units_solve: 'Di ris-ting percent solve di target:',
+		info_switch_title: 'Cold ↔ room switch',
+		info_switch_body:
+			'Window ≥ 16 h kick in a cold-bulk phase at 4 °C (≈ 16× slowa dan 22 °C). Shorta window stay at room temperature.',
+		info_mass_title: 'Mass balance',
+		info_mass_body:
+			'Baker percentage wid flour = 100%. Wi solve fi flour fram di total dough mass:',
+		info_mass_caption_fresh: 'Fresh ris-ting — new mass added pon di budget:',
+		info_mass_caption_sourdough: 'Sour starta — starta a jus flour + wata fram di existing budget:',
+		info_night_title: 'Night-time guard',
+		info_night_body:
+			'No active step nah allow between 22:00 an 08:00. Di cold-bulk leg shift inside [12 h, 48 h] fi keep mix an shape inna wakey hours.',
 		pizzaCount: 'Pizza dem',
 		ballWeight: 'Ball weight (g)',
 		ballWeight_round: 'Round it off',
