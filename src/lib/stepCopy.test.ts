@@ -155,55 +155,55 @@ describe('stepDescription — preferment-mix weights', () => {
 	});
 });
 
-describe('stepDescription — proofing step durations', () => {
-	function descAndMin(
+describe('stepDescription — proofing steps omit duration (shown in column)', () => {
+	function descFor(
 		kind: 'bulk-room' | 'bulk-cold' | 'warmup' | 'final-proof',
 		startAt: Date,
-		readyBy: Date
+		readyBy: Date,
+		msgs = MESSAGES.en
 	) {
 		const r = computeSchedule(inputs({ startAt, readyBy }));
 		const step = r.steps.find((s) => s.kind === kind)!;
-		return { desc: stepDescription(step, MESSAGES.en, r), minutes: step.durationMinutes };
+		return { desc: stepDescription(step, msgs, r), minutes: step.durationMinutes };
 	}
 
-	it('renders bulk-room duration as HH:MM (room mode)', () => {
-		const { desc, minutes } = descAndMin(
+	function hhmmOf(minutes: number) {
+		const h = String(Math.floor(minutes / 60)).padStart(2, '0');
+		const m = String(minutes % 60).padStart(2, '0');
+		return `${h}:${m}`;
+	}
+
+	it('bulk-room description has no duration and no placeholder (room mode)', () => {
+		const { desc, minutes } = descFor(
 			'bulk-room',
 			new Date('2026-05-12T13:00:00Z'),
 			new Date('2026-05-12T19:00:00Z')
 		);
-		const h = String(Math.floor(minutes / 60)).padStart(2, '0');
-		const m = String(minutes % 60).padStart(2, '0');
-		expect(desc).toContain(`${h}:${m}`);
+		expect(desc).not.toContain(hhmmOf(minutes));
 		expect(desc).not.toContain('{duration}');
+		expect(desc).not.toMatch(/HH:MM/i);
 	});
 
-	it('renders bulk-cold, warmup and final-proof durations as HH:MM (cold mode)', () => {
+	it('bulk-cold, warmup and final-proof descriptions have no duration (cold mode)', () => {
 		const startAt = new Date('2026-05-11T07:00:00Z');
 		const readyBy = new Date('2026-05-12T19:00:00Z');
 		for (const kind of ['bulk-cold', 'warmup', 'final-proof'] as const) {
-			const { desc, minutes } = descAndMin(kind, startAt, readyBy);
-			const h = String(Math.floor(minutes / 60)).padStart(2, '0');
-			const m = String(minutes % 60).padStart(2, '0');
-			expect(desc, `${kind} missing HH:MM`).toContain(`${h}:${m}`);
+			const { desc, minutes } = descFor(kind, startAt, readyBy);
+			expect(desc, `${kind} should not contain HH:MM`).not.toContain(hhmmOf(minutes));
 			expect(desc).not.toContain('{duration}');
+			expect(desc).not.toMatch(/HH:MM/i);
 		}
 	});
 
-	it('interpolates proofing duration even without schedule context (step has it)', () => {
-		const r = computeSchedule(inputs());
-		const bulk = r.steps.find((s) => s.kind === 'bulk-room')!;
-		const desc = stepDescription(bulk, MESSAGES.en);
-		expect(desc).not.toContain('{duration}');
-	});
-
-	it('localizes proofing duration in de and it', () => {
-		const r = computeSchedule(inputs());
-		const bulk = r.steps.find((s) => s.kind === 'bulk-room')!;
-		const h = String(Math.floor(bulk.durationMinutes / 60)).padStart(2, '0');
-		const m = String(bulk.durationMinutes % 60).padStart(2, '0');
-		expect(stepDescription(bulk, MESSAGES.de, r)).toContain(`${h}:${m}`);
-		expect(stepDescription(bulk, MESSAGES.it, r)).toContain(`${h}:${m}`);
+	it('de and it proofing descriptions also drop the duration', () => {
+		const startAt = new Date('2026-05-12T13:00:00Z');
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const de = descFor('bulk-room', startAt, readyBy, MESSAGES.de);
+		const it = descFor('bulk-room', startAt, readyBy, MESSAGES.it);
+		expect(de.desc).not.toContain(hhmmOf(de.minutes));
+		expect(it.desc).not.toContain(hhmmOf(it.minutes));
+		expect(de.desc).not.toMatch(/HH:MM/i);
+		expect(it.desc).not.toMatch(/HH:MM/i);
 	});
 });
 
