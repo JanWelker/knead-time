@@ -175,9 +175,9 @@ const en: Messages = {
 		info_mass_title: 'Mass balance',
 		info_mass_body:
 			"Baker's percentages with flour = 100%. Solve for flour from the total dough mass:",
-		info_mass_caption_fresh: 'fresh yeast (new mass added to the budget)',
+		info_mass_caption_fresh: 'Fresh yeast — new mass added to the budget:',
 		info_mass_caption_sourdough:
-			'sourdough (starter is just flour + water from the existing budget)',
+			'Sourdough — starter is just flour + water from the existing budget:',
 		info_night_title: 'Night-window guard',
 		info_night_body:
 			'No active step is allowed between 22:00 and 08:00. The cold-bulk leg nudges within [12 h, 48 h] to keep mixing and shaping in waking hours.',
@@ -325,9 +325,9 @@ const de: Messages = {
 			'Fenster ≥ 16 h aktiviert eine Kühlphase bei 4 °C (≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
 		info_mass_title: 'Massenbilanz',
 		info_mass_body: 'Bäckerprozente mit Mehl = 100%. Mehl wird aus der Gesamtmasse aufgelöst:',
-		info_mass_caption_fresh: 'Frischhefe (zusätzliche Masse im Budget)',
+		info_mass_caption_fresh: 'Frischhefe — zusätzliche Masse im Budget:',
 		info_mass_caption_sourdough:
-			'Sauerteig (Anstellgut ist nur Mehl + Wasser aus dem bestehenden Budget)',
+			'Sauerteig — Anstellgut ist nur Mehl + Wasser aus dem bestehenden Budget:',
 		info_night_title: 'Nachtfenster-Schutz',
 		info_night_body:
 			'Kein aktiver Schritt zwischen 22:00 und 08:00. Die Kühlgare verschiebt sich innerhalb von [12 h, 48 h], damit Kneten und Formen in der Wachzeit liegen.',
@@ -480,8 +480,8 @@ const it: Messages = {
 		info_mass_title: 'Bilancio di massa',
 		info_mass_body:
 			'Percentuali del fornaio con farina = 100%. La farina si ricava dalla massa totale:',
-		info_mass_caption_fresh: 'lievito fresco (massa nuova aggiunta al totale)',
-		info_mass_caption_sourdough: 'lievito madre (è solo farina + acqua dal totale esistente)',
+		info_mass_caption_fresh: 'Lievito fresco — massa nuova aggiunta al totale:',
+		info_mass_caption_sourdough: 'Lievito madre — è solo farina + acqua dal totale esistente:',
 		info_night_title: 'Protezione fascia notturna',
 		info_night_body:
 			'Nessun passo attivo tra le 22:00 e le 08:00. La puntata in frigo si sposta tra [12 h, 48 h] per tenere impasto e staglio nelle ore di veglia.',
