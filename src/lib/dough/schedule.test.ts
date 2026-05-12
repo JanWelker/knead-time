@@ -311,3 +311,67 @@ describe('computeSchedule — night-window avoidance', () => {
 		expect(sum).toBeCloseTo(ing.totalDough, 6);
 	});
 });
+
+describe('computeSchedule — temperature warnings', () => {
+	it('warns when the room is colder than 14 °C', () => {
+		const r = computeSchedule(baseInputs({ roomTempC: 12 }));
+		expect(r.warnings).toContain('too-cold');
+	});
+
+	it('warns when the room is warmer than 30 °C', () => {
+		const r = computeSchedule(baseInputs({ roomTempC: 32 }));
+		expect(r.warnings).toContain('too-warm');
+	});
+
+	it('does not flag a 22 °C room as too-cold or too-warm', () => {
+		const r = computeSchedule(baseInputs({ roomTempC: 22 }));
+		expect(r.warnings).not.toContain('too-cold');
+		expect(r.warnings).not.toContain('too-warm');
+	});
+});
+
+describe('computeSchedule — yeast magnitude warnings', () => {
+	it('warns yeast-large on cold-room short-window fresh ferments', () => {
+		// 3 h room window at 5 °C → eq ≈ 0.69 → yeastPct ≈ 2.3 (above the 2% guard).
+		// Co-fires with too-cold; we only assert the yeast warning here.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T13:00:00Z'),
+				readyBy: new Date('2026-05-12T16:00:00Z'),
+				roomTempC: 5
+			})
+		);
+		expect(r.mode).toBe('room');
+		expect(r.warnings).toContain('yeast-large');
+	});
+
+	it('warns yeast-tiny when equivalent ferment hours blow past the fresh-yeast budget', () => {
+		// Non-physical room temp is the only way through computeSchedule to push
+		// yeastPct below 0.02 — guards the defensive branch, not a realistic
+		// scenario. computeSchedule has no input bounds (form validation lives in
+		// the UI), so this is a legitimate call.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				roomTempC: 70
+			})
+		);
+		expect(r.mode).toBe('cold');
+		expect(r.warnings).toContain('yeast-tiny');
+	});
+
+	it('does not flag sourdough schedules with yeast-large or yeast-tiny', () => {
+		// Both warnings are gated on yeastType === 'fresh'.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T13:00:00Z'),
+				readyBy: new Date('2026-05-12T16:00:00Z'),
+				roomTempC: 5,
+				yeastType: 'sourdough'
+			})
+		);
+		expect(r.warnings).not.toContain('yeast-large');
+		expect(r.warnings).not.toContain('yeast-tiny');
+	});
+});

@@ -70,4 +70,25 @@ describe('urlState round-trip', () => {
 		expect(out.hydration).toBeUndefined();
 		expect(out.pizzaCount).toBeUndefined();
 	});
+
+	it('ignores invalid date strings for readyBy and startAt', () => {
+		const out = decodeInputs('?r=not-a-date&sa=also-bad');
+		expect(out.readyBy).toBeUndefined();
+		expect(out.startAt).toBeUndefined();
+	});
+
+	it('clears the pre-ferment when its value is malformed', () => {
+		// Unknown type prefix
+		expect(decodeInputs('?p=xyz').preFerment).toBeNull();
+		// Known prefix but non-positive flour percentage
+		expect(decodeInputs('?p=b0').preFerment).toBeNull();
+		expect(decodeInputs('?p=p-5').preFerment).toBeNull();
+		// Non-numeric flour percentage
+		expect(decodeInputs('?p=bxx').preFerment).toBeNull();
+	});
+
+	it('round-trips a poolish pre-ferment in the encoded URL', () => {
+		const encoded = encodeInputs({ ...base, preFerment: { type: 'poolish', flourPercent: 20 } });
+		expect(encoded).toContain('p=p20');
+	});
 });

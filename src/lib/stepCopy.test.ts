@@ -222,3 +222,13 @@ describe('stepDescription — mix step with pre-ferment', () => {
 		expect(stepDescription(mix, MESSAGES.en, r)).not.toContain('pre-dough');
 	});
 });
+
+describe('stepDescription — ready step', () => {
+	it('returns the raw template (no interpolation) for the ready step', () => {
+		const r = computeSchedule(inputs());
+		const ready = r.steps.find((s) => s.kind === 'ready')!;
+		expect(stepDescription(ready, MESSAGES.en, r)).toBe(MESSAGES.en.steps.ready_desc);
+		expect(stepDescription(ready, MESSAGES.de, r)).toBe(MESSAGES.de.steps.ready_desc);
+		expect(stepDescription(ready, MESSAGES.it, r)).toBe(MESSAGES.it.steps.ready_desc);
+	});
+});

@@ -66,11 +66,27 @@ describe('yeastPercentForPhases — sourdough', () => {
 	});
 });
 
+describe('yeastPercentForPhases — degenerate input', () => {
+	it('returns 0 for an empty phase set', () => {
+		expect(yeastPercentForPhases('fresh', [])).toBe(0);
+		expect(yeastPercentForPhases('sourdough', [])).toBe(0);
+	});
+	it('returns 0 when every phase has zero hours', () => {
+		expect(yeastPercentForPhases('fresh', [{ hours: 0, tempC: 22 }])).toBe(0);
+	});
+});
+
 describe('fermentHoursForYeast', () => {
-	it('round-trips with yeastPercentForPhases at constant temperature', () => {
+	it('round-trips with yeastPercentForPhases at constant temperature (fresh)', () => {
 		const hours = 12;
 		const tempC = 24;
 		const y = yeastPercentForPhases('fresh', [{ hours, tempC }]);
 		expect(fermentHoursForYeast('fresh', y, tempC)).toBeCloseTo(hours, 6);
+	});
+	it('round-trips with yeastPercentForPhases at constant temperature (sourdough)', () => {
+		const hours = 10;
+		const tempC = 24;
+		const y = yeastPercentForPhases('sourdough', [{ hours, tempC }]);
+		expect(fermentHoursForYeast('sourdough', y, tempC)).toBeCloseTo(hours, 6);
 	});
 });

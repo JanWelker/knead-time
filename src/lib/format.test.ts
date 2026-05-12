@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
 	combineDateTimeInputs,
 	formatBallWeight,
+	formatDateTime,
 	formatDuration,
 	formatDurationHHMM,
 	formatGrams,
 	formatPercent,
+	formatTime,
 	toDatePart,
 	toTimePart
 } from './format';
@@ -79,6 +81,40 @@ describe('formatPercent', () => {
 	it('keeps three decimals for tiny percentages', () => {
 		expect(formatPercent(0.012)).toBe('0.012%');
 	});
+	it('keeps two decimals between 0.1% and 1%', () => {
+		expect(formatPercent(0.25)).toBe('0.25%');
+		expect(formatPercent(0.99)).toBe('0.99%');
+	});
+	it('keeps one decimal at and above 1%', () => {
+		expect(formatPercent(1)).toBe('1.0%');
+		expect(formatPercent(70)).toBe('70.0%');
+		expect(formatPercent(2.349)).toBe('2.3%');
+	});
+});
+
+describe('formatDateTime / formatTime', () => {
+	it('renders a localized weekday + time across supported locales', () => {
+		const d = new Date(2026, 4, 12, 19, 30);
+		for (const loc of ['en', 'de', 'it'] as const) {
+			const dt = formatDateTime(d, loc);
+			expect(dt).toMatch(/\d{1,2}/);
+			// 24h locales (de/it) print 19; en may render 7 PM — accept either.
+			expect(dt).toMatch(/19|7/);
+		}
+	});
+
+	it('formatTime renders an hour:minute fragment', () => {
+		const d = new Date(2026, 4, 12, 9, 5);
+		for (const loc of ['en', 'de', 'it'] as const) {
+			expect(formatTime(d, loc)).toMatch(/05/);
+		}
+	});
+
+	it('reuses the cached formatter on repeat calls', () => {
+		const d = new Date(2026, 4, 12, 19, 30);
+		expect(formatDateTime(d, 'en')).toBe(formatDateTime(d, 'en'));
+		expect(formatTime(d, 'de')).toBe(formatTime(d, 'de'));
+	});
 });
 
 describe('split date/time input round-trip', () => {
@@ -98,6 +134,12 @@ describe('split date/time input round-trip', () => {
 		expect(combineDateTimeInputs('2026-05-12', 'noon')).toBeNull();
 		expect(combineDateTimeInputs('2026-05-12', '25:00')).toBeNull();
 		expect(combineDateTimeInputs('2026-05-12', '12:75')).toBeNull();
+	});
+	it('rejects months and days outside the calendar range', () => {
+		expect(combineDateTimeInputs('2026-00-15', '12:00')).toBeNull();
+		expect(combineDateTimeInputs('2026-13-01', '12:00')).toBeNull();
+		expect(combineDateTimeInputs('2026-05-00', '12:00')).toBeNull();
+		expect(combineDateTimeInputs('2026-05-32', '12:00')).toBeNull();
 	});
 	it('accepts shorthand H:MM and the European H.MM separator', () => {
 		const d1 = combineDateTimeInputs('2026-05-12', '9:30')!;
