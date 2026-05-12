@@ -5,6 +5,7 @@ import type { Messages } from './i18n/messages';
 
 const TITLE: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'preferment-mix': 'preferment_mix',
+	'preferment-proof': 'preferment_proof',
 	prep: 'prep',
 	mix: 'mix',
 	'bulk-room': 'bulk_room',
@@ -17,6 +18,7 @@ const TITLE: Record<ScheduleStepKind, keyof Messages['steps']> = {
 
 const DESC: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'preferment-mix': 'preferment_mix_desc',
+	'preferment-proof': 'preferment_proof_desc',
 	prep: 'prep_desc',
 	mix: 'mix_desc',
 	'bulk-room': 'bulk_room_desc',

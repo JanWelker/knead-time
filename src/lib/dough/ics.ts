@@ -1,5 +1,5 @@
 import { padZero } from '../format';
-import type { ScheduleStep } from './types';
+import type { ScheduleStep, ScheduleStepKind } from './types';
 
 export interface IcsEventDescriptor {
 	summary: string;
@@ -8,6 +8,16 @@ export interface IcsEventDescriptor {
 
 export type EventDescriptorFn = (step: ScheduleStep) => IcsEventDescriptor;
 
+// Passive proofing/maturation steps are reported as free time; everything else
+// is busy work the baker has to be present for.
+const FREE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
+	'preferment-proof',
+	'bulk-room',
+	'bulk-cold',
+	'warmup',
+	'final-proof'
+]);
+
 export function buildIcs(steps: ScheduleStep[], describe: EventDescriptorFn): string {
 	const dtstamp = formatUtc(new Date());
 	const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//kneadtime//EN', 'CALSCALE:GREGORIAN'];
@@ -15,6 +25,7 @@ export function buildIcs(steps: ScheduleStep[], describe: EventDescriptorFn): st
 		const start = step.at;
 		const end = new Date(start.getTime() + Math.max(1, step.durationMinutes) * 60_000);
 		const { summary, description } = describe(step);
+		const transp = FREE_KINDS.has(step.kind) ? 'TRANSPARENT' : 'OPAQUE';
 		lines.push(
 			'BEGIN:VEVENT',
 			`UID:${stableUid(step)}@kneadtime`,
@@ -23,6 +34,7 @@ export function buildIcs(steps: ScheduleStep[], describe: EventDescriptorFn): st
 			`DTEND:${formatUtc(end)}`,
 			`SUMMARY:${escapeText(summary)}`,
 			`DESCRIPTION:${escapeText(description)}`,
+			`TRANSP:${transp}`,
 			'END:VEVENT'
 		);
 	}

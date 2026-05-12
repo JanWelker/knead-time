@@ -163,6 +163,26 @@ describe('computeSchedule — pre-ferment', () => {
 		expect(diffMin).toBeCloseTo(12 * 60, 0);
 	});
 
+	it('emits a preferment-proof step that fills the gap between preferment-mix and prep', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				preFerment: { type: 'biga', flourPercent: 30 }
+			})
+		);
+		const mix = r.steps.find((s) => s.kind === 'preferment-mix')!;
+		const proof = r.steps.find((s) => s.kind === 'preferment-proof')!;
+		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		expect(proof.at.getTime()).toBe(mix.at.getTime() + mix.durationMinutes * 60_000);
+		expect(proof.at.getTime() + proof.durationMinutes * 60_000).toBe(prep.at.getTime());
+	});
+
+	it('omits the preferment-proof step when no pre-ferment is selected', () => {
+		const r = computeSchedule(baseInputs({ preFerment: null }));
+		expect(r.steps.some((s) => s.kind === 'preferment-proof')).toBe(false);
+	});
+
 	it('populates ingredients.preFerment when biga is selected', () => {
 		const r = computeSchedule(baseInputs({ preFerment: { type: 'biga', flourPercent: 30 } }));
 		expect(r.ingredients.preFerment).not.toBeNull();

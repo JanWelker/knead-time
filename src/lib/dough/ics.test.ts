@@ -54,4 +54,31 @@ describe('buildIcs', () => {
 		const bareLfMatches = out.match(/(?<!\r)\n/g);
 		expect(bareLfMatches).toBeNull();
 	});
+
+	it('marks active steps as busy (TRANSP:OPAQUE) and proofing steps as free (TRANSP:TRANSPARENT)', () => {
+		const mixedSteps: ScheduleStep[] = [
+			{ kind: 'preferment-mix', at: new Date('2026-05-11T18:00:00Z'), durationMinutes: 10 },
+			{ kind: 'preferment-proof', at: new Date('2026-05-11T18:10:00Z'), durationMinutes: 710 },
+			{ kind: 'prep', at: new Date('2026-05-12T06:00:00Z'), durationMinutes: 15 },
+			{ kind: 'bulk-cold', at: new Date('2026-05-12T07:15:00Z'), durationMinutes: 720 },
+			{ kind: 'final-proof', at: new Date('2026-05-12T18:00:00Z'), durationMinutes: 60 },
+			{ kind: 'ready', at: new Date('2026-05-12T19:00:00Z'), durationMinutes: 0 }
+		];
+		const blocks = buildIcs(mixedSteps, describe_).split('BEGIN:VEVENT').slice(1);
+		const transpByIndex = blocks.map((b) =>
+			b.includes('TRANSP:OPAQUE')
+				? 'OPAQUE'
+				: b.includes('TRANSP:TRANSPARENT')
+					? 'TRANSPARENT'
+					: null
+		);
+		expect(transpByIndex).toEqual([
+			'OPAQUE',
+			'TRANSPARENT',
+			'OPAQUE',
+			'TRANSPARENT',
+			'TRANSPARENT',
+			'OPAQUE'
+		]);
+	});
 });

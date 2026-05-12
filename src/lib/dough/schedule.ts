@@ -219,10 +219,16 @@ function buildColdSteps({ readyBy, coldMin, hasPreferment }: ColdArgs): Schedule
 
 	const steps: ScheduleStep[] = [];
 	if (hasPreferment) {
+		const prefermentMixAt = subMin(prepAt, PREFERMENT_OFFSET_MIN);
 		steps.push({
 			kind: 'preferment-mix',
-			at: subMin(prepAt, PREFERMENT_OFFSET_MIN),
+			at: prefermentMixAt,
 			durationMinutes: PREFERMENT_DURATION_MIN
+		});
+		steps.push({
+			kind: 'preferment-proof',
+			at: new Date(prefermentMixAt.getTime() + PREFERMENT_DURATION_MIN * 60_000),
+			durationMinutes: PREFERMENT_OFFSET_MIN - PREFERMENT_DURATION_MIN
 		});
 	}
 	steps.push({ kind: 'prep', at: prepAt, durationMinutes: PREP_MIN });
@@ -257,10 +263,16 @@ function buildRoomSteps({
 
 	const steps: ScheduleStep[] = [];
 	if (hasPreferment) {
+		const prefermentMixAt = subMin(prepAt, PREFERMENT_OFFSET_MIN);
 		steps.push({
 			kind: 'preferment-mix',
-			at: subMin(prepAt, PREFERMENT_OFFSET_MIN),
+			at: prefermentMixAt,
 			durationMinutes: PREFERMENT_DURATION_MIN
+		});
+		steps.push({
+			kind: 'preferment-proof',
+			at: new Date(prefermentMixAt.getTime() + PREFERMENT_DURATION_MIN * 60_000),
+			durationMinutes: PREFERMENT_OFFSET_MIN - PREFERMENT_DURATION_MIN
 		});
 	}
 	steps.push({ kind: 'prep', at: prepAt, durationMinutes: PREP_MIN });
