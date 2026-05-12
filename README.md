@@ -51,10 +51,10 @@ src/
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
-│   ├── i18n/             ← messages (en/de/it) + locale detection
+│   ├── i18n/             ← messages (en/de/it), locale detection, runtime interpolation
 │   ├── state.svelte.ts   ← form state as a $state class
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
-│   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key
+│   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
 ├── routes/
 │   ├── +layout.svelte    ← global styles, language bootstrap
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
@@ -104,10 +104,13 @@ If you touch the printed layout, check it in your browser's print preview — do
 ### The dough math, briefly
 
 - **Baker's percentages**: flour = 100%; water, salt, yeast are % of flour. Total dough = `pizzaCount × ballWeight`. Flour is derived from total and the sum of percentages.
-- **Mass balance is subtly different for sourdough**: fresh yeast adds new mass (`pctSum = 100 + h + s + y`), while sourdough starter is just flour+water from the existing budget (`pctSum = 100 + h + s`). Both produce ingredients that sum exactly to `pizzaCount × ballWeight` — there's a test that enforces this.
+- **Mass balance is subtly different for sourdough**: fresh yeast adds new mass (`pctSum = 100 + h + s + y`), while sourdough starter is just flour+water from the existing budget (`pctSum = 100 + h + s`). Both produce ingredients that sum exactly to `pizzaCount × ballWeight` — there's a test that enforces this. When a pre-ferment is active the ingredient table renders as three sections (**Pre-dough / Main dough / Totals**) rather than one flat table — a single subtracted table reads as a math error because the totals row never matches the visible sum.
 - **Fermentation model**: ferment "units" = `yeast% × hours × temperatureFactor(T)`. Temperature factor follows Q10 = 2 (rate doubles every 10 °C). Reference: 0.2% fresh yeast at 22 °C ferments for ~8 h.
 - **Cold/room switch**: deterministic on available time. ≥ 16 h available → cold ferment with a fixed-shape schedule (prep → mix → 1 h room bulk → long fridge bulk → divide → 3 h warmup → 1 h final proof → bake). Below that → room ferment with bulk + final proof split 2:1 inside the available window. Yeast % is then chosen so the actual ferment-unit total matches the target.
-- **Schedule window**: the user picks both a **start datetime** (defaults to page-load time, editable, persisted in the URL) and a **ready-by datetime**. Everything is sized to fit inside that window. When a pre-ferment is selected, 12 h of the window are reserved for the pre-ferment to mature before prep — so `preferment-mix` lands at/after the start time, never before.
+- **Schedule window**: the user picks both a **start datetime** (defaults to page-load time, editable, persisted in the URL) and a **ready-by datetime**. Everything is sized to fit inside that window. When a pre-ferment is selected, 12 h of the window are reserved for the pre-ferment to mature before prep — `preferment-mix` defaults to landing at/after `startAt`, but the night-window guard below can pull it earlier.
+- **Night-window guard**: no baker-action step may start in `[22:00, 08:00)` local time. In cold mode the scheduler stretches the bulk-cold duration within its floor/ceiling so the pre-cold cluster (`preferment-mix` → bulk-cold start) lands during waking hours — typically by extending the cold ferment so prep happens the prior evening rather than overnight. Post-cold steps (divide, warm-up) are anchored to `readyBy` and can't be shifted; room mode has no slack. When a step can't be lifted out of the window the scheduler emits a `night-step` warning (surfaced via `Warnings.svelte`) instead of silently rearranging. Because the guard can pull the first step earlier than `startAt`, `startAt` is a soft hint rather than a strict floor.
+- **Round numbers action**: the button next to the ball-weight input nudges the ball weight (to 0.1 g precision; the field accepts decimals like `288.5`) so the derived flour and water come out as tidy multiples of 100 g — or 50 g when 100 g would drift too far. It's **idempotent** (clicking twice is a no-op) and works for both fresh yeast and sourdough, branching on the `pctSum` difference above.
+- **Step copy & `.ics` parity**: `stepCopy.ts` interpolates schedule context into each step description — divide & ball shows pizza count and per-ball weight, mix steps show the main-dough flour/water/salt/yeast weights (with the yeast label localized to fresh yeast vs. sourdough starter), and "Mix dough" uses a separate template when a pre-ferment is set (so the baker is reminded to fold it in). The `.ics` VEVENT `DESCRIPTION` must match the on-page step description verbatim, including interpolated values, so a calendar reminder is self-contained.
 
 ### Deployment
 
@@ -134,3 +137,9 @@ A separate **`.github/workflows/ci.yml`** runs lint, type-check, tests, and buil
 - Comments explain **why**, not what. A named function or variable is the documentation for _what_.
 - New dependencies should be small and justified. We prefer hand-rolling small things (the `.ics` generator is hand-written) over pulling in large libraries.
 - The full project rationale and scope lives in `CLAUDE.md`.
+
+---
+
+## License
+
+Copyright © 2026 Jan Welker. Licensed under the [Apache License, Version 2.0](LICENSE).

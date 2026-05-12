@@ -109,6 +109,9 @@ export interface Messages {
 	};
 	footer: {
 		about: string;
+		source: string;
+		docs: string;
+		license: string;
 	};
 }
 
@@ -228,7 +231,10 @@ const en: Messages = {
 			'A step still falls between 22:00 and 08:00. Shift the bake time so every task lands during waking hours.'
 	},
 	footer: {
-		about: 'Time-anchored Neapolitan pizza dough calculator.'
+		about: 'Time-anchored Neapolitan pizza dough calculator.',
+		source: 'Source code',
+		docs: 'Docs',
+		license: '© {year} Jan Welker · Licensed under Apache 2.0'
 	}
 };
 
@@ -350,7 +356,10 @@ const de: Messages = {
 			'Ein Schritt fällt noch zwischen 22:00 und 08:00. Verschiebe die Backzeit, damit alle Aufgaben tagsüber liegen.'
 	},
 	footer: {
-		about: 'Zeit-orientierter Rechner für neapolitanischen Pizzateig.'
+		about: 'Zeit-orientierter Rechner für neapolitanischen Pizzateig.',
+		source: 'Quellcode',
+		docs: 'Dokumentation',
+		license: '© {year} Jan Welker · Lizenziert unter Apache 2.0'
 	}
 };
 
@@ -471,7 +480,10 @@ const it: Messages = {
 			"Un passaggio cade ancora tra le 22:00 e le 08:00. Sposta l'ora di cottura perché tutte le azioni siano di giorno."
 	},
 	footer: {
-		about: 'Calcolatore per impasto di pizza napoletana ancorato al tempo.'
+		about: 'Calcolatore per impasto di pizza napoletana ancorato al tempo.',
+		source: 'Codice sorgente',
+		docs: 'Documentazione',
+		license: '© {year} Jan Welker · Concesso in licenza con Apache 2.0'
 	}
 };
 

@@ -12,8 +12,11 @@
 	import Warnings from '$lib/components/Warnings.svelte';
 	import { formatBallWeight, formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { interpolate } from '$lib/i18n/interpolate';
 	import { FormState } from '$lib/state.svelte';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
+
+	const currentYear = new Date().getFullYear();
 
 	const form = new FormState();
 	const t = $derived(i18n.t);
@@ -204,6 +207,35 @@
 	<footer class="mt-12 text-center text-xs text-stone-500 print:hidden">
 		<p>{t.footer.about}</p>
 		<p class="mt-1 text-stone-400">{t.actions.share_help}</p>
+		<p class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-400">
+			<a
+				href="https://github.com/JanWelker/knead-time"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+			>
+				{t.footer.source}
+			</a>
+			<span aria-hidden="true">·</span>
+			<a
+				href="https://github.com/JanWelker/knead-time#readme"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+			>
+				{t.footer.docs}
+			</a>
+		</p>
+		<p class="mt-2 text-stone-400">
+			<a
+				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+			>
+				{interpolate(t.footer.license, { year: currentYear })}
+			</a>
+		</p>
 	</footer>
 
 	<footer class="print-only mt-6 border-t border-stone-300 pt-3 text-xs text-stone-500">
