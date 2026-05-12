@@ -6,6 +6,10 @@ export interface Messages {
 		title: string;
 		tagline: string;
 		langLabel: string;
+		themeLabel: string;
+		theme_auto: string;
+		theme_light: string;
+		theme_dark: string;
 	};
 	form: {
 		section_when: string;
@@ -122,7 +126,11 @@ const en: Messages = {
 	app: {
 		title: 'Knead Time',
 		tagline: 'When do you want to bake? Everything works backwards from there.',
-		langLabel: 'Language'
+		langLabel: 'Language',
+		themeLabel: 'Theme',
+		theme_auto: 'System theme',
+		theme_light: 'Light theme',
+		theme_dark: 'Dark theme'
 	},
 	form: {
 		section_when: 'When',
@@ -246,7 +254,11 @@ const de: Messages = {
 	app: {
 		title: 'Knead Time',
 		tagline: 'Wann willst du backen? Der Plan ergibt sich rückwärts.',
-		langLabel: 'Sprache'
+		langLabel: 'Sprache',
+		themeLabel: 'Erscheinungsbild',
+		theme_auto: 'Systemeinstellung',
+		theme_light: 'Helles Design',
+		theme_dark: 'Dunkles Design'
 	},
 	form: {
 		section_when: 'Wann',
@@ -374,7 +386,11 @@ const it: Messages = {
 	app: {
 		title: 'Knead Time',
 		tagline: 'Quando vuoi infornare? Tutto si calcola a ritroso.',
-		langLabel: 'Lingua'
+		langLabel: 'Lingua',
+		themeLabel: 'Tema',
+		theme_auto: 'Tema di sistema',
+		theme_light: 'Tema chiaro',
+		theme_dark: 'Tema scuro'
 	},
 	form: {
 		section_when: 'Quando',

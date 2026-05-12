@@ -19,6 +19,13 @@
 	const useNativeTime = $derived(i18n.locale === 'en');
 	const timePattern = '([01]?\\d|2[0-3])[.:][0-5]\\d';
 
+	const inputBase =
+		'border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100';
+	const dateInputClass = `${inputBase} min-w-0 flex-1`;
+	const timeInputClass = `${inputBase} w-28`;
+	const timeTextClass = `${inputBase} w-24`;
+	const selectClass = `${inputBase} mt-1 w-full`;
+
 	function setStartAt(datePart: string, timePart: string) {
 		const d = combineDateTimeInputs(datePart, timePart);
 		if (d) state.startAt = d;
@@ -36,20 +43,24 @@
 
 <form class="space-y-8" onsubmit={(e) => e.preventDefault()}>
 	<fieldset class="space-y-3">
-		<legend class="font-display text-tomato-700 text-lg">{t.form.section_when}</legend>
+		<legend class="font-display text-tomato-700 dark:text-tomato-300 text-lg">
+			{t.form.section_when}
+		</legend>
 		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.startAt}</span>
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.startAt}
+			</span>
 			<div class="mt-1 flex gap-2">
 				<input
 					type="date"
-					class="border-dough-300 focus:border-tomato-500 min-w-0 flex-1 rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
+					class={dateInputClass}
 					value={startAtDate}
 					oninput={(e) => setStartAt(e.currentTarget.value, startAtTime)}
 				/>
 				{#if useNativeTime}
 					<input
 						type="time"
-						class="border-dough-300 focus:border-tomato-500 w-28 rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
+						class={timeInputClass}
 						value={startAtTime}
 						oninput={(e) => setStartAt(startAtDate, e.currentTarget.value)}
 					/>
@@ -59,14 +70,14 @@
 						inputmode="numeric"
 						pattern={timePattern}
 						placeholder="HH:MM"
-						class="border-dough-300 focus:border-tomato-500 w-24 rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
+						class={timeTextClass}
 						value={startAtTime}
 						oninput={(e) => setStartAt(startAtDate, e.currentTarget.value)}
 					/>
 				{/if}
 			</div>
 			<div class="mt-1 flex items-center justify-between gap-2">
-				<span class="block text-xs text-stone-500">{t.form.startAt_help}</span>
+				<span class="block text-xs text-stone-500 dark:text-stone-400">{t.form.startAt_help}</span>
 				<button
 					type="button"
 					class="bg-tomato-500 hover:bg-tomato-600 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
@@ -77,18 +88,20 @@
 			</div>
 		</label>
 		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.readyBy}</span>
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.readyBy}
+			</span>
 			<div class="mt-1 flex gap-2">
 				<input
 					type="date"
-					class="border-dough-300 focus:border-tomato-500 min-w-0 flex-1 rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
+					class={dateInputClass}
 					value={readyByDate}
 					oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
 				/>
 				{#if useNativeTime}
 					<input
 						type="time"
-						class="border-dough-300 focus:border-tomato-500 w-28 rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
+						class={timeInputClass}
 						value={readyByTime}
 						oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
 					/>
@@ -98,25 +111,27 @@
 						inputmode="numeric"
 						pattern={timePattern}
 						placeholder="HH:MM"
-						class="border-dough-300 focus:border-tomato-500 w-24 rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
+						class={timeTextClass}
 						value={readyByTime}
 						oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
 					/>
 				{/if}
 			</div>
-			<span class="mt-1 block text-xs text-stone-500">{t.form.readyBy_help}</span>
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.readyBy_help}
+			</span>
 		</label>
 	</fieldset>
 
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-tomato-700 col-span-full text-lg">
+		<legend class="font-display text-tomato-700 dark:text-tomato-300 col-span-full text-lg">
 			{t.form.section_recipe}
 		</legend>
 
 		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={state.pizzaCount} />
 
 		<div class="block">
-			<label class="block text-sm font-medium text-stone-700" for="ball-weight">
+			<label class="block text-sm font-medium text-stone-700 dark:text-stone-200" for="ball-weight">
 				{t.form.ballWeight}
 			</label>
 			<input
@@ -125,7 +140,7 @@
 				min="100"
 				max="600"
 				step="1"
-				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
+				class={selectClass}
 				bind:value={state.ballWeight}
 			/>
 		</div>
@@ -151,11 +166,10 @@
 		/>
 
 		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.yeastType}</span>
-			<select
-				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-				bind:value={state.yeastType}
-			>
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.yeastType}
+			</span>
+			<select class={selectClass} bind:value={state.yeastType}>
 				<option value="fresh">{t.form.yeast_fresh}</option>
 				<option value="sourdough">{t.form.yeast_sourdough}</option>
 			</select>
@@ -174,15 +188,14 @@
 	</fieldset>
 
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-tomato-700 col-span-full text-lg">
+		<legend class="font-display text-tomato-700 dark:text-tomato-300 col-span-full text-lg">
 			{t.form.section_advanced}
 		</legend>
 		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.preFerment}</span>
-			<select
-				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-				bind:value={state.preFermentType}
-			>
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.preFerment}
+			</span>
+			<select class={selectClass} bind:value={state.preFermentType}>
 				<option value="none">{t.form.preFerment_none}</option>
 				<option value="biga">{t.form.preFerment_biga}</option>
 				<option value="poolish">{t.form.preFerment_poolish}</option>

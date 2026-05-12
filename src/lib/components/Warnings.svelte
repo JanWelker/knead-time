@@ -29,8 +29,8 @@
 		{#each warnings as w (w)}
 			<li
 				class="rounded-lg border px-3 py-2 text-sm {SEVERITY[w] === 'danger'
-					? 'border-tomato-300 bg-tomato-50 text-tomato-800'
-					: 'border-dough-300 bg-dough-100 text-dough-900'}"
+					? 'border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200'
+					: 'border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100'}"
 			>
 				{t.warnings[COPY[w]]}
 			</li>
