@@ -1,6 +1,59 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ]
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": [
+		"config:recommended",
+		":dependencyDashboard",
+		":semanticCommits",
+		":prHourlyLimit2",
+		"schedule:daily"
+	],
+	"timezone": "Europe/Zurich",
+	"labels": ["dependencies"],
+	"constraints": {
+		"node": "22",
+		"npm": "10"
+	},
+	"lockFileMaintenance": {
+		"enabled": true,
+		"schedule": ["before 5am every weekday"]
+	},
+	"packageRules": [
+		{
+			"matchManagers": ["github-actions"],
+			"groupName": "github-actions",
+			"matchUpdateTypes": ["minor", "patch", "digest"],
+			"automerge": true
+		},
+		{
+			"matchPackageNames": [
+				"svelte",
+				"svelte-check",
+				"/^@sveltejs//",
+				"/^eslint-plugin-svelte/",
+				"/^prettier-plugin-svelte/"
+			],
+			"groupName": "svelte"
+		},
+		{
+			"matchPackageNames": ["vite", "vitest", "/^@vitest//"],
+			"groupName": "vite"
+		},
+		{
+			"matchPackageNames": ["tailwindcss", "/^@tailwindcss//", "prettier-plugin-tailwindcss"],
+			"groupName": "tailwind"
+		},
+		{
+			"matchPackageNames": ["eslint", "typescript-eslint", "eslint-config-prettier", "globals"],
+			"groupName": "lint"
+		},
+		{
+			"matchPackageNames": ["@types/node"],
+			"allowedVersions": "<23"
+		},
+		{
+			"matchDepTypes": ["devDependencies"],
+			"matchUpdateTypes": ["patch"],
+			"automerge": true
+		}
+	]
 }
