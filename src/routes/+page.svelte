@@ -225,6 +225,15 @@
 			>
 				{t.footer.docs}
 			</a>
+			<span aria-hidden="true">·</span>
+			<a
+				href="https://github.com/JanWelker/knead-time/issues"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+			>
+				{t.footer.support}
+			</a>
 		</p>
 		<p class="mt-2 text-stone-400">
 			<a

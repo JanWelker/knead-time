@@ -111,6 +111,7 @@ export interface Messages {
 		about: string;
 		source: string;
 		docs: string;
+		support: string;
 		license: string;
 	};
 }
@@ -234,6 +235,7 @@ const en: Messages = {
 		about: 'Time-anchored Neapolitan pizza dough calculator.',
 		source: 'Source code',
 		docs: 'Docs',
+		support: 'Support',
 		license: '© {year} Jan Welker · Licensed under Apache 2.0'
 	}
 };
@@ -359,6 +361,7 @@ const de: Messages = {
 		about: 'Zeit-orientierter Rechner für neapolitanischen Pizzateig.',
 		source: 'Quellcode',
 		docs: 'Dokumentation',
+		support: 'Support',
 		license: '© {year} Jan Welker · Lizenziert unter Apache 2.0'
 	}
 };
@@ -483,6 +486,7 @@ const it: Messages = {
 		about: 'Calcolatore per impasto di pizza napoletana ancorato al tempo.',
 		source: 'Codice sorgente',
 		docs: 'Documentazione',
+		support: 'Supporto',
 		license: '© {year} Jan Welker · Concesso in licenza con Apache 2.0'
 	}
 };
