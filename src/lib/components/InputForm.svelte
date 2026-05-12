@@ -121,6 +121,62 @@
 				{t.form.readyBy_help}
 			</span>
 		</label>
+
+		<details
+			class="border-dough-300 bg-dough-50/60 group rounded-lg border border-dashed p-3 text-xs text-stone-700 open:bg-white/70 dark:border-stone-600 dark:bg-stone-800/40 dark:text-stone-300 dark:open:bg-stone-900/60"
+		>
+			<summary
+				class="text-tomato-700 dark:text-tomato-300 flex cursor-pointer list-none items-center gap-2 font-medium select-none"
+			>
+				<span
+					class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
+					aria-hidden="true">▶</span
+				>
+				<span>{t.form.info_heading}</span>
+			</summary>
+			<div class="mt-3 space-y-4 leading-relaxed">
+				<p>{t.form.info_intro}</p>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_q10_title}</p>
+					<p class="mt-1">{t.form.info_q10_caption}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">f(T) = 2^((T − 22) / 10)</pre>
+				</div>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_units_title}</p>
+					<p class="mt-1">{t.form.info_units_body}</p>
+					<ul class="mt-1 list-disc space-y-0.5 pl-5">
+						<li>{t.form.info_units_fresh}</li>
+						<li>{t.form.info_units_sourdough}</li>
+					</ul>
+					<p class="mt-2">{t.form.info_units_solve}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">yeast% = target / Σ (hours · f(T))</pre>
+				</div>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_switch_title}</p>
+					<p class="mt-1">{t.form.info_switch_body}</p>
+				</div>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_mass_title}</p>
+					<p class="mt-1">{t.form.info_mass_body}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] leading-snug text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">flour = total / pctSum
+
+pctSum = 100 + hydration + salt% + yeast%   ← {t.form.info_mass_caption_fresh}
+pctSum = 100 + hydration + salt%            ← {t.form.info_mass_caption_sourdough}</pre>
+				</div>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_night_title}</p>
+					<p class="mt-1">{t.form.info_night_body}</p>
+				</div>
+			</div>
+		</details>
 	</fieldset>
 
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -20,6 +20,23 @@ export interface Messages {
 		startAt_now: string;
 		readyBy: string;
 		readyBy_help: string;
+		info_heading: string;
+		info_intro: string;
+		info_q10_title: string;
+		info_q10_caption: string;
+		info_units_title: string;
+		info_units_body: string;
+		info_units_fresh: string;
+		info_units_sourdough: string;
+		info_units_solve: string;
+		info_switch_title: string;
+		info_switch_body: string;
+		info_mass_title: string;
+		info_mass_body: string;
+		info_mass_caption_fresh: string;
+		info_mass_caption_sourdough: string;
+		info_night_title: string;
+		info_night_body: string;
 		pizzaCount: string;
 		ballWeight: string;
 		ballWeight_round: string;
@@ -141,6 +158,29 @@ const en: Messages = {
 		startAt_now: 'Now',
 		readyBy: 'Ready to bake',
 		readyBy_help: 'The moment the first pizza goes in the oven.',
+		info_heading: 'Get nerdy: the math behind the schedule',
+		info_intro:
+			'Fermentation modelled as a kinetic process; the schedule runs backwards from your bake time.',
+		info_q10_title: 'Q10 = 2 — rate doubles per +10 °C',
+		info_q10_caption: 'Temperature factor (reference 22 °C):',
+		info_units_title: 'Fermentation units',
+		info_units_body:
+			'Each phase contributes hours × f(T) "equivalent-hours-at-22 °C". The sum must reach a target:',
+		info_units_fresh: 'Fresh yeast: 1.6 units (≈ 0.2% × 8 h at 22 °C)',
+		info_units_sourdough: 'Sourdough starter: 160 units (~100× less active per gram)',
+		info_units_solve: 'Yeast percent solves the target:',
+		info_switch_title: 'Cold ↔ room switch',
+		info_switch_body:
+			'Window ≥ 16 h activates a cold-bulk phase at 4 °C (≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
+		info_mass_title: 'Mass balance',
+		info_mass_body:
+			"Baker's percentages with flour = 100%. Solve for flour from the total dough mass:",
+		info_mass_caption_fresh: 'fresh yeast (new mass added to the budget)',
+		info_mass_caption_sourdough:
+			'sourdough (starter is just flour + water from the existing budget)',
+		info_night_title: 'Night-window guard',
+		info_night_body:
+			'No active step is allowed between 22:00 and 08:00. The cold-bulk leg nudges within [12 h, 48 h] to keep mixing and shaping in waking hours.',
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Ball weight (g)',
 		ballWeight_round: 'Round numbers',
@@ -269,6 +309,28 @@ const de: Messages = {
 		startAt_now: 'Jetzt',
 		readyBy: 'Bereit zum Backen',
 		readyBy_help: 'Der Moment, an dem die erste Pizza in den Ofen geht.',
+		info_heading: 'Geek-Modus: die Mathematik hinter dem Plan',
+		info_intro:
+			'Gärung wird als kinetischer Prozess modelliert; der Plan läuft rückwärts von der Backzeit.',
+		info_q10_title: 'Q10 = 2 — Rate verdoppelt sich pro +10 °C',
+		info_q10_caption: 'Temperaturfaktor (Referenz 22 °C):',
+		info_units_title: 'Gärungseinheiten',
+		info_units_body:
+			'Jede Phase liefert Stunden × f(T) „Äquivalentstunden bei 22 °C". Die Summe muss ein Ziel erreichen:',
+		info_units_fresh: 'Frischhefe: 1,6 Einheiten (≈ 0,2% × 8 h bei 22 °C)',
+		info_units_sourdough: 'Sauerteig-Anstellgut: 160 Einheiten (~100× weniger aktiv pro Gramm)',
+		info_units_solve: 'Hefe-Anteil löst die Zielgleichung:',
+		info_switch_title: 'Wechsel Kühlschrank ↔ Raum',
+		info_switch_body:
+			'Fenster ≥ 16 h aktiviert eine Kühlphase bei 4 °C (≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
+		info_mass_title: 'Massenbilanz',
+		info_mass_body: 'Bäckerprozente mit Mehl = 100%. Mehl wird aus der Gesamtmasse aufgelöst:',
+		info_mass_caption_fresh: 'Frischhefe (zusätzliche Masse im Budget)',
+		info_mass_caption_sourdough:
+			'Sauerteig (Anstellgut ist nur Mehl + Wasser aus dem bestehenden Budget)',
+		info_night_title: 'Nachtfenster-Schutz',
+		info_night_body:
+			'Kein aktiver Schritt zwischen 22:00 und 08:00. Die Kühlgare verschiebt sich innerhalb von [12 h, 48 h], damit Kneten und Formen in der Wachzeit liegen.',
 		pizzaCount: 'Pizzen',
 		ballWeight: 'Teigling (g)',
 		ballWeight_round: 'Runde Zahlen',
@@ -401,6 +463,28 @@ const it: Messages = {
 		startAt_now: 'Adesso',
 		readyBy: 'Pronto da infornare',
 		readyBy_help: "L'istante in cui la prima pizza entra nel forno.",
+		info_heading: 'Modalità nerd: la matematica dietro il programma',
+		info_intro:
+			"Lievitazione modellata come processo cinetico; il programma scorre a ritroso dall'ora di cottura.",
+		info_q10_title: 'Q10 = 2 — la velocità raddoppia ogni +10 °C',
+		info_q10_caption: 'Fattore di temperatura (riferimento 22 °C):',
+		info_units_title: 'Unità di lievitazione',
+		info_units_body:
+			'Ogni fase apporta ore × f(T) "ore-equivalenti a 22 °C". La somma deve raggiungere un obiettivo:',
+		info_units_fresh: 'Lievito di birra fresco: 1,6 unità (≈ 0,2% × 8 h a 22 °C)',
+		info_units_sourdough: 'Lievito madre: 160 unità (~100× meno attivo per grammo)',
+		info_units_solve: 'La percentuale di lievito risolve il target:',
+		info_switch_title: 'Passaggio frigo ↔ ambiente',
+		info_switch_body:
+			'Finestra ≥ 16 h attiva una puntata in frigo a 4 °C (≈ 16× più lenta che a 22 °C). Finestre più corte restano a temperatura ambiente.',
+		info_mass_title: 'Bilancio di massa',
+		info_mass_body:
+			'Percentuali del fornaio con farina = 100%. La farina si ricava dalla massa totale:',
+		info_mass_caption_fresh: 'lievito fresco (massa nuova aggiunta al totale)',
+		info_mass_caption_sourdough: 'lievito madre (è solo farina + acqua dal totale esistente)',
+		info_night_title: 'Protezione fascia notturna',
+		info_night_body:
+			'Nessun passo attivo tra le 22:00 e le 08:00. La puntata in frigo si sposta tra [12 h, 48 h] per tenere impasto e staglio nelle ore di veglia.',
 		pizzaCount: 'Pizze',
 		ballWeight: 'Panetto (g)',
 		ballWeight_round: 'Arrotonda',
