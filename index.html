@@ -6,26 +6,38 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<meta name="theme-color" content="#c8401a" />
 		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
-		<link href="./_app/immutable/entry/start.C16p2rpv.js" rel="modulepreload">
-		<link href="./_app/immutable/chunks/DoqqsnlC.js" rel="modulepreload">
-		<link href="./_app/immutable/chunks/Dte-h5No.js" rel="modulepreload">
-		<link href="./_app/immutable/entry/app.CTD-_Gd-.js" rel="modulepreload">
+		<script>
+			(function () {
+				try {
+					var stored = localStorage.getItem('theme');
+					var dark =
+						stored === 'dark' ||
+						((stored === null || stored === 'system') &&
+							window.matchMedia('(prefers-color-scheme: dark)').matches);
+					if (dark) document.documentElement.classList.add('dark');
+				} catch (e) {}
+			})();
+		</script>
+		<link href="./_app/immutable/entry/start.DiZPuDLr.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/7S9SWPzv.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/BPkCtCJ1.js" rel="modulepreload">
+		<link href="./_app/immutable/entry/app.BA9RzTgz.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/Dj6f-nJM.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/DEDqjojZ.js" rel="modulepreload">
-		<link href="./_app/immutable/nodes/0.BE-skZm4.js" rel="modulepreload">
-		<link href="./_app/immutable/chunks/B7mrkLPI.js" rel="modulepreload">
-		<link href="./_app/immutable/nodes/2.DeDY5HiF.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/0.CdJBTzTU.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/0bQwezpR.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/2.lLuB6fjs.js" rel="modulepreload">
 		
-		<link href="./_app/immutable/assets/0.4k76hNG9.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/0.-bD2BuFK.css" rel="stylesheet">
 	</head>
 	<body
 		data-sveltekit-preload-data="hover"
-		class="bg-dough-50 min-h-screen text-stone-900 antialiased"
+		class="bg-dough-50 min-h-screen text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100"
 	>
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_np2rq3 = {
+					__sveltekit_u99vhz = {
 						base: new URL(".", location).pathname.slice(0, -1),
 						assets: "/knead-time"
 					};
@@ -33,8 +45,8 @@
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("./_app/immutable/entry/start.C16p2rpv.js"),
-						import("./_app/immutable/entry/app.CTD-_Gd-.js")
+						import("./_app/immutable/entry/start.DiZPuDLr.js"),
+						import("./_app/immutable/entry/app.BA9RzTgz.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element);
 					});
