@@ -18,6 +18,12 @@
 
 	const currentYear = new Date().getFullYear();
 
+	const btnClass =
+		'bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
+
+	const cardClass =
+		'border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none';
+
 	const form = new FormState();
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
@@ -94,17 +100,16 @@
 </svelte:head>
 
 <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 print:max-w-none print:px-0 print:py-0">
-	<header class="mb-8 flex flex-wrap items-start justify-between gap-4 print:hidden">
+	<header class="mb-8 flex flex-wrap items-start justify-between gap-4 print:mb-4 print:block">
 		<div>
-			<h1 class="font-display text-tomato-700 text-4xl sm:text-5xl">{t.app.title}</h1>
-			<p class="mt-2 max-w-xl text-stone-600">{t.app.tagline}</p>
+			<h1 class="font-display text-tomato-700 text-4xl sm:text-5xl print:text-3xl">
+				{t.app.title}
+			</h1>
+			<p class="mt-2 max-w-xl text-stone-600 print:mt-0 print:text-sm">{t.app.tagline}</p>
 		</div>
-		<LangSwitcher />
-	</header>
-
-	<header class="print-only mb-4">
-		<h1 class="font-display text-tomato-700 text-3xl">{t.app.title}</h1>
-		<p class="text-sm text-stone-600">{t.app.tagline}</p>
+		<div class="print:hidden">
+			<LangSwitcher />
+		</div>
 	</header>
 
 	<section class="print-only mb-6 break-inside-avoid">
@@ -137,9 +142,7 @@
 		</section>
 
 		<section class="space-y-6 lg:col-span-3 print:space-y-4">
-			<div
-				class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none"
-			>
+			<div class={cardClass}>
 				<div class="mb-4 flex flex-wrap items-end justify-between gap-3 print:mb-2">
 					<div>
 						<h2 class="font-display text-2xl text-stone-900">{t.schedule.heading}</h2>
@@ -148,7 +151,7 @@
 					<div class="flex flex-wrap gap-2 print:hidden">
 						<button
 							type="button"
-							class="bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+							class={btnClass}
 							onclick={downloadIcs}
 							disabled={!form.schedule.feasible}
 						>
@@ -156,17 +159,13 @@
 						</button>
 						<button
 							type="button"
-							class="bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+							class={btnClass}
 							onclick={printPage}
 							disabled={!form.schedule.feasible}
 						>
 							{t.actions.print}
 						</button>
-						<button
-							type="button"
-							class="bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white"
-							onclick={shareLink}
-						>
+						<button type="button" class={btnClass} onclick={shareLink}>
 							{copied ? t.actions.copied : t.actions.share}
 						</button>
 					</div>
@@ -178,9 +177,7 @@
 				</div>
 			</div>
 
-			<div
-				class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur print:break-inside-avoid print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none"
-			>
+			<div class="{cardClass} print:break-inside-avoid">
 				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 print:mb-2">
 					<h2 class="font-display text-2xl text-stone-900">
 						{t.ingredients.heading}
@@ -190,6 +187,7 @@
 						class="bg-tomato-500 hover:bg-tomato-600 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold text-white print:hidden"
 						onclick={() => form.roundBallWeight()}
 						title={t.form.ballWeight_round_help}
+						aria-label={t.form.ballWeight_round_help}
 					>
 						<span aria-hidden="true">↻</span>
 						{t.form.ballWeight_round}

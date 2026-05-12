@@ -29,10 +29,20 @@ export function encodeInputs(inputs: SerializableInputs): string {
 	}
 	params.set(KEYS.roomTempC, String(inputs.roomTempC));
 	if (inputs.preFerment) {
-		const t = inputs.preFerment.type === 'biga' ? 'b' : 'p';
-		params.set(KEYS.preFerment, `${t}${inputs.preFerment.flourPercent}`);
+		params.set(KEYS.preFerment, formatPreFerment(inputs.preFerment));
 	}
 	return params.toString();
+}
+
+function formatPreFerment(pf: PreFermentSpec): string {
+	const t = pf.type === 'biga' ? 'b' : 'p';
+	return `${t}${pf.flourPercent}`;
+}
+
+function parsePreFerment(encoded: string): { type: 'biga' | 'poolish' | null; pct: number | null } {
+	const type = encoded.startsWith('b') ? 'biga' : encoded.startsWith('p') ? 'poolish' : null;
+	const pct = type ? num(encoded.slice(1)) : null;
+	return { type, pct };
 }
 
 export function decodeInputs(query: string): Partial<SerializableInputs> {
@@ -70,8 +80,7 @@ export function decodeInputs(query: string): Partial<SerializableInputs> {
 
 	const p = params.get(KEYS.preFerment);
 	if (p) {
-		const type = p.startsWith('b') ? 'biga' : p.startsWith('p') ? 'poolish' : null;
-		const pct = num(p.slice(1));
+		const { type, pct } = parsePreFerment(p);
 		if (type && pct !== null && pct > 0) {
 			out.preFerment = { type, flourPercent: pct } satisfies PreFermentSpec;
 		} else {

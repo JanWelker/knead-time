@@ -1,8 +1,26 @@
 import { interpolate } from './i18n/interpolate';
 import { MESSAGES, type Locale } from './i18n/messages';
 
+export function padZero(n: number): string {
+	return String(n).padStart(2, '0');
+}
+
 const dayFormatters = new Map<Locale, Intl.DateTimeFormat>();
 const timeFormatters = new Map<Locale, Intl.DateTimeFormat>();
+const percentFormatters = new Map<Locale, Intl.NumberFormat>();
+
+function percentFormatter(locale: Locale): Intl.NumberFormat {
+	let f = percentFormatters.get(locale);
+	if (!f) {
+		f = new Intl.NumberFormat(locale, {
+			style: 'percent',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 3
+		});
+		percentFormatters.set(locale, f);
+	}
+	return f;
+}
 
 export function formatDateTime(date: Date, locale: Locale): string {
 	let f = dayFormatters.get(locale);
@@ -41,8 +59,7 @@ export function formatDurationHHMM(minutes: number): string {
 	const total = Math.max(0, Math.round(minutes));
 	const h = Math.floor(total / 60);
 	const m = total % 60;
-	const pad = (n: number) => String(n).padStart(2, '0');
-	return pad(h) + ':' + pad(m);
+	return padZero(h) + ':' + padZero(m);
 }
 
 export function formatGramsValue(value: number): string {
@@ -63,20 +80,16 @@ export function formatBallWeight(value: number): string {
 	return Number.isInteger(tenth) ? String(tenth) : tenth.toFixed(1);
 }
 
-export function formatPercent(value: number): string {
-	if (value < 0.1) return value.toFixed(3) + '%';
-	if (value < 1) return value.toFixed(2) + '%';
-	return value.toFixed(1) + '%';
+export function formatPercent(value: number, locale: Locale = 'en'): string {
+	return percentFormatter(locale).format(value / 100);
 }
 
 export function toDatePart(date: Date): string {
-	const pad = (n: number) => String(n).padStart(2, '0');
-	return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+	return date.getFullYear() + '-' + padZero(date.getMonth() + 1) + '-' + padZero(date.getDate());
 }
 
 export function toTimePart(date: Date): string {
-	const pad = (n: number) => String(n).padStart(2, '0');
-	return pad(date.getHours()) + ':' + pad(date.getMinutes());
+	return padZero(date.getHours()) + ':' + padZero(date.getMinutes());
 }
 
 export function combineDateTimeInputs(datePart: string, timePart: string): Date | null {

@@ -31,9 +31,10 @@ export const NIGHT_END_HOUR = 8;
 
 const FRIDGE_TEMP_C = 4;
 
-// Minutes between prepAt and readyBy when cold-bulk duration is zero — i.e. the
-// fixed pre+post overhead in cold mode. Used to map a candidate coldMin back to
-// a prepAt without rebuilding the step list.
+// Sum of every fixed-duration step around the variable bulk-cold leg
+// (prep + mix + initial bulk-room + divide + warmup + final proof). Lets the
+// night-window adjuster map a candidate coldMin back to a prepAt without
+// rebuilding the step list.
 const COLD_PRE_POST_OFFSET_MIN =
 	COLD_FINAL_PROOF_MIN + COLD_WARMUP_MIN + DIVIDE_MIN + COLD_INITIAL_BULK_MIN + MIX_MIN + PREP_MIN;
 

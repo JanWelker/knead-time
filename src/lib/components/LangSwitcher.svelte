@@ -5,11 +5,10 @@
 	const labels: Record<Locale, string> = { en: 'EN', de: 'DE', it: 'IT' };
 </script>
 
-<div
-	class="border-dough-300 inline-flex overflow-hidden rounded-full border bg-white/70 text-xs font-semibold tracking-wider shadow-sm"
-	role="group"
-	aria-label={i18n.t.app.langLabel}
+<fieldset
+	class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm"
 >
+	<legend class="sr-only">{i18n.t.app.langLabel}</legend>
 	{#each LOCALES as loc (loc)}
 		{@const active = i18n.locale === loc}
 		<button
@@ -23,4 +22,4 @@
 			{labels[loc]}
 		</button>
 	{/each}
-</div>
+</fieldset>

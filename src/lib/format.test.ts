@@ -78,17 +78,27 @@ describe('formatBallWeight', () => {
 });
 
 describe('formatPercent', () => {
-	it('keeps three decimals for tiny percentages', () => {
+	it('keeps up to three decimals for tiny percentages', () => {
 		expect(formatPercent(0.012)).toBe('0.012%');
 	});
-	it('keeps two decimals between 0.1% and 1%', () => {
+	it('keeps the needed decimals between 0.1% and 1%', () => {
 		expect(formatPercent(0.25)).toBe('0.25%');
 		expect(formatPercent(0.99)).toBe('0.99%');
 	});
-	it('keeps one decimal at and above 1%', () => {
-		expect(formatPercent(1)).toBe('1.0%');
-		expect(formatPercent(70)).toBe('70.0%');
-		expect(formatPercent(2.349)).toBe('2.3%');
+	it('strips trailing zeros for integer percentages', () => {
+		expect(formatPercent(1)).toBe('1%');
+		expect(formatPercent(70)).toBe('70%');
+	});
+	it('keeps decimals when present and rounds beyond three places', () => {
+		expect(formatPercent(2.349)).toBe('2.349%');
+		expect(formatPercent(2.3491)).toBe('2.349%');
+	});
+	it('uses the locale decimal separator and percent placement', () => {
+		expect(formatPercent(2.349, 'en')).toBe('2.349%');
+		expect(formatPercent(2.349, 'de')).toBe('2,349 %');
+		expect(formatPercent(2.349, 'it')).toBe('2,349%');
+		expect(formatPercent(70, 'de')).toBe('70 %');
+		expect(formatPercent(70, 'it')).toBe('70%');
 	});
 });
 

@@ -11,7 +11,7 @@ Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, three lang
 
 ## Requirements
 
-- **Node.js 22** and **npm** on the host.
+- **Node.js 22+** and **npm** on the host.
 
 That's it. CI and deployment run on GitHub Actions; locally you just need Node.
 

@@ -15,7 +15,13 @@ export default defineConfig({
 				'src/lib/dough/types.ts',
 				'src/lib/i18n/messages.ts'
 			],
-			reporter: ['text', 'json-summary', 'html', 'lcov']
+			reporter: ['text', 'json-summary', 'html', 'lcov'],
+			thresholds: {
+				lines: 99,
+				functions: 99,
+				branches: 96,
+				statements: 98
+			}
 		}
 	}
 });
