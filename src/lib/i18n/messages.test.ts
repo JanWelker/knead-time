@@ -8,12 +8,18 @@ describe('detectLocale', () => {
 	});
 
 	it('picks the first matching supported locale', () => {
-		expect(detectLocale(['fr-FR', 'de-CH', 'en-US'])).toBe('de');
+		expect(detectLocale(['fr-FR', 'de-CH', 'en-US'])).toBe('fr');
+		expect(detectLocale(['nl-BE', 'en-US'])).toBe('nl');
 		expect(detectLocale(['it-IT'])).toBe('it');
 	});
 
+	it('matches 3-letter language codes (Patois)', () => {
+		expect(detectLocale(['jam-JM'])).toBe('jam');
+		expect(detectLocale(['jam'])).toBe('jam');
+	});
+
 	it('falls back to en when nothing matches', () => {
-		expect(detectLocale(['fr', 'es', 'pt'])).toBe('en');
+		expect(detectLocale(['es', 'pt', 'ja'])).toBe('en');
 	});
 });
 
