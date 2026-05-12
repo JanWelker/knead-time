@@ -5,7 +5,7 @@
 
 A time-anchored Neapolitan pizza dough calculator — [try it live](https://janwelker.github.io/knead-time/). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, and a print-to-PDF recipe sheet for the kitchen counter.
 
-Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, three languages (EN / DE / IT), shareable recipes via URL.
+Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, six languages (EN / DE / IT / FR / NL / JAM), shareable recipes via URL.
 
 ---
 
@@ -51,7 +51,7 @@ src/
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
-│   ├── i18n/             ← messages (en/de/it), locale detection, runtime interpolation
+│   ├── i18n/             ← messages (en/de/it/fr/nl/jam), locale detection, runtime interpolation
 │   ├── state.svelte.ts   ← form state as a $state class
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
 │   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
@@ -93,7 +93,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 1. **Math/logic first.** Add or extend a module in `src/lib/dough/`. Keep it pure (no Svelte imports). Add a `*.test.ts` next to it. Run `npm test` until green.
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
 3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
-4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all three locales. The parity test will fail loudly if a key is missing.
+4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all six locales. The parity test will fail loudly if a key is missing.
 5. **Verify.** `npm test && npm run check && npm run build`. The CI workflow runs the same commands plus `npm run lint`.
 
 ### Print / PDF export
