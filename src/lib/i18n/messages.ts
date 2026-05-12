@@ -170,18 +170,15 @@ const en: Messages = {
 		mix_desc_with_preferment:
 			'Add the ripe pre-dough to {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Knead until smooth.',
 		bulk_room: 'Bulk ferment (room)',
-		bulk_room_desc: 'Cover the dough and let it rise at room temperature for {duration} (HH:MM).',
+		bulk_room_desc: 'Cover the dough and let it rise at room temperature.',
 		bulk_cold: 'Bulk ferment (fridge)',
-		bulk_cold_desc:
-			'Move the covered dough to the fridge. Long, slow fermentation — {duration} (HH:MM).',
+		bulk_cold_desc: 'Move the covered dough to the fridge. Long, slow fermentation.',
 		divide: 'Divide & ball',
 		divide_desc: 'Cut the dough into {n} equal balls of {weight} g each and shape them tight.',
 		warmup: 'Warm up balls',
-		warmup_desc:
-			'Leave the balls at room temperature for {duration} (HH:MM) so they finish proofing evenly.',
+		warmup_desc: 'Leave the balls at room temperature so they finish proofing evenly.',
 		final_proof: 'Final proof',
-		final_proof_desc:
-			'Last rest before shaping — {duration} (HH:MM). Balls should look puffy and relaxed.',
+		final_proof_desc: 'Last rest before shaping. Balls should look puffy and relaxed.',
 		ready: 'Shape & bake',
 		ready_desc: 'Open each ball, top, and into the oven.'
 	},
@@ -295,19 +292,18 @@ const de: Messages = {
 		mix_desc_with_preferment:
 			'Den reifen Vorteig mit {flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} vermengen und glatt kneten.',
 		bulk_room: 'Stockgare (Raum)',
-		bulk_room_desc: 'Teig abdecken und {duration} (HH:MM) bei Raumtemperatur gehen lassen.',
+		bulk_room_desc: 'Teig abdecken und bei Raumtemperatur gehen lassen.',
 		bulk_cold: 'Stockgare (Kühlschrank)',
-		bulk_cold_desc:
-			'Den abgedeckten Teig in den Kühlschrank stellen — lange, langsame Gare ({duration} HH:MM).',
+		bulk_cold_desc: 'Den abgedeckten Teig in den Kühlschrank stellen — lange, langsame Gare.',
 		divide: 'Portionieren',
 		divide_desc:
 			'Den Teig in {n} gleich große Teiglinge zu je {weight} g teilen und straff rundwirken.',
 		warmup: 'Teiglinge akklimatisieren',
 		warmup_desc:
-			'Teiglinge {duration} (HH:MM) bei Raumtemperatur ausgleichen lassen, damit sie gleichmäßig nachgehen.',
+			'Teiglinge bei Raumtemperatur ausgleichen lassen, damit sie gleichmäßig nachgehen.',
 		final_proof: 'Stückgare',
 		final_proof_desc:
-			'Letzte Ruhe vor dem Formen — {duration} (HH:MM). Die Teiglinge sollen aufgegangen und entspannt aussehen.',
+			'Letzte Ruhe vor dem Formen. Die Teiglinge sollen aufgegangen und entspannt aussehen.',
 		ready: 'Formen & backen',
 		ready_desc: 'Teigling öffnen, belegen, in den Ofen.'
 	},
@@ -420,19 +416,16 @@ const it: Messages = {
 		mix_desc_with_preferment:
 			'Unire il preimpasto maturo a {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Lavorare fino a impasto liscio.',
 		bulk_room: 'Puntata (ambiente)',
-		bulk_room_desc:
-			"Coprire l'impasto e farlo lievitare a temperatura ambiente per {duration} (HH:MM).",
+		bulk_room_desc: "Coprire l'impasto e farlo lievitare a temperatura ambiente.",
 		bulk_cold: 'Puntata (frigo)',
-		bulk_cold_desc:
-			"Spostare l'impasto coperto in frigorifero — lievitazione lunga e lenta ({duration} HH:MM).",
+		bulk_cold_desc: "Spostare l'impasto coperto in frigorifero — lievitazione lunga e lenta.",
 		divide: 'Staglio',
 		divide_desc: "Dividere l'impasto in {n} panetti da {weight} g e pirlarli stretti.",
 		warmup: 'Acclimatare i panetti',
-		warmup_desc:
-			'Lasciare i panetti a temperatura ambiente per {duration} (HH:MM) per uniformare la lievitazione.',
+		warmup_desc: 'Lasciare i panetti a temperatura ambiente per uniformare la lievitazione.',
 		final_proof: 'Appretto',
 		final_proof_desc:
-			'Ultimo riposo prima della stesura — {duration} (HH:MM). I panetti devono essere gonfi e rilassati.',
+			'Ultimo riposo prima della stesura. I panetti devono essere gonfi e rilassati.',
 		ready: 'Stendere e infornare',
 		ready_desc: 'Aprire il panetto, condire, in forno.'
 	},

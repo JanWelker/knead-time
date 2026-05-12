@@ -38,14 +38,6 @@ export function stepDescription(
 ): string {
 	const template = msgs.steps[DESC[step.kind]];
 
-	switch (step.kind) {
-		case 'bulk-room':
-		case 'bulk-cold':
-		case 'warmup':
-		case 'final-proof':
-			return interpolate(template, { duration: formatDurationHHMM(step.durationMinutes) });
-	}
-
 	if (!schedule) return template;
 
 	const { ingredients } = schedule;
