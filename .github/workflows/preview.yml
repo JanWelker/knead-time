@@ -1,0 +1,55 @@
+name: PR preview
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-preview-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        if: github.event.action != 'closed'
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+        if: github.event.action != 'closed'
+
+      - name: Resolve base path
+        id: base
+        if: github.event.action != 'closed'
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          OWNER="${GITHUB_REPOSITORY%%/*}"
+          PR="${{ github.event.number }}"
+          if [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
+            echo "value=/pr-preview/pr-${PR}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=/${REPO_NAME}/pr-preview/pr-${PR}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        if: github.event.action != 'closed'
+        env:
+          BASE_PATH: ${{ steps.base.outputs.value }}
+        run: npm run build
+
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: build
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: auto
