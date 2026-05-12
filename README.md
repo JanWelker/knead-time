@@ -64,7 +64,8 @@ src/
 
 .github/workflows/
 ├── ci.yml                ← lint + check + test + build on every push/PR
-└── deploy.yml            ← build + publish to GitHub Pages on main
+├── deploy.yml            ← build + publish to GitHub Pages on main
+└── preview.yml           ← build + publish a per-PR preview, comment the URL, clean up on close
 
 vite.config.ts            ← Vite (no test config; runtime build only)
 vitest.config.ts          ← Vitest (kept separate so vite types stay clean)
@@ -117,14 +118,20 @@ If you touch the printed layout, check it in your browser's print preview — do
 Deployment is fully automated by **`.github/workflows/deploy.yml`**. Every push to `main`:
 
 1. Runs `npm ci` and builds the static site with `npm run build`.
-2. Uploads the contents of `./build/` as a Pages artifact.
-3. Publishes it to GitHub Pages via `actions/deploy-pages`.
+2. Pushes the contents of `./build/` to the `gh-pages` branch (root), preserving any `pr-preview/` subdirectories so open PR previews keep working.
+3. GitHub Pages serves the `gh-pages` branch.
 
 The workflow resolves the **base path** automatically: project repos (`<owner>/<repo>`) are served from `/<repo>/`, so the build is run with `BASE_PATH=/<repo>`. User/org sites (`<owner>.github.io`) are served from the root, so `BASE_PATH` stays empty. If you point a custom domain at the Pages site, unset `BASE_PATH` in the workflow (or override it).
 
 `svelte.config.js` reads `BASE_PATH` from the env. SvelteKit also serves a `404.html` fallback so deep links and refreshes resolve to the SPA shell, and a `static/.nojekyll` file disables GH Pages' Jekyll processing.
 
-**First-time setup on GitHub**: in the repo settings, set **Pages → Build and deployment → Source = GitHub Actions** so the `deploy-pages` action can publish.
+**First-time setup on GitHub**: in the repo settings, set **Pages → Build and deployment → Source = Deploy from a branch**, then **Branch = `gh-pages` / `/ (root)`**. The first push to `main` will create the branch if it doesn't already exist.
+
+### PR previews
+
+**`.github/workflows/preview.yml`** builds every PR and publishes it as an isolated preview under `gh-pages:/pr-preview/pr-<number>/`. The workflow uses [`rossjrw/pr-preview-action`](https://github.com/rossjrw/pr-preview-action), which posts (and updates) a sticky comment on the PR with the preview URL and removes the directory when the PR is closed or merged.
+
+The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
 
 A separate **`.github/workflows/ci.yml`** runs lint, type-check, tests, and build on every push and PR but doesn't deploy.
 
