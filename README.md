@@ -1,5 +1,8 @@
 # Knead Time
 
+[![CI](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml/badge.svg)](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/JanWelker/knead-time/branch/main/graph/badge.svg)](https://codecov.io/gh/JanWelker/knead-time)
+
 A time-anchored Neapolitan pizza dough calculator. You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, and a print-to-PDF recipe sheet for the kitchen counter.
 
 Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, three languages (EN / DE / IT), shareable recipes via URL.
@@ -69,15 +72,16 @@ vitest.config.ts          ← Vitest (kept separate so vite types stay clean)
 
 ### npm scripts
 
-| Command           | What it does                                               |
-| ----------------- | ---------------------------------------------------------- |
-| `npm run dev`     | Vite dev server on port 5173 with HMR                      |
-| `npm test`        | Run vitest once (`npm run test:watch` for watch mode)      |
-| `npm run check`   | `svelte-kit sync` + `svelte-check` (type & template check) |
-| `npm run lint`    | Prettier check + ESLint                                    |
-| `npm run format`  | Prettier write                                             |
-| `npm run build`   | Production build → `./build/` (static site)                |
-| `npm run preview` | Serve the built site locally                               |
+| Command                 | What it does                                               |
+| ----------------------- | ---------------------------------------------------------- |
+| `npm run dev`           | Vite dev server on port 5173 with HMR                      |
+| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)      |
+| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                |
+| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check) |
+| `npm run lint`          | Prettier check + ESLint                                    |
+| `npm run format`        | Prettier write                                             |
+| `npm run build`         | Production build → `./build/` (static site)                |
+| `npm run preview`       | Serve the built site locally                               |
 
 ### Pre-commit hooks
 

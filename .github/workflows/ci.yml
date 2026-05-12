@@ -29,6 +29,44 @@ jobs:
 
       - run: npm run check
 
-      - run: npm test
+      - run: npm run test:coverage
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            node -e '
+              const c = require("./coverage/coverage-summary.json").total;
+              const pct = (k) => `${c[k].pct.toFixed(2)}% (${c[k].covered}/${c[k].total})`;
+              const md = [
+                "## Test coverage",
+                "",
+                "| Metric | Coverage |",
+                "|---|---|",
+                `| Lines | ${pct("lines")} |`,
+                `| Statements | ${pct("statements")} |`,
+                `| Functions | ${pct("functions")} |`,
+                `| Branches | ${pct("branches")} |`,
+                ""
+              ].join("\n");
+              require("fs").appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+            '
+          fi
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 14
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
 
       - run: npm run build
