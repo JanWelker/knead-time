@@ -93,25 +93,14 @@
 <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 print:max-w-none print:px-0 print:py-0">
 	<header class="mb-8 flex flex-wrap items-start justify-between gap-4 print:hidden">
 		<div>
-			<div class="flex items-center gap-3">
-				<img
-					src="/favicon.svg"
-					alt=""
-					aria-hidden="true"
-					class="h-12 w-12 shrink-0 sm:h-14 sm:w-14"
-				/>
-				<h1 class="font-display text-tomato-700 text-4xl sm:text-5xl">{t.app.title}</h1>
-			</div>
+			<h1 class="font-display text-tomato-700 text-4xl sm:text-5xl">{t.app.title}</h1>
 			<p class="mt-2 max-w-xl text-stone-600">{t.app.tagline}</p>
 		</div>
 		<LangSwitcher />
 	</header>
 
 	<header class="print-only mb-4">
-		<div class="flex items-center gap-2">
-			<img src="/favicon.svg" alt="" aria-hidden="true" class="h-8 w-8 shrink-0" />
-			<h1 class="font-display text-tomato-700 text-3xl">{t.app.title}</h1>
-		</div>
+		<h1 class="font-display text-tomato-700 text-3xl">{t.app.title}</h1>
 		<p class="text-sm text-stone-600">{t.app.tagline}</p>
 	</header>
 
