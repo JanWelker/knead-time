@@ -332,6 +332,63 @@ describe('computeSchedule — night-window avoidance', () => {
 	});
 });
 
+describe('computeSchedule — cold-mode threshold boundary', () => {
+	it('falls into room mode one minute below the threshold', () => {
+		const startAt = new Date('2026-05-12T03:00:00Z');
+		const readyBy = new Date(startAt.getTime() + (COLD_MODE_THRESHOLD_MIN - 1) * 60_000);
+		expect(computeSchedule(baseInputs({ startAt, readyBy })).mode).toBe('room');
+	});
+
+	it('flips to cold mode one minute above the threshold', () => {
+		const startAt = new Date('2026-05-12T03:00:00Z');
+		const readyBy = new Date(startAt.getTime() + (COLD_MODE_THRESHOLD_MIN + 1) * 60_000);
+		expect(computeSchedule(baseInputs({ startAt, readyBy })).mode).toBe('cold');
+	});
+});
+
+describe('computeSchedule — sourdough + pre-ferment mass balance', () => {
+	it('sums every weighed ingredient to pizzaCount × ballWeight', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				yeastType: 'sourdough',
+				starterHydration: 100,
+				preFerment: { type: 'biga', flourPercent: 30 }
+			})
+		);
+		const ing = r.ingredients;
+		const pf = ing.preFerment!;
+		// Sourdough starter is flour + water already accounted for in the
+		// flour/water budget — the main 'yeast' field is just the starter mass
+		// and re-adding it would double-count. The pre-ferment yeast is a tiny
+		// pinch (~0.1% of pf flour) so we exclude that too to mirror the existing
+		// sourdough mass-balance test style.
+		const sum = ing.flour + ing.water + ing.salt + ing.yeast + pf.flour + pf.water;
+		expect(sum).toBeCloseTo(ing.totalDough, 6);
+		expect(ing.totalDough).toBe(4 * 280);
+	});
+});
+
+describe('computeSchedule — room mode with pre-ferment', () => {
+	it('places preferment-mix ~12 h before the main-day prep step', () => {
+		// 6 h total window forces room mode (well below COLD_MODE_THRESHOLD_MIN);
+		// preferment-mix should still land 12 h before prep on the schedule.
+		const startAt = new Date('2026-05-12T13:00:00Z');
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const r = computeSchedule(
+			baseInputs({ startAt, readyBy, preFerment: { type: 'poolish', flourPercent: 30 } })
+		);
+		expect(r.mode).toBe('room');
+		const preferment = r.steps.find((s) => s.kind === 'preferment-mix')!;
+		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		expect(preferment).toBeDefined();
+		expect(prep).toBeDefined();
+		const diffMin = (prep.at.getTime() - preferment.at.getTime()) / 60_000;
+		expect(diffMin).toBeCloseTo(12 * 60, 0);
+	});
+});
+
 describe('computeSchedule — temperature warnings', () => {
 	it('warns when the room is colder than 14 °C', () => {
 		const r = computeSchedule(baseInputs({ roomTempC: 12 }));

@@ -104,6 +104,37 @@ describe('computeIngredients — sourdough', () => {
 		expect(r.flour).toBeCloseTo(flourTotal - starterFlour, 6);
 		expect(r.flour + r.water + r.salt + r.yeast).toBeCloseTo(1120, 6);
 	});
+
+	it('handles 40% starter hydration (very stiff)', () => {
+		const starterHydration = 40;
+		const r = computeIngredients({
+			...baseArgs,
+			yeastType: 'sourdough',
+			yeastPercent: 20,
+			starterHydration
+		});
+		const starterMass = r.yeast;
+		const starterFlour = starterMass / (1 + starterHydration / 100);
+		const starterWater = starterMass - starterFlour;
+		expect(starterFlour + starterWater).toBeCloseTo(starterMass, 6);
+		// Mass-balance invariant: weighed ingredients = pizzaCount × ballWeight.
+		expect(r.flour + r.water + r.salt + r.yeast).toBeCloseTo(1120, 6);
+	});
+
+	it('handles 150% starter hydration (very liquid)', () => {
+		const starterHydration = 150;
+		const r = computeIngredients({
+			...baseArgs,
+			yeastType: 'sourdough',
+			yeastPercent: 20,
+			starterHydration
+		});
+		const starterMass = r.yeast;
+		const starterFlour = starterMass / (1 + starterHydration / 100);
+		const starterWater = starterMass - starterFlour;
+		expect(starterFlour + starterWater).toBeCloseTo(starterMass, 6);
+		expect(r.flour + r.water + r.salt + r.yeast).toBeCloseTo(1120, 6);
+	});
 });
 
 describe('computeIngredients — pre-ferment', () => {

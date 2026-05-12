@@ -1,3 +1,4 @@
+import { padZero } from '../format';
 import type { ScheduleStep, ScheduleStepKind } from './types';
 
 export interface IcsEventDescriptor {
@@ -50,15 +51,14 @@ export function escapeText(value: string): string {
 }
 
 export function formatUtc(date: Date): string {
-	const pad = (n: number) => String(n).padStart(2, '0');
 	return (
 		date.getUTCFullYear().toString() +
-		pad(date.getUTCMonth() + 1) +
-		pad(date.getUTCDate()) +
+		padZero(date.getUTCMonth() + 1) +
+		padZero(date.getUTCDate()) +
 		'T' +
-		pad(date.getUTCHours()) +
-		pad(date.getUTCMinutes()) +
-		pad(date.getUTCSeconds()) +
+		padZero(date.getUTCHours()) +
+		padZero(date.getUTCMinutes()) +
+		padZero(date.getUTCSeconds()) +
 		'Z'
 	);
 }
