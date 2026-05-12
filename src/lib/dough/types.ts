@@ -35,6 +35,7 @@ export interface Ingredients {
 
 export type ScheduleStepKind =
 	| 'preferment-mix'
+	| 'preferment-proof'
 	| 'prep'
 	| 'mix'
 	| 'bulk-room'

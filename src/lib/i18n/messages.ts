@@ -45,6 +45,8 @@ export interface Messages {
 	steps: {
 		preferment_mix: string;
 		preferment_mix_desc: string;
+		preferment_proof: string;
+		preferment_proof_desc: string;
 		prep: string;
 		prep_desc: string;
 		mix: string;
@@ -161,6 +163,9 @@ const en: Messages = {
 		preferment_mix: 'Mix pre-ferment',
 		preferment_mix_desc:
 			'Combine {flour} g flour, {water} g water and {yeast} g fresh yeast. Cover and let it mature at room temperature for {duration} (HH:MM) until you mix the main dough.',
+		preferment_proof: 'Pre-ferment matures',
+		preferment_proof_desc:
+			'Let the covered pre-ferment mature undisturbed at room temperature until you mix the main dough.',
 		prep: 'Weigh & prep',
 		prep_desc:
 			'Weigh out {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Take ingredients out of the fridge.',
@@ -283,6 +288,9 @@ const de: Messages = {
 		preferment_mix: 'Vorteig ansetzen',
 		preferment_mix_desc:
 			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe verrühren. Abgedeckt {duration} (HH:MM) bei Raumtemperatur reifen lassen, bis der Hauptteig geknetet wird.',
+		preferment_proof: 'Vorteig reift',
+		preferment_proof_desc:
+			'Den abgedeckten Vorteig ungestört bei Raumtemperatur reifen lassen, bis der Hauptteig geknetet wird.',
 		prep: 'Abwiegen & vorbereiten',
 		prep_desc:
 			'{flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} abwiegen. Zutaten rechtzeitig aus dem Kühlschrank holen.',
@@ -407,6 +415,9 @@ const it: Messages = {
 		preferment_mix: 'Preparare il preimpasto',
 		preferment_mix_desc:
 			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco. Coprire e lasciare maturare a temperatura ambiente per {duration} (HH:MM) fino a quando si impasta il principale.',
+		preferment_proof: 'Il preimpasto matura',
+		preferment_proof_desc:
+			'Lasciare maturare il preimpasto coperto, indisturbato a temperatura ambiente, fino a impastare il principale.',
 		prep: 'Pesare e preparare',
 		prep_desc:
 			'Pesare {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Togliere gli ingredienti dal frigo.',
