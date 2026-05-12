@@ -2,6 +2,7 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
 	import type { FormState } from '$lib/state.svelte';
+	import FormField from './FormField.svelte';
 
 	let { state }: { state: FormState } = $props();
 
@@ -112,17 +113,7 @@
 			{t.form.section_recipe}
 		</legend>
 
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.pizzaCount}</span>
-			<input
-				type="number"
-				min="1"
-				max="100"
-				step="1"
-				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-				bind:value={state.pizzaCount}
-			/>
-		</label>
+		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={state.pizzaCount} />
 
 		<div class="block">
 			<label class="block text-sm font-medium text-stone-700" for="ball-weight">
@@ -139,43 +130,25 @@
 			/>
 		</div>
 
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.hydration}</span>
-			<input
-				type="number"
-				min="50"
-				max="90"
-				step="1"
-				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-				bind:value={state.hydration}
-			/>
-			<span class="mt-1 block text-xs text-stone-500">{t.form.hydration_help}</span>
-		</label>
+		<FormField
+			label={t.form.hydration}
+			min={50}
+			max={90}
+			step={1}
+			help={t.form.hydration_help}
+			bind:value={state.hydration}
+		/>
 
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.salt}</span>
-			<input
-				type="number"
-				min="0"
-				max="5"
-				step="0.1"
-				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-				bind:value={state.saltPercent}
-			/>
-		</label>
+		<FormField label={t.form.salt} min={0} max={5} step={0.1} bind:value={state.saltPercent} />
 
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700">{t.form.roomTemp}</span>
-			<input
-				type="number"
-				min="10"
-				max="35"
-				step="0.5"
-				class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-				bind:value={state.roomTempC}
-			/>
-			<span class="mt-1 block text-xs text-stone-500">{t.form.roomTemp_help}</span>
-		</label>
+		<FormField
+			label={t.form.roomTemp}
+			min={10}
+			max={35}
+			step={0.5}
+			help={t.form.roomTemp_help}
+			bind:value={state.roomTempC}
+		/>
 
 		<label class="block">
 			<span class="block text-sm font-medium text-stone-700">{t.form.yeastType}</span>
@@ -189,18 +162,14 @@
 		</label>
 
 		{#if state.yeastType === 'sourdough'}
-			<label class="block">
-				<span class="block text-sm font-medium text-stone-700">{t.form.starterHydration}</span>
-				<input
-					type="number"
-					min="40"
-					max="150"
-					step="5"
-					class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-					bind:value={state.starterHydration}
-				/>
-				<span class="mt-1 block text-xs text-stone-500">{t.form.starterHydration_help}</span>
-			</label>
+			<FormField
+				label={t.form.starterHydration}
+				min={40}
+				max={150}
+				step={5}
+				help={t.form.starterHydration_help}
+				bind:value={state.starterHydration}
+			/>
 		{/if}
 	</fieldset>
 
@@ -221,17 +190,13 @@
 		</label>
 
 		{#if state.preFermentType !== 'none'}
-			<label class="block">
-				<span class="block text-sm font-medium text-stone-700">{t.form.preFermentFlour}</span>
-				<input
-					type="number"
-					min="5"
-					max="80"
-					step="5"
-					class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm"
-					bind:value={state.preFermentFlour}
-				/>
-			</label>
+			<FormField
+				label={t.form.preFermentFlour}
+				min={5}
+				max={80}
+				step={5}
+				bind:value={state.preFermentFlour}
+			/>
 		{/if}
 	</fieldset>
 </form>

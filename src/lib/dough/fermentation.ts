@@ -6,11 +6,13 @@
 //   - Sourdough starter 20% at 22 °C: full ferment in ~8 h
 // Temperature factor follows a Q10 = 2 model (rate doubles every 10 °C).
 
-export const REF_TEMP_C = 22;
-export const Q10 = 2;
+const REF_TEMP_C = 22;
+const Q10 = 2;
 
 // Calibration constants — units of (yeast_pct × hours) at reference temperature.
+// Fresh: 0.2% yeast × ~8 h at 22 °C = 1.6 units (matches the bench rule of thumb).
 export const TARGET_UNITS_FRESH = 1.6;
+// Sourdough: 20% starter × ~8 h at 22 °C = 160 units (~100× fresh — starter is far less active per gram).
 export const TARGET_UNITS_SOURDOUGH = 160;
 
 export function temperatureFactor(tempC: number): number {

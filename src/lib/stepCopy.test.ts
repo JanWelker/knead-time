@@ -69,6 +69,15 @@ describe('stepDescription — divide step', () => {
 		expect(desc).toContain('280 g');
 		expect(desc).not.toContain('280.0');
 	});
+
+	it('renders a decimal ball weight identically across locales', () => {
+		const r = computeSchedule(inputs({ ballWeight: 288.5 }));
+		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		for (const locale of ['en', 'de', 'it'] as const) {
+			const desc = stepDescription(divide, MESSAGES[locale], r);
+			expect(desc, `${locale} should contain 288.5`).toContain('288.5');
+		}
+	});
 });
 
 describe('stepTitle', () => {
