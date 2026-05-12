@@ -1,0 +1,313 @@
+import { describe, expect, it } from 'vitest';
+import {
+	computeSchedule,
+	COLD_MODE_THRESHOLD_MIN,
+	NIGHT_END_HOUR,
+	NIGHT_START_HOUR,
+	ROOM_MIN_TOTAL_MIN
+} from './schedule';
+import type { DoughInputs, ScheduleStepKind } from './types';
+
+const NIGHT_AWARE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
+	'preferment-mix',
+	'prep',
+	'mix',
+	'bulk-room',
+	'bulk-cold',
+	'divide',
+	'warmup'
+]);
+
+function inDayWindow(d: Date): boolean {
+	const h = d.getHours();
+	return h >= NIGHT_END_HOUR && h < NIGHT_START_HOUR;
+}
+
+function baseInputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
+	return {
+		readyBy: new Date('2026-05-12T19:00:00Z'),
+		startAt: new Date('2026-05-12T13:00:00Z'),
+		pizzaCount: 4,
+		ballWeight: 280,
+		hydration: 70,
+		saltPercent: 3,
+		yeastType: 'fresh',
+		starterHydration: 100,
+		roomTempC: 22,
+		preFerment: null,
+		...overrides
+	};
+}
+
+describe('computeSchedule — mode selection', () => {
+	it('chooses room mode for short windows', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T13:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('room');
+	});
+
+	it('chooses cold mode for long windows', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T19:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('cold');
+	});
+
+	it('exactly at threshold flips to cold', () => {
+		const now = new Date('2026-05-12T03:00:00Z');
+		const readyBy = new Date(now.getTime() + COLD_MODE_THRESHOLD_MIN * 60_000);
+		expect(computeSchedule(baseInputs({ startAt: now, readyBy })).mode).toBe('cold');
+	});
+});
+
+describe('computeSchedule — feasibility', () => {
+	it('flags too-short when window is below the room minimum', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T18:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.feasible).toBe(false);
+		expect(r.warnings).toContain('too-short');
+	});
+
+	it('is feasible at the minimum window', () => {
+		const now = new Date('2026-05-12T16:00:00Z');
+		const readyBy = new Date(now.getTime() + ROOM_MIN_TOTAL_MIN * 60_000);
+		expect(computeSchedule(baseInputs({ startAt: now, readyBy })).feasible).toBe(true);
+	});
+});
+
+describe('computeSchedule — backwards anchoring', () => {
+	it('ends every schedule on the ready-by datetime', () => {
+		const r = computeSchedule(baseInputs());
+		const last = r.steps[r.steps.length - 1];
+		expect(last.kind).toBe('ready');
+		expect(last.at.getTime()).toBe(new Date('2026-05-12T19:00:00Z').getTime());
+	});
+
+	it('emits steps sorted in forward time order', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		for (let i = 1; i < r.steps.length; i++) {
+			expect(r.steps[i].at.getTime()).toBeGreaterThanOrEqual(r.steps[i - 1].at.getTime());
+		}
+	});
+
+	it('includes a bulk-cold step in cold mode but not in room mode', () => {
+		const cold = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		const room = computeSchedule(baseInputs());
+		expect(cold.steps.some((s) => s.kind === 'bulk-cold')).toBe(true);
+		expect(room.steps.some((s) => s.kind === 'bulk-cold')).toBe(false);
+	});
+});
+
+describe('computeSchedule — yeast selection', () => {
+	it('uses much less yeast for cold ferment than for a short room ferment', () => {
+		const short = computeSchedule(baseInputs());
+		const long = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(long.yeastPercent).toBeLessThan(short.yeastPercent);
+	});
+
+	it('uses more yeast at colder room temps for the same window', () => {
+		const warm = computeSchedule(baseInputs({ roomTempC: 26 }));
+		const cool = computeSchedule(baseInputs({ roomTempC: 18 }));
+		expect(cool.yeastPercent).toBeGreaterThan(warm.yeastPercent);
+	});
+});
+
+describe('computeSchedule — ingredient consistency', () => {
+	it('returns ingredients that sum to total dough mass', () => {
+		const r = computeSchedule(baseInputs());
+		const sum =
+			r.ingredients.flour + r.ingredients.water + r.ingredients.salt + r.ingredients.yeast;
+		expect(sum).toBeCloseTo(r.ingredients.totalDough, 6);
+		expect(r.ingredients.totalDough).toBe(4 * 280);
+	});
+});
+
+describe('computeSchedule — pre-ferment', () => {
+	it('prepends a preferment-mix step 12h before prep', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				preFerment: { type: 'biga', flourPercent: 30 }
+			})
+		);
+		expect(r.steps[0].kind).toBe('preferment-mix');
+		const prepStep = r.steps.find((s) => s.kind === 'prep')!;
+		const diffMin = (prepStep.at.getTime() - r.steps[0].at.getTime()) / 60_000;
+		expect(diffMin).toBeCloseTo(12 * 60, 0);
+	});
+
+	it('populates ingredients.preFerment when biga is selected', () => {
+		const r = computeSchedule(baseInputs({ preFerment: { type: 'biga', flourPercent: 30 } }));
+		expect(r.ingredients.preFerment).not.toBeNull();
+		expect(r.ingredients.preFerment!.flour).toBeGreaterThan(0);
+		expect(r.ingredients.preFerment!.water).toBeGreaterThan(0);
+		expect(r.ingredients.preFerment!.yeast).toBeGreaterThan(0);
+		// biga is ~50% hydration — water should be roughly half the flour
+		expect(r.ingredients.preFerment!.water / r.ingredients.preFerment!.flour).toBeCloseTo(0.5, 6);
+	});
+
+	it('populates ingredients.preFerment when poolish is selected', () => {
+		const r = computeSchedule(baseInputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
+		expect(r.ingredients.preFerment).not.toBeNull();
+		// poolish is 100% hydration
+		expect(r.ingredients.preFerment!.water / r.ingredients.preFerment!.flour).toBeCloseTo(1, 6);
+	});
+
+	it('leaves ingredients.preFerment null when no pre-ferment is chosen', () => {
+		const r = computeSchedule(baseInputs({ preFerment: null }));
+		expect(r.ingredients.preFerment).toBeNull();
+	});
+
+	it('schedules the preferment-mix step at or after startAt when night avoidance is not needed', () => {
+		// Chosen so the natural schedule already lands every action in daytime
+		// (preferment-mix at 20:00 UTC, prep at 08:00 UTC, bake at 13:45 UTC).
+		// With night avoidance disabled the system must still honour startAt.
+		const startAt = new Date('2026-05-12T20:00:00Z');
+		const readyBy = new Date('2026-05-14T13:45:00Z');
+		const r = computeSchedule(
+			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+		);
+		expect(r.steps[0].kind).toBe('preferment-mix');
+		expect(r.steps[0].at.getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+		expect(r.warnings).not.toContain('night-step');
+	});
+
+	it('keeps mass balance with a pre-ferment (main + preferment sums to total)', () => {
+		const r = computeSchedule(baseInputs({ preFerment: { type: 'biga', flourPercent: 30 } }));
+		const ing = r.ingredients;
+		const pf = ing.preFerment!;
+		const sum = ing.flour + ing.water + ing.salt + ing.yeast + pf.flour + pf.water + pf.yeast;
+		expect(sum).toBeCloseTo(ing.totalDough, 6);
+	});
+});
+
+describe('computeSchedule — night-window avoidance', () => {
+	it('shifts cold-mode prep out of the night (no preferment)', () => {
+		// Natural schedule: 36 h cold ferment → prep at Mon 07:00 UTC (h=7, night).
+		// Adjuster must extend or shorten the cold ferment so every action lands
+		// in [08:00, 22:00).
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('cold');
+		for (const s of r.steps) {
+			if (!NIGHT_AWARE_KINDS.has(s.kind)) continue;
+			expect(inDayWindow(s.at), `${s.kind} at ${s.at.toISOString()} fell in the night`).toBe(true);
+		}
+		expect(r.warnings).not.toContain('night-step');
+	});
+
+	it('shifts cold-mode prep out of the night with a preferment', () => {
+		// Natural schedule: prep at Mon 19:00 UTC (h=19, ok), but preferment-mix
+		// lands 12 h earlier at Mon 07:00 UTC (h=7, night). Adjuster must push
+		// the cluster so both prep and preferment-mix sit in daytime.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-10T19:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				preFerment: { type: 'biga', flourPercent: 30 }
+			})
+		);
+		expect(r.mode).toBe('cold');
+		for (const s of r.steps) {
+			if (!NIGHT_AWARE_KINDS.has(s.kind)) continue;
+			expect(inDayWindow(s.at), `${s.kind} at ${s.at.toISOString()} fell in the night`).toBe(true);
+		}
+		expect(r.warnings).not.toContain('night-step');
+		// preferment-mix is still exactly 12 h before prep — adjusting coldMin
+		// shifts the whole cluster together, not the preferment offset.
+		const preferment = r.steps.find((s) => s.kind === 'preferment-mix')!;
+		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const diffMin = (prep.at.getTime() - preferment.at.getTime()) / 60_000;
+		expect(diffMin).toBeCloseTo(12 * 60, 0);
+	});
+
+	it('keeps the schedule ending exactly at readyBy after night avoidance', () => {
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt: new Date('2026-05-11T07:00:00Z'), readyBy }));
+		const last = r.steps[r.steps.length - 1];
+		expect(last.kind).toBe('ready');
+		expect(last.at.getTime()).toBe(readyBy.getTime());
+	});
+
+	it('emits night-step warning when readyBy forces divide/warmup into the night', () => {
+		// readyBy at 11:00 → divide at 06:45, warmup at 07:00 — both post-cold
+		// steps are anchored to readyBy and cannot be moved by the adjuster.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-10T07:00:00Z'),
+				readyBy: new Date('2026-05-11T11:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('cold');
+		expect(r.warnings).toContain('night-step');
+	});
+
+	it('emits night-step warning when room mode lands actions at night', () => {
+		// 3 h window starting at 03:00 → every action sits in [03:00, 06:00).
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T03:00:00Z'),
+				readyBy: new Date('2026-05-12T06:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('room');
+		expect(r.warnings).toContain('night-step');
+	});
+
+	it('preserves mass balance after night adjustment (no preferment)', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		const sum =
+			r.ingredients.flour + r.ingredients.water + r.ingredients.salt + r.ingredients.yeast;
+		expect(sum).toBeCloseTo(r.ingredients.totalDough, 6);
+	});
+
+	it('preserves mass balance after night adjustment (with preferment)', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-10T19:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				preFerment: { type: 'biga', flourPercent: 30 }
+			})
+		);
+		const ing = r.ingredients;
+		const pf = ing.preFerment!;
+		const sum = ing.flour + ing.water + ing.salt + ing.yeast + pf.flour + pf.water + pf.yeast;
+		expect(sum).toBeCloseTo(ing.totalDough, 6);
+	});
+});

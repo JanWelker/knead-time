@@ -1,0 +1,109 @@
+@import 'tailwindcss';
+
+@theme {
+	--font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	--font-display: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+
+	--color-dough-50: #fdf8ef;
+	--color-dough-100: #f8ecd0;
+	--color-dough-200: #f0d8a1;
+	--color-dough-300: #e6bd6e;
+	--color-dough-400: #dca246;
+	--color-dough-500: #c98828;
+	--color-dough-600: #a86d20;
+	--color-dough-700: #82531c;
+	--color-dough-800: #5d3b16;
+	--color-dough-900: #3d270f;
+
+	--color-tomato-50: #fdf2ee;
+	--color-tomato-100: #fbded2;
+	--color-tomato-200: #f7b9a4;
+	--color-tomato-300: #f08a6b;
+	--color-tomato-400: #e35f3a;
+	--color-tomato-500: #c8401a;
+	--color-tomato-600: #a73213;
+	--color-tomato-700: #842712;
+	--color-tomato-800: #5d1a0c;
+	--color-tomato-900: #3a0f07;
+
+	--color-basil-50: #f0f7ed;
+	--color-basil-100: #dceed1;
+	--color-basil-200: #b8dca3;
+	--color-basil-300: #8cc472;
+	--color-basil-400: #65a94d;
+	--color-basil-500: #4a8d36;
+	--color-basil-600: #387029;
+	--color-basil-700: #2c5722;
+	--color-basil-800: #20401a;
+	--color-basil-900: #142810;
+}
+
+html {
+	font-family: var(--font-sans);
+	-webkit-font-smoothing: antialiased;
+	background: radial-gradient(ellipse at top, var(--color-dough-100) 0%, var(--color-dough-50) 60%)
+		fixed;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+	font-family: var(--font-display);
+	letter-spacing: -0.01em;
+}
+
+/* Numeric tabular alignment in tables */
+table.tabular td,
+table.tabular th {
+	font-variant-numeric: tabular-nums;
+}
+
+input[type='number'] {
+	font-variant-numeric: tabular-nums;
+}
+
+/* Focus ring tuned to the warm palette */
+:where(input, select, button, textarea):focus-visible {
+	outline: 2px solid var(--color-tomato-500);
+	outline-offset: 2px;
+}
+
+/* Print-only content is hidden on screen and revealed in print. */
+.print-only {
+	display: none;
+}
+
+@page {
+	margin: 14mm 12mm;
+}
+
+@media print {
+	html,
+	body {
+		background: white !important;
+	}
+
+	html {
+		font-size: 11pt;
+	}
+
+	.print-only {
+		display: block;
+	}
+
+	/* Keep schedule rows from splitting awkwardly across pages. */
+	table.tabular tbody tr {
+		break-inside: avoid;
+	}
+
+	/* Repeat table headers on every printed page. */
+	thead {
+		display: table-header-group;
+	}
+
+	/* Drop translucent layers so the printed page is fully opaque. */
+	[class*='backdrop-blur'] {
+		backdrop-filter: none !important;
+	}
+}

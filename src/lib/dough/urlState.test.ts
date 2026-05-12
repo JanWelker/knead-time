@@ -1,0 +1,73 @@
+import { describe, expect, it } from 'vitest';
+import { decodeInputs, encodeInputs, type SerializableInputs } from './urlState';
+
+const base: SerializableInputs = {
+	readyBy: new Date('2026-05-12T19:00:00Z'),
+	startAt: new Date('2026-05-12T13:00:00Z'),
+	pizzaCount: 4,
+	ballWeight: 280,
+	hydration: 70,
+	saltPercent: 3,
+	yeastType: 'fresh',
+	starterHydration: 100,
+	roomTempC: 22,
+	preFerment: null
+};
+
+describe('urlState round-trip', () => {
+	it('round-trips fresh-yeast inputs', () => {
+		const out = decodeInputs(encodeInputs(base));
+		expect(out.readyBy?.toISOString()).toBe(base.readyBy.toISOString());
+		expect(out.startAt?.toISOString()).toBe(base.startAt.toISOString());
+		expect(out.pizzaCount).toBe(4);
+		expect(out.ballWeight).toBe(280);
+		expect(out.hydration).toBe(70);
+		expect(out.saltPercent).toBe(3);
+		expect(out.yeastType).toBe('fresh');
+		expect(out.roomTempC).toBe(22);
+		expect(out.preFerment).toBeUndefined();
+	});
+
+	it('round-trips sourdough with starter hydration', () => {
+		const inp: SerializableInputs = {
+			...base,
+			yeastType: 'sourdough',
+			starterHydration: 80
+		};
+		const out = decodeInputs(encodeInputs(inp));
+		expect(out.yeastType).toBe('sourdough');
+		expect(out.starterHydration).toBe(80);
+	});
+
+	it('round-trips a biga pre-ferment', () => {
+		const inp: SerializableInputs = {
+			...base,
+			preFerment: { type: 'biga', flourPercent: 30 }
+		};
+		const out = decodeInputs(encodeInputs(inp));
+		expect(out.preFerment).toEqual({ type: 'biga', flourPercent: 30 });
+	});
+
+	it('round-trips a poolish pre-ferment', () => {
+		const inp: SerializableInputs = {
+			...base,
+			preFerment: { type: 'poolish', flourPercent: 20 }
+		};
+		const out = decodeInputs(encodeInputs(inp));
+		expect(out.preFerment).toEqual({ type: 'poolish', flourPercent: 20 });
+	});
+
+	it('keeps query parameter keys short', () => {
+		const encoded = encodeInputs(base);
+		for (const segment of encoded.split('&')) {
+			const key = segment.split('=')[0];
+			expect(key.length).toBeLessThanOrEqual(2);
+		}
+	});
+
+	it('ignores unknown / malformed parameters', () => {
+		const out = decodeInputs('?h=bogus&n=&unknown=42');
+		expect(out.hydration).toBeUndefined();
+		expect(out.pizzaCount).toBeUndefined();
+	});
+});
