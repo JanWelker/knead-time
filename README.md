@@ -64,7 +64,7 @@ src/
 └── app.html              ← shell
 
 .github/workflows/
-├── ci.yml                ← lint + check + test + build on every push/PR
+├── ci.yml                ← lint + check + test + build on every PR
 ├── deploy.yml            ← build + publish to GitHub Pages on main
 └── preview.yml           ← build + publish a per-PR preview, comment the URL, clean up on close
 
@@ -135,7 +135,7 @@ The workflow resolves the **base path** automatically: project repos (`<owner>/<
 
 The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
 
-A separate **`.github/workflows/ci.yml`** runs lint, type-check, tests, and build on every push and PR but doesn't deploy.
+A separate **`.github/workflows/ci.yml`** runs lint, type-check, tests, and build on every PR but doesn't deploy. It deliberately doesn't run on pushes to `main` — branch protection requires the PR check to be green before merge, so re-running it against the merge commit just duplicates the work `deploy.yml` is about to do.
 
 ---
 
