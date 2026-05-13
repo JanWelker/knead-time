@@ -122,6 +122,7 @@ Deployment is fully automated by **`.github/workflows/deploy.yml`**. Every push 
 1. Runs `npm ci` and builds the static site with `npm run build`.
 2. Pushes the contents of `./build/` to the `gh-pages` branch (root), preserving any `pr-preview/` subdirectories so open PR previews keep working.
 3. GitHub Pages serves the `gh-pages` branch.
+4. Tags the commit `v<version>` (from `package.json`) and pushes the tag. The step is idempotent — pushes that don't bump the version skip the tag because it already exists on `origin`. This is what backs the `v<version>` release links in the screen and print footers.
 
 The workflow resolves the **base path** automatically: project repos (`<owner>/<repo>`) are served from `/<repo>/`, so the build is run with `BASE_PATH=/<repo>`. User/org sites (`<owner>.github.io`) are served from the root, so `BASE_PATH` stays empty. If you point a custom domain at the Pages site, unset `BASE_PATH` in the workflow (or override it).
 

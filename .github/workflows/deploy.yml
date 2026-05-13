@@ -51,3 +51,16 @@ jobs:
           # Preserve PR preview subdirectories published by preview.yml.
           clean-exclude: |
             pr-preview/**
+
+      - name: Tag release
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          # Idempotent: every push to main runs this job, but we only tag
+          # when package.json has been bumped to a version we haven't tagged.
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists on origin, skipping."
+            exit 0
+          fi
+          git tag "$TAG"
+          git push origin "$TAG"
