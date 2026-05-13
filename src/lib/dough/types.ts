@@ -66,6 +66,7 @@ export interface ComputedSchedule {
 	warnings: ScheduleWarning[];
 	pizzaCount: number;
 	ballWeight: number;
+	idealWaterTempC: number;
 }
 
 export type ScheduleWarning =

@@ -217,6 +217,35 @@ describe('stepDescription — proofing steps omit duration (shown in column)', (
 	});
 });
 
+describe('stepDescription — mix step water-temp recommendation', () => {
+	it('interpolates the recommended water temperature into the mix description', () => {
+		const r = computeSchedule(inputs());
+		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc).toContain(`${r.idealWaterTempC} °C`);
+		expect(desc).not.toContain('{water_temp}');
+	});
+
+	it('mentions chilling with ice for the baker with a hot kitchen', () => {
+		const r = computeSchedule(inputs({ roomTempC: 30 }));
+		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc.toLowerCase()).toContain('ice');
+	});
+
+	it('flows the water temperature through the biga and poolish mix copy too', () => {
+		for (const type of ['biga', 'poolish'] as const) {
+			const r = computeSchedule(inputs({ preFerment: { type, flourPercent: 30 } }));
+			const mix = r.steps.find((s) => s.kind === 'mix')!;
+			const desc = stepDescription(mix, MESSAGES.en, r);
+			expect(desc, `${type} mix should interpolate water temp`).toContain(
+				`${r.idealWaterTempC} °C`
+			);
+			expect(desc).not.toContain('{water_temp}');
+		}
+	});
+});
+
 describe('stepDescription — mix step with pre-ferment', () => {
 	it('names the pre-ferment by type so the baker knows what to fold in', () => {
 		const poolish = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));

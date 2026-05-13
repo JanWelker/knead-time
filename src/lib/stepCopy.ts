@@ -83,18 +83,21 @@ export function stepDescription(
 				yeast_label: yeastLabel
 			});
 		case 'mix': {
+			const waterTemp = schedule.idealWaterTempC;
 			if (prefermentType === 'biga') {
 				return interpolate(msgs.steps.mix_desc_with_biga, {
 					flour: formatGramsValue(ingredients.flour),
 					water: formatGramsValue(ingredients.water),
-					salt: formatGramsValue(ingredients.salt)
+					salt: formatGramsValue(ingredients.salt),
+					water_temp: waterTemp
 				});
 			}
 			if (prefermentType === 'poolish') {
 				return interpolate(msgs.steps.mix_desc_with_poolish, {
 					flour: formatGramsValue(ingredients.flour),
 					water: formatGramsValue(ingredients.water),
-					salt: formatGramsValue(ingredients.salt)
+					salt: formatGramsValue(ingredients.salt),
+					water_temp: waterTemp
 				});
 			}
 			return interpolate(template, {
@@ -102,7 +105,8 @@ export function stepDescription(
 				water: formatGramsValue(ingredients.water),
 				salt: formatGramsValue(ingredients.salt),
 				yeast: formatGramsValue(ingredients.yeast),
-				yeast_label: yeastLabel
+				yeast_label: yeastLabel,
+				water_temp: waterTemp
 			});
 		}
 		default:

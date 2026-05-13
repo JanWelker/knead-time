@@ -1,6 +1,6 @@
 {
 	"name": "doughcalc",
-	"version": "2.2.6",
+	"version": "2.2.7",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
