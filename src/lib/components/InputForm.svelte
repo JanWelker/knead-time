@@ -13,17 +13,10 @@
 	let readyByDate = $derived(toDatePart(state.readyBy));
 	let readyByTime = $derived(toTimePart(state.readyBy));
 
-	// Native <input type="time"> follows the browser's UI locale, which means en-US
-	// users see AM/PM. For de/it we fall back to a 24-hour text input so the picker
-	// matches the selected app language.
-	const useNativeTime = $derived(i18n.locale === 'en');
-	const timePattern = '([01]?\\d|2[0-3])[.:][0-5]\\d';
-
 	const inputBase =
 		'border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100';
 	const dateInputClass = `${inputBase} min-w-0 flex-1`;
 	const timeInputClass = `${inputBase} w-28`;
-	const timeTextClass = `${inputBase} w-24`;
 	const selectClass = `${inputBase} mt-1 w-full`;
 
 	function setStartAt(datePart: string, timePart: string) {
@@ -57,24 +50,12 @@
 					value={startAtDate}
 					oninput={(e) => setStartAt(e.currentTarget.value, startAtTime)}
 				/>
-				{#if useNativeTime}
-					<input
-						type="time"
-						class={timeInputClass}
-						value={startAtTime}
-						oninput={(e) => setStartAt(startAtDate, e.currentTarget.value)}
-					/>
-				{:else}
-					<input
-						type="text"
-						inputmode="numeric"
-						pattern={timePattern}
-						placeholder="HH:MM"
-						class={timeTextClass}
-						value={startAtTime}
-						oninput={(e) => setStartAt(startAtDate, e.currentTarget.value)}
-					/>
-				{/if}
+				<input
+					type="time"
+					class={timeInputClass}
+					value={startAtTime}
+					oninput={(e) => setStartAt(startAtDate, e.currentTarget.value)}
+				/>
 			</div>
 			<div class="mt-1 flex items-center justify-between gap-2">
 				<span class="block text-xs text-stone-500 dark:text-stone-400">{t.form.startAt_help}</span>
@@ -98,24 +79,12 @@
 					value={readyByDate}
 					oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
 				/>
-				{#if useNativeTime}
-					<input
-						type="time"
-						class={timeInputClass}
-						value={readyByTime}
-						oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
-					/>
-				{:else}
-					<input
-						type="text"
-						inputmode="numeric"
-						pattern={timePattern}
-						placeholder="HH:MM"
-						class={timeTextClass}
-						value={readyByTime}
-						oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
-					/>
-				{/if}
+				<input
+					type="time"
+					class={timeInputClass}
+					value={readyByTime}
+					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
+				/>
 			</div>
 			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
 				{t.form.readyBy_help}
