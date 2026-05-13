@@ -93,7 +93,7 @@
 							{formatDate(entry.date)}
 						</td>
 						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.pizzaCount)}</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.ballWeight)}</td>
+						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.ballWeight, ' g')}</td>
 						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.hydration, '%')}</td>
 						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.saltPercent, '%')}</td>
 						<td class="py-3 pr-3">{yeastLabel(entry)}</td>
