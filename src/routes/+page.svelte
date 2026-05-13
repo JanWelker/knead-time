@@ -15,6 +15,7 @@
 	import { formatBallWeight, formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
+	import { qrCode } from '$lib/qr';
 	import { FormState } from '$lib/state.svelte';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
 
@@ -120,30 +121,64 @@
 		</div>
 	</header>
 
-	<section class="print-only mb-2 break-inside-avoid">
-		<h2 class="font-display mb-1 text-base text-stone-900">{t.print.recipe_heading}</h2>
-		<dl class="grid grid-cols-2 gap-x-6 gap-y-0 text-xs">
-			<dt class="text-stone-600">{t.form.readyBy}</dt>
-			<dd class="font-medium">{formatDateTime(form.readyBy, locale)}</dd>
-			<dt class="text-stone-600">{t.form.pizzaCount}</dt>
-			<dd class="font-medium">{form.pizzaCount} × {formatBallWeight(form.ballWeight)} g</dd>
-			<dt class="text-stone-600">{t.form.hydration}</dt>
-			<dd class="font-medium">{form.hydration}%</dd>
-			<dt class="text-stone-600">{t.form.salt}</dt>
-			<dd class="font-medium">{form.saltPercent}%</dd>
-			<dt class="text-stone-600">{t.form.yeastType}</dt>
-			<dd class="font-medium">{yeastLabel}</dd>
-			<dt class="text-stone-600">{t.form.roomTemp}</dt>
-			<dd class="font-medium">{form.roomTempC} °C</dd>
-			{#if form.schedule.mode === 'cold'}
-				<dt class="text-stone-600">{t.form.fridgeTemp}</dt>
-				<dd class="font-medium">{form.fridgeTempC} °C</dd>
-			{/if}
-			{#if preFermentLabel}
-				<dt class="text-stone-600">{t.form.preFerment}</dt>
-				<dd class="font-medium">{preFermentLabel}</dd>
-			{/if}
-		</dl>
+	<section class="print-only mb-3 break-inside-avoid">
+		<div class="grid grid-cols-2 gap-6">
+			<div>
+				<h2 class="font-display mb-1 text-base text-stone-900">{t.print.recipe_heading}</h2>
+				<table class="tabular w-full border-collapse">
+					<tbody>
+						<tr class="border-dough-200/70 border-b last:border-0">
+							<th class="text-left font-normal text-stone-600">{t.form.readyBy}</th>
+							<td class="text-right font-medium tabular-nums">
+								{formatDateTime(form.readyBy, locale)}
+							</td>
+						</tr>
+						<tr class="border-dough-200/70 border-b last:border-0">
+							<th class="text-left font-normal text-stone-600">{t.form.pizzaCount}</th>
+							<td class="text-right font-medium tabular-nums">
+								{form.pizzaCount} × {formatBallWeight(form.ballWeight)} g
+							</td>
+						</tr>
+						<tr class="border-dough-200/70 border-b last:border-0">
+							<th class="text-left font-normal text-stone-600">{t.form.hydration}</th>
+							<td class="text-right font-medium tabular-nums">{form.hydration}%</td>
+						</tr>
+						<tr class="border-dough-200/70 border-b last:border-0">
+							<th class="text-left font-normal text-stone-600">{t.form.salt}</th>
+							<td class="text-right font-medium tabular-nums">{form.saltPercent}%</td>
+						</tr>
+						<tr class="border-dough-200/70 border-b last:border-0">
+							<th class="text-left font-normal text-stone-600">{t.form.yeastType}</th>
+							<td class="text-right font-medium">{yeastLabel}</td>
+						</tr>
+						<tr class="border-dough-200/70 border-b last:border-0">
+							<th class="text-left font-normal text-stone-600">{t.form.roomTemp}</th>
+							<td class="text-right font-medium tabular-nums">{form.roomTempC} °C</td>
+						</tr>
+						{#if form.schedule.mode === 'cold'}
+							<tr class="border-dough-200/70 border-b last:border-0">
+								<th class="text-left font-normal text-stone-600">{t.form.fridgeTemp}</th>
+								<td class="text-right font-medium tabular-nums">{form.fridgeTempC} °C</td>
+							</tr>
+						{/if}
+						{#if preFermentLabel}
+							<tr class="border-dough-200/70 border-b last:border-0">
+								<th class="text-left font-normal text-stone-600">{t.form.preFerment}</th>
+								<td class="text-right font-medium">{preFermentLabel}</td>
+							</tr>
+						{/if}
+					</tbody>
+				</table>
+			</div>
+			<div>
+				<h2 class="font-display mb-1 text-base text-stone-900">{t.ingredients.heading}</h2>
+				<Ingredients
+					ingredients={form.schedule.ingredients}
+					yeastType={form.yeastType}
+					yeastPercent={form.schedule.yeastPercent}
+				/>
+			</div>
+		</div>
 	</section>
 
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-5 print:block print:gap-0">
@@ -191,7 +226,7 @@
 				</div>
 			</div>
 
-			<div class={cardClass}>
+			<div class="{cardClass} print:hidden">
 				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 print:mb-1">
 					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100 print:text-base">
 						{t.ingredients.heading}
@@ -275,10 +310,23 @@
 	</footer>
 
 	<footer class="print-only mt-3 border-t border-stone-300 pt-2 text-[8pt] text-stone-500">
-		<p>{t.footer.about} <span class="text-stone-400">· v{appVersion}</span></p>
-		<p class="mt-0.5">
-			<span class="text-stone-400">{t.print.source_label}:</span>
-			<span class="break-all">{shareUrl}</span>
-		</p>
+		<div class="flex items-end justify-between gap-4">
+			<div>
+				<p>{t.footer.about} <span class="text-stone-400">· v{appVersion}</span></p>
+				{#if shareUrl}
+					<p class="mt-0.5 text-stone-400">{t.print.scan_to_open}</p>
+				{/if}
+			</div>
+			{#if shareUrl}
+				{@const qr = qrCode(shareUrl)}
+				<svg
+					viewBox="0 0 {qr.size} {qr.size}"
+					class="h-20 w-20 shrink-0 text-black"
+					aria-hidden="true"
+				>
+					<path d={qr.path} fill="currentColor" />
+				</svg>
+			{/if}
+		</div>
 	</footer>
 </main>

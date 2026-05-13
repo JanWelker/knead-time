@@ -1,6 +1,6 @@
 {
 	"name": "doughcalc",
-	"version": "2.1.2",
+	"version": "2.2.0",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
@@ -50,5 +50,8 @@
 		"*.{json,md,css,html}": [
 			"prettier --write"
 		]
+	},
+	"dependencies": {
+		"qrcode-generator": "^2.0.4"
 	}
 }
