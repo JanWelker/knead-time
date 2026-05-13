@@ -1,1 +1,0 @@
-import{o as e,t}from"../chunks/BiVM_G2R.js";export{e as load_css,t as start};
