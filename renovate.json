@@ -4,8 +4,7 @@
 		"config:recommended",
 		":dependencyDashboard",
 		":semanticCommits",
-		":prHourlyLimit2",
-		"schedule:daily"
+		"helpers:pinGitHubActionDigestsToSemver"
 	],
 	"timezone": "Europe/Zurich",
 	"labels": ["dependencies"],
@@ -13,16 +12,17 @@
 		"node": "24",
 		"npm": "11"
 	},
+	"automerge": true,
+	"platformAutomerge": true,
+	"prHourlyLimit": 0,
 	"lockFileMaintenance": {
-		"enabled": true,
-		"schedule": ["before 5am every weekday"]
+		"enabled": true
 	},
 	"packageRules": [
 		{
 			"matchManagers": ["github-actions"],
 			"groupName": "github-actions",
-			"matchUpdateTypes": ["minor", "patch", "digest"],
-			"automerge": true
+			"matchUpdateTypes": ["minor", "patch", "digest"]
 		},
 		{
 			"matchPackageNames": [
@@ -49,11 +49,6 @@
 		{
 			"matchPackageNames": ["@types/node"],
 			"allowedVersions": "<23"
-		},
-		{
-			"matchDepTypes": ["devDependencies"],
-			"matchUpdateTypes": ["patch"],
-			"automerge": true
 		}
 	]
 }
