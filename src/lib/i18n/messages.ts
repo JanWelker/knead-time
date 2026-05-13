@@ -185,7 +185,8 @@ const en: Messages = {
 		section_when: 'When',
 		section_recipe: 'Recipe',
 		startAt: 'Start time',
-		startAt_help: 'When you begin planning. The schedule runs from here to the bake.',
+		startAt_help:
+			"The earliest you're available to start. Steps fit between this moment and the bake.",
 		startAt_now: 'Now',
 		readyBy: 'Ready to bake',
 		readyBy_help: 'The moment the first pizza goes in the oven.',
@@ -374,7 +375,8 @@ const de: Messages = {
 		section_when: 'Wann',
 		section_recipe: 'Rezept',
 		startAt: 'Startzeit',
-		startAt_help: 'Wann du mit dem Planen beginnst. Der Zeitplan läuft von hier bis zum Backen.',
+		startAt_help:
+			'Der früheste Zeitpunkt, ab dem du Zeit hast. Die Schritte werden zwischen diesem Moment und dem Backen verteilt.',
 		startAt_now: 'Jetzt',
 		readyBy: 'Bereit zum Backen',
 		readyBy_help: 'Der Moment, an dem die erste Pizza in den Ofen geht.',
@@ -566,7 +568,8 @@ const it: Messages = {
 		section_when: 'Quando',
 		section_recipe: 'Ricetta',
 		startAt: 'Ora di inizio',
-		startAt_help: 'Quando inizi a pianificare. Il programma va da qui alla cottura.',
+		startAt_help:
+			'Il primo momento in cui sei disponibile. I passaggi si distribuiscono tra questo momento e la cottura.',
 		startAt_now: 'Adesso',
 		readyBy: 'Pronto da infornare',
 		readyBy_help: "L'istante in cui la prima pizza entra nel forno.",
@@ -755,7 +758,8 @@ const fr: Messages = {
 		section_when: 'Quand',
 		section_recipe: 'Recette',
 		startAt: 'Heure de départ',
-		startAt_help: "Quand vous commencez à planifier. Le programme va d'ici à la cuisson.",
+		startAt_help:
+			'Le moment le plus tôt où vous êtes disponible. Les étapes se répartissent entre ce moment et la cuisson.',
 		startAt_now: 'Maintenant',
 		readyBy: 'Prêt à enfourner',
 		readyBy_help: 'Le moment où la première pizza entre au four.',
@@ -948,7 +952,8 @@ const nl: Messages = {
 		section_when: 'Wanneer',
 		section_recipe: 'Recept',
 		startAt: 'Starttijd',
-		startAt_help: 'Wanneer je begint te plannen. Het schema loopt van hier tot het bakken.',
+		startAt_help:
+			'Het vroegste moment waarop je beschikbaar bent. De stappen worden verdeeld tussen dit moment en het bakken.',
 		startAt_now: 'Nu',
 		readyBy: 'Klaar om te bakken',
 		readyBy_help: 'Het moment dat de eerste pizza in de oven gaat.',
@@ -1139,7 +1144,8 @@ const jam: Messages = {
 		section_when: 'Wen',
 		section_recipe: 'Recipe',
 		startAt: 'Start time',
-		startAt_help: 'Wen yu start plan. Di schedule run fram yah right to wen yu bake.',
+		startAt_help:
+			'Di earliest yu free fi start. Di steps sketch out between dis moment an wen yu bake.',
 		startAt_now: 'Right now',
 		readyBy: 'Ready fi bake',
 		readyBy_help: 'Di moment di fus pizza go inna di oven.',
