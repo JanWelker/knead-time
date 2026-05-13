@@ -129,7 +129,7 @@ export interface Messages {
 	};
 	print: {
 		recipe_heading: string;
-		source_label: string;
+		scan_to_open: string;
 	};
 	warnings: {
 		too_short: string;
@@ -316,7 +316,7 @@ const en: Messages = {
 	},
 	print: {
 		recipe_heading: 'Recipe',
-		source_label: 'Reproduce this recipe at'
+		scan_to_open: 'Scan to open this recipe'
 	},
 	warnings: {
 		too_short:
@@ -508,7 +508,7 @@ const de: Messages = {
 	},
 	print: {
 		recipe_heading: 'Rezept',
-		source_label: 'Rezept reproduzieren unter'
+		scan_to_open: 'Scanne, um das Rezept zu öffnen'
 	},
 	warnings: {
 		too_short:
@@ -697,7 +697,7 @@ const it: Messages = {
 	},
 	print: {
 		recipe_heading: 'Ricetta',
-		source_label: 'Riproduci la ricetta su'
+		scan_to_open: 'Scansiona per aprire la ricetta'
 	},
 	warnings: {
 		too_short:
@@ -890,7 +890,7 @@ const fr: Messages = {
 	},
 	print: {
 		recipe_heading: 'Recette',
-		source_label: 'Reproduire cette recette sur'
+		scan_to_open: 'Scannez pour ouvrir la recette'
 	},
 	warnings: {
 		too_short:
@@ -1081,7 +1081,7 @@ const nl: Messages = {
 	},
 	print: {
 		recipe_heading: 'Recept',
-		source_label: 'Reproduceer dit recept op'
+		scan_to_open: 'Scan om het recept te openen'
 	},
 	warnings: {
 		too_short: 'Niet genoeg tijd. Kies een later moment of accepteer dat het deeg ondergerezen is.',
@@ -1269,7 +1269,7 @@ const jam: Messages = {
 	},
 	print: {
 		recipe_heading: 'Recipe',
-		source_label: 'Mek dis recipe again at'
+		scan_to_open: 'Scan fi open di recipe'
 	},
 	warnings: {
 		too_short:
