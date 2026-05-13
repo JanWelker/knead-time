@@ -11,6 +11,7 @@ const base: SerializableInputs = {
 	yeastType: 'fresh',
 	starterHydration: 100,
 	roomTempC: 22,
+	fridgeTempC: 4,
 	preFerment: null
 };
 
@@ -25,7 +26,13 @@ describe('urlState round-trip', () => {
 		expect(out.saltPercent).toBe(3);
 		expect(out.yeastType).toBe('fresh');
 		expect(out.roomTempC).toBe(22);
+		expect(out.fridgeTempC).toBe(4);
 		expect(out.preFerment).toBeUndefined();
+	});
+
+	it('round-trips a non-default fridge temperature', () => {
+		const out = decodeInputs(encodeInputs({ ...base, fridgeTempC: 7 }));
+		expect(out.fridgeTempC).toBe(7);
 	});
 
 	it('round-trips sourdough with starter hydration', () => {
@@ -95,7 +102,7 @@ describe('urlState round-trip', () => {
 
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=1');
+		expect(encodeInputs(base)).toContain('v=2');
 	});
 
 	it('decodes legacy links that predate the v parameter as v1', () => {
@@ -110,6 +117,19 @@ describe('urlState versioning', () => {
 		const legacy = decodeInputs('?r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22');
 		const versioned = decodeInputs('?v=1&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22');
 		expect(versioned).toEqual(legacy);
+	});
+
+	it('v=1 links omit fridgeTempC so FormState defaults (4 °C) fill in', () => {
+		// v=1 predates the fridge-temp input. Decoders must leave fridgeTempC
+		// undefined so the form's default (4 °C — matching the old hardcoded
+		// constant) takes over via state.apply, keeping legacy recipes stable.
+		const out = decodeInputs('?v=1&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22');
+		expect(out.fridgeTempC).toBeUndefined();
+	});
+
+	it('v=2 links carry fridgeTempC explicitly', () => {
+		const out = decodeInputs('?v=2&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22&ft=6');
+		expect(out.fridgeTempC).toBe(6);
 	});
 
 	it('falls back to the current decoder when the requested version is unknown', () => {

@@ -17,6 +17,7 @@ export interface DoughInputs {
 	yeastType: YeastType;
 	starterHydration: number;
 	roomTempC: number;
+	fridgeTempC: number;
 	preFerment: PreFermentSpec | null;
 }
 
@@ -35,7 +36,6 @@ export interface Ingredients {
 
 export type ScheduleStepKind =
 	| 'preferment-mix'
-	| 'preferment-proof'
 	| 'prep'
 	| 'mix'
 	| 'bulk-room'
@@ -60,6 +60,9 @@ export interface ComputedSchedule {
 	feasible: boolean;
 	yeastPercent: number;
 	yeastType: YeastType;
+	// Pre-ferment that was actually used to build the schedule. May be null
+	// even when DoughInputs.preFerment was set (sourdough collapses it).
+	preFerment: PreFermentSpec | null;
 	warnings: ScheduleWarning[];
 	pizzaCount: number;
 	ballWeight: number;

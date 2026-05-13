@@ -105,6 +105,5 @@ export function combineDateTimeInputs(datePart: string, timePart: string): Date 
 	const minute = +tm[2];
 	if (month < 1 || month > 12 || day < 1 || day > 31) return null;
 	if (hour > 23 || minute > 59) return null;
-	const d = new Date(year, month - 1, day, hour, minute, 0, 0);
-	return Number.isNaN(d.getTime()) ? null : d;
+	return new Date(year, month - 1, day, hour, minute, 0, 0);
 }

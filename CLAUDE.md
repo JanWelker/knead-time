@@ -13,7 +13,8 @@ Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; ev
 User picks `readyBy` + `startAt`; the scheduler computes `preferment-mix → prep → mix → bulk → divide → warmup → final-proof → ready` working backwards from `readyBy`.
 
 - **Cold ↔ room ferment switch is deterministic on available time, not a UI toggle.** Window ≥ 16 h → cold-bulk leg at 4 °C; otherwise room ferment.
-- **Pre-ferment reserve**: when biga/poolish is selected, ~12 h is reserved before mix-day prep. `preferment-mix` defaults to landing at/after `startAt` (regression-tested), but the night-window guard below can pull it earlier.
+- **Pre-ferment is a real fermentation phase, not a decorative block.** When biga/poolish is selected, a wall-clock duration is computed from the type and `roomTempC` (`prefermentDurationHours` in `fermentation.ts`) — biga ~14 h, poolish ~12 h at 22 °C, scaled by Q10 and clamped to [8, 24] h. That duration is both (a) reserved before mix-day prep on the schedule and (b) added to the equivalent-hours sum that solves for yeast %. The pre-ferment carries **all of the recipe's yeast** for fresh-yeast recipes (no fresh yeast on baking day) — matches how biga/poolish technique actually works. `preferment-mix` defaults to landing at/after `startAt` (regression-tested), but the night-window guard below can pull it earlier.
+- **Pre-ferment is mutually exclusive with sourdough.** The starter is itself the pre-ferment culture, so `effectivePreFerment` in `schedule.ts` nulls the biga/poolish spec under `yeastType === 'sourdough'`. The InputForm hides the dropdown for sourdough. URL state retains the user's pre-ferment choice (so toggling sourdough on/off is reversible), but it never reaches the math while sourdough is selected.
 - **Night-window guard**: no baker-action step starts in `[22:00, 08:00)` local time. Cold mode stretches `bulk-cold` within its floor/ceiling so the pre-cold cluster lands during waking hours; post-cold steps (divide, warmup) are anchored to `readyBy` and can't shift. Room mode has no slack. When a step can't be lifted out, emit a `night-step` warning — **never silently rearrange**. The guard can pull the first step earlier than `startAt`, so **`startAt` is a soft hint, not a strict floor**.
 
 ### Inputs
@@ -22,6 +23,7 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`. Notable rules:
 
 - Ball weight accepts decimals (e.g. 288.5 g) — the form input must allow that.
 - Yeast is **fresh (cube)** or **sourdough starter** (with starter-hydration when applicable).
+- Both kitchen and fridge temperatures are user inputs (`roomTempC`, `fridgeTempC`). The fridge temperature only matters during the cold-bulk phase; warmer fridges ferment more per hour, lowering the solved yeast %. Default 4 °C — matches the previously hardcoded value so v=1 share-links remain stable.
 - Defaults reflect contemporary high-hydration Neapolitan (280 g / 70% / 3% salt). No AVPN enforcement.
 
 ### "Round numbers" action
@@ -30,8 +32,8 @@ Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on
 
 ### Outputs
 
-- **Ingredients in grams.** No pre-ferment → flat table. With pre-ferment → three sections (**Pre-dough / Main dough / Totals**), because a single subtracted table reads as a math error (the totals row never matches the visible sum).
-- **Schedule table with absolute timestamps.** Step copy interpolates schedule context so each description is self-contained: pizza count + per-ball weight on `divide`; flour/water/salt/yeast weights on `prep` and `mix` (with localized yeast label); pre-ferment flour/water/pinch-yeast on `preferment-mix`. **`mix` has a separate template when a pre-ferment is set** so the baker is reminded to fold it in.
+- **Ingredients in grams.** No pre-ferment → flat table. With pre-ferment → three sections (**Pre-dough / Main dough / Totals**), because a single subtracted table reads as a math error (the totals row never matches the visible sum). With a pre-ferment the main-dough yeast row is hidden (all yeast lives in the pre-dough), so the totals row is what surfaces the yeast quantity.
+- **Schedule table with absolute timestamps.** Step copy interpolates schedule context so each description is self-contained: pizza count + per-ball weight on `divide`; flour/water/salt/yeast weights on `prep` and `mix` (with localized yeast label); pre-ferment flour/water/yeast on `preferment-mix`. **`mix` and `prep` have separate templates per pre-ferment type** (`mix_desc_with_biga`, `mix_desc_with_poolish`, `prep_desc_with_preferment`) — biga gets stiff/no-knead day-one copy and the day-two mix folds it in; poolish gets a smoother whisk-and-pour treatment. With a pre-ferment, day-two `prep` and `mix` deliberately omit the yeast field — the pre-dough is the carrier. The collapsed `preferment-mix` row spans the full wall-clock duration (active mix + maturation); there is no separate `preferment-proof` step.
 - **`.ics` export.** One VEVENT per step. **VEVENT `DESCRIPTION` must match the on-page step description verbatim**, interpolations included.
 - **Print / Save as PDF.** `window.print()` only — no PDF lib. Driven by `@media print` in `src/app.css` + Tailwind `print:` variants. Hides input form/chrome, prepends a recipe-summary header, appends a footer with the share URL so a printed copy is reproducible. **Must read on B&W** — borders and text colour, not background fills (browsers strip those).
 
@@ -42,6 +44,8 @@ Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on
   - Fresh yeast adds new mass: `pctSum = 100 + h + s + y`.
   - Sourdough starter is flour + water from the existing budget: `pctSum = 100 + h + s`.
   - A pre-ferment redistributes flour/water/yeast between pre-dough and main dough; it does not change totals.
+- **Yeast solves a single equivalent-hours equation across every fermentation phase.** `yeast% = target / Σ(hours_i · f(T_i))`, where the phases are the pre-ferment (when set), bulk (room or cold + initial room block), warmup, and final proof. Pre-ferment ref-load is `PREFERMENT_REF_HOURS_{BIGA,POOLISH}` in `fermentation.ts` — touching either constant changes every existing recipe's yeast %, so it's a **major** app-version bump.
+- With a pre-ferment selected for a fresh-yeast recipe, `ingredients.yeast` (main dough) is **0** and `ingredients.preFerment.yeast` carries the full mass. Don't reintroduce a hardcoded pinch — the pre-ferment yeast must come from the equivalent-hours solve, not a magic number.
 - **Keep all calculation logic pure and framework-free in `src/lib/dough/`.** Svelte components only render results.
 
 ## Community recipes
@@ -76,9 +80,19 @@ Responsive, playful, Italian-warm (tomato / basil / dough palette) — not carto
 
 `main` is protected. **Never commit or push directly to `main`.** Every change: branch → commit → push → PR → CI green → merge.
 
+## Testing
+
+This is a math-and-schedule app; bugs in fermentation/scheduling are silent until someone overproofs a dough. **Coverage is a hard requirement, not a nice-to-have.** New math, new schedule shapes, new schema versions, new warnings — they land with the tests that prove them, or they don't land.
+
+- **Tests live next to the code they cover** (`foo.ts` + `foo.test.ts`).
+- **100 % lines, functions, branches, and statements across every instrumented file in `src/lib/`.** Pinned in `vitest.config.ts`. The thresholds fail `npm run test:coverage` if a regression slips in, so the bar is enforced, not aspirational.
+- **If a branch is hard to reach, delete it.** Defensive guards against invariants the caller already enforces (e.g. "what if equivalentHours is 0?" — it can't be) are dead code. Don't write fake tests to cover them; remove them. Only keep a defensive branch if you can write a realistic input that reaches it.
+- **Mass-balance and yeast-solve invariants are regression-tested for every input combination** — fresh/sourdough × no-preferment/biga/poolish × room/cold mode. Adding a new input or yeast carrier means adding a row to each of those matrices.
+- **Run `npm run test:coverage` before opening a PR.** CI runs the same command (`.github/workflows/ci.yml`), so the thresholds are a hard CI gate — a missing test or a newly-unreached branch fails the workflow. The Husky pre-commit hook runs the faster `npm run test` (no coverage) for local snappiness; don't lean on it.
+- **UI components are not part of the coverage target.** Svelte files (and `.svelte.ts` runtime modules) are excluded in `vitest.config.ts` and verified by manual browser smoke tests. Don't write Vitest harnesses for `.svelte` — the renderer and DOM aren't worth the maintenance.
+
 ## Conventions
 
-- Tests live next to the code they cover (`foo.ts` + `foo.test.ts`). Cover the dough math thoroughly; UI tests are not planned.
 - Comments explain **why**, not what — only when non-obvious (e.g. citing a fermentation-table magic number).
 - Keep dependencies minimal. Prefer hand-rolling small utilities (the `.ics` generator is hand-written) over pulling in large libs.
 - **Keep `README.md` in sync** when changing npm scripts, CI/deploy workflows, project structure, or anything a contributor would hit in their first hour.

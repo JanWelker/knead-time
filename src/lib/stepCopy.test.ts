@@ -15,6 +15,7 @@ function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
 		yeastType: 'fresh',
 		starterHydration: 100,
 		roomTempC: 22,
+		fridgeTempC: 4,
 		preFerment: null,
 		...overrides
 	};
@@ -217,18 +218,46 @@ describe('stepDescription — proofing steps omit duration (shown in column)', (
 });
 
 describe('stepDescription — mix step with pre-ferment', () => {
-	it('tells the baker to add the ripe pre-dough', () => {
-		const r = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
-		expect(stepDescription(mix, MESSAGES.en, r)).toContain('pre-dough');
-		expect(stepDescription(mix, MESSAGES.de, r)).toContain('Vorteig');
-		expect(stepDescription(mix, MESSAGES.it, r)).toContain('preimpasto');
+	it('names the pre-ferment by type so the baker knows what to fold in', () => {
+		const poolish = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
+		const poolishMix = poolish.steps.find((s) => s.kind === 'mix')!;
+		expect(stepDescription(poolishMix, MESSAGES.en, poolish).toLowerCase()).toContain('poolish');
+		expect(stepDescription(poolishMix, MESSAGES.de, poolish).toLowerCase()).toContain('poolish');
+		expect(stepDescription(poolishMix, MESSAGES.it, poolish).toLowerCase()).toContain('poolish');
+
+		const biga = computeSchedule(inputs({ preFerment: { type: 'biga', flourPercent: 30 } }));
+		const bigaMix = biga.steps.find((s) => s.kind === 'mix')!;
+		expect(stepDescription(bigaMix, MESSAGES.en, biga).toLowerCase()).toContain('biga');
+		expect(stepDescription(bigaMix, MESSAGES.de, biga).toLowerCase()).toContain('biga');
+		expect(stepDescription(bigaMix, MESSAGES.it, biga).toLowerCase()).toContain('biga');
 	});
 
-	it('omits the pre-dough mention when no pre-ferment is set', () => {
+	it('omits the yeast field on the mix step because the pre-ferment carries it', () => {
+		const r = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
+		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc).not.toContain('fresh yeast');
+		expect(desc).not.toMatch(/\b0 g\b/);
+	});
+
+	it('falls back to the no-preferment mix copy when no pre-ferment is set', () => {
 		const r = computeSchedule(inputs());
 		const mix = r.steps.find((s) => s.kind === 'mix')!;
-		expect(stepDescription(mix, MESSAGES.en, r)).not.toContain('pre-dough');
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc.toLowerCase()).not.toContain('biga');
+		expect(desc.toLowerCase()).not.toContain('poolish');
+		expect(desc).toContain('fresh yeast');
+	});
+});
+
+describe('stepDescription — prep step with pre-ferment', () => {
+	it('flags the remaining ingredients and notes the yeast lives in the pre-ferment', () => {
+		const r = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
+		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const desc = stepDescription(prep, MESSAGES.en, r);
+		expect(desc).not.toContain('fresh yeast');
+		// remaining flour/water for prep should match the main-dough amounts
+		expect(desc).toContain(`${Math.round(r.ingredients.flour)} g flour`);
 	});
 });
 

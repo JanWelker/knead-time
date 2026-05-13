@@ -5,7 +5,6 @@ import type { Messages } from './i18n/messages';
 
 const TITLE: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'preferment-mix': 'preferment_mix',
-	'preferment-proof': 'preferment_proof',
 	prep: 'prep',
 	mix: 'mix',
 	'bulk-room': 'bulk_room',
@@ -18,7 +17,6 @@ const TITLE: Record<ScheduleStepKind, keyof Messages['steps']> = {
 
 const DESC: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'preferment-mix': 'preferment_mix_desc',
-	'preferment-proof': 'preferment_proof_desc',
 	prep: 'prep_desc',
 	mix: 'mix_desc',
 	'bulk-room': 'bulk_room_desc',
@@ -47,6 +45,7 @@ export function stepDescription(
 		schedule.yeastType === 'fresh'
 			? msgs.ingredients.fresh_yeast_inline
 			: msgs.ingredients.sourdough_starter_inline;
+	const prefermentType = schedule.preFerment?.type ?? null;
 
 	switch (step.kind) {
 		case 'divide':
@@ -55,19 +54,27 @@ export function stepDescription(
 				weight: formatBallWeight(schedule.ballWeight)
 			});
 		case 'preferment-mix': {
-			if (!ingredients.preFerment) return template;
-			const prepStep = schedule.steps.find((s) => s.kind === 'prep');
-			const maturationMin = prepStep
-				? Math.round((prepStep.at.getTime() - step.at.getTime()) / 60_000)
-				: 0;
-			return interpolate(template, {
-				flour: formatGramsValue(ingredients.preFerment.flour),
-				water: formatGramsValue(ingredients.preFerment.water),
-				yeast: formatGramsValue(ingredients.preFerment.yeast),
+			const prepStep = schedule.steps.find((s) => s.kind === 'prep')!;
+			const maturationMin = Math.round((prepStep.at.getTime() - step.at.getTime()) / 60_000);
+			const pfTemplate =
+				prefermentType === 'biga'
+					? msgs.steps.preferment_mix_desc_biga
+					: msgs.steps.preferment_mix_desc_poolish;
+			return interpolate(pfTemplate, {
+				flour: formatGramsValue(ingredients.preFerment!.flour),
+				water: formatGramsValue(ingredients.preFerment!.water),
+				yeast: formatGramsValue(ingredients.preFerment!.yeast),
 				duration: formatDurationHHMM(maturationMin)
 			});
 		}
 		case 'prep':
+			if (prefermentType) {
+				return interpolate(msgs.steps.prep_desc_with_preferment, {
+					flour: formatGramsValue(ingredients.flour),
+					water: formatGramsValue(ingredients.water),
+					salt: formatGramsValue(ingredients.salt)
+				});
+			}
 			return interpolate(template, {
 				flour: formatGramsValue(ingredients.flour),
 				water: formatGramsValue(ingredients.water),
@@ -76,8 +83,21 @@ export function stepDescription(
 				yeast_label: yeastLabel
 			});
 		case 'mix': {
-			const mixTemplate = ingredients.preFerment ? msgs.steps.mix_desc_with_preferment : template;
-			return interpolate(mixTemplate, {
+			if (prefermentType === 'biga') {
+				return interpolate(msgs.steps.mix_desc_with_biga, {
+					flour: formatGramsValue(ingredients.flour),
+					water: formatGramsValue(ingredients.water),
+					salt: formatGramsValue(ingredients.salt)
+				});
+			}
+			if (prefermentType === 'poolish') {
+				return interpolate(msgs.steps.mix_desc_with_poolish, {
+					flour: formatGramsValue(ingredients.flour),
+					water: formatGramsValue(ingredients.water),
+					salt: formatGramsValue(ingredients.salt)
+				});
+			}
+			return interpolate(template, {
 				flour: formatGramsValue(ingredients.flour),
 				water: formatGramsValue(ingredients.water),
 				salt: formatGramsValue(ingredients.salt),

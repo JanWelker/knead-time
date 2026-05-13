@@ -153,6 +153,41 @@ describe('computeIngredients — pre-ferment', () => {
 		// main flour reduced by pf flour
 		expect(r.flour).toBeCloseTo(flourTotal - pfFlour, 6);
 	});
+
+	it('puts all yeast in the pre-ferment and zeroes the main-dough yeast', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			preFermentFlourPercent: 30,
+			preFermentHydration: 100
+		});
+		const yeastMass = (1120 * 0.2) / (100 + 70 + 3 + 0.2);
+		expect(r.preFerment!.yeast).toBeCloseTo(yeastMass, 6);
+		expect(r.yeast).toBe(0);
+	});
+
+	it('keeps the mass-balance invariant with a pre-ferment', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			preFermentFlourPercent: 30,
+			preFermentHydration: 50
+		});
+		const pf = r.preFerment!;
+		expect(r.flour + r.water + r.salt + r.yeast + pf.flour + pf.water + pf.yeast).toBeCloseTo(
+			1120,
+			6
+		);
+	});
+
+	it('ignores the pre-ferment when yeast type is sourdough — the starter is the pre-ferment', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			yeastType: 'sourdough',
+			yeastPercent: 20,
+			preFermentFlourPercent: 30,
+			preFermentHydration: 100
+		});
+		expect(r.preFerment).toBeNull();
+	});
 });
 
 describe('roundBallWeight', () => {

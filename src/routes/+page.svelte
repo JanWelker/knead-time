@@ -135,6 +135,10 @@
 			<dd class="font-medium">{yeastLabel}</dd>
 			<dt class="text-stone-600">{t.form.roomTemp}</dt>
 			<dd class="font-medium">{form.roomTempC} °C</dd>
+			{#if form.schedule.mode === 'cold'}
+				<dt class="text-stone-600">{t.form.fridgeTemp}</dt>
+				<dd class="font-medium">{form.fridgeTempC} °C</dd>
+			{/if}
 			{#if preFermentLabel}
 				<dt class="text-stone-600">{t.form.preFerment}</dt>
 				<dd class="font-medium">{preFermentLabel}</dd>

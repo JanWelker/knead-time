@@ -165,6 +165,15 @@
 			bind:value={state.roomTempC}
 		/>
 
+		<FormField
+			label={t.form.fridgeTemp}
+			min={0}
+			max={12}
+			step={0.5}
+			help={t.form.fridgeTemp_help}
+			bind:value={state.fridgeTempC}
+		/>
+
 		<label class="block">
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.yeastType}
@@ -184,32 +193,27 @@
 				help={t.form.starterHydration_help}
 				bind:value={state.starterHydration}
 			/>
-		{/if}
-	</fieldset>
+		{:else}
+			<label class="block">
+				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+					{t.form.preFerment}
+				</span>
+				<select class={selectClass} bind:value={state.preFermentType}>
+					<option value="none">{t.form.preFerment_none}</option>
+					<option value="biga">{t.form.preFerment_biga}</option>
+					<option value="poolish">{t.form.preFerment_poolish}</option>
+				</select>
+			</label>
 
-	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-tomato-700 dark:text-tomato-300 col-span-full text-lg">
-			{t.form.section_advanced}
-		</legend>
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.preFerment}
-			</span>
-			<select class={selectClass} bind:value={state.preFermentType}>
-				<option value="none">{t.form.preFerment_none}</option>
-				<option value="biga">{t.form.preFerment_biga}</option>
-				<option value="poolish">{t.form.preFerment_poolish}</option>
-			</select>
-		</label>
-
-		{#if state.preFermentType !== 'none'}
-			<FormField
-				label={t.form.preFermentFlour}
-				min={5}
-				max={80}
-				step={5}
-				bind:value={state.preFermentFlour}
-			/>
+			{#if state.preFermentType !== 'none'}
+				<FormField
+					label={t.form.preFermentFlour}
+					min={5}
+					max={80}
+					step={5}
+					bind:value={state.preFermentFlour}
+				/>
+			{/if}
 		{/if}
 	</fieldset>
 
@@ -245,6 +249,21 @@
 				<p class="mt-2">{t.form.info_units_solve}</p>
 				<pre
 					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">yeast% = target / Σ (hours · f(T))</pre>
+			</div>
+
+			<div class="min-w-0">
+				<p class="font-semibold text-stone-900 dark:text-stone-100">
+					{t.form.info_preferment_title}
+				</p>
+				<p class="mt-1">{t.form.info_preferment_body}</p>
+				<ul class="mt-1 list-disc space-y-0.5 pl-5">
+					<li>{t.form.info_preferment_biga}</li>
+					<li>{t.form.info_preferment_poolish}</li>
+				</ul>
+				<p class="mt-2">{t.form.info_preferment_wall}</p>
+				<pre
+					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">wallHours = refHours / f(roomTempC),  8 ≤ wallHours ≤ 24</pre>
+				<p class="mt-2">{t.form.info_preferment_yeast}</p>
 			</div>
 
 			<div>

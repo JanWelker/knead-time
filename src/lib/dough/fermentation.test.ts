@@ -2,6 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
 	equivalentHoursAtRef,
 	fermentHoursForYeast,
+	PREFERMENT_MAX_HOURS,
+	PREFERMENT_MIN_HOURS,
+	PREFERMENT_REF_HOURS_BIGA,
+	PREFERMENT_REF_HOURS_POOLISH,
+	prefermentDurationHours,
+	prefermentEquivHours,
 	temperatureFactor,
 	yeastPercentForPhases
 } from './fermentation';
@@ -73,6 +79,48 @@ describe('yeastPercentForPhases — degenerate input', () => {
 	});
 	it('returns 0 when every phase has zero hours', () => {
 		expect(yeastPercentForPhases('fresh', [{ hours: 0, tempC: 22 }])).toBe(0);
+	});
+});
+
+describe('prefermentDurationHours', () => {
+	it('equals the type reference hours at 22 °C', () => {
+		expect(prefermentDurationHours('biga', 22)).toBeCloseTo(PREFERMENT_REF_HOURS_BIGA, 6);
+		expect(prefermentDurationHours('poolish', 22)).toBeCloseTo(PREFERMENT_REF_HOURS_POOLISH, 6);
+	});
+	it('lengthens at cooler temperatures (Q10 inverse scaling)', () => {
+		expect(prefermentDurationHours('biga', 18)).toBeGreaterThan(PREFERMENT_REF_HOURS_BIGA);
+		expect(prefermentDurationHours('poolish', 18)).toBeGreaterThan(PREFERMENT_REF_HOURS_POOLISH);
+	});
+	it('shortens at warmer temperatures', () => {
+		expect(prefermentDurationHours('biga', 26)).toBeLessThan(PREFERMENT_REF_HOURS_BIGA);
+		expect(prefermentDurationHours('poolish', 26)).toBeLessThan(PREFERMENT_REF_HOURS_POOLISH);
+	});
+	it('clamps below the floor for very cold kitchens', () => {
+		expect(prefermentDurationHours('biga', 4)).toBe(PREFERMENT_MAX_HOURS);
+	});
+	it('clamps above the ceiling for very warm kitchens', () => {
+		expect(prefermentDurationHours('poolish', 40)).toBe(PREFERMENT_MIN_HOURS);
+	});
+});
+
+describe('prefermentEquivHours', () => {
+	it('delivers the reference fermentation load inside the clamp band', () => {
+		// Inside the wall-clock clamp, wall × f(T) = refHours regardless of temp.
+		for (const tempC of [16, 20, 22, 26]) {
+			expect(prefermentEquivHours('biga', tempC)).toBeCloseTo(PREFERMENT_REF_HOURS_BIGA, 6);
+			expect(prefermentEquivHours('poolish', tempC)).toBeCloseTo(PREFERMENT_REF_HOURS_POOLISH, 6);
+		}
+	});
+	it('overshoots the reference load when the wall-clock is clamped up to the floor in a warm kitchen', () => {
+		// At very warm temps the math wants a wall-clock below MIN, but we keep
+		// it at MIN — the pre-ferment ends up more fermented than the reference.
+		expect(prefermentEquivHours('poolish', 35)).toBeGreaterThan(PREFERMENT_REF_HOURS_POOLISH);
+	});
+	it('falls short of the reference load when the wall-clock is clamped down to the ceiling in a cold kitchen', () => {
+		// At very cold temps the math wants a wall-clock above MAX, but we cap it
+		// at MAX to avoid overproofing — the pre-ferment delivers less than the
+		// reference load.
+		expect(prefermentEquivHours('biga', 4)).toBeLessThan(PREFERMENT_REF_HOURS_BIGA);
 	});
 });
 

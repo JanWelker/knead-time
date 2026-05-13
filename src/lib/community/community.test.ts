@@ -90,6 +90,21 @@ closing paragraph
 		expect(parseCommunity('# Community\n\nNo entries yet.')).toEqual([]);
 	});
 
+	it('drops rows with fewer than three cells', () => {
+		// A single-cell row like `| just-this |` produces one cell after the
+		// strip-and-split; a two-cell row like `| foo | bar |` produces two.
+		// Both must be dropped — the parser needs name, date, and recipe-URL.
+		const md = `
+| Name | Date | Recipe |
+| --- | --- | --- |
+| just-this |
+| Half | 2026-05-01 |
+| Full | 2026-05-02 | https://example.com/?n=4 |
+`;
+		const entries = parseCommunity(md);
+		expect(entries.map((e) => e.name)).toEqual(['Full']);
+	});
+
 	it('extracts a GitHub handle when the Name cell starts with @', () => {
 		const md = `
 | Name | Date | Recipe |

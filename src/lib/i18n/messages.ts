@@ -14,7 +14,6 @@ export interface Messages {
 	form: {
 		section_when: string;
 		section_recipe: string;
-		section_advanced: string;
 		startAt: string;
 		startAt_help: string;
 		startAt_now: string;
@@ -29,6 +28,12 @@ export interface Messages {
 		info_units_fresh: string;
 		info_units_sourdough: string;
 		info_units_solve: string;
+		info_preferment_title: string;
+		info_preferment_body: string;
+		info_preferment_biga: string;
+		info_preferment_poolish: string;
+		info_preferment_wall: string;
+		info_preferment_yeast: string;
 		info_switch_title: string;
 		info_switch_body: string;
 		info_mass_title: string;
@@ -51,6 +56,8 @@ export interface Messages {
 		starterHydration_help: string;
 		roomTemp: string;
 		roomTemp_help: string;
+		fridgeTemp: string;
+		fridgeTemp_help: string;
 		preFerment: string;
 		preFerment_none: string;
 		preFerment_biga: string;
@@ -66,13 +73,15 @@ export interface Messages {
 	steps: {
 		preferment_mix: string;
 		preferment_mix_desc: string;
-		preferment_proof: string;
-		preferment_proof_desc: string;
+		preferment_mix_desc_biga: string;
+		preferment_mix_desc_poolish: string;
 		prep: string;
 		prep_desc: string;
+		prep_desc_with_preferment: string;
 		mix: string;
 		mix_desc: string;
-		mix_desc_with_preferment: string;
+		mix_desc_with_biga: string;
+		mix_desc_with_poolish: string;
 		bulk_room: string;
 		bulk_room_desc: string;
 		bulk_cold: string;
@@ -175,7 +184,6 @@ const en: Messages = {
 	form: {
 		section_when: 'When',
 		section_recipe: 'Recipe',
-		section_advanced: 'Advanced',
 		startAt: 'Start time',
 		startAt_help: 'When you begin planning. The schedule runs from here to the bake.',
 		startAt_now: 'Now',
@@ -192,9 +200,18 @@ const en: Messages = {
 		info_units_fresh: 'Fresh yeast: 1.6 units (≈ 0.2% × 8 h at 22 °C)',
 		info_units_sourdough: 'Sourdough starter: 160 units (~100× less active per gram)',
 		info_units_solve: 'Yeast percent solves the target:',
+		info_preferment_title: 'Pre-ferment as a fermentation phase',
+		info_preferment_body:
+			"Biga and poolish aren't decorative — each adds its own phase to the equivalent-hours sum, so yeast % drops to compensate. Reference loads at 22 °C:",
+		info_preferment_biga: 'Biga: 14 h-equivalent at 22 °C',
+		info_preferment_poolish: 'Poolish: 12 h-equivalent at 22 °C',
+		info_preferment_wall:
+			'Wall-clock duration solves back from the reference load and is clamped to [8 h, 24 h]:',
+		info_preferment_yeast:
+			"For fresh-yeast recipes, all of the recipe's yeast goes into the pre-ferment — none on baking day. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
 		info_switch_title: 'Cold ↔ room switch',
 		info_switch_body:
-			'Window ≥ 16 h activates a cold-bulk phase at 4 °C (≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
+			'Window ≥ 16 h activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
 		info_mass_title: 'Mass balance',
 		info_mass_body:
 			"Baker's percentages with flour = 100%. Solve for flour from the total dough mass:",
@@ -218,6 +235,8 @@ const en: Messages = {
 		starterHydration_help: '100% means equal flour and water.',
 		roomTemp: 'Room temperature (°C)',
 		roomTemp_help: 'Warmer kitchens ferment faster — this drives the math.',
+		fridgeTemp: 'Fridge temperature (°C)',
+		fridgeTemp_help: 'Only used during the cold-bulk phase. Home fridges run 2–7 °C.',
 		preFerment: 'Pre-ferment',
 		preFerment_none: 'None',
 		preFerment_biga: 'Biga (stiff, ~50% hydration)',
@@ -233,18 +252,23 @@ const en: Messages = {
 	steps: {
 		preferment_mix: 'Mix pre-ferment',
 		preferment_mix_desc:
-			'Combine {flour} g flour, {water} g water and {yeast} g fresh yeast. Cover and let it mature at room temperature for {duration} (HH:MM) until you mix the main dough.',
-		preferment_proof: 'Pre-ferment matures',
-		preferment_proof_desc:
-			'Let the covered pre-ferment mature undisturbed at room temperature until you mix the main dough.',
+			'Combine the pre-ferment ingredients, cover, and let mature at room temperature for {duration} (HH:MM) until prep.',
+		preferment_mix_desc_biga:
+			'Stir {flour} g flour, {water} g water and {yeast} g fresh yeast together just until shaggy — do not knead. Cover and let mature at room temperature for {duration} (HH:MM) until prep.',
+		preferment_mix_desc_poolish:
+			'Whisk {flour} g flour, {water} g water and {yeast} g fresh yeast in a bowl until smooth. Cover and let mature at room temperature for {duration} (HH:MM) until prep.',
 		prep: 'Weigh & prep',
 		prep_desc:
 			'Weigh out {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Take ingredients out of the fridge.',
+		prep_desc_with_preferment:
+			'Weigh out the remaining {flour} g flour, {water} g water and {salt} g salt. The pre-ferment carries all the yeast.',
 		mix: 'Mix dough',
 		mix_desc:
 			'Combine {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Knead until smooth.',
-		mix_desc_with_preferment:
-			'Add the ripe pre-dough to {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Knead until smooth.',
+		mix_desc_with_biga:
+			'Tear the ripe biga into {flour} g flour and {water} g water and mix until cohesive. Work in {salt} g salt, then knead until smooth.',
+		mix_desc_with_poolish:
+			'Pour the ripe poolish into {flour} g flour, {water} g water and {salt} g salt. Knead until smooth.',
 		bulk_room: 'Bulk ferment (room)',
 		bulk_room_desc: 'Cover the dough and let it rise at room temperature.',
 		bulk_cold: 'Bulk ferment (fridge)',
@@ -349,7 +373,6 @@ const de: Messages = {
 	form: {
 		section_when: 'Wann',
 		section_recipe: 'Rezept',
-		section_advanced: 'Erweitert',
 		startAt: 'Startzeit',
 		startAt_help: 'Wann du mit dem Planen beginnst. Der Zeitplan läuft von hier bis zum Backen.',
 		startAt_now: 'Jetzt',
@@ -366,9 +389,18 @@ const de: Messages = {
 		info_units_fresh: 'Frischhefe: 1,6 Einheiten (≈ 0,2% × 8 h bei 22 °C)',
 		info_units_sourdough: 'Sauerteig-Anstellgut: 160 Einheiten (~100× weniger aktiv pro Gramm)',
 		info_units_solve: 'Hefe-Anteil löst die Zielgleichung:',
+		info_preferment_title: 'Vorteig als eigene Gärphase',
+		info_preferment_body:
+			'Biga und Poolish sind keine Deko — jeder bringt seine eigene Phase in die Äquivalentstundensumme ein, sodass der Hefe-Anteil entsprechend sinkt. Referenzwerte bei 22 °C:',
+		info_preferment_biga: 'Biga: 14 h-Äquivalent bei 22 °C',
+		info_preferment_poolish: 'Poolish: 12 h-Äquivalent bei 22 °C',
+		info_preferment_wall:
+			'Die Wanduhrzeit ergibt sich aus dem Referenzwert und wird auf [8 h, 24 h] begrenzt:',
+		info_preferment_yeast:
+			'Bei Frischhefe-Rezepten landet die gesamte Hefe im Vorteig — am Backtag kommt keine mehr dazu. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
 		info_switch_title: 'Wechsel Kühlschrank ↔ Raum',
 		info_switch_body:
-			'Fenster ≥ 16 h aktiviert eine Kühlphase bei 4 °C (≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
+			'Fenster ≥ 16 h aktiviert eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
 		info_mass_title: 'Massenbilanz',
 		info_mass_body: 'Bäckerprozente mit Mehl = 100%. Mehl wird aus der Gesamtmasse aufgelöst:',
 		info_mass_caption_fresh: 'Frischhefe — zusätzliche Masse im Budget:',
@@ -392,6 +424,8 @@ const de: Messages = {
 		starterHydration_help: '100% heißt gleich viel Mehl wie Wasser.',
 		roomTemp: 'Raumtemperatur (°C)',
 		roomTemp_help: 'Wärmere Küchen sind schneller — das steuert die Rechnung.',
+		fridgeTemp: 'Kühlschranktemperatur (°C)',
+		fridgeTemp_help: 'Nur in der Kühlgare relevant. Haushaltskühlschränke laufen bei 2–7 °C.',
 		preFerment: 'Vorteig',
 		preFerment_none: 'Keiner',
 		preFerment_biga: 'Biga (fest, ~50% Hydration)',
@@ -407,18 +441,23 @@ const de: Messages = {
 	steps: {
 		preferment_mix: 'Vorteig ansetzen',
 		preferment_mix_desc:
-			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe verrühren. Abgedeckt {duration} (HH:MM) bei Raumtemperatur reifen lassen, bis der Hauptteig geknetet wird.',
-		preferment_proof: 'Vorteig reift',
-		preferment_proof_desc:
-			'Den abgedeckten Vorteig ungestört bei Raumtemperatur reifen lassen, bis der Hauptteig geknetet wird.',
+			'Zutaten des Vorteigs verrühren, abdecken und bei Raumtemperatur {duration} (HH:MM) reifen lassen, bis der Hauptteig vorbereitet wird.',
+		preferment_mix_desc_biga:
+			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur {duration} (HH:MM) reifen lassen.',
+		preferment_mix_desc_poolish:
+			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur {duration} (HH:MM) reifen lassen.',
 		prep: 'Abwiegen & vorbereiten',
 		prep_desc:
 			'{flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} abwiegen. Zutaten rechtzeitig aus dem Kühlschrank holen.',
+		prep_desc_with_preferment:
+			'Restliche {flour} g Mehl, {water} g Wasser und {salt} g Salz abwiegen. Die gesamte Hefe steckt bereits im Vorteig.',
 		mix: 'Teig mischen',
 		mix_desc:
 			'{flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} vermengen und glatt kneten.',
-		mix_desc_with_preferment:
-			'Den reifen Vorteig mit {flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} vermengen und glatt kneten.',
+		mix_desc_with_biga:
+			'Die reife Biga in {flour} g Mehl und {water} g Wasser einreißen und vermengen, bis ein zusammenhängender Teig entsteht. {salt} g Salz einarbeiten und glatt kneten.',
+		mix_desc_with_poolish:
+			'Den reifen Poolish zu {flour} g Mehl, {water} g Wasser und {salt} g Salz geben und glatt kneten.',
 		bulk_room: 'Stockgare (Raum)',
 		bulk_room_desc: 'Teig abdecken und bei Raumtemperatur gehen lassen.',
 		bulk_cold: 'Stockgare (Kühlschrank)',
@@ -526,7 +565,6 @@ const it: Messages = {
 	form: {
 		section_when: 'Quando',
 		section_recipe: 'Ricetta',
-		section_advanced: 'Avanzate',
 		startAt: 'Ora di inizio',
 		startAt_help: 'Quando inizi a pianificare. Il programma va da qui alla cottura.',
 		startAt_now: 'Adesso',
@@ -543,9 +581,18 @@ const it: Messages = {
 		info_units_fresh: 'Lievito di birra fresco: 1,6 unità (≈ 0,2% × 8 h a 22 °C)',
 		info_units_sourdough: 'Lievito madre: 160 unità (~100× meno attivo per grammo)',
 		info_units_solve: 'La percentuale di lievito risolve il target:',
+		info_preferment_title: 'Preimpasto come fase di lievitazione',
+		info_preferment_body:
+			'Biga e poolish non sono decorativi — ognuno aggiunge la propria fase alla somma di ore-equivalenti, quindi la percentuale di lievito scende di conseguenza. Carichi di riferimento a 22 °C:',
+		info_preferment_biga: 'Biga: 14 h-equivalenti a 22 °C',
+		info_preferment_poolish: 'Poolish: 12 h-equivalenti a 22 °C',
+		info_preferment_wall:
+			'La durata reale si ricava dal carico di riferimento ed è limitata a [8 h, 24 h]:',
+		info_preferment_yeast:
+			'Per le ricette con lievito di birra, tutto il lievito va nel preimpasto — niente lievito il giorno della cottura. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
 		info_switch_title: 'Passaggio frigo ↔ ambiente',
 		info_switch_body:
-			'Finestra ≥ 16 h attiva una puntata in frigo a 4 °C (≈ 16× più lenta che a 22 °C). Finestre più corte restano a temperatura ambiente.',
+			'Finestra ≥ 16 h attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 16× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
 		info_mass_title: 'Bilancio di massa',
 		info_mass_body:
 			'Percentuali del fornaio con farina = 100%. La farina si ricava dalla massa totale:',
@@ -568,6 +615,8 @@ const it: Messages = {
 		starterHydration_help: '100% significa stessa quantità di farina e acqua.',
 		roomTemp: 'Temperatura ambiente (°C)',
 		roomTemp_help: 'In cucine più calde la lievitazione corre — è ciò che guida il calcolo.',
+		fridgeTemp: 'Temperatura del frigo (°C)',
+		fridgeTemp_help: 'Usata solo durante la puntata in frigo. I frigo domestici stanno tra 2–7 °C.',
 		preFerment: 'Preimpasto',
 		preFerment_none: 'Nessuno',
 		preFerment_biga: 'Biga (asciutta, ~50% idratazione)',
@@ -583,18 +632,23 @@ const it: Messages = {
 	steps: {
 		preferment_mix: 'Preparare il preimpasto',
 		preferment_mix_desc:
-			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco. Coprire e lasciare maturare a temperatura ambiente per {duration} (HH:MM) fino a quando si impasta il principale.',
-		preferment_proof: 'Il preimpasto matura',
-		preferment_proof_desc:
-			'Lasciare maturare il preimpasto coperto, indisturbato a temperatura ambiente, fino a impastare il principale.',
+			'Mescolare gli ingredienti del preimpasto, coprire e lasciare maturare a temperatura ambiente per {duration} (HH:MM) fino al momento della preparazione.',
+		preferment_mix_desc_biga:
+			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente per {duration} (HH:MM).',
+		preferment_mix_desc_poolish:
+			'Sbattere {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente per {duration} (HH:MM).',
 		prep: 'Pesare e preparare',
 		prep_desc:
 			'Pesare {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Togliere gli ingredienti dal frigo.',
+		prep_desc_with_preferment:
+			'Pesare i {flour} g di farina rimanenti, {water} g di acqua e {salt} g di sale. Tutto il lievito è già nel preimpasto.',
 		mix: 'Impastare',
 		mix_desc:
 			'Unire {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Lavorare fino a impasto liscio.',
-		mix_desc_with_preferment:
-			'Unire il preimpasto maturo a {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Lavorare fino a impasto liscio.',
+		mix_desc_with_biga:
+			'Spezzettare la biga matura in {flour} g di farina e {water} g di acqua e mescolare fino a ottenere un impasto coeso. Incorporare {salt} g di sale e lavorare fino a impasto liscio.',
+		mix_desc_with_poolish:
+			'Versare il poolish maturo su {flour} g di farina, {water} g di acqua e {salt} g di sale. Lavorare fino a impasto liscio.',
 		bulk_room: 'Puntata (ambiente)',
 		bulk_room_desc: "Coprire l'impasto e farlo lievitare a temperatura ambiente.",
 		bulk_cold: 'Puntata (frigo)',
@@ -700,7 +754,6 @@ const fr: Messages = {
 	form: {
 		section_when: 'Quand',
 		section_recipe: 'Recette',
-		section_advanced: 'Avancé',
 		startAt: 'Heure de départ',
 		startAt_help: "Quand vous commencez à planifier. Le programme va d'ici à la cuisson.",
 		startAt_now: 'Maintenant',
@@ -717,9 +770,18 @@ const fr: Messages = {
 		info_units_fresh: 'Levure fraîche : 1,6 unités (≈ 0,2% × 8 h à 22 °C)',
 		info_units_sourdough: 'Levain : 160 unités (~100× moins actif par gramme)',
 		info_units_solve: 'Le pourcentage de levure résout la cible :',
+		info_preferment_title: 'Pré-ferment comme phase de fermentation',
+		info_preferment_body:
+			"La biga et le poolish ne sont pas décoratifs — chacun ajoute sa propre phase à la somme d'heures-équivalentes, donc le pourcentage de levure baisse en conséquence. Charges de référence à 22 °C :",
+		info_preferment_biga: 'Biga : 14 h-équivalent à 22 °C',
+		info_preferment_poolish: 'Poolish : 12 h-équivalent à 22 °C',
+		info_preferment_wall:
+			'La durée réelle se déduit de la charge de référence et est bornée à [8 h, 24 h] :',
+		info_preferment_yeast:
+			'Pour les recettes avec levure fraîche, toute la levure va dans le pré-ferment — aucune le jour de la cuisson. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).',
 		info_switch_title: 'Bascule frigo ↔ ambiante',
 		info_switch_body:
-			"Fenêtre ≥ 16 h active une phase au frigo à 4 °C (≈ 16× plus lent qu'à 22 °C). Sinon : température ambiante uniquement.",
+			"Fenêtre ≥ 16 h active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 16× plus lent qu'à 22 °C). Sinon : température ambiante uniquement.",
 		info_mass_title: 'Bilan de masse',
 		info_mass_body:
 			'Pourcentages du boulanger avec farine = 100%. On résout la farine à partir de la masse totale :',
@@ -744,6 +806,9 @@ const fr: Messages = {
 		roomTemp: 'Température ambiante (°C)',
 		roomTemp_help:
 			"Les cuisines plus chaudes accélèrent la fermentation — c'est ce qui guide le calcul.",
+		fridgeTemp: 'Température du frigo (°C)',
+		fridgeTemp_help:
+			'Utilisée seulement pendant la phase au frigo. Les frigos domestiques sont à 2–7 °C.',
 		preFerment: 'Pré-ferment',
 		preFerment_none: 'Aucun',
 		preFerment_biga: "Biga (ferme, ~50% d'hydratation)",
@@ -759,18 +824,23 @@ const fr: Messages = {
 	steps: {
 		preferment_mix: 'Préparer le pré-ferment',
 		preferment_mix_desc:
-			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche. Couvrez et laissez maturer à température ambiante pendant {duration} (HH:MM) jusqu'au pétrissage de la pâte principale.",
-		preferment_proof: 'Le pré-ferment mûrit',
-		preferment_proof_desc:
-			"Laissez le pré-ferment couvert maturer sans le déranger à température ambiante jusqu'au pétrissage de la pâte principale.",
+			"Mélangez les ingrédients du pré-ferment, couvrez et laissez maturer à température ambiante pendant {duration} (HH:MM) jusqu'à la préparation.",
+		preferment_mix_desc_biga:
+			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante {duration} (HH:MM).",
+		preferment_mix_desc_poolish:
+			"Fouettez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante {duration} (HH:MM).",
 		prep: 'Peser et préparer',
 		prep_desc:
 			"Pesez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Sortez les ingrédients du frigo.",
+		prep_desc_with_preferment:
+			"Pesez les {flour} g de farine restants, {water} g d'eau et {salt} g de sel. Toute la levure est déjà dans le pré-ferment.",
 		mix: 'Pétrir la pâte',
 		mix_desc:
 			"Mélangez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Pétrissez jusqu'à obtenir une pâte lisse.",
-		mix_desc_with_preferment:
-			"Ajoutez le pré-ferment mûr à {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Pétrissez jusqu'à obtenir une pâte lisse.",
+		mix_desc_with_biga:
+			"Émiettez la biga mûre dans {flour} g de farine et {water} g d'eau et mélangez jusqu'à obtenir une pâte cohérente. Incorporez {salt} g de sel, puis pétrissez jusqu'à ce que ce soit lisse.",
+		mix_desc_with_poolish:
+			"Versez le poolish mûr sur {flour} g de farine, {water} g d'eau et {salt} g de sel. Pétrissez jusqu'à obtenir une pâte lisse.",
 		bulk_room: 'Pointage (ambiante)',
 		bulk_room_desc: 'Couvrez la pâte et laissez-la lever à température ambiante.',
 		bulk_cold: 'Pointage (frigo)',
@@ -877,7 +947,6 @@ const nl: Messages = {
 	form: {
 		section_when: 'Wanneer',
 		section_recipe: 'Recept',
-		section_advanced: 'Geavanceerd',
 		startAt: 'Starttijd',
 		startAt_help: 'Wanneer je begint te plannen. Het schema loopt van hier tot het bakken.',
 		startAt_now: 'Nu',
@@ -894,9 +963,18 @@ const nl: Messages = {
 		info_units_fresh: 'Verse gist: 1,6 eenheden (≈ 0,2% × 8 u bij 22 °C)',
 		info_units_sourdough: 'Zuurdesem: 160 eenheden (~100× minder actief per gram)',
 		info_units_solve: 'Het gistpercentage lost het doel op:',
+		info_preferment_title: 'Voordeeg als fermentatiefase',
+		info_preferment_body:
+			'Biga en poolish zijn niet decoratief — elk voegt zijn eigen fase toe aan de som van equivalente uren, waardoor het gistpercentage navenant daalt. Referentiebelasting bij 22 °C:',
+		info_preferment_biga: 'Biga: 14 u-equivalent bij 22 °C',
+		info_preferment_poolish: 'Poolish: 12 u-equivalent bij 22 °C',
+		info_preferment_wall:
+			'De werkelijke duur wordt afgeleid van de referentiebelasting en wordt begrensd op [8 u, 24 u]:',
+		info_preferment_yeast:
+			'Bij recepten met verse gist zit alle gist in het voordeeg — niets op de bakdag. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
 		info_switch_title: 'Wissel koelkast ↔ kamer',
 		info_switch_body:
-			'Venster ≥ 16 u activeert een koelfase bij 4 °C (≈ 16× trager dan 22 °C). Anders: alleen kamertemperatuur.',
+			'Venster ≥ 16 u activeert een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 16× trager dan 22 °C). Anders: alleen kamertemperatuur.',
 		info_mass_title: 'Massabalans',
 		info_mass_body:
 			'Bakkerpercentages met bloem = 100%. Bloem wordt opgelost uit de totale deegmassa:',
@@ -920,6 +998,9 @@ const nl: Messages = {
 		starterHydration_help: '100% betekent evenveel bloem als water.',
 		roomTemp: 'Kamertemperatuur (°C)',
 		roomTemp_help: 'Warmere keukens rijzen sneller — dat stuurt de berekening.',
+		fridgeTemp: 'Koelkasttemperatuur (°C)',
+		fridgeTemp_help:
+			'Alleen tijdens de koelkast-rijs gebruikt. Huishoudkoelkasten staan op 2–7 °C.',
 		preFerment: 'Voordeeg',
 		preFerment_none: 'Geen',
 		preFerment_biga: 'Biga (stevig, ~50% hydratatie)',
@@ -935,18 +1016,23 @@ const nl: Messages = {
 	steps: {
 		preferment_mix: 'Voordeeg mengen',
 		preferment_mix_desc:
-			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist. Afgedekt {duration} (HH:MM) op kamertemperatuur laten rijpen tot je het hoofddeeg kneedt.',
-		preferment_proof: 'Voordeeg rijpt',
-		preferment_proof_desc:
-			'Laat het afgedekte voordeeg ongestoord rijpen op kamertemperatuur tot je het hoofddeeg kneedt.',
+			'Meng de voordeeg-ingrediënten, dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen tot de prep-stap.',
+		preferment_mix_desc_biga:
+			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen.',
+		preferment_mix_desc_poolish:
+			'Klop {flour} g bloem, {water} g water en {yeast} g verse gist in een kom glad. Dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen.',
 		prep: 'Wegen en klaarzetten',
 		prep_desc:
 			'Weeg {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label} af. Haal de ingrediënten uit de koelkast.',
+		prep_desc_with_preferment:
+			'Weeg de resterende {flour} g bloem, {water} g water en {salt} g zout af. De gist zit volledig in het voordeeg.',
 		mix: 'Deeg kneden',
 		mix_desc:
 			'Meng {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label}. Kneed tot een glad deeg.',
-		mix_desc_with_preferment:
-			'Voeg het rijpe voordeeg toe aan {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label}. Kneed tot een glad deeg.',
+		mix_desc_with_biga:
+			'Scheur de rijpe biga in {flour} g bloem en {water} g water en meng tot een samenhangend deeg. Werk {salt} g zout erdoor en kneed tot een glad deeg.',
+		mix_desc_with_poolish:
+			'Giet de rijpe poolish bij {flour} g bloem, {water} g water en {salt} g zout. Kneed tot een glad deeg.',
 		bulk_room: 'Bulkrijs (kamer)',
 		bulk_room_desc: 'Dek het deeg af en laat het rijzen op kamertemperatuur.',
 		bulk_cold: 'Bulkrijs (koelkast)',
@@ -1052,7 +1138,6 @@ const jam: Messages = {
 	form: {
 		section_when: 'Wen',
 		section_recipe: 'Recipe',
-		section_advanced: 'Mo settings',
 		startAt: 'Start time',
 		startAt_help: 'Wen yu start plan. Di schedule run fram yah right to wen yu bake.',
 		startAt_now: 'Right now',
@@ -1069,9 +1154,18 @@ const jam: Messages = {
 		info_units_fresh: 'Fresh ris-ting: 1.6 units (≈ 0.2% × 8 h at 22 °C)',
 		info_units_sourdough: 'Sour starta: 160 units (~100× less active per gram)',
 		info_units_solve: 'Di ris-ting percent solve di target:',
+		info_preferment_title: 'Befo-dough as a fermentation phase',
+		info_preferment_body:
+			'Biga an poolish nuh deh fi looks — each one add him own phase to di equivalent-hours sum, so di ris-ting percent drop fi balance it out. Reference loads at 22 °C:',
+		info_preferment_biga: 'Biga: 14 h-equivalent at 22 °C',
+		info_preferment_poolish: 'Poolish: 12 h-equivalent at 22 °C',
+		info_preferment_wall:
+			'Di real wall-clock time work back fram di reference load an get clamp inna [8 h, 24 h]:',
+		info_preferment_yeast:
+			'Fi fresh ris-ting recipe dem, all a di ris-ting go inna di befo-dough — none lef pon baking day. Sour starta ignore biga/poolish (di starta a di befo-dough already).',
 		info_switch_title: 'Cold ↔ room switch',
 		info_switch_body:
-			'Window ≥ 16 h kick in a cold-bulk phase at 4 °C (≈ 16× slowa dan 22 °C). Shorta window stay at room temperature.',
+			'Window ≥ 16 h kick in a cold-bulk phase at yu chosen fridge temperature, way slowa dan di room phase dem (4 °C ≈ 16× slowa dan 22 °C). Shorta window stay at room temperature.',
 		info_mass_title: 'Mass balance',
 		info_mass_body:
 			'Baker percentage wid flour = 100%. Wi solve fi flour fram di total dough mass:',
@@ -1094,6 +1188,8 @@ const jam: Messages = {
 		starterHydration_help: '100% mean same amount a flour an wata.',
 		roomTemp: 'Room temperature (°C)',
 		roomTemp_help: 'Hotta kitchen rise fasta — dat ya wat drive di figga dem.',
+		fridgeTemp: 'Fridge temperature (°C)',
+		fridgeTemp_help: 'Only count inna di cold-bulk phase. Home fridge dem run 2–7 °C.',
 		preFerment: 'Befo-dough',
 		preFerment_none: 'None',
 		preFerment_biga: 'Biga (stiff, ~50% wata)',
@@ -1109,18 +1205,23 @@ const jam: Messages = {
 	steps: {
 		preferment_mix: 'Mek di befo-dough',
 		preferment_mix_desc:
-			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting. Cova it an mek it sit a room temperature fi {duration} (HH:MM) til yu mek di main dough.',
-		preferment_proof: 'Befo-dough a sit',
-		preferment_proof_desc:
-			'Mek di cova befo-dough sit in peace a room temperature til yu ready fi mek di main dough.',
+			'Mix up di befo-dough tings dem, cova it an mek it sit a room temperature fi {duration} (HH:MM) til prep time.',
+		preferment_mix_desc_biga:
+			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature {duration} (HH:MM).',
+		preferment_mix_desc_poolish:
+			'Whisk {flour} g flour, {water} g wata an {yeast} g fresh ris-ting inna bowl til it smood. Cova it an mek it sit a room temperature {duration} (HH:MM).',
 		prep: 'Weigh an set up',
 		prep_desc:
 			'Weigh out {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Tek di tings dem outta di fridge.',
+		prep_desc_with_preferment:
+			'Weigh out di {flour} g flour weh lef, {water} g wata an {salt} g salt. Di whole a di ris-ting deh inna di befo-dough already.',
 		mix: 'Knead di dough',
 		mix_desc:
 			'Mix up {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Knead it til smood.',
-		mix_desc_with_preferment:
-			'Add di ripe befo-dough to {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Knead it til smood.',
+		mix_desc_with_biga:
+			'Tear up di ripe biga inna {flour} g flour an {water} g wata an mix til it come togedda. Work in {salt} g salt, den knead it til smood.',
+		mix_desc_with_poolish:
+			'Pour di ripe poolish inna {flour} g flour, {water} g wata an {salt} g salt. Knead it til smood.',
 		bulk_room: 'Big rise (room)',
 		bulk_room_desc: 'Cova di dough an mek it rise a room temperature.',
 		bulk_cold: 'Big rise (fridge)',
