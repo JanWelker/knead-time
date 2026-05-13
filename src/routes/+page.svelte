@@ -104,10 +104,12 @@
 </svelte:head>
 
 <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 print:max-w-none print:px-0 print:py-0">
-	<header class="mb-8 flex flex-wrap items-start justify-between gap-4 print:mb-2 print:block">
+	<header
+		class="print:border-dough-300 mb-8 flex flex-wrap items-start justify-between gap-4 print:mb-3 print:block print:border-b print:pb-2"
+	>
 		<div>
 			<h1
-				class="font-display text-tomato-700 dark:text-tomato-300 text-4xl sm:text-5xl print:text-xl"
+				class="font-display text-tomato-700 dark:text-tomato-300 text-4xl sm:text-5xl print:text-2xl"
 			>
 				{t.app.title}
 			</h1>
@@ -124,7 +126,7 @@
 	<section class="print-only mb-3 break-inside-avoid">
 		<div class="grid grid-cols-2 gap-6">
 			<div>
-				<h2 class="font-display mb-1 text-base text-stone-900">{t.print.recipe_heading}</h2>
+				<h2 class="font-display text-tomato-700 mb-1 text-lg">{t.print.recipe_heading}</h2>
 				<table class="tabular w-full border-collapse">
 					<tbody>
 						<tr class="border-dough-200/70 border-b last:border-0">
@@ -171,7 +173,7 @@
 				</table>
 			</div>
 			<div>
-				<h2 class="font-display mb-1 text-base text-stone-900">{t.ingredients.heading}</h2>
+				<h2 class="font-display text-tomato-700 mb-1 text-lg">{t.ingredients.heading}</h2>
 				<Ingredients
 					ingredients={form.schedule.ingredients}
 					yeastType={form.yeastType}
@@ -192,7 +194,9 @@
 			<div class={cardClass}>
 				<div class="mb-4 flex flex-wrap items-end justify-between gap-3 print:mb-1">
 					<div>
-						<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100 print:text-base">
+						<h2
+							class="font-display print:text-tomato-700 text-2xl text-stone-900 dark:text-stone-100 print:text-lg"
+						>
 							{t.schedule.heading}
 						</h2>
 						<div class="mt-2 print:hidden"><ModeBadge mode={form.schedule.mode} /></div>
@@ -309,23 +313,17 @@
 		</p>
 	</footer>
 
-	<footer class="print-only mt-3 border-t border-stone-300 pt-2 text-[8pt] text-stone-500">
+	<footer class="print-only mt-4 border-t border-stone-300 pt-3 text-[8pt] text-stone-500">
 		<div class="flex items-end justify-between gap-4">
-			<div>
-				<p>{t.footer.about} <span class="text-stone-400">· v{appVersion}</span></p>
-				{#if shareUrl}
-					<p class="mt-0.5 text-stone-400">{t.print.scan_to_open}</p>
-				{/if}
-			</div>
+			<p>{t.footer.about} <span class="text-stone-400">· v{appVersion}</span></p>
 			{#if shareUrl}
 				{@const qr = qrCode(shareUrl)}
-				<svg
-					viewBox="0 0 {qr.size} {qr.size}"
-					class="h-20 w-20 shrink-0 text-black"
-					aria-hidden="true"
-				>
-					<path d={qr.path} fill="currentColor" />
-				</svg>
+				<div class="flex shrink-0 flex-col items-center gap-1">
+					<svg viewBox="0 0 {qr.size} {qr.size}" class="h-24 w-24 text-black" aria-hidden="true">
+						<path d={qr.path} fill="currentColor" />
+					</svg>
+					<p class="text-stone-600">{t.print.scan_to_open}</p>
+				</div>
 			{/if}
 		</div>
 	</footer>
