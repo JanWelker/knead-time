@@ -24,7 +24,7 @@
 			{@const isReady = step.kind === 'ready'}
 			<tr class="border-dough-200/70 border-b align-top last:border-0 dark:border-stone-700/70">
 				<td
-					class="py-3 pr-3 font-medium {isReady
+					class="py-3 pr-3 font-medium whitespace-nowrap {isReady
 						? 'text-tomato-700 dark:text-tomato-300'
 						: 'text-stone-800 dark:text-stone-200'}"
 				>
@@ -38,7 +38,7 @@
 					>
 						{stepTitle(step, t)}
 					</div>
-					<div class="text-xs text-stone-500 dark:text-stone-400">
+					<div class="text-xs text-stone-500 dark:text-stone-400 print:leading-tight">
 						{stepDescription(step, t, schedule)}
 					</div>
 				</td>

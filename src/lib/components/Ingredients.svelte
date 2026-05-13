@@ -39,14 +39,16 @@
 	</tr>
 {/snippet}
 
-<div class="space-y-6">
+<div class="space-y-6 print:space-y-2">
 	{#if ingredients.preFerment}
 		<section>
-			<header class="mb-2">
-				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base">
+			<header class="mb-2 print:mb-0">
+				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base print:text-sm">
 					{t.ingredients.preFerment_heading}
 				</h3>
-				<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.preFerment_help}</p>
+				<p class="text-xs text-stone-500 dark:text-stone-400 print:hidden">
+					{t.ingredients.preFerment_help}
+				</p>
 			</header>
 			<table class="tabular w-full border-collapse">
 				<tbody>
@@ -58,11 +60,13 @@
 		</section>
 
 		<section>
-			<header class="mb-2">
-				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base">
+			<header class="mb-2 print:mb-0">
+				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base print:text-sm">
 					{t.ingredients.mainDough_heading}
 				</h3>
-				<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.mainDough_help}</p>
+				<p class="text-xs text-stone-500 dark:text-stone-400 print:hidden">
+					{t.ingredients.mainDough_help}
+				</p>
 			</header>
 			<table class="tabular w-full border-collapse">
 				<tbody>
@@ -77,8 +81,8 @@
 		</section>
 
 		<section>
-			<header class="mb-2">
-				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base">
+			<header class="mb-2 print:mb-0">
+				<h3 class="font-display text-tomato-700 dark:text-tomato-300 text-base print:text-sm">
 					{t.ingredients.totals_heading}
 				</h3>
 			</header>

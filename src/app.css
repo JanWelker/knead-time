@@ -82,7 +82,7 @@ input[type='number'] {
 }
 
 @page {
-	margin: 14mm 12mm;
+	margin: 9mm 10mm;
 }
 
 @media print {
@@ -94,11 +94,19 @@ input[type='number'] {
 	}
 
 	html {
-		font-size: 11pt;
+		font-size: 9pt;
 	}
 
 	.print-only {
 		display: block;
+	}
+
+	/* Compact every tabular row when printing — the screen's generous padding
+	   eats vertical space that should fit a whole recipe on one page. */
+	table.tabular td,
+	table.tabular th {
+		padding-top: 0.15rem !important;
+		padding-bottom: 0.15rem !important;
 	}
 
 	/* Keep schedule rows from splitting awkwardly across pages. */
