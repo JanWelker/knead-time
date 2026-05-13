@@ -165,6 +165,15 @@
 			bind:value={state.roomTempC}
 		/>
 
+		<FormField
+			label={t.form.fridgeTemp}
+			min={0}
+			max={12}
+			step={0.5}
+			help={t.form.fridgeTemp_help}
+			bind:value={state.fridgeTempC}
+		/>
+
 		<label class="block">
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.yeastType}

@@ -34,8 +34,6 @@ export const ROOM_MIN_TOTAL_MIN = 3 * 60;
 export const NIGHT_START_HOUR = 22;
 export const NIGHT_END_HOUR = 8;
 
-const FRIDGE_TEMP_C = 4;
-
 // Sum of every fixed-duration step around the variable bulk-cold leg
 // (prep + mix + initial bulk-room + divide + warmup + final proof). Lets the
 // night-window adjuster map a candidate coldMin back to a prepAt without
@@ -160,7 +158,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			prefermentEqHours +
 			((COLD_INITIAL_BULK_MIN + COLD_WARMUP_MIN + COLD_FINAL_PROOF_MIN) / 60) *
 				temperatureFactor(inputs.roomTempC) +
-			(coldMin / 60) * temperatureFactor(FRIDGE_TEMP_C);
+			(coldMin / 60) * temperatureFactor(inputs.fridgeTempC);
 
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
 		steps = buildColdSteps({

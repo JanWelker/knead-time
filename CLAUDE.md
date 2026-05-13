@@ -23,6 +23,7 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`. Notable rules:
 
 - Ball weight accepts decimals (e.g. 288.5 g) — the form input must allow that.
 - Yeast is **fresh (cube)** or **sourdough starter** (with starter-hydration when applicable).
+- Both kitchen and fridge temperatures are user inputs (`roomTempC`, `fridgeTempC`). The fridge temperature only matters during the cold-bulk phase; warmer fridges ferment more per hour, lowering the solved yeast %. Default 4 °C — matches the previously hardcoded value so v=1 share-links remain stable.
 - Defaults reflect contemporary high-hydration Neapolitan (280 g / 70% / 3% salt). No AVPN enforcement.
 
 ### "Round numbers" action

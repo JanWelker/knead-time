@@ -15,6 +15,7 @@ function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
 		yeastType: 'fresh',
 		starterHydration: 100,
 		roomTempC: 22,
+		fridgeTempC: 4,
 		preFerment: null,
 		...overrides
 	};

@@ -35,6 +35,7 @@ function baseInputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
 		yeastType: 'fresh',
 		starterHydration: 100,
 		roomTempC: 22,
+		fridgeTempC: 4,
 		preFerment: null,
 		...overrides
 	};
@@ -492,5 +493,26 @@ describe('computeSchedule — yeast magnitude warnings', () => {
 		);
 		expect(r.warnings).not.toContain('yeast-large');
 		expect(r.warnings).not.toContain('yeast-tiny');
+	});
+});
+
+describe('computeSchedule — fridge temperature', () => {
+	it('uses less yeast when the fridge runs warmer (more fermentation during cold-bulk)', () => {
+		const startAt = new Date('2026-05-11T07:00:00Z');
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const cold = computeSchedule(baseInputs({ startAt, readyBy, fridgeTempC: 2 }));
+		const warm = computeSchedule(baseInputs({ startAt, readyBy, fridgeTempC: 8 }));
+		expect(cold.mode).toBe('cold');
+		expect(warm.mode).toBe('cold');
+		expect(warm.yeastPercent).toBeLessThan(cold.yeastPercent);
+	});
+
+	it('does not affect yeast % in room mode (no cold-bulk phase)', () => {
+		const startAt = new Date('2026-05-12T13:00:00Z');
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const cold = computeSchedule(baseInputs({ startAt, readyBy, fridgeTempC: 2 }));
+		const warm = computeSchedule(baseInputs({ startAt, readyBy, fridgeTempC: 8 }));
+		expect(cold.mode).toBe('room');
+		expect(warm.yeastPercent).toBeCloseTo(cold.yeastPercent, 10);
 	});
 });

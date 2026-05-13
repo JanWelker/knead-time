@@ -50,6 +50,8 @@ export interface Messages {
 		starterHydration_help: string;
 		roomTemp: string;
 		roomTemp_help: string;
+		fridgeTemp: string;
+		fridgeTemp_help: string;
 		preFerment: string;
 		preFerment_none: string;
 		preFerment_biga: string;
@@ -218,6 +220,8 @@ const en: Messages = {
 		starterHydration_help: '100% means equal flour and water.',
 		roomTemp: 'Room temperature (°C)',
 		roomTemp_help: 'Warmer kitchens ferment faster — this drives the math.',
+		fridgeTemp: 'Fridge temperature (°C)',
+		fridgeTemp_help: 'Only used during the cold-bulk phase. Home fridges run 2–7 °C.',
 		preFerment: 'Pre-ferment',
 		preFerment_none: 'None',
 		preFerment_biga: 'Biga (stiff, ~50% hydration)',
@@ -396,6 +400,8 @@ const de: Messages = {
 		starterHydration_help: '100% heißt gleich viel Mehl wie Wasser.',
 		roomTemp: 'Raumtemperatur (°C)',
 		roomTemp_help: 'Wärmere Küchen sind schneller — das steuert die Rechnung.',
+		fridgeTemp: 'Kühlschranktemperatur (°C)',
+		fridgeTemp_help: 'Nur in der Kühlgare relevant. Haushaltskühlschränke laufen bei 2–7 °C.',
 		preFerment: 'Vorteig',
 		preFerment_none: 'Keiner',
 		preFerment_biga: 'Biga (fest, ~50% Hydration)',
@@ -576,6 +582,8 @@ const it: Messages = {
 		starterHydration_help: '100% significa stessa quantità di farina e acqua.',
 		roomTemp: 'Temperatura ambiente (°C)',
 		roomTemp_help: 'In cucine più calde la lievitazione corre — è ciò che guida il calcolo.',
+		fridgeTemp: 'Temperatura del frigo (°C)',
+		fridgeTemp_help: 'Usata solo durante la puntata in frigo. I frigo domestici stanno tra 2–7 °C.',
 		preFerment: 'Preimpasto',
 		preFerment_none: 'Nessuno',
 		preFerment_biga: 'Biga (asciutta, ~50% idratazione)',
@@ -756,6 +764,9 @@ const fr: Messages = {
 		roomTemp: 'Température ambiante (°C)',
 		roomTemp_help:
 			"Les cuisines plus chaudes accélèrent la fermentation — c'est ce qui guide le calcul.",
+		fridgeTemp: 'Température du frigo (°C)',
+		fridgeTemp_help:
+			'Utilisée seulement pendant la phase au frigo. Les frigos domestiques sont à 2–7 °C.',
 		preFerment: 'Pré-ferment',
 		preFerment_none: 'Aucun',
 		preFerment_biga: "Biga (ferme, ~50% d'hydratation)",
@@ -936,6 +947,9 @@ const nl: Messages = {
 		starterHydration_help: '100% betekent evenveel bloem als water.',
 		roomTemp: 'Kamertemperatuur (°C)',
 		roomTemp_help: 'Warmere keukens rijzen sneller — dat stuurt de berekening.',
+		fridgeTemp: 'Koelkasttemperatuur (°C)',
+		fridgeTemp_help:
+			'Alleen tijdens de koelkast-rijs gebruikt. Huishoudkoelkasten staan op 2–7 °C.',
 		preFerment: 'Voordeeg',
 		preFerment_none: 'Geen',
 		preFerment_biga: 'Biga (stevig, ~50% hydratatie)',
@@ -1114,6 +1128,8 @@ const jam: Messages = {
 		starterHydration_help: '100% mean same amount a flour an wata.',
 		roomTemp: 'Room temperature (°C)',
 		roomTemp_help: 'Hotta kitchen rise fasta — dat ya wat drive di figga dem.',
+		fridgeTemp: 'Fridge temperature (°C)',
+		fridgeTemp_help: 'Only count inna di cold-bulk phase. Home fridge dem run 2–7 °C.',
 		preFerment: 'Befo-dough',
 		preFerment_none: 'None',
 		preFerment_biga: 'Biga (stiff, ~50% wata)',

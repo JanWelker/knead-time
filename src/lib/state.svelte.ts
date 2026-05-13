@@ -22,6 +22,7 @@ export class FormState {
 	yeastType: YeastType = $state('fresh');
 	starterHydration: number = $state(100);
 	roomTempC: number = $state(22);
+	fridgeTempC: number = $state(4);
 	preFermentType: PreFermentChoice = $state('none');
 	preFermentFlour: number = $state(30);
 	startAt: Date = $state(new SvelteDate());
@@ -36,6 +37,7 @@ export class FormState {
 		yeastType: this.yeastType,
 		starterHydration: this.starterHydration,
 		roomTempC: this.roomTempC,
+		fridgeTempC: this.fridgeTempC,
 		preFerment:
 			this.preFermentType === 'none'
 				? null
@@ -55,6 +57,7 @@ export class FormState {
 			yeastType: this.yeastType,
 			starterHydration: this.starterHydration,
 			roomTempC: this.roomTempC,
+			fridgeTempC: this.fridgeTempC,
 			preFerment:
 				this.preFermentType === 'none'
 					? null
@@ -83,6 +86,7 @@ export class FormState {
 		if (partial.yeastType !== undefined) this.yeastType = partial.yeastType;
 		if (partial.starterHydration !== undefined) this.starterHydration = partial.starterHydration;
 		if (partial.roomTempC !== undefined) this.roomTempC = partial.roomTempC;
+		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
 		if (partial.preFerment !== undefined) {
 			if (partial.preFerment === null) {
 				this.preFermentType = 'none';

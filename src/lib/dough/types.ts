@@ -17,6 +17,7 @@ export interface DoughInputs {
 	yeastType: YeastType;
 	starterHydration: number;
 	roomTempC: number;
+	fridgeTempC: number;
 	preFerment: PreFermentSpec | null;
 }
 
