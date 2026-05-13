@@ -251,6 +251,21 @@
 					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">yeast% = target / Σ (hours · f(T))</pre>
 			</div>
 
+			<div class="min-w-0">
+				<p class="font-semibold text-stone-900 dark:text-stone-100">
+					{t.form.info_preferment_title}
+				</p>
+				<p class="mt-1">{t.form.info_preferment_body}</p>
+				<ul class="mt-1 list-disc space-y-0.5 pl-5">
+					<li>{t.form.info_preferment_biga}</li>
+					<li>{t.form.info_preferment_poolish}</li>
+				</ul>
+				<p class="mt-2">{t.form.info_preferment_wall}</p>
+				<pre
+					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">wallHours = refHours / f(roomTempC),  8 ≤ wallHours ≤ 24</pre>
+				<p class="mt-2">{t.form.info_preferment_yeast}</p>
+			</div>
+
 			<div>
 				<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_switch_title}</p>
 				<p class="mt-1">{t.form.info_switch_body}</p>
