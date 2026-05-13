@@ -31,6 +31,28 @@ export function temperatureFactor(tempC: number): number {
 	return Math.pow(Q10, (tempC - REF_TEMP_C) / 10);
 }
 
+// Target final dough temperature for contemporary Neapolitan dough — 1 °C below
+// the 24 °C cap commonly cited as the safe upper bound during long room ferments.
+const TARGET_FDT_C = 23;
+// Heat the dough picks up from a spiral mixer over a typical Neapolitan mix
+// (~8–12 min). Calibrated against an observed run: 10 min on a spiral with
+// 4 °C water in a 22 °C kitchen lands the dough at 24 °C — back-solving the
+// desired-temp formula gives friction ≈ 24 °C. This is the workflow assumed
+// throughout the app; hand-kneading is not in scope.
+const KNEAD_FRICTION_C = 24;
+// Below ~4 °C the recipe is asking for an ice bath; above ~35 °C the water
+// itself starts to stress fresh yeast. Clamp the recommendation to that band.
+const MIX_WATER_MIN_C = 4;
+const MIX_WATER_MAX_C = 35;
+
+// Recommended mix-water temperature so the kneaded dough lands at TARGET_FDT_C.
+// Hamelman-style desired-temperature formula, assuming flour ≈ room temperature:
+//   FDT = (flour + room + water + friction) / 3  →  water = 3·FDT − 2·room − friction
+export function idealMixWaterTempC(roomTempC: number): number {
+	const raw = 3 * TARGET_FDT_C - 2 * roomTempC - KNEAD_FRICTION_C;
+	return Math.round(Math.min(MIX_WATER_MAX_C, Math.max(MIX_WATER_MIN_C, raw)));
+}
+
 export function prefermentRefHours(type: 'biga' | 'poolish'): number {
 	return type === 'biga' ? PREFERMENT_REF_HOURS_BIGA : PREFERMENT_REF_HOURS_POOLISH;
 }

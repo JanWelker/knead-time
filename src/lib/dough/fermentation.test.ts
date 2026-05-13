@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	equivalentHoursAtRef,
 	fermentHoursForYeast,
+	idealMixWaterTempC,
 	PREFERMENT_MAX_HOURS,
 	PREFERMENT_MIN_HOURS,
 	PREFERMENT_REF_HOURS_BIGA,
@@ -121,6 +122,38 @@ describe('prefermentEquivHours', () => {
 		// at MAX to avoid overproofing — the pre-ferment delivers less than the
 		// reference load.
 		expect(prefermentEquivHours('biga', 4)).toBeLessThan(PREFERMENT_REF_HOURS_BIGA);
+	});
+});
+
+describe('idealMixWaterTempC', () => {
+	it('clamps to the ice-water floor for a typical 22 °C kitchen — spiral friction is high', () => {
+		// 3·23 − 2·22 − 24 = 1 → clamped to 4 °C
+		expect(idealMixWaterTempC(22)).toBe(4);
+	});
+	it('drops to fridge-cold water for a cool kitchen', () => {
+		// 3·23 − 2·18 − 24 = 9 °C
+		expect(idealMixWaterTempC(18)).toBe(9);
+	});
+	it('rises to room-temp water for a chilly kitchen', () => {
+		// 3·23 − 2·12 − 24 = 21 °C
+		expect(idealMixWaterTempC(12)).toBe(21);
+	});
+	it('stays clamped at the floor in a hot kitchen', () => {
+		// 3·23 − 2·28 − 24 = −11 → clamped to 4 °C (use ice cubes)
+		expect(idealMixWaterTempC(28)).toBe(4);
+	});
+	it('clamps to the warm-water ceiling in a frigid kitchen', () => {
+		// 3·23 − 2·4 − 24 = 37 → clamped to 35
+		expect(idealMixWaterTempC(4)).toBe(35);
+	});
+	it('decreases monotonically as the kitchen warms', () => {
+		expect(idealMixWaterTempC(12)).toBeGreaterThan(idealMixWaterTempC(18));
+		expect(idealMixWaterTempC(18)).toBeGreaterThan(idealMixWaterTempC(22));
+	});
+	it('matches the calibration observation (10 min on spiral, 4 °C water, 22 °C kitchen → 24 °C dough)', () => {
+		// Sanity check that our recommendation does not exceed the safe cap when
+		// applied to the data point the friction factor was tuned against.
+		expect(idealMixWaterTempC(22)).toBeLessThanOrEqual(4);
 	});
 });
 

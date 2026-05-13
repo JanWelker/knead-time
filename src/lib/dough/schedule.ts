@@ -1,5 +1,6 @@
 import { computeIngredients } from './bakers';
 import {
+	idealMixWaterTempC,
 	prefermentDurationHours,
 	prefermentEquivHours,
 	TARGET_UNITS_FRESH,
@@ -217,7 +218,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		preFerment,
 		warnings,
 		pizzaCount: inputs.pizzaCount,
-		ballWeight: inputs.ballWeight
+		ballWeight: inputs.ballWeight,
+		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC)
 	};
 }
 
