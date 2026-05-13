@@ -92,3 +92,36 @@ describe('urlState round-trip', () => {
 		expect(encoded).toContain('p=p20');
 	});
 });
+
+describe('urlState versioning', () => {
+	it('stamps the current schema version onto encoded URLs', () => {
+		expect(encodeInputs(base)).toContain('v=1');
+	});
+
+	it('decodes legacy links that predate the v parameter as v1', () => {
+		// Older shared/community links contain no `v` — they must keep working.
+		const out = decodeInputs('?r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22');
+		expect(out.readyBy?.toISOString()).toBe('2026-05-12T19:00:00.000Z');
+		expect(out.pizzaCount).toBe(4);
+		expect(out.yeastType).toBe('fresh');
+	});
+
+	it('decodes an explicit v=1 link the same as a legacy one', () => {
+		const legacy = decodeInputs('?r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22');
+		const versioned = decodeInputs('?v=1&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22');
+		expect(versioned).toEqual(legacy);
+	});
+
+	it('falls back to the current decoder when the requested version is unknown', () => {
+		// A future deployment shipped v=99; today's app should still extract
+		// whatever it understands of the current schema rather than failing hard.
+		const out = decodeInputs('?v=99&n=4&b=280&h=70&y=f&t=22');
+		expect(out.pizzaCount).toBe(4);
+		expect(out.yeastType).toBe('fresh');
+	});
+
+	it('treats a non-numeric v as the current version', () => {
+		const out = decodeInputs('?v=garbage&n=4');
+		expect(out.pizzaCount).toBe(4);
+	});
+});

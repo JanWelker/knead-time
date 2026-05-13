@@ -137,6 +137,23 @@ export interface Messages {
 		support: string;
 		license: string;
 	};
+	community: {
+		heading: string;
+		intro: string;
+		empty: string;
+		contribute: string;
+		col_name: string;
+		col_date: string;
+		col_pizzas: string;
+		col_ball: string;
+		col_hydration: string;
+		col_salt: string;
+		col_yeast: string;
+		col_temp: string;
+		col_preFerment: string;
+		col_open: string;
+		open_link: string;
+	};
 }
 
 const en: Messages = {
@@ -287,6 +304,23 @@ const en: Messages = {
 		docs: 'Docs',
 		support: 'Support',
 		license: '© {year} Jan Welker · Licensed under Apache 2.0'
+	},
+	community: {
+		heading: 'Community recipes',
+		intro: 'Share-URLs other bakers contributed. Click a row to load that recipe.',
+		empty: 'No recipes yet — be the first to contribute.',
+		contribute: 'Add yours by editing community.md and opening a pull request.',
+		col_name: 'Baker',
+		col_date: 'Added',
+		col_pizzas: 'Pizzas',
+		col_ball: 'Ball (g)',
+		col_hydration: 'Hydration',
+		col_salt: 'Salt',
+		col_yeast: 'Yeast',
+		col_temp: 'Room °C',
+		col_preFerment: 'Pre-ferment',
+		col_open: 'Recipe',
+		open_link: 'Open'
 	}
 };
 
@@ -441,6 +475,23 @@ const de: Messages = {
 		docs: 'Dokumentation',
 		support: 'Support',
 		license: '© {year} Jan Welker · Lizenziert unter Apache 2.0'
+	},
+	community: {
+		heading: 'Community-Rezepte',
+		intro: 'Share-URLs anderer Bäcker. Klicke eine Zeile, um das Rezept zu laden.',
+		empty: 'Noch keine Rezepte — sei der erste Beitrag.',
+		contribute: 'Trage dich ein, indem du community.md bearbeitest und einen Pull Request öffnest.',
+		col_name: 'Bäcker:in',
+		col_date: 'Hinzugefügt',
+		col_pizzas: 'Pizzen',
+		col_ball: 'Teigling (g)',
+		col_hydration: 'Hydration',
+		col_salt: 'Salz',
+		col_yeast: 'Hefe',
+		col_temp: 'Raum °C',
+		col_preFerment: 'Vorteig',
+		col_open: 'Rezept',
+		open_link: 'Öffnen'
 	}
 };
 
@@ -585,6 +636,23 @@ const it: Messages = {
 		yeast_large: 'Quantità di lievito alta — ricontrolla i dati.',
 		night_step:
 			"Un passaggio cade ancora tra le 22:00 e le 08:00. Sposta l'ora di cottura perché tutte le azioni siano di giorno."
+	},
+	community: {
+		heading: 'Ricette della community',
+		intro: 'Share-URL condivisi da altri pizzaioli. Clicca una riga per caricare la ricetta.',
+		empty: 'Nessuna ricetta ancora — sii il primo a contribuire.',
+		contribute: 'Aggiungi la tua modificando community.md e aprendo una pull request.',
+		col_name: 'Pizzaiolo',
+		col_date: 'Aggiunta',
+		col_pizzas: 'Pizze',
+		col_ball: 'Panetto (g)',
+		col_hydration: 'Idratazione',
+		col_salt: 'Sale',
+		col_yeast: 'Lievito',
+		col_temp: 'Stanza °C',
+		col_preFerment: 'Pre-impasto',
+		col_open: 'Ricetta',
+		open_link: 'Apri'
 	},
 	footer: {
 		about: 'Calcolatore per impasto di pizza napoletana ancorato al tempo.',
@@ -746,6 +814,23 @@ const fr: Messages = {
 		docs: 'Documentation',
 		support: 'Support',
 		license: '© {year} Jan Welker · Sous licence Apache 2.0'
+	},
+	community: {
+		heading: 'Recettes de la communauté',
+		intro: 'URLs partagées par d’autres boulangers. Clique une ligne pour charger la recette.',
+		empty: 'Aucune recette pour l’instant — sois le premier à contribuer.',
+		contribute: 'Ajoute la tienne en modifiant community.md et en ouvrant une pull request.',
+		col_name: 'Boulanger',
+		col_date: 'Ajoutée',
+		col_pizzas: 'Pizzas',
+		col_ball: 'Pâton (g)',
+		col_hydration: 'Hydratation',
+		col_salt: 'Sel',
+		col_yeast: 'Levure',
+		col_temp: 'Pièce °C',
+		col_preFerment: 'Pré-ferment',
+		col_open: 'Recette',
+		open_link: 'Ouvrir'
 	}
 };
 
@@ -898,6 +983,23 @@ const nl: Messages = {
 		docs: 'Documentatie',
 		support: 'Ondersteuning',
 		license: '© {year} Jan Welker · Gelicentieerd onder Apache 2.0'
+	},
+	community: {
+		heading: 'Community-recepten',
+		intro: 'Share-URLs van andere bakkers. Klik op een rij om het recept te laden.',
+		empty: 'Nog geen recepten — wees de eerste die bijdraagt.',
+		contribute: 'Voeg jouw recept toe door community.md te bewerken en een pull request te openen.',
+		col_name: 'Bakker',
+		col_date: 'Toegevoegd',
+		col_pizzas: 'Pizza’s',
+		col_ball: 'Bolletje (g)',
+		col_hydration: 'Hydratatie',
+		col_salt: 'Zout',
+		col_yeast: 'Gist',
+		col_temp: 'Kamer °C',
+		col_preFerment: 'Voordeeg',
+		col_open: 'Recept',
+		open_link: 'Openen'
 	}
 };
 
@@ -1048,6 +1150,23 @@ const jam: Messages = {
 		docs: 'Docs',
 		support: 'Support',
 		license: '© {year} Jan Welker · Licensed under Apache 2.0'
+	},
+	community: {
+		heading: 'Community recipe dem',
+		intro: 'Share-URL weh odda baker dem drop. Click pon a row fi load di recipe.',
+		empty: 'No recipe yet — be di first fi drop one.',
+		contribute: 'Drop yours by edit community.md an open up a pull request.',
+		col_name: 'Baker',
+		col_date: 'Add up',
+		col_pizzas: 'Pizza dem',
+		col_ball: 'Ball (g)',
+		col_hydration: 'Hydration',
+		col_salt: 'Salt',
+		col_yeast: 'Ris-ting',
+		col_temp: 'Room °C',
+		col_preFerment: 'Befo-dough',
+		col_open: 'Recipe',
+		open_link: 'Open'
 	}
 };
 

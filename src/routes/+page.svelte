@@ -4,6 +4,7 @@
 
 	import { buildIcs } from '$lib/dough/ics';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
+	import Community from '$lib/components/Community.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
 	import InputForm from '$lib/components/InputForm.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
@@ -18,6 +19,7 @@
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
 
 	const currentYear = new Date().getFullYear();
+	const appVersion = __APP_VERSION__;
 
 	const btnClass =
 		'bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
@@ -210,6 +212,10 @@
 		</section>
 	</div>
 
+	<section class="{cardClass} mt-8 print:hidden">
+		<Community />
+	</section>
+
 	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400 print:hidden">
 		<p>{t.footer.about}</p>
 		<p class="mt-1 text-stone-400 dark:text-stone-500">{t.actions.share_help}</p>
@@ -252,11 +258,20 @@
 			>
 				{interpolate(t.footer.license, { year: currentYear })}
 			</a>
+			<span aria-hidden="true">·</span>
+			<a
+				href="https://github.com/JanWelker/knead-time/releases/tag/v{appVersion}"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+			>
+				v{appVersion}
+			</a>
 		</p>
 	</footer>
 
 	<footer class="print-only mt-6 border-t border-stone-300 pt-3 text-xs text-stone-500">
-		<p>{t.footer.about}</p>
+		<p>{t.footer.about} <span class="text-stone-400">· v{appVersion}</span></p>
 		<p class="mt-1">
 			<span class="text-stone-400">{t.print.source_label}:</span>
 			<span class="break-all">{shareUrl}</span>

@@ -52,6 +52,7 @@ src/
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
 │   ├── i18n/             ← messages (en/de/it/fr/nl/jam), locale detection, runtime interpolation
+│   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
 │   ├── state.svelte.ts   ← form state as a $state class
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
 │   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
@@ -136,6 +137,25 @@ The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-previ
 A separate **`.github/workflows/ci.yml`** runs lint, type-check, tests, and build on every push and PR but doesn't deploy.
 
 ---
+
+## Contributing a community recipe
+
+The bottom of the page lists recipes other bakers have shared. Each entry is a
+single row in [`src/lib/community/community.md`](src/lib/community/community.md):
+
+```md
+| Name      | Date       | Recipe                                        |
+| --------- | ---------- | --------------------------------------------- |
+| Your name | 2026-05-13 | https://janwelker.github.io/knead-time/?r=... |
+```
+
+To add yours: dial in the recipe in the app, click **Share** to copy the URL,
+then open a PR appending one row to that file. The website parses the URL,
+shows your inputs as columns, and links the row back to the recipe.
+
+For the **Name** column use either your full name (renders as plain text) or
+a GitHub handle prefixed with `@` (renders as a link to your profile, e.g.
+`@JanWelker` → <https://github.com/JanWelker>).
 
 ## Conventions worth knowing
 
