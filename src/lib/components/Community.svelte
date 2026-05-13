@@ -82,7 +82,7 @@
 									rel="noopener noreferrer"
 									class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
 								>
-									{entry.name}
+									{entry.handle}
 								</a>
 							{:else}
 								{entry.name}
