@@ -13,7 +13,8 @@ Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; ev
 User picks `readyBy` + `startAt`; the scheduler computes `preferment-mix → prep → mix → bulk → divide → warmup → final-proof → ready` working backwards from `readyBy`.
 
 - **Cold ↔ room ferment switch is deterministic on available time, not a UI toggle.** Window ≥ 16 h → cold-bulk leg at 4 °C; otherwise room ferment.
-- **Pre-ferment reserve**: when biga/poolish is selected, ~12 h is reserved before mix-day prep. `preferment-mix` defaults to landing at/after `startAt` (regression-tested), but the night-window guard below can pull it earlier.
+- **Pre-ferment is a real fermentation phase, not a decorative block.** When biga/poolish is selected, a wall-clock duration is computed from the type and `roomTempC` (`prefermentDurationHours` in `fermentation.ts`) — biga ~14 h, poolish ~12 h at 22 °C, scaled by Q10 and clamped to [8, 24] h. That duration is both (a) reserved before mix-day prep on the schedule and (b) added to the equivalent-hours sum that solves for yeast %. The pre-ferment carries **all of the recipe's yeast** for fresh-yeast recipes (no fresh yeast on baking day) — matches how biga/poolish technique actually works. `preferment-mix` defaults to landing at/after `startAt` (regression-tested), but the night-window guard below can pull it earlier.
+- **Pre-ferment is mutually exclusive with sourdough.** The starter is itself the pre-ferment culture, so `effectivePreFerment` in `schedule.ts` nulls the biga/poolish spec under `yeastType === 'sourdough'`. The InputForm hides the dropdown for sourdough. URL state retains the user's pre-ferment choice (so toggling sourdough on/off is reversible), but it never reaches the math while sourdough is selected.
 - **Night-window guard**: no baker-action step starts in `[22:00, 08:00)` local time. Cold mode stretches `bulk-cold` within its floor/ceiling so the pre-cold cluster lands during waking hours; post-cold steps (divide, warmup) are anchored to `readyBy` and can't shift. Room mode has no slack. When a step can't be lifted out, emit a `night-step` warning — **never silently rearrange**. The guard can pull the first step earlier than `startAt`, so **`startAt` is a soft hint, not a strict floor**.
 
 ### Inputs
@@ -30,8 +31,8 @@ Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on
 
 ### Outputs
 
-- **Ingredients in grams.** No pre-ferment → flat table. With pre-ferment → three sections (**Pre-dough / Main dough / Totals**), because a single subtracted table reads as a math error (the totals row never matches the visible sum).
-- **Schedule table with absolute timestamps.** Step copy interpolates schedule context so each description is self-contained: pizza count + per-ball weight on `divide`; flour/water/salt/yeast weights on `prep` and `mix` (with localized yeast label); pre-ferment flour/water/pinch-yeast on `preferment-mix`. **`mix` has a separate template when a pre-ferment is set** so the baker is reminded to fold it in.
+- **Ingredients in grams.** No pre-ferment → flat table. With pre-ferment → three sections (**Pre-dough / Main dough / Totals**), because a single subtracted table reads as a math error (the totals row never matches the visible sum). With a pre-ferment the main-dough yeast row is hidden (all yeast lives in the pre-dough), so the totals row is what surfaces the yeast quantity.
+- **Schedule table with absolute timestamps.** Step copy interpolates schedule context so each description is self-contained: pizza count + per-ball weight on `divide`; flour/water/salt/yeast weights on `prep` and `mix` (with localized yeast label); pre-ferment flour/water/yeast on `preferment-mix`. **`mix` and `prep` have separate templates per pre-ferment type** (`mix_desc_with_biga`, `mix_desc_with_poolish`, `prep_desc_with_preferment`) — biga gets stiff/no-knead day-one copy and the day-two mix folds it in; poolish gets a smoother whisk-and-pour treatment. With a pre-ferment, day-two `prep` and `mix` deliberately omit the yeast field — the pre-dough is the carrier. The collapsed `preferment-mix` row spans the full wall-clock duration (active mix + maturation); there is no separate `preferment-proof` step.
 - **`.ics` export.** One VEVENT per step. **VEVENT `DESCRIPTION` must match the on-page step description verbatim**, interpolations included.
 - **Print / Save as PDF.** `window.print()` only — no PDF lib. Driven by `@media print` in `src/app.css` + Tailwind `print:` variants. Hides input form/chrome, prepends a recipe-summary header, appends a footer with the share URL so a printed copy is reproducible. **Must read on B&W** — borders and text colour, not background fills (browsers strip those).
 
@@ -42,6 +43,8 @@ Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on
   - Fresh yeast adds new mass: `pctSum = 100 + h + s + y`.
   - Sourdough starter is flour + water from the existing budget: `pctSum = 100 + h + s`.
   - A pre-ferment redistributes flour/water/yeast between pre-dough and main dough; it does not change totals.
+- **Yeast solves a single equivalent-hours equation across every fermentation phase.** `yeast% = target / Σ(hours_i · f(T_i))`, where the phases are the pre-ferment (when set), bulk (room or cold + initial room block), warmup, and final proof. Pre-ferment ref-load is `PREFERMENT_REF_HOURS_{BIGA,POOLISH}` in `fermentation.ts` — touching either constant changes every existing recipe's yeast %, so it's a **major** app-version bump.
+- With a pre-ferment selected for a fresh-yeast recipe, `ingredients.yeast` (main dough) is **0** and `ingredients.preFerment.yeast` carries the full mass. Don't reintroduce a hardcoded pinch — the pre-ferment yeast must come from the equivalent-hours solve, not a magic number.
 - **Keep all calculation logic pure and framework-free in `src/lib/dough/`.** Svelte components only render results.
 
 ## Community recipes

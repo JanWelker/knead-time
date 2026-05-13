@@ -9,9 +9,11 @@ export interface IcsEventDescriptor {
 export type EventDescriptorFn = (step: ScheduleStep) => IcsEventDescriptor;
 
 // Passive proofing/maturation steps are reported as free time; everything else
-// is busy work the baker has to be present for.
+// is busy work the baker has to be present for. preferment-mix spans the full
+// pre-ferment block — the active mixing at the start is a few minutes, but the
+// VEVENT runs through the maturation, so it's free time for calendar purposes.
 const FREE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
-	'preferment-proof',
+	'preferment-mix',
 	'bulk-room',
 	'bulk-cold',
 	'warmup',

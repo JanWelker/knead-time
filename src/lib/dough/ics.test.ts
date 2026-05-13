@@ -56,9 +56,11 @@ describe('buildIcs', () => {
 	});
 
 	it('marks active steps as busy (TRANSP:OPAQUE) and proofing steps as free (TRANSP:TRANSPARENT)', () => {
+		// preferment-mix is mostly passive maturation, so it's marked TRANSPARENT
+		// even though the first few minutes are active mixing — the calendar should
+		// not block out the baker's day for the maturation.
 		const mixedSteps: ScheduleStep[] = [
-			{ kind: 'preferment-mix', at: new Date('2026-05-11T18:00:00Z'), durationMinutes: 10 },
-			{ kind: 'preferment-proof', at: new Date('2026-05-11T18:10:00Z'), durationMinutes: 710 },
+			{ kind: 'preferment-mix', at: new Date('2026-05-11T18:00:00Z'), durationMinutes: 720 },
 			{ kind: 'prep', at: new Date('2026-05-12T06:00:00Z'), durationMinutes: 15 },
 			{ kind: 'bulk-cold', at: new Date('2026-05-12T07:15:00Z'), durationMinutes: 720 },
 			{ kind: 'final-proof', at: new Date('2026-05-12T18:00:00Z'), durationMinutes: 60 },
@@ -73,7 +75,6 @@ describe('buildIcs', () => {
 					: null
 		);
 		expect(transpByIndex).toEqual([
-			'OPAQUE',
 			'TRANSPARENT',
 			'OPAQUE',
 			'TRANSPARENT',

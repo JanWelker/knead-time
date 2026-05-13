@@ -184,32 +184,27 @@
 				help={t.form.starterHydration_help}
 				bind:value={state.starterHydration}
 			/>
-		{/if}
-	</fieldset>
+		{:else}
+			<label class="block">
+				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+					{t.form.preFerment}
+				</span>
+				<select class={selectClass} bind:value={state.preFermentType}>
+					<option value="none">{t.form.preFerment_none}</option>
+					<option value="biga">{t.form.preFerment_biga}</option>
+					<option value="poolish">{t.form.preFerment_poolish}</option>
+				</select>
+			</label>
 
-	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-tomato-700 dark:text-tomato-300 col-span-full text-lg">
-			{t.form.section_advanced}
-		</legend>
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.preFerment}
-			</span>
-			<select class={selectClass} bind:value={state.preFermentType}>
-				<option value="none">{t.form.preFerment_none}</option>
-				<option value="biga">{t.form.preFerment_biga}</option>
-				<option value="poolish">{t.form.preFerment_poolish}</option>
-			</select>
-		</label>
-
-		{#if state.preFermentType !== 'none'}
-			<FormField
-				label={t.form.preFermentFlour}
-				min={5}
-				max={80}
-				step={5}
-				bind:value={state.preFermentFlour}
-			/>
+			{#if state.preFermentType !== 'none'}
+				<FormField
+					label={t.form.preFermentFlour}
+					min={5}
+					max={80}
+					step={5}
+					bind:value={state.preFermentFlour}
+				/>
+			{/if}
 		{/if}
 	</fieldset>
 

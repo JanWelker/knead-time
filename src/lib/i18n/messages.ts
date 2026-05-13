@@ -14,7 +14,6 @@ export interface Messages {
 	form: {
 		section_when: string;
 		section_recipe: string;
-		section_advanced: string;
 		startAt: string;
 		startAt_help: string;
 		startAt_now: string;
@@ -66,13 +65,15 @@ export interface Messages {
 	steps: {
 		preferment_mix: string;
 		preferment_mix_desc: string;
-		preferment_proof: string;
-		preferment_proof_desc: string;
+		preferment_mix_desc_biga: string;
+		preferment_mix_desc_poolish: string;
 		prep: string;
 		prep_desc: string;
+		prep_desc_with_preferment: string;
 		mix: string;
 		mix_desc: string;
-		mix_desc_with_preferment: string;
+		mix_desc_with_biga: string;
+		mix_desc_with_poolish: string;
 		bulk_room: string;
 		bulk_room_desc: string;
 		bulk_cold: string;
@@ -175,7 +176,6 @@ const en: Messages = {
 	form: {
 		section_when: 'When',
 		section_recipe: 'Recipe',
-		section_advanced: 'Advanced',
 		startAt: 'Start time',
 		startAt_help: 'When you begin planning. The schedule runs from here to the bake.',
 		startAt_now: 'Now',
@@ -233,18 +233,23 @@ const en: Messages = {
 	steps: {
 		preferment_mix: 'Mix pre-ferment',
 		preferment_mix_desc:
-			'Combine {flour} g flour, {water} g water and {yeast} g fresh yeast. Cover and let it mature at room temperature for {duration} (HH:MM) until you mix the main dough.',
-		preferment_proof: 'Pre-ferment matures',
-		preferment_proof_desc:
-			'Let the covered pre-ferment mature undisturbed at room temperature until you mix the main dough.',
+			'Combine the pre-ferment ingredients, cover, and let mature at room temperature for {duration} (HH:MM) until prep.',
+		preferment_mix_desc_biga:
+			'Stir {flour} g flour, {water} g water and {yeast} g fresh yeast together just until shaggy — do not knead. Cover and let mature at room temperature for {duration} (HH:MM) until prep.',
+		preferment_mix_desc_poolish:
+			'Whisk {flour} g flour, {water} g water and {yeast} g fresh yeast in a bowl until smooth. Cover and let mature at room temperature for {duration} (HH:MM) until prep.',
 		prep: 'Weigh & prep',
 		prep_desc:
 			'Weigh out {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Take ingredients out of the fridge.',
+		prep_desc_with_preferment:
+			'Weigh out the remaining {flour} g flour, {water} g water and {salt} g salt. The pre-ferment carries all the yeast.',
 		mix: 'Mix dough',
 		mix_desc:
 			'Combine {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Knead until smooth.',
-		mix_desc_with_preferment:
-			'Add the ripe pre-dough to {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Knead until smooth.',
+		mix_desc_with_biga:
+			'Tear the ripe biga into {flour} g flour and {water} g water and mix until cohesive. Work in {salt} g salt, then knead until smooth.',
+		mix_desc_with_poolish:
+			'Pour the ripe poolish into {flour} g flour, {water} g water and {salt} g salt. Knead until smooth.',
 		bulk_room: 'Bulk ferment (room)',
 		bulk_room_desc: 'Cover the dough and let it rise at room temperature.',
 		bulk_cold: 'Bulk ferment (fridge)',
@@ -349,7 +354,6 @@ const de: Messages = {
 	form: {
 		section_when: 'Wann',
 		section_recipe: 'Rezept',
-		section_advanced: 'Erweitert',
 		startAt: 'Startzeit',
 		startAt_help: 'Wann du mit dem Planen beginnst. Der Zeitplan läuft von hier bis zum Backen.',
 		startAt_now: 'Jetzt',
@@ -407,18 +411,23 @@ const de: Messages = {
 	steps: {
 		preferment_mix: 'Vorteig ansetzen',
 		preferment_mix_desc:
-			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe verrühren. Abgedeckt {duration} (HH:MM) bei Raumtemperatur reifen lassen, bis der Hauptteig geknetet wird.',
-		preferment_proof: 'Vorteig reift',
-		preferment_proof_desc:
-			'Den abgedeckten Vorteig ungestört bei Raumtemperatur reifen lassen, bis der Hauptteig geknetet wird.',
+			'Zutaten des Vorteigs verrühren, abdecken und bei Raumtemperatur {duration} (HH:MM) reifen lassen, bis der Hauptteig vorbereitet wird.',
+		preferment_mix_desc_biga:
+			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur {duration} (HH:MM) reifen lassen.',
+		preferment_mix_desc_poolish:
+			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur {duration} (HH:MM) reifen lassen.',
 		prep: 'Abwiegen & vorbereiten',
 		prep_desc:
 			'{flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} abwiegen. Zutaten rechtzeitig aus dem Kühlschrank holen.',
+		prep_desc_with_preferment:
+			'Restliche {flour} g Mehl, {water} g Wasser und {salt} g Salz abwiegen. Die gesamte Hefe steckt bereits im Vorteig.',
 		mix: 'Teig mischen',
 		mix_desc:
 			'{flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} vermengen und glatt kneten.',
-		mix_desc_with_preferment:
-			'Den reifen Vorteig mit {flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} vermengen und glatt kneten.',
+		mix_desc_with_biga:
+			'Die reife Biga in {flour} g Mehl und {water} g Wasser einreißen und vermengen, bis ein zusammenhängender Teig entsteht. {salt} g Salz einarbeiten und glatt kneten.',
+		mix_desc_with_poolish:
+			'Den reifen Poolish zu {flour} g Mehl, {water} g Wasser und {salt} g Salz geben und glatt kneten.',
 		bulk_room: 'Stockgare (Raum)',
 		bulk_room_desc: 'Teig abdecken und bei Raumtemperatur gehen lassen.',
 		bulk_cold: 'Stockgare (Kühlschrank)',
@@ -526,7 +535,6 @@ const it: Messages = {
 	form: {
 		section_when: 'Quando',
 		section_recipe: 'Ricetta',
-		section_advanced: 'Avanzate',
 		startAt: 'Ora di inizio',
 		startAt_help: 'Quando inizi a pianificare. Il programma va da qui alla cottura.',
 		startAt_now: 'Adesso',
@@ -583,18 +591,23 @@ const it: Messages = {
 	steps: {
 		preferment_mix: 'Preparare il preimpasto',
 		preferment_mix_desc:
-			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco. Coprire e lasciare maturare a temperatura ambiente per {duration} (HH:MM) fino a quando si impasta il principale.',
-		preferment_proof: 'Il preimpasto matura',
-		preferment_proof_desc:
-			'Lasciare maturare il preimpasto coperto, indisturbato a temperatura ambiente, fino a impastare il principale.',
+			'Mescolare gli ingredienti del preimpasto, coprire e lasciare maturare a temperatura ambiente per {duration} (HH:MM) fino al momento della preparazione.',
+		preferment_mix_desc_biga:
+			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente per {duration} (HH:MM).',
+		preferment_mix_desc_poolish:
+			'Sbattere {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente per {duration} (HH:MM).',
 		prep: 'Pesare e preparare',
 		prep_desc:
 			'Pesare {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Togliere gli ingredienti dal frigo.',
+		prep_desc_with_preferment:
+			'Pesare i {flour} g di farina rimanenti, {water} g di acqua e {salt} g di sale. Tutto il lievito è già nel preimpasto.',
 		mix: 'Impastare',
 		mix_desc:
 			'Unire {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Lavorare fino a impasto liscio.',
-		mix_desc_with_preferment:
-			'Unire il preimpasto maturo a {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Lavorare fino a impasto liscio.',
+		mix_desc_with_biga:
+			'Spezzettare la biga matura in {flour} g di farina e {water} g di acqua e mescolare fino a ottenere un impasto coeso. Incorporare {salt} g di sale e lavorare fino a impasto liscio.',
+		mix_desc_with_poolish:
+			'Versare il poolish maturo su {flour} g di farina, {water} g di acqua e {salt} g di sale. Lavorare fino a impasto liscio.',
 		bulk_room: 'Puntata (ambiente)',
 		bulk_room_desc: "Coprire l'impasto e farlo lievitare a temperatura ambiente.",
 		bulk_cold: 'Puntata (frigo)',
@@ -700,7 +713,6 @@ const fr: Messages = {
 	form: {
 		section_when: 'Quand',
 		section_recipe: 'Recette',
-		section_advanced: 'Avancé',
 		startAt: 'Heure de départ',
 		startAt_help: "Quand vous commencez à planifier. Le programme va d'ici à la cuisson.",
 		startAt_now: 'Maintenant',
@@ -759,18 +771,23 @@ const fr: Messages = {
 	steps: {
 		preferment_mix: 'Préparer le pré-ferment',
 		preferment_mix_desc:
-			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche. Couvrez et laissez maturer à température ambiante pendant {duration} (HH:MM) jusqu'au pétrissage de la pâte principale.",
-		preferment_proof: 'Le pré-ferment mûrit',
-		preferment_proof_desc:
-			"Laissez le pré-ferment couvert maturer sans le déranger à température ambiante jusqu'au pétrissage de la pâte principale.",
+			"Mélangez les ingrédients du pré-ferment, couvrez et laissez maturer à température ambiante pendant {duration} (HH:MM) jusqu'à la préparation.",
+		preferment_mix_desc_biga:
+			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante {duration} (HH:MM).",
+		preferment_mix_desc_poolish:
+			"Fouettez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante {duration} (HH:MM).",
 		prep: 'Peser et préparer',
 		prep_desc:
 			"Pesez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Sortez les ingrédients du frigo.",
+		prep_desc_with_preferment:
+			"Pesez les {flour} g de farine restants, {water} g d'eau et {salt} g de sel. Toute la levure est déjà dans le pré-ferment.",
 		mix: 'Pétrir la pâte',
 		mix_desc:
 			"Mélangez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Pétrissez jusqu'à obtenir une pâte lisse.",
-		mix_desc_with_preferment:
-			"Ajoutez le pré-ferment mûr à {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Pétrissez jusqu'à obtenir une pâte lisse.",
+		mix_desc_with_biga:
+			"Émiettez la biga mûre dans {flour} g de farine et {water} g d'eau et mélangez jusqu'à obtenir une pâte cohérente. Incorporez {salt} g de sel, puis pétrissez jusqu'à ce que ce soit lisse.",
+		mix_desc_with_poolish:
+			"Versez le poolish mûr sur {flour} g de farine, {water} g d'eau et {salt} g de sel. Pétrissez jusqu'à obtenir une pâte lisse.",
 		bulk_room: 'Pointage (ambiante)',
 		bulk_room_desc: 'Couvrez la pâte et laissez-la lever à température ambiante.',
 		bulk_cold: 'Pointage (frigo)',
@@ -877,7 +894,6 @@ const nl: Messages = {
 	form: {
 		section_when: 'Wanneer',
 		section_recipe: 'Recept',
-		section_advanced: 'Geavanceerd',
 		startAt: 'Starttijd',
 		startAt_help: 'Wanneer je begint te plannen. Het schema loopt van hier tot het bakken.',
 		startAt_now: 'Nu',
@@ -935,18 +951,23 @@ const nl: Messages = {
 	steps: {
 		preferment_mix: 'Voordeeg mengen',
 		preferment_mix_desc:
-			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist. Afgedekt {duration} (HH:MM) op kamertemperatuur laten rijpen tot je het hoofddeeg kneedt.',
-		preferment_proof: 'Voordeeg rijpt',
-		preferment_proof_desc:
-			'Laat het afgedekte voordeeg ongestoord rijpen op kamertemperatuur tot je het hoofddeeg kneedt.',
+			'Meng de voordeeg-ingrediënten, dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen tot de prep-stap.',
+		preferment_mix_desc_biga:
+			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen.',
+		preferment_mix_desc_poolish:
+			'Klop {flour} g bloem, {water} g water en {yeast} g verse gist in een kom glad. Dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen.',
 		prep: 'Wegen en klaarzetten',
 		prep_desc:
 			'Weeg {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label} af. Haal de ingrediënten uit de koelkast.',
+		prep_desc_with_preferment:
+			'Weeg de resterende {flour} g bloem, {water} g water en {salt} g zout af. De gist zit volledig in het voordeeg.',
 		mix: 'Deeg kneden',
 		mix_desc:
 			'Meng {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label}. Kneed tot een glad deeg.',
-		mix_desc_with_preferment:
-			'Voeg het rijpe voordeeg toe aan {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label}. Kneed tot een glad deeg.',
+		mix_desc_with_biga:
+			'Scheur de rijpe biga in {flour} g bloem en {water} g water en meng tot een samenhangend deeg. Werk {salt} g zout erdoor en kneed tot een glad deeg.',
+		mix_desc_with_poolish:
+			'Giet de rijpe poolish bij {flour} g bloem, {water} g water en {salt} g zout. Kneed tot een glad deeg.',
 		bulk_room: 'Bulkrijs (kamer)',
 		bulk_room_desc: 'Dek het deeg af en laat het rijzen op kamertemperatuur.',
 		bulk_cold: 'Bulkrijs (koelkast)',
@@ -1052,7 +1073,6 @@ const jam: Messages = {
 	form: {
 		section_when: 'Wen',
 		section_recipe: 'Recipe',
-		section_advanced: 'Mo settings',
 		startAt: 'Start time',
 		startAt_help: 'Wen yu start plan. Di schedule run fram yah right to wen yu bake.',
 		startAt_now: 'Right now',
@@ -1109,18 +1129,23 @@ const jam: Messages = {
 	steps: {
 		preferment_mix: 'Mek di befo-dough',
 		preferment_mix_desc:
-			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting. Cova it an mek it sit a room temperature fi {duration} (HH:MM) til yu mek di main dough.',
-		preferment_proof: 'Befo-dough a sit',
-		preferment_proof_desc:
-			'Mek di cova befo-dough sit in peace a room temperature til yu ready fi mek di main dough.',
+			'Mix up di befo-dough tings dem, cova it an mek it sit a room temperature fi {duration} (HH:MM) til prep time.',
+		preferment_mix_desc_biga:
+			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature {duration} (HH:MM).',
+		preferment_mix_desc_poolish:
+			'Whisk {flour} g flour, {water} g wata an {yeast} g fresh ris-ting inna bowl til it smood. Cova it an mek it sit a room temperature {duration} (HH:MM).',
 		prep: 'Weigh an set up',
 		prep_desc:
 			'Weigh out {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Tek di tings dem outta di fridge.',
+		prep_desc_with_preferment:
+			'Weigh out di {flour} g flour weh lef, {water} g wata an {salt} g salt. Di whole a di ris-ting deh inna di befo-dough already.',
 		mix: 'Knead di dough',
 		mix_desc:
 			'Mix up {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Knead it til smood.',
-		mix_desc_with_preferment:
-			'Add di ripe befo-dough to {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Knead it til smood.',
+		mix_desc_with_biga:
+			'Tear up di ripe biga inna {flour} g flour an {water} g wata an mix til it come togedda. Work in {salt} g salt, den knead it til smood.',
+		mix_desc_with_poolish:
+			'Pour di ripe poolish inna {flour} g flour, {water} g wata an {salt} g salt. Knead it til smood.',
 		bulk_room: 'Big rise (room)',
 		bulk_room_desc: 'Cova di dough an mek it rise a room temperature.',
 		bulk_cold: 'Big rise (fridge)',

@@ -15,6 +15,10 @@ export interface BakerArgs {
 export function computeIngredients(args: BakerArgs): Ingredients {
 	const totalDough = args.pizzaCount * args.ballWeight;
 	const isSourdough = args.yeastType === 'sourdough';
+	// Sourdough's "starter" is the pre-ferment — adding a separate biga/poolish
+	// on top would double-stack two cultures. computeSchedule already nulls the
+	// preFerment for sourdough; this guard makes the bakers' module match.
+	const hasPreFerment = !isSourdough && args.preFermentFlourPercent > 0;
 
 	// Mass balance:
 	//   total = sum of every separately-weighed ingredient
@@ -28,24 +32,25 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 	const yeastMass = (flourTotal * args.yeastPercent) / 100;
 
 	let preFerment: Ingredients['preFerment'] = null;
-	if (args.preFermentFlourPercent > 0) {
+	if (hasPreFerment) {
 		const pfFlour = (flourTotal * args.preFermentFlourPercent) / 100;
 		const pfWater = (pfFlour * args.preFermentHydration) / 100;
-		// A tiny pinch of yeast drives the pre-ferment overnight (~0.1% of pre-ferment flour).
-		const pfYeast = pfFlour * 0.001;
-		preFerment = { flour: pfFlour, water: pfWater, yeast: pfYeast };
+		// All of the recipe's yeast goes into the pre-ferment — that's how
+		// biga/poolish technique actually works: the pre-dough is the yeast
+		// carrier, no extra yeast is added on baking day.
+		preFerment = { flour: pfFlour, water: pfWater, yeast: yeastMass };
 	}
 
 	if (isSourdough) {
 		const starterFlour = yeastMass / (1 + args.starterHydration / 100);
 		const starterWater = yeastMass - starterFlour;
 		return {
-			flour: flourTotal - starterFlour - (preFerment?.flour ?? 0),
-			water: waterTotal - starterWater - (preFerment?.water ?? 0),
+			flour: flourTotal - starterFlour,
+			water: waterTotal - starterWater,
 			salt,
 			yeast: yeastMass,
 			totalDough,
-			preFerment
+			preFerment: null
 		};
 	}
 
@@ -53,7 +58,7 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 		flour: flourTotal - (preFerment?.flour ?? 0),
 		water: waterTotal - (preFerment?.water ?? 0),
 		salt,
-		yeast: yeastMass - (preFerment?.yeast ?? 0),
+		yeast: hasPreFerment ? 0 : yeastMass,
 		totalDough,
 		preFerment
 	};

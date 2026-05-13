@@ -69,7 +69,9 @@
 					{@render row(t.ingredients.flour, ingredients.flour)}
 					{@render row(t.ingredients.water, ingredients.water)}
 					{@render row(t.ingredients.salt, ingredients.salt)}
-					{@render row(yeastLabel, ingredients.yeast)}
+					{#if ingredients.yeast > 0}
+						{@render row(yeastLabel, ingredients.yeast)}
+					{/if}
 				</tbody>
 			</table>
 		</section>
