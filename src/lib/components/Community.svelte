@@ -112,5 +112,19 @@
 			</tbody>
 		</table>
 	</div>
-	<p class="mt-4 text-xs text-stone-500 dark:text-stone-400">{t.community.contribute}</p>
+	<p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
+		{t.community.contribute.before_md}<a
+			href="https://github.com/JanWelker/knead-time/blob/main/src/lib/community/community.md"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+			>{t.community.contribute.md}</a
+		>{t.community.contribute.between}<a
+			href="https://github.com/JanWelker/knead-time/pulls"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+			>{t.community.contribute.pr}</a
+		>{t.community.contribute.after}
+	</p>
 {/if}
