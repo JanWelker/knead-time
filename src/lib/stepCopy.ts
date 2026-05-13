@@ -45,15 +45,7 @@ export function stepDescription(
 		schedule.yeastType === 'fresh'
 			? msgs.ingredients.fresh_yeast_inline
 			: msgs.ingredients.sourdough_starter_inline;
-	const prefermentType = schedule.steps.some((s) => s.kind === 'preferment-mix')
-		? ingredients.preFerment && ingredients.water > 0
-			? // biga's pre-ferment hydration is ~50%, poolish ~100% — use that ratio
-				// to recover the type without threading the spec through everything
-				ingredients.preFerment.water / ingredients.preFerment.flour < 0.75
-				? 'biga'
-				: 'poolish'
-			: null
-		: null;
+	const prefermentType = schedule.preFerment?.type ?? null;
 
 	switch (step.kind) {
 		case 'divide':
@@ -62,24 +54,21 @@ export function stepDescription(
 				weight: formatBallWeight(schedule.ballWeight)
 			});
 		case 'preferment-mix': {
-			if (!ingredients.preFerment) return template;
-			const prepStep = schedule.steps.find((s) => s.kind === 'prep');
-			const maturationMin = prepStep
-				? Math.round((prepStep.at.getTime() - step.at.getTime()) / 60_000)
-				: step.durationMinutes;
+			const prepStep = schedule.steps.find((s) => s.kind === 'prep')!;
+			const maturationMin = Math.round((prepStep.at.getTime() - step.at.getTime()) / 60_000);
 			const pfTemplate =
 				prefermentType === 'biga'
 					? msgs.steps.preferment_mix_desc_biga
 					: msgs.steps.preferment_mix_desc_poolish;
 			return interpolate(pfTemplate, {
-				flour: formatGramsValue(ingredients.preFerment.flour),
-				water: formatGramsValue(ingredients.preFerment.water),
-				yeast: formatGramsValue(ingredients.preFerment.yeast),
+				flour: formatGramsValue(ingredients.preFerment!.flour),
+				water: formatGramsValue(ingredients.preFerment!.water),
+				yeast: formatGramsValue(ingredients.preFerment!.yeast),
 				duration: formatDurationHHMM(maturationMin)
 			});
 		}
 		case 'prep':
-			if (prefermentType && ingredients.preFerment) {
+			if (prefermentType) {
 				return interpolate(msgs.steps.prep_desc_with_preferment, {
 					flour: formatGramsValue(ingredients.flour),
 					water: formatGramsValue(ingredients.water),

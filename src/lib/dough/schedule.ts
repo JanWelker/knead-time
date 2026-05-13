@@ -214,6 +214,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		feasible,
 		yeastPercent: yeastPct,
 		yeastType: inputs.yeastType,
+		preFerment,
 		warnings,
 		pizzaCount: inputs.pizzaCount,
 		ballWeight: inputs.ballWeight
@@ -221,7 +222,6 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 }
 
 function unitsToPercent(yeastType: 'fresh' | 'sourdough', equivalentHours: number): number {
-	if (equivalentHours <= 0) return 0;
 	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
 	return target / equivalentHours;
 }

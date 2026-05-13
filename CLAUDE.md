@@ -85,11 +85,11 @@ Responsive, playful, Italian-warm (tomato / basil / dough palette) — not carto
 This is a math-and-schedule app; bugs in fermentation/scheduling are silent until someone overproofs a dough. **Coverage is a hard requirement, not a nice-to-have.** New math, new schedule shapes, new schema versions, new warnings — they land with the tests that prove them, or they don't land.
 
 - **Tests live next to the code they cover** (`foo.ts` + `foo.test.ts`).
-- **`src/lib/dough/` stays at 100 % lines/functions and ≥ 98 % branches.** Currently met by `bakers.ts`, `fermentation.ts`, `ics.ts`, `schedule.ts`, and `urlState.ts`. Don't drop the bar to land a feature — if a branch is hard to reach, write the test that proves it's reachable, or delete the branch.
-- **The rest of `src/lib/` tracks close behind** (`stepCopy.ts`, `format.ts`, `community.ts`, `interpolate.ts` all ≥ 96 % lines).
+- **100 % lines, functions, branches, and statements across every instrumented file in `src/lib/`.** Pinned in `vitest.config.ts`. The thresholds fail `npm run test:coverage` if a regression slips in, so the bar is enforced, not aspirational.
+- **If a branch is hard to reach, delete it.** Defensive guards against invariants the caller already enforces (e.g. "what if equivalentHours is 0?" — it can't be) are dead code. Don't write fake tests to cover them; remove them. Only keep a defensive branch if you can write a realistic input that reaches it.
 - **Mass-balance and yeast-solve invariants are regression-tested for every input combination** — fresh/sourdough × no-preferment/biga/poolish × room/cold mode. Adding a new input or yeast carrier means adding a row to each of those matrices.
-- **Run `npm run test:coverage` before opening a PR** when you've touched math, scheduling, URL state, or user-facing behaviour. The Husky pre-commit hook runs `npm run test`; coverage is enforced by review, not a CI gate — don't rely on the hook to catch a missing test.
-- **UI components are not part of the coverage target.** Svelte files are verified by manual browser smoke tests. Don't write Vitest harnesses for `.svelte` — the renderer and DOM aren't worth the maintenance.
+- **Run `npm run test:coverage` before opening a PR.** CI runs the same command (`.github/workflows/ci.yml`), so the thresholds are a hard CI gate — a missing test or a newly-unreached branch fails the workflow. The Husky pre-commit hook runs the faster `npm run test` (no coverage) for local snappiness; don't lean on it.
+- **UI components are not part of the coverage target.** Svelte files (and `.svelte.ts` runtime modules) are excluded in `vitest.config.ts` and verified by manual browser smoke tests. Don't write Vitest harnesses for `.svelte` — the renderer and DOM aren't worth the maintenance.
 
 ## Conventions
 

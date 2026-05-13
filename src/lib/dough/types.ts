@@ -60,6 +60,9 @@ export interface ComputedSchedule {
 	feasible: boolean;
 	yeastPercent: number;
 	yeastType: YeastType;
+	// Pre-ferment that was actually used to build the schedule. May be null
+	// even when DoughInputs.preFerment was set (sourdough collapses it).
+	preFerment: PreFermentSpec | null;
 	warnings: ScheduleWarning[];
 	pizzaCount: number;
 	ballWeight: number;
