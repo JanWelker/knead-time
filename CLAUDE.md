@@ -63,6 +63,7 @@ Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on
 ## App version
 
 - Version lives in `package.json` and is inlined at build time via Vite `define: { __APP_VERSION__: ... }` in `vite.config.ts` (declared in `src/app.d.ts` and `eslint.config.js`). The screen footer renders `v<version>` next to the license, linked to `github.com/JanWelker/knead-time/releases/tag/v<version>`; the print footer appends `· v<version>` so a printed sheet records its build.
+- `.github/workflows/deploy.yml` tags `v<version>` on `main` after a successful Pages deploy. The step is idempotent (skips when the tag already exists on `origin`), so it only fires on commits that bumped the version — i.e. every version that ships is also a git tag, which is what makes the footer's `/releases/tag/v<version>` link resolve.
 - **Bump on every change, semver-style** (use `npm version <patch|minor|major> --no-git-tag-version`). Patch: fixes, docs, refactors, internal tweaks. Minor: new user-facing features (new inputs, new UI, new locale, etc.) that stay backwards-compatible. Major: user contract breaks — e.g. defaults change in a way that surprises returning users, or a share-link URL shared before the bump no longer reproduces the same recipe.
 - The URL schema version (`v=` in shared links) is **independent** from the app version. Bumping `CURRENT_VERSION` in `urlState.ts` does not require a major app bump as long as old decoders stay in `DECODERS`.
 
