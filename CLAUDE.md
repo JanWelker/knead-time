@@ -1,112 +1,82 @@
 # doughcalc
 
-A web calculator for Neapolitan pizza dough. The defining UX choice: users enter **when they want to bake**, and the app schedules every step backwards from that moment.
+Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; every step schedules backwards from that moment. Fully client-side, no backend.
 
-## Stack
+## Stack & deploy
 
-- **SvelteKit (enforce version 5)+ TypeScript**
-- **Tailwind CSS** for styling
-- **Vitest** for unit tests (dough math is the priority surface to cover)
-- **Prettier + ESLint** for formatting/linting
-- **Husky** pre-commit hooks (format, lint, test)
-- Deployment target: **GitHub Pages** (static, fully client-side build via `@sveltejs/adapter-static`).
+- SvelteKit **5** + TypeScript + Tailwind v4 + Vitest. Husky pre-commit runs format/lint/test. Node 22+.
+- Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`, `static/.nojekyll`). CI lints/type-checks/tests/builds every push & PR (`.github/workflows/ci.yml`); push to `main` deploys to GitHub Pages (`deploy.yml`).
+- `svelte.config.js` reads `BASE_PATH` from env (deploy workflow sets `/<repo>` for project pages, empty otherwise). **All in-app links/assets must respect it** — use `$app/paths` (`base` or `resolve()`), never hard-code `/`.
 
-## Development & deployment environment
+## Domain model
 
-Local dev runs straight on the host with Node 22 + npm. CI and deployment run as **GitHub Actions** workflows; the host needs nothing beyond Node.
+User picks `readyBy` + `startAt`; the scheduler computes `preferment-mix → prep → mix → bulk → divide → warmup → final-proof → ready` working backwards from `readyBy`.
 
-- Local: `npm install`, then `npm run dev` (Vite on port 5173). Standard scripts: `npm test`, `npm run check`, `npm run lint`, `npm run build`.
-- `.github/workflows/ci.yml` — runs lint, type-check, tests, and build on every push and PR.
-- `.github/workflows/deploy.yml` — on push to `main`, builds the static site and publishes it to GitHub Pages (uses `actions/configure-pages`, `upload-pages-artifact`, `deploy-pages`).
-- The build is fully static (`adapter-static`, `fallback: '404.html'` so GH Pages serves the SPA shell for unknown routes). A `static/.nojekyll` file disables Jekyll processing of build output.
-- **Base path**: `svelte.config.js` reads `BASE_PATH` from the env. The deploy workflow sets `BASE_PATH=/<repo>` for project pages and leaves it empty for `<owner>.github.io` user/org sites or custom-domain deployments. Locally `BASE_PATH` is unset, so dev runs at `/`.
-- All in-app links / asset URLs must respect the base path — use SvelteKit's `$app/paths` (`base`, or `resolve('/some/route')`) rather than hardcoding `/`.
-
-## Core domain model
-
-The calculator is **time-anchored**, not ingredient-anchored. Flow:
-
-1. User sets a "ready to bake" datetime (e.g. when guests arrive).
-2. User sets number of pizzas, ball weight (default **280 g**), hydration % (default **70%**), salt %(default **30g**), and chooses a yeast type.
-3. App computes the schedule backwards: shaping → bulk ferment → mix → ingredient prep.
-4. App **auto-switches between cold and room fermentation** based on available time. If the window is short, it falls back to a room-temp schedule; if there's plenty of time, it uses a cold-ferment (fridge) phase.
-5. Output: a **table of timestamps + steps** on the page, an optional **iCal (.ics) download** with one VEVENT per step, and a **Print / Save as PDF** action that produces a printer-friendly, single-column recipe sheet via a `@media print` stylesheet (no PDF library — relies on the browser's print-to-PDF).
+- **Cold ↔ room ferment switch is deterministic on available time, not a UI toggle.** Window ≥ 16 h → cold-bulk leg at 4 °C; otherwise room ferment.
+- **Pre-ferment reserve**: when biga/poolish is selected, ~12 h is reserved before mix-day prep. `preferment-mix` defaults to landing at/after `startAt` (regression-tested), but the night-window guard below can pull it earlier.
+- **Night-window guard**: no baker-action step starts in `[22:00, 08:00)` local time. Cold mode stretches `bulk-cold` within its floor/ceiling so the pre-cold cluster lands during waking hours; post-cold steps (divide, warmup) are anchored to `readyBy` and can't shift. Room mode has no slack. When a step can't be lifted out, emit a `night-step` warning — **never silently rearrange**. The guard can pull the first step earlier than `startAt`, so **`startAt` is a soft hint, not a strict floor**.
 
 ### Inputs
 
-- Start datetime — when the schedule begins (defaults to page-load time; user-editable, persisted in the URL alongside ready-by)
-- Ready-by datetime
-- Number of pizzas
-- Ball weight (g) — may be a decimal value (e.g. 288.5 g); the form input must accept that
-- Hydration % (water/flour)
-- Salt % (of flour)
-- Yeast type: **fresh yeast (cube)** or **sourdough starter** (with starter hydration when applicable)
-- Room temperature (drives fermentation timing)
-- Pre-ferments (biga / poolish)
+Source of truth: `DoughInputs` in `src/lib/dough/types.ts`. Notable rules:
 
-**Night-window guard**: no baker-action step may start between **22:00 and 08:00** local time (the user shouldn't have to wake up at 3 AM to mix dough). In cold mode the scheduler nudges the bulk-cold duration within its floor/ceiling so the pre-cold cluster (preferment-mix → bulk-cold start) lands during waking hours — typically by extending the cold ferment so prep happens the prior evening rather than overnight. Post-cold steps (divide, warm-up) are anchored to readyBy and can't be shifted; room mode has no slack at all. When a step can't be lifted out of the night window the scheduler emits a `night-step` warning instead of silently rearranging. This guard can pull the first step earlier than the user's `startAt`, so `startAt` is a soft hint rather than a strict floor.
+- Ball weight accepts decimals (e.g. 288.5 g) — the form input must allow that.
+- Yeast is **fresh (cube)** or **sourdough starter** (with starter-hydration when applicable).
+- Defaults reflect contemporary high-hydration Neapolitan (280 g / 70% / 3% salt). No AVPN enforcement.
 
-Plus a **"Round numbers" action** next to the ball-weight input:
+### "Round numbers" action
 
-- Adjusts the ball weight (to 0.1 g precision) so the resulting **flour and water come out as tidy round numbers** — typically a multiple of 100 g for flour, or 50 g when 100 would drift too far.
-- Must be **idempotent** — clicking twice is a no-op.
-- Must work for both fresh yeast and sourdough (the pctSum branch differs, see math notes).
+Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on a multiple of 100 g (or 50 g when 100 would drift too far). **Must be idempotent** (second click is a no-op). **Must work for both fresh and sourdough** — `pctSum` branches differ (see math).
 
 ### Outputs
 
-- Ingredient amounts (flour, water, salt, yeast/starter) in grams.
-  - **No pre-ferment** → single flat table.
-  - **With a pre-ferment** → three sections: **Pre-dough** (mix the night before), **Main dough** (mix on baking day with the ripe pre-dough), **Totals** (combined flour/water/salt/yeast + total dough weight). The 3-section layout exists because a single table with the pre-ferment subtracted reads as a math error to the eye — the totals row never matches the visible sum.
-- Step-by-step schedule table with absolute timestamps.
-  - Step copy interpolates schedule context so the description is self-contained:
-    - **Divide & ball** shows pizza count and per-ball weight (e.g. _"Cut the dough into 6 balls of 289 g each"_).
-    - **Weigh & prep** and **Mix dough** show the main-dough flour, water, salt and yeast weights, with the yeast label localized to fresh yeast / sourdough starter.
-    - **Mix dough** has a separate template when a pre-ferment is set ("Add the ripe pre-dough to …") so the baker is reminded to fold it in.
-    - **Mix pre-ferment** shows the pre-ferment flour, water and pinch-of-yeast weights.
-- `.ics` file: one event per step, named and timed appropriately. The VEVENT `DESCRIPTION` must match the on-page step description verbatim — including interpolated context like ball weight — so a calendar reminder is self-contained.
-- **Printable recipe sheet** (PDF via the browser's print dialog). Driven by `@media print` rules in `src/app.css` plus `print:` Tailwind variants — no extra dependency. The printed layout hides the input form / chrome, shows a recipe-summary header (inputs used), the schedule, the ingredient table, and a footer with the share URL so a printed copy is reproducible. Keep it readable on a B&W printer: rely on borders and text colour, not on background fills (browsers strip those by default).
+- **Ingredients in grams.** No pre-ferment → flat table. With pre-ferment → three sections (**Pre-dough / Main dough / Totals**), because a single subtracted table reads as a math error (the totals row never matches the visible sum).
+- **Schedule table with absolute timestamps.** Step copy interpolates schedule context so each description is self-contained: pizza count + per-ball weight on `divide`; flour/water/salt/yeast weights on `prep` and `mix` (with localized yeast label); pre-ferment flour/water/pinch-yeast on `preferment-mix`. **`mix` has a separate template when a pre-ferment is set** so the baker is reminded to fold it in.
+- **`.ics` export.** One VEVENT per step. **VEVENT `DESCRIPTION` must match the on-page step description verbatim**, interpolations included.
+- **Print / Save as PDF.** `window.print()` only — no PDF lib. Driven by `@media print` in `src/app.css` + Tailwind `print:` variants. Hides input form/chrome, prepends a recipe-summary header, appends a footer with the share URL so a printed copy is reproducible. **Must read on B&W** — borders and text colour, not background fills (browsers strip those).
 
-### Math notes
+### Math
 
-- Baker's percentages: flour = 100%; water, salt, yeast expressed as % of flour weight.
-- Total dough = `balls × ball_weight`; flour derived from total and the sum of percentages.
-- Fermentation time ↔ yeast amount ↔ temperature relationship: model this in a single pure module (`src/lib/dough/`) so it's straightforward to unit-test. Treat the cold↔room switch as a deterministic function of available time, not a UI toggle.
-- **Pre-ferment reserve**: when a pre-ferment is selected, the schedule reserves ~12 h before mix-day prep for the pre-ferment to mature. By default the `preferment-mix` step lands at or after the start time — there's a regression test for this — but the night-window guard above can override this and pull preferment-mix earlier than `startAt` if that is the only way to keep every action out of [22:00, 08:00).
-- Keep all calculation logic **pure and framework-free** — Svelte components should only call into `src/lib/dough/` and render results.
-- **Mass-balance invariant**: the sum of every separately-weighed ingredient must equal `pizzaCount × ballWeight`. Fresh yeast adds new mass (`pctSum = 100 + hydration + salt% + yeast%`); sourdough starter is flour + water from the existing budget, so it is excluded (`pctSum = 100 + hydration + salt%`). The pre-ferment redistributes flour/water/yeast between the pre-dough and main dough but does not change the totals. There's a test enforcing this for every combination — don't regress it.
+- Baker's percentages: flour = 100%; water/salt/yeast as % of flour. Total dough = `pizzaCount × ballWeight`; flour = total ÷ pctSum.
+- **Mass-balance invariant** (tested for every combination — don't regress): the sum of every separately-weighed ingredient equals `pizzaCount × ballWeight`.
+  - Fresh yeast adds new mass: `pctSum = 100 + h + s + y`.
+  - Sourdough starter is flour + water from the existing budget: `pctSum = 100 + h + s`.
+  - A pre-ferment redistributes flour/water/yeast between pre-dough and main dough; it does not change totals.
+- **Keep all calculation logic pure and framework-free in `src/lib/dough/`.** Svelte components only render results.
 
-## Scope / philosophy
+## Community recipes
 
-- **Power-user mode**: expose the levers (hydration, salt, ball weight, yeast type, ready-by time). No strict AVPN enforcement, but defaults reflect contemporary high-hydration Neapolitan style (280 g / 70%).
-- Calculator is **fully client-side**. No backend, no accounts.
-- Shareable via **URL-encoded state** — the form's state serializes into the URL so a link reproduces the recipe. Keep the encoding compact and stable across versions.
+- Page renders a community-recipes table at the bottom. Source: `src/lib/community/community.md`, rows are `| Name | Date | Recipe-URL |` (date `YYYY-MM-DD`, URL is the full **Share**-button output). Contributors add entries via PR — no backend, no submission flow.
+- Imported at build time via Vite `?raw`, parsed in `src/lib/community/community.ts`. Rows that fail date/URL checks are **dropped silently** so one bad row can't break the page.
+- `Community.svelte` renders one column per decoded input + an **Open** link. The link uses `resolve('/')` for base-path correctness and `rel="external"` so a full reload re-runs `onMount` → `decodeInputs` and hydrates the form. Hidden in print.
+
+## URL state (shareable links)
+
+- Form state serializes into the URL. **Keep the encoding compact** — short keys, optional fields omitted.
+- **Versioned schema.** Encoded URL carries `v`; `encodeInputs` always stamps the current version; `decodeInputs` dispatches on `v` via `DECODERS: Record<number, Decoder>` in `src/lib/dough/urlState.ts`. Missing `v` → treated as v1 (legacy links and pre-versioning community.md rows keep working). Unknown `v` → falls back to the current decoder, best-effort.
+- **Schema change protocol**: bump `CURRENT_VERSION`, write `decodeVN`, register it in `DECODERS`. **Never delete an old decoder** — bookmarks and community.md rows shared before the bump must keep resolving.
 
 ## i18n
 
-- Languages: **English, German, Italian, French, Dutch, Jamaican Patois** (metric only — grams, °C). Patois uses the ISO 639-3 code `jam` — `detectLocale` matches a 3-letter prefix as well as a 2-letter one, and `intlLocaleTag` maps it to `en-JM` for `Intl` formatters because CLDR has no `jam` data.
-- Set up i18n scaffolding from the start (e.g. `svelte-i18n` or `paraglide`). All user-facing strings go through it — no hardcoded copy in components.
-- Default language: detect from browser, fall back to English.
+- Locales: `en, de, it, fr, nl, jam` (Jamaican Patois, ISO 639-3). Metric only — grams, °C.
+- `detectLocale` matches 2- and 3-letter prefixes. `intlLocaleTag('jam') === 'en-JM'` (CLDR has no `jam` data).
+- All user-facing strings live in `src/lib/i18n/messages.ts`. **No hardcoded copy in components.** The parity test fails loudly when any locale is missing a key — add to all six in the same change.
 
 ## Design
 
-- **Responsive, playful** — Italian-themed warmth (think tomato/basil/dough palette), but not cartoonish. Should feel inviting in a kitchen, readable on a phone.
-- Mobile usage is realistic (phone on the counter), so layout must work well at narrow widths even if it's not strictly mobile-first.
+Responsive, playful, Italian-warm (tomato / basil / dough palette) — not cartoonish. Must read well on a phone on the counter, at narrow widths.
 
 ## Git workflow
 
-- `main` is protected — never commit or push directly to it.
-- For every change: create a branch, commit, push, and open a PR against `main`.
-- CI (`.github/workflows/ci.yml`) must pass before merge; deploy runs on push to `main` after merge.
+`main` is protected. **Never commit or push directly to `main`.** Every change: branch → commit → push → PR → CI green → merge.
 
-## Project conventions
+## Conventions
 
-- Tests live next to the code they cover (`foo.ts` + `foo.test.ts`).
-- Cover the dough math thoroughly; UI tests are not currently planned.
-- No comments explaining _what_ code does — only _why_ when non-obvious (e.g. a specific magic number from a fermentation table needs a citation).
-- Keep dependencies minimal; prefer a small `.ics` generator (or hand-rolled) over a large calendar lib.
-- **Keep `README.md` in sync.** The repo ships a `README.md` with a quickstart and a dev guide (how to test, build, and advance the app). When you change npm scripts, CI/deploy workflows, dependency commands, project structure, or anything else a contributor would hit in their first hour, update `README.md` in the same change.
+- Tests live next to the code they cover (`foo.ts` + `foo.test.ts`). Cover the dough math thoroughly; UI tests are not planned.
+- Comments explain **why**, not what — only when non-obvious (e.g. citing a fermentation-table magic number).
+- Keep dependencies minimal. Prefer hand-rolling small utilities (the `.ics` generator is hand-written) over pulling in large libs.
+- **Keep `README.md` in sync** when changing npm scripts, CI/deploy workflows, project structure, or anything a contributor would hit in their first hour.
 
-## Out of scope (for now)
+## Out of scope
 
-- User accounts / server-side persistence
-- Imperial units
+User accounts / server-side persistence. Imperial units.

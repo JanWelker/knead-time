@@ -4,6 +4,7 @@
 
 	import { buildIcs } from '$lib/dough/ics';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
+	import Community from '$lib/components/Community.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
 	import InputForm from '$lib/components/InputForm.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
@@ -209,6 +210,10 @@
 			</div>
 		</section>
 	</div>
+
+	<section class="{cardClass} mt-8 print:hidden">
+		<Community />
+	</section>
 
 	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400 print:hidden">
 		<p>{t.footer.about}</p>
