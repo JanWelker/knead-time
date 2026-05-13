@@ -56,6 +56,12 @@ Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on
 - **Versioned schema.** Encoded URL carries `v`; `encodeInputs` always stamps the current version; `decodeInputs` dispatches on `v` via `DECODERS: Record<number, Decoder>` in `src/lib/dough/urlState.ts`. Missing `v` → treated as v1 (legacy links and pre-versioning community.md rows keep working). Unknown `v` → falls back to the current decoder, best-effort.
 - **Schema change protocol**: bump `CURRENT_VERSION`, write `decodeVN`, register it in `DECODERS`. **Never delete an old decoder** — bookmarks and community.md rows shared before the bump must keep resolving.
 
+## App version
+
+- Version lives in `package.json` and is inlined at build time via Vite `define: { __APP_VERSION__: ... }` in `vite.config.ts` (declared in `src/app.d.ts` and `eslint.config.js`). The screen footer renders `v<version>` next to the license, linked to `github.com/JanWelker/knead-time/releases/tag/v<version>`; the print footer appends `· v<version>` so a printed sheet records its build.
+- **Bump on every change, semver-style** (use `npm version <patch|minor|major> --no-git-tag-version`). Patch: fixes, docs, refactors, internal tweaks. Minor: new user-facing features (new inputs, new UI, new locale, etc.) that stay backwards-compatible. Major: user contract breaks — e.g. defaults change in a way that surprises returning users, or a share-link URL shared before the bump no longer reproduces the same recipe.
+- The URL schema version (`v=` in shared links) is **independent** from the app version. Bumping `CURRENT_VERSION` in `urlState.ts` does not require a major app bump as long as old decoders stay in `DECODERS`.
+
 ## i18n
 
 - Locales: `en, de, it, fr, nl, jam` (Jamaican Patois, ISO 639-3). Metric only — grams, °C.
