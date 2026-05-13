@@ -14,7 +14,9 @@ export default ts.config(
 		languageOptions: {
 			globals: {
 				...globals.browser,
-				...globals.node
+				...globals.node,
+				// Inlined at build time by vite (see vite.config.ts `define`).
+				__APP_VERSION__: 'readonly'
 			}
 		}
 	},
