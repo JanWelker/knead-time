@@ -24,7 +24,7 @@
 			{@const isReady = step.kind === 'ready'}
 			<tr class="border-dough-200/70 border-b align-top last:border-0 dark:border-stone-700/70">
 				<td
-					class="py-3 pr-3 font-medium whitespace-nowrap {isReady
+					class="py-3 pr-3 font-medium sm:whitespace-nowrap print:whitespace-nowrap {isReady
 						? 'text-tomato-700 dark:text-tomato-300'
 						: 'text-stone-800 dark:text-stone-200'}"
 				>
