@@ -96,7 +96,7 @@ export function combineDateTimeInputs(datePart: string, timePart: string): Date 
 	if (!datePart || !timePart) return null;
 	const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(datePart);
 	if (!dm) return null;
-	const tm = /^(\d{1,2})[.:](\d{2})$/.exec(timePart.trim());
+	const tm = /^(\d{1,2}):(\d{2})$/.exec(timePart.trim());
 	if (!tm) return null;
 	const year = +dm[1];
 	const month = +dm[2];

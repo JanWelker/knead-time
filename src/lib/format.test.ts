@@ -151,12 +151,13 @@ describe('split date/time input round-trip', () => {
 		expect(combineDateTimeInputs('2026-05-00', '12:00')).toBeNull();
 		expect(combineDateTimeInputs('2026-05-32', '12:00')).toBeNull();
 	});
-	it('accepts shorthand H:MM and the European H.MM separator', () => {
+	it('accepts shorthand H:MM in addition to the zero-padded HH:MM', () => {
 		const d1 = combineDateTimeInputs('2026-05-12', '9:30')!;
 		expect(d1.getHours()).toBe(9);
 		expect(d1.getMinutes()).toBe(30);
-		const d2 = combineDateTimeInputs('2026-05-12', '23.05')!;
+		const d2 = combineDateTimeInputs('2026-05-12', '23:05')!;
 		expect(d2.getHours()).toBe(23);
 		expect(d2.getMinutes()).toBe(5);
+		expect(combineDateTimeInputs('2026-05-12', '23.05')).toBeNull();
 	});
 });
