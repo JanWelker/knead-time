@@ -141,7 +141,13 @@ export interface Messages {
 		heading: string;
 		intro: string;
 		empty: string;
-		contribute: string;
+		contribute: {
+			before_md: string;
+			md: string;
+			between: string;
+			pr: string;
+			after: string;
+		};
 		col_name: string;
 		col_date: string;
 		col_pizzas: string;
@@ -309,7 +315,13 @@ const en: Messages = {
 		heading: 'Community recipes',
 		intro: 'Share-URLs other bakers contributed. Click a row to load that recipe.',
 		empty: 'No recipes yet — be the first to contribute.',
-		contribute: 'Add yours by editing community.md and opening a pull request.',
+		contribute: {
+			before_md: 'Add yours by editing ',
+			md: 'community.md',
+			between: ' and opening a ',
+			pr: 'pull request',
+			after: '.'
+		},
 		col_name: 'Baker',
 		col_date: 'Added',
 		col_pizzas: 'Pizzas',
@@ -480,7 +492,13 @@ const de: Messages = {
 		heading: 'Community-Rezepte',
 		intro: 'Share-URLs anderer Bäcker. Klicke eine Zeile, um das Rezept zu laden.',
 		empty: 'Noch keine Rezepte — sei der erste Beitrag.',
-		contribute: 'Trage dich ein, indem du community.md bearbeitest und einen Pull Request öffnest.',
+		contribute: {
+			before_md: 'Trage dich ein, indem du ',
+			md: 'community.md',
+			between: ' bearbeitest und einen ',
+			pr: 'Pull Request',
+			after: ' öffnest.'
+		},
 		col_name: 'Bäcker:in',
 		col_date: 'Hinzugefügt',
 		col_pizzas: 'Pizzen',
@@ -641,7 +659,13 @@ const it: Messages = {
 		heading: 'Ricette della community',
 		intro: 'Share-URL condivisi da altri pizzaioli. Clicca una riga per caricare la ricetta.',
 		empty: 'Nessuna ricetta ancora — sii il primo a contribuire.',
-		contribute: 'Aggiungi la tua modificando community.md e aprendo una pull request.',
+		contribute: {
+			before_md: 'Aggiungi la tua modificando ',
+			md: 'community.md',
+			between: ' e aprendo una ',
+			pr: 'pull request',
+			after: '.'
+		},
 		col_name: 'Pizzaiolo',
 		col_date: 'Aggiunta',
 		col_pizzas: 'Pizze',
@@ -819,7 +843,13 @@ const fr: Messages = {
 		heading: 'Recettes de la communauté',
 		intro: 'URLs partagées par d’autres boulangers. Clique une ligne pour charger la recette.',
 		empty: 'Aucune recette pour l’instant — sois le premier à contribuer.',
-		contribute: 'Ajoute la tienne en modifiant community.md et en ouvrant une pull request.',
+		contribute: {
+			before_md: 'Ajoute la tienne en modifiant ',
+			md: 'community.md',
+			between: ' et en ouvrant une ',
+			pr: 'pull request',
+			after: '.'
+		},
 		col_name: 'Boulanger',
 		col_date: 'Ajoutée',
 		col_pizzas: 'Pizzas',
@@ -988,7 +1018,13 @@ const nl: Messages = {
 		heading: 'Community-recepten',
 		intro: 'Share-URLs van andere bakkers. Klik op een rij om het recept te laden.',
 		empty: 'Nog geen recepten — wees de eerste die bijdraagt.',
-		contribute: 'Voeg jouw recept toe door community.md te bewerken en een pull request te openen.',
+		contribute: {
+			before_md: 'Voeg jouw recept toe door ',
+			md: 'community.md',
+			between: ' te bewerken en een ',
+			pr: 'pull request',
+			after: ' te openen.'
+		},
 		col_name: 'Bakker',
 		col_date: 'Toegevoegd',
 		col_pizzas: 'Pizza’s',
@@ -1155,7 +1191,13 @@ const jam: Messages = {
 		heading: 'Community recipe dem',
 		intro: 'Share-URL weh odda baker dem drop. Click pon a row fi load di recipe.',
 		empty: 'No recipe yet — be di first fi drop one.',
-		contribute: 'Drop yours by edit community.md an open up a pull request.',
+		contribute: {
+			before_md: 'Drop yours by edit ',
+			md: 'community.md',
+			between: ' an open up a ',
+			pr: 'pull request',
+			after: '.'
+		},
 		col_name: 'Baker',
 		col_date: 'Add up',
 		col_pizzas: 'Pizza dem',
