@@ -165,6 +165,7 @@ export interface Messages {
 		col_salt: string;
 		col_yeast: string;
 		col_temp: string;
+		col_fridge: string;
 		col_preFerment: string;
 		col_open: string;
 		open_link: string;
@@ -355,6 +356,7 @@ const en: Messages = {
 		col_salt: 'Salt',
 		col_yeast: 'Yeast',
 		col_temp: 'Room °C',
+		col_fridge: 'Fridge °C',
 		col_preFerment: 'Pre-ferment',
 		col_open: 'Recipe',
 		open_link: 'Open'
@@ -548,6 +550,7 @@ const de: Messages = {
 		col_salt: 'Salz',
 		col_yeast: 'Hefe',
 		col_temp: 'Raum °C',
+		col_fridge: 'Kühlschrank °C',
 		col_preFerment: 'Vorteig',
 		col_open: 'Rezept',
 		open_link: 'Öffnen'
@@ -731,6 +734,7 @@ const it: Messages = {
 		col_salt: 'Sale',
 		col_yeast: 'Lievito',
 		col_temp: 'Stanza °C',
+		col_fridge: 'Frigo °C',
 		col_preFerment: 'Pre-impasto',
 		col_open: 'Ricetta',
 		open_link: 'Apri'
@@ -932,6 +936,7 @@ const fr: Messages = {
 		col_salt: 'Sel',
 		col_yeast: 'Levure',
 		col_temp: 'Pièce °C',
+		col_fridge: 'Frigo °C',
 		col_preFerment: 'Pré-ferment',
 		col_open: 'Recette',
 		open_link: 'Ouvrir'
@@ -1124,6 +1129,7 @@ const nl: Messages = {
 		col_salt: 'Zout',
 		col_yeast: 'Gist',
 		col_temp: 'Kamer °C',
+		col_fridge: 'Koelkast °C',
 		col_preFerment: 'Voordeeg',
 		col_open: 'Recept',
 		open_link: 'Openen'
@@ -1313,6 +1319,7 @@ const jam: Messages = {
 		col_salt: 'Salt',
 		col_yeast: 'Ris-ting',
 		col_temp: 'Room °C',
+		col_fridge: 'Fridge °C',
 		col_preFerment: 'Befo-dough',
 		col_open: 'Recipe',
 		open_link: 'Open'

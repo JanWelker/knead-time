@@ -67,6 +67,7 @@
 					<th class="py-2 pr-3 text-right font-semibold">{t.community.col_salt}</th>
 					<th class="py-2 pr-3 font-semibold">{t.community.col_yeast}</th>
 					<th class="py-2 pr-3 text-right font-semibold">{t.community.col_temp}</th>
+					<th class="py-2 pr-3 text-right font-semibold">{t.community.col_fridge}</th>
 					<th class="py-2 pr-3 font-semibold">{t.community.col_preFerment}</th>
 					<th class="py-2 font-semibold">{t.community.col_open}</th>
 				</tr>
@@ -97,6 +98,7 @@
 						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.saltPercent, '%')}</td>
 						<td class="py-3 pr-3">{yeastLabel(entry)}</td>
 						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.roomTempC, '°C')}</td>
+						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.fridgeTempC, '°C')}</td>
 						<td class="py-3 pr-3">{preFermentLabel(entry)}</td>
 						<td class="py-3">
 							<a
