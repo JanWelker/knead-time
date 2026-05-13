@@ -3,6 +3,7 @@ import source from './community.md?raw';
 
 export interface CommunityEntry {
 	name: string;
+	handle: string | null;
 	date: string;
 	url: string;
 	search: string;
@@ -10,6 +11,10 @@ export interface CommunityEntry {
 }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// GitHub username rules: 1–39 chars, alphanumeric or single hyphens, can't
+// start or end with a hyphen. We require a leading `@` so the parser only
+// linkifies cells the contributor explicitly opted in as a handle.
+const HANDLE_RE = /^@([A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?)$/;
 
 export function parseCommunity(markdown: string): CommunityEntry[] {
 	const entries: CommunityEntry[] = [];
@@ -32,7 +37,8 @@ export function parseCommunity(markdown: string): CommunityEntry[] {
 		const search = searchFromUrl(url);
 		if (!search) continue;
 
-		entries.push({ name, date, url, search, inputs: decodeInputs(search) });
+		const handle = HANDLE_RE.exec(name)?.[1] ?? null;
+		entries.push({ name, handle, date, url, search, inputs: decodeInputs(search) });
 	}
 	return entries;
 }

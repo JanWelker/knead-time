@@ -75,7 +75,18 @@
 				{#each entries as entry (entry.url)}
 					<tr class="border-dough-200/70 border-b align-top last:border-0 dark:border-stone-700/70">
 						<td class="py-3 pr-3 font-medium text-stone-800 dark:text-stone-100">
-							{entry.name}
+							{#if entry.handle}
+								<a
+									href="https://github.com/{entry.handle}"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+								>
+									{entry.name}
+								</a>
+							{:else}
+								{entry.name}
+							{/if}
 						</td>
 						<td class="py-3 pr-3 whitespace-nowrap text-stone-500 dark:text-stone-400">
 							{formatDate(entry.date)}

@@ -46,7 +46,7 @@ Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on
 
 ## Community recipes
 
-- Page renders a community-recipes table at the bottom. Source: `src/lib/community/community.md`, rows are `| Name | Date | Recipe-URL |` (date `YYYY-MM-DD`, URL is the full **Share**-button output). Contributors add entries via PR — no backend, no submission flow.
+- Page renders a community-recipes table at the bottom. Source: `src/lib/community/community.md`, rows are `| Name | Date | Recipe-URL |` (date `YYYY-MM-DD`, URL is the full **Share**-button output). **Name** is plain text by default; if the cell starts with `@` and the rest matches GitHub's username rules, it's rendered as a link to `https://github.com/<handle>` — opt-in via the leading `@`. Contributors add entries via PR — no backend, no submission flow.
 - Imported at build time via Vite `?raw`, parsed in `src/lib/community/community.ts`. Rows that fail date/URL checks are **dropped silently** so one bad row can't break the page.
 - `Community.svelte` renders one column per decoded input + an **Open** link. The link uses `resolve('/')` for base-path correctness and `rel="external"` so a full reload re-runs `onMount` → `decodeInputs` and hydrates the form. Hidden in print.
 

@@ -89,4 +89,38 @@ closing paragraph
 	it('returns an empty list for markdown without a table', () => {
 		expect(parseCommunity('# Community\n\nNo entries yet.')).toEqual([]);
 	});
+
+	it('extracts a GitHub handle when the Name cell starts with @', () => {
+		const md = `
+| Name | Date | Recipe |
+| --- | --- | --- |
+| @JanWelker | 2026-05-13 | https://example.com/?n=6 |
+| Maria Rossi | 2026-05-10 | https://example.com/?n=4 |
+| @octo-cat | 2026-05-09 | https://example.com/?n=2 |
+`;
+		const entries = parseCommunity(md);
+		expect(entries).toHaveLength(3);
+		expect(entries[0].name).toBe('@JanWelker');
+		expect(entries[0].handle).toBe('JanWelker');
+		expect(entries[1].handle).toBeNull();
+		expect(entries[2].handle).toBe('octo-cat');
+	});
+
+	it('rejects malformed @handles per GitHub rules', () => {
+		const md = `
+| Name | Date | Recipe |
+| --- | --- | --- |
+| @-leading | 2026-05-01 | https://example.com/?n=1 |
+| @trailing- | 2026-05-02 | https://example.com/?n=1 |
+| @has space | 2026-05-03 | https://example.com/?n=1 |
+| @ok | 2026-05-04 | https://example.com/?n=1 |
+`;
+		const entries = parseCommunity(md);
+		expect(entries.map((e) => [e.name, e.handle])).toEqual([
+			['@-leading', null],
+			['@trailing-', null],
+			['@has space', null],
+			['@ok', 'ok']
+		]);
+	});
 });

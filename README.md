@@ -153,6 +153,10 @@ To add yours: dial in the recipe in the app, click **Share** to copy the URL,
 then open a PR appending one row to that file. The website parses the URL,
 shows your inputs as columns, and links the row back to the recipe.
 
+For the **Name** column use either your full name (renders as plain text) or
+a GitHub handle prefixed with `@` (renders as a link to your profile, e.g.
+`@JanWelker` → <https://github.com/JanWelker>).
+
 ## Conventions worth knowing
 
 - All calculation logic stays in `src/lib/dough/` and is **framework-free**. Components only render results.
