@@ -204,13 +204,9 @@
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .rows td {
-			padding: 3px 0;
-			border-bottom: 1px solid #ddd;
+			padding: 5px 0;
 			font-size: 12px;
 			vertical-align: middle;
-		}
-		.trmnl .rows tr:last-child td {
-			border-bottom: 0;
 		}
 		.trmnl .rowTime {
 			width: 170px;
