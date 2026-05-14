@@ -1,4 +1,4 @@
-import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as ee}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as x}from"../chunks/ClbdUs4Q.js";import{n as S,t as C}from"../chunks/CGfLsJTe.js";import{a as w,d as T,h as E,i as te,l as D,m as ne,o as re,r as ie,t as O,u as ae}from"../chunks/Ce5iO_eE.js";var k=d({entries:()=>A,prerender:()=>!0,ssr:()=>!0});function A(){return[{locale:void 0},...S.map(e=>({locale:e}))]}function oe(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var se=n(`<style>html,
+import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as ee}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as x}from"../chunks/COjFvosc.js";import{n as S,t as C}from"../chunks/CGfLsJTe.js";import{a as w,d as T,h as E,i as te,l as D,m as ne,o as re,r as ie,t as O,u as ae}from"../chunks/Ce5iO_eE.js";var k=d({entries:()=>A,prerender:()=>!0,ssr:()=>!0});function A(){return[{locale:void 0},...S.map(e=>({locale:e}))]}function oe(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var se=n(`<style>html,
 		body {
 			background: #ffffff !important;
 			color: #000000 !important;
@@ -48,16 +48,22 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			flex-direction: column;
 			align-items: flex-end;
 			text-align: right;
+			/* Don't let the flex layout squeeze the readyTime narrower than its
+			   content — a long recipe summary on the left would otherwise force
+			   "Fri May 15 02:09 PM" to wrap into two lines. */
+			flex-shrink: 0;
 		}
 		.trmnl .readyLabel {
 			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
+			white-space: nowrap;
 		}
 		.trmnl .readyTime {
 			font-size: 26px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
 		}
 		.trmnl .panel {
 			border: 2px solid #000;
