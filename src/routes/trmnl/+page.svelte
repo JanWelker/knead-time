@@ -104,7 +104,7 @@
 				system-ui,
 				-apple-system,
 				sans-serif;
-			font-size: 13px;
+			font-size: 16px;
 			line-height: 1.3;
 			display: flex;
 			flex-direction: column;
@@ -126,12 +126,12 @@
 		}
 		.trmnl .title {
 			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-			font-size: 20px;
+			font-size: 28px;
 			font-weight: 600;
 			letter-spacing: -0.01em;
 		}
 		.trmnl .summary {
-			font-size: 11px;
+			font-size: 13px;
 		}
 		.trmnl .ready {
 			display: flex;
@@ -140,13 +140,13 @@
 			text-align: right;
 		}
 		.trmnl .readyLabel {
-			font-size: 10px;
+			font-size: 11px;
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
 		}
 		.trmnl .readyTime {
 			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-			font-size: 18px;
+			font-size: 22px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
 		}
@@ -165,7 +165,7 @@
 			padding: 18px 14px;
 		}
 		.trmnl .panelLabel {
-			font-size: 10px;
+			font-size: 11px;
 			text-transform: uppercase;
 			letter-spacing: 0.1em;
 		}
@@ -174,25 +174,25 @@
 			justify-content: space-between;
 			align-items: baseline;
 			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-			font-size: 22px;
+			font-size: 28px;
 			font-weight: 600;
 			gap: 12px;
 		}
 		.trmnl .panel.done .panelTitle {
-			font-size: 36px;
+			font-size: 40px;
 			justify-content: center;
 		}
 		.trmnl .panelTime {
 			font-family: 'Inter', sans-serif;
-			font-size: 18px;
+			font-size: 22px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .panelDesc {
-			font-size: 12px;
+			font-size: 14px;
 		}
 		.trmnl .panelNext {
-			font-size: 11px;
+			font-size: 13px;
 			font-style: italic;
 			border-top: 1px dotted #000;
 			padding-top: 4px;
@@ -205,11 +205,11 @@
 		}
 		.trmnl .rows td {
 			padding: 5px 0;
-			font-size: 12px;
+			font-size: 15px;
 			vertical-align: middle;
 		}
 		.trmnl .rowTime {
-			width: 170px;
+			width: 200px;
 			white-space: nowrap;
 			padding-right: 12px;
 		}
@@ -224,7 +224,7 @@
 			padding-left: 6px;
 			padding-right: 6px;
 		}
-		.trmnl .rows tr.ready td {
+		.trmnl .rows tr.rowReady td {
 			font-weight: 700;
 		}
 	</style>
@@ -272,7 +272,7 @@
 				<tr
 					class:past={i < idx}
 					class:current={i === idx && idx < schedule.steps.length - 1}
-					class:ready={step.kind === 'ready'}
+					class:rowReady={step.kind === 'ready'}
 				>
 					<td class="rowTime">{formatDateTime(step.at, locale)}</td>
 					<td class="rowStep">{stepTitle(step, t)}</td>
