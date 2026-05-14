@@ -18,16 +18,16 @@
 				} catch (e) {}
 			})();
 		</script>
-		<link href="./_app/immutable/entry/start.CCCm8pLE.js" rel="modulepreload">
-		<link href="./_app/immutable/chunks/CIuqtufg.js" rel="modulepreload">
+		<link href="./_app/immutable/entry/start.BmgpXHEQ.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DrkPIpJJ.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/BK5hkLvn.js" rel="modulepreload">
-		<link href="./_app/immutable/entry/app.DcZ8-cBz.js" rel="modulepreload">
+		<link href="./_app/immutable/entry/app.PDUZPYdG.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/BcgnSMxp.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/DXLwiZ0H.js" rel="modulepreload">
 		<link href="./_app/immutable/nodes/0.DWcFC7Ar.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/D35_xbLn.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/CtxMkS_o.js" rel="modulepreload">
-		<link href="./_app/immutable/nodes/3.IjWaaqWa.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/3.B9pnmA4F.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/DWk8PAiC.js" rel="modulepreload">
 		<!--wjw1nc--><style>
 		html,
@@ -35,20 +35,160 @@
 			background: #ffffff !important;
 			color: #000000 !important;
 		}
+		.trmnl {
+			width: 800px;
+			height: 480px;
+			margin: 0 auto;
+			padding: 16px 20px;
+			box-sizing: border-box;
+			background: #ffffff;
+			color: #000000;
+			font-family:
+				'Inter',
+				ui-sans-serif,
+				system-ui,
+				-apple-system,
+				sans-serif;
+			font-size: 13px;
+			line-height: 1.3;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+		.trmnl .head {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			gap: 16px;
+			border-bottom: 1px solid #000;
+			padding-bottom: 6px;
+		}
+		.trmnl .brand {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+			min-width: 0;
+		}
+		.trmnl .title {
+			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+			font-size: 20px;
+			font-weight: 600;
+			letter-spacing: -0.01em;
+		}
+		.trmnl .summary {
+			font-size: 11px;
+		}
+		.trmnl .ready {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-end;
+			text-align: right;
+		}
+		.trmnl .readyLabel {
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+		}
+		.trmnl .readyTime {
+			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+			font-size: 18px;
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .panel {
+			border: 2px solid #000;
+			padding: 10px 14px;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+		.trmnl .panel.done {
+			border-width: 3px;
+			text-align: center;
+			justify-content: center;
+			align-items: center;
+			padding: 18px 14px;
+		}
+		.trmnl .panelLabel {
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+		}
+		.trmnl .panelTitle {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+			font-size: 22px;
+			font-weight: 600;
+			gap: 12px;
+		}
+		.trmnl .panel.done .panelTitle {
+			font-size: 36px;
+			justify-content: center;
+		}
+		.trmnl .panelTime {
+			font-family: 'Inter', sans-serif;
+			font-size: 18px;
+			font-weight: 500;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .panelDesc {
+			font-size: 12px;
+		}
+		.trmnl .panelNext {
+			font-size: 11px;
+			font-style: italic;
+			border-top: 1px dotted #000;
+			padding-top: 4px;
+			margin-top: 2px;
+		}
+		.trmnl .rows {
+			width: 100%;
+			border-collapse: collapse;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .rows td {
+			padding: 3px 0;
+			border-bottom: 1px solid #ddd;
+			font-size: 12px;
+			vertical-align: middle;
+		}
+		.trmnl .rows tr:last-child td {
+			border-bottom: 0;
+		}
+		.trmnl .rowTime {
+			width: 170px;
+			white-space: nowrap;
+			padding-right: 12px;
+		}
+		.trmnl .rows tr.past td {
+			text-decoration: line-through;
+			color: #666;
+		}
+		.trmnl .rows tr.current td {
+			font-weight: 700;
+			background: #000;
+			color: #fff;
+			padding-left: 6px;
+			padding-right: 6px;
+		}
+		.trmnl .rows tr.ready td {
+			font-weight: 700;
+		}
 	</style><!----><title>Knead Time — TRMNL</title>
 		<link href="./_app/immutable/assets/0.DJjDnB0c.css" rel="stylesheet">
-		<link href="./_app/immutable/assets/3.CVA3DY_w.css" rel="stylesheet">
 	</head>
 	<body
 		data-sveltekit-preload-data="hover"
 		class="bg-dough-50 min-h-screen text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100"
 	>
-		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><div class="trmnl svelte-wjw1nc"><header class="head svelte-wjw1nc"><div class="brand svelte-wjw1nc"><span class="title svelte-wjw1nc">Knead Time</span> <span class="summary svelte-wjw1nc">6 × 280 g · 70% · Fresh yeast (cube)<!--[-1--><!--]--> · Cold ferment</span></div> <div class="ready svelte-wjw1nc"><span class="readyLabel svelte-wjw1nc">Ready to bake</span> <span class="readyTime svelte-wjw1nc">Fri, May 15, 01:53 PM</span></div></header> <!--[0--><section class="panel svelte-wjw1nc"><div class="panelLabel svelte-wjw1nc">Now</div> <!--[-1--><div class="panelTitle svelte-wjw1nc"><span>Weigh &amp; prep</span> <span class="panelTime svelte-wjw1nc">01:53 PM</span></div> <div class="panelDesc svelte-wjw1nc">Weigh out 970 g flour, 679 g water, 29 g salt and 1.5 g fresh yeast. Take ingredients out of the fridge.</div> <!--[0--><div class="panelNext svelte-wjw1nc">Next: Mix dough ·
-						02:08 PM</div><!--]--><!--]--></section><!--]--> <table class="rows svelte-wjw1nc"><tbody><!--[--><tr class="svelte-wjw1nc current"><td class="rowTime svelte-wjw1nc">Thu, May 14, 01:53 PM</td><td class="rowStep svelte-wjw1nc">Weigh &amp; prep</td></tr><tr class="svelte-wjw1nc"><td class="rowTime svelte-wjw1nc">Thu, May 14, 02:08 PM</td><td class="rowStep svelte-wjw1nc">Mix dough</td></tr><tr class="svelte-wjw1nc"><td class="rowTime svelte-wjw1nc">Thu, May 14, 02:23 PM</td><td class="rowStep svelte-wjw1nc">Bulk ferment (room)</td></tr><tr class="svelte-wjw1nc"><td class="rowTime svelte-wjw1nc">Thu, May 14, 03:23 PM</td><td class="rowStep svelte-wjw1nc">Bulk ferment (fridge)</td></tr><tr class="svelte-wjw1nc"><td class="rowTime svelte-wjw1nc">Fri, May 15, 09:38 AM</td><td class="rowStep svelte-wjw1nc">Divide &amp; ball</td></tr><tr class="svelte-wjw1nc"><td class="rowTime svelte-wjw1nc">Fri, May 15, 09:53 AM</td><td class="rowStep svelte-wjw1nc">Warm up balls</td></tr><tr class="svelte-wjw1nc"><td class="rowTime svelte-wjw1nc">Fri, May 15, 12:53 PM</td><td class="rowStep svelte-wjw1nc">Final proof</td></tr><tr class="svelte-wjw1nc ready"><td class="rowTime svelte-wjw1nc">Fri, May 15, 01:53 PM</td><td class="rowStep svelte-wjw1nc">Shape &amp; bake</td></tr><!--]--></tbody></table></div><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><div class="trmnl"><header class="head"><div class="brand"><span class="title">Knead Time</span> <span class="summary">6 × 280 g · 70% · Fresh yeast (cube)<!--[-1--><!--]--> · Cold ferment</span></div> <div class="ready"><span class="readyLabel">Ready to bake</span> <span class="readyTime">Fri, May 15, 02:02 PM</span></div></header> <!--[0--><section class="panel"><div class="panelLabel">Now</div> <!--[-1--><div class="panelTitle"><span>Weigh &amp; prep</span> <span class="panelTime">02:02 PM</span></div> <div class="panelDesc">Weigh out 970 g flour, 679 g water, 29 g salt and 1.5 g fresh yeast. Take ingredients out of the fridge.</div> <!--[0--><div class="panelNext">Next: Mix dough ·
+						02:17 PM</div><!--]--><!--]--></section><!--]--> <table class="rows"><tbody><!--[--><tr class="current"><td class="rowTime">Thu, May 14, 02:02 PM</td><td class="rowStep">Weigh &amp; prep</td></tr><tr><td class="rowTime">Thu, May 14, 02:17 PM</td><td class="rowStep">Mix dough</td></tr><tr><td class="rowTime">Thu, May 14, 02:32 PM</td><td class="rowStep">Bulk ferment (room)</td></tr><tr><td class="rowTime">Thu, May 14, 03:32 PM</td><td class="rowStep">Bulk ferment (fridge)</td></tr><tr><td class="rowTime">Fri, May 15, 09:47 AM</td><td class="rowStep">Divide &amp; ball</td></tr><tr><td class="rowTime">Fri, May 15, 10:02 AM</td><td class="rowStep">Warm up balls</td></tr><tr><td class="rowTime">Fri, May 15, 01:02 PM</td><td class="rowStep">Final proof</td></tr><tr class="ready"><td class="rowTime">Fri, May 15, 02:02 PM</td><td class="rowStep">Shape &amp; bake</td></tr><!--]--></tbody></table></div><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
 			
 			<script>
 				{
-					__sveltekit_1ns2nsm = {
+					__sveltekit_omril4 = {
 						base: new URL(".", location).pathname.slice(0, -1),
 						assets: "/knead-time/pr-preview/pr-52"
 					};
@@ -56,8 +196,8 @@
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("./_app/immutable/entry/start.CCCm8pLE.js"),
-						import("./_app/immutable/entry/app.DcZ8-cBz.js")
+						import("./_app/immutable/entry/start.BmgpXHEQ.js"),
+						import("./_app/immutable/entry/app.PDUZPYdG.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
 							node_ids: [0, 3],
