@@ -126,8 +126,6 @@
 			justify-content: space-between;
 			align-items: baseline;
 			gap: 16px;
-			border-bottom: 1px solid #000;
-			padding-bottom: 6px;
 		}
 		.trmnl .brand {
 			display: flex;
