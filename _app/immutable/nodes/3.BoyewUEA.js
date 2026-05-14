@@ -1,4 +1,4 @@
-import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as ee}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as x}from"../chunks/CNHklvG8.js";import{n as S,t as C}from"../chunks/CGfLsJTe.js";import{a as w,d as T,h as E,i as te,l as D,m as ne,o as re,r as ie,t as O,u as ae}from"../chunks/Ce5iO_eE.js";var k=d({entries:()=>A,prerender:()=>!0,ssr:()=>!0});function A(){return[{locale:void 0},...S.map(e=>({locale:e}))]}function oe(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var se=n(`<style>html,
+import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as ee}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as x}from"../chunks/DERihLUP.js";import{n as S,t as C}from"../chunks/CGfLsJTe.js";import{a as w,d as T,h as E,i as te,l as D,m as ne,o as re,r as ie,t as O,u as ae}from"../chunks/Ce5iO_eE.js";var k=d({entries:()=>A,prerender:()=>!0,ssr:()=>!0});function A(){return[{locale:void 0},...S.map(e=>({locale:e}))]}function oe(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var se=n(`<style>html,
 		body {
 			background: #ffffff !important;
 			color: #000000 !important;
@@ -88,18 +88,21 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			font-size: 32px;
+			font-size: 28px;
 			font-weight: 600;
 			gap: 12px;
 		}
 		.trmnl .panel.done .panelTitle {
-			font-size: 44px;
+			font-size: 40px;
 			justify-content: center;
 		}
 		.trmnl .panelTime {
-			font-size: 26px;
+			font-size: 22px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
+			/* "15:22 - 15:37 (15 Min)" must stay one line — wrapping after the
+			   opening paren reads as a layout glitch. */
+			white-space: nowrap;
 		}
 		.trmnl .panelDesc {
 			font-size: 17px;
