@@ -8,7 +8,7 @@
 	import { currentStepIndex } from '$lib/dough/scheduleStatus';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeight, formatDateTime, formatTime } from '$lib/format';
+	import { formatBallWeight, formatDateTime, formatDuration, formatTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
@@ -255,7 +255,13 @@
 			{:else}
 				<div class="panelTitle">
 					<span>{stepTitle(featured.step, t)}</span>
-					<span class="panelTime">{formatTime(featured.step.at, locale)}</span>
+					<span class="panelTime">
+						{formatTime(featured.step.at, locale)} - {formatTime(
+							new Date(featured.step.at.getTime() + featured.step.durationMinutes * 60_000),
+							locale
+						)}
+						({formatDuration(featured.step.durationMinutes, locale)})
+					</span>
 				</div>
 				<div class="panelDesc">{stepDescription(featured.step, t, schedule)}</div>
 			{/if}
