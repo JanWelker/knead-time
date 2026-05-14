@@ -126,10 +126,16 @@ export interface Messages {
 		share: string;
 		copied: string;
 		share_help: string;
+		trmnl: string;
 	};
 	print: {
 		recipe_heading: string;
 		scan_to_open: string;
+	};
+	trmnl: {
+		now: string;
+		next: string;
+		done: string;
 	};
 	warnings: {
 		too_short: string;
@@ -314,11 +320,17 @@ const en: Messages = {
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
 		copied: 'Copied!',
-		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.'
+		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.',
+		trmnl: 'Copy TRMNL link'
 	},
 	print: {
 		recipe_heading: 'Recipe',
 		scan_to_open: 'Scan to open this recipe'
+	},
+	trmnl: {
+		now: 'Now',
+		next: 'Next',
+		done: 'Pizza time!'
 	},
 	warnings: {
 		too_short:
@@ -508,11 +520,17 @@ const de: Messages = {
 		print: 'Drucken / als PDF',
 		share: 'Link kopieren',
 		copied: 'Kopiert!',
-		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.'
+		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.',
+		trmnl: 'TRMNL-Link kopieren'
 	},
 	print: {
 		recipe_heading: 'Rezept',
 		scan_to_open: 'Scanne, um das Rezept zu öffnen'
+	},
+	trmnl: {
+		now: 'Jetzt',
+		next: 'Als Nächstes',
+		done: 'Pizzazeit!'
 	},
 	warnings: {
 		too_short:
@@ -699,11 +717,17 @@ const it: Messages = {
 		print: 'Stampa / Salva PDF',
 		share: 'Copia link',
 		copied: 'Copiato!',
-		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.'
+		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.',
+		trmnl: 'Copia link TRMNL'
 	},
 	print: {
 		recipe_heading: 'Ricetta',
 		scan_to_open: 'Scansiona per aprire la ricetta'
+	},
+	trmnl: {
+		now: 'Ora',
+		next: 'Prossimo',
+		done: 'È ora di cuocere!'
 	},
 	warnings: {
 		too_short:
@@ -894,11 +918,17 @@ const fr: Messages = {
 		print: 'Imprimer / Enregistrer en PDF',
 		share: 'Copier le lien',
 		copied: 'Copié !',
-		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte."
+		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte.",
+		trmnl: 'Copier le lien TRMNL'
 	},
 	print: {
 		recipe_heading: 'Recette',
 		scan_to_open: 'Scannez pour ouvrir la recette'
+	},
+	trmnl: {
+		now: 'Maintenant',
+		next: 'À suivre',
+		done: 'Au four !'
 	},
 	warnings: {
 		too_short:
@@ -1087,11 +1117,17 @@ const nl: Messages = {
 		print: 'Afdrukken / Opslaan als PDF',
 		share: 'Deellink kopiëren',
 		copied: 'Gekopieerd!',
-		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.'
+		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.',
+		trmnl: 'TRMNL-link kopiëren'
 	},
 	print: {
 		recipe_heading: 'Recept',
 		scan_to_open: 'Scan om het recept te openen'
+	},
+	trmnl: {
+		now: 'Nu',
+		next: 'Volgende',
+		done: 'Tijd om te bakken!'
 	},
 	warnings: {
 		too_short: 'Niet genoeg tijd. Kies een later moment of accepteer dat het deeg ondergerezen is.',
@@ -1277,11 +1313,17 @@ const jam: Messages = {
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
 		copied: 'Copy!',
-		share_help: 'Di recipe live inna di URL — anybody wid di link get di same dough.'
+		share_help: 'Di recipe live inna di URL — anybody wid di link get di same dough.',
+		trmnl: 'Copy TRMNL link'
 	},
 	print: {
 		recipe_heading: 'Recipe',
 		scan_to_open: 'Scan fi open di recipe'
+	},
+	trmnl: {
+		now: 'Now',
+		next: 'Next up',
+		done: 'Pizza time!'
 	},
 	warnings: {
 		too_short:

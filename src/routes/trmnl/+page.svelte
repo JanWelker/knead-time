@@ -1,0 +1,304 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
+
+	import { computeSchedule } from '$lib/dough/schedule';
+	import { currentStepIndex } from '$lib/dough/scheduleStatus';
+	import type { DoughInputs } from '$lib/dough/types';
+	import { decodeInputs } from '$lib/dough/urlState';
+	import { formatBallWeight, formatDateTime, formatTime } from '$lib/format';
+	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { stepDescription, stepTitle } from '$lib/stepCopy';
+
+	const DEFAULT_INPUTS: DoughInputs = {
+		readyBy: new Date(Date.now() + 24 * 60 * 60 * 1000),
+		startAt: new Date(),
+		pizzaCount: 6,
+		ballWeight: 280,
+		hydration: 70,
+		saltPercent: 3,
+		yeastType: 'fresh',
+		starterHydration: 100,
+		roomTempC: 22,
+		fridgeTempC: 4,
+		preFerment: null
+	};
+
+	let inputs: DoughInputs = $state(DEFAULT_INPUTS);
+	// Use SvelteDate so re-assignment is reactive — TRMNL renders once but in a
+	// local browser this ticks so the highlight follows real time.
+	const now = new SvelteDate();
+
+	onMount(() => {
+		const parsed = decodeInputs(window.location.search);
+		inputs = { ...DEFAULT_INPUTS, ...parsed };
+		const tick = setInterval(() => now.setTime(Date.now()), 30_000);
+		return () => clearInterval(tick);
+	});
+
+	const schedule = $derived(computeSchedule(inputs));
+	const idx = $derived(currentStepIndex(schedule.steps, now));
+	const t = $derived(i18n.t);
+	const locale = $derived(i18n.locale);
+
+	// Decide what to feature in the big panel:
+	//   - past the bake → "done" message
+	//   - middle of the schedule → current step labelled "now"
+	//   - before the first step → first step labelled "next"
+	const featured = $derived.by(() => {
+		const steps = schedule.steps;
+		if (steps.length === 0) return null;
+		const last = steps.length - 1;
+		if (idx === last) return { step: steps[last], label: t.trmnl.done, isDone: true };
+		if (idx >= 0) return { step: steps[idx], label: t.trmnl.now, isDone: false };
+		return { step: steps[0], label: t.trmnl.next, isDone: false };
+	});
+
+	const nextAfterCurrent = $derived(
+		idx >= 0 && idx < schedule.steps.length - 1 ? schedule.steps[idx + 1] : null
+	);
+
+	const yeastLabel = $derived(
+		inputs.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
+	);
+
+	const preFermentLabel = $derived(
+		inputs.preFerment?.type === 'biga'
+			? t.form.preFerment_biga
+			: inputs.preFerment?.type === 'poolish'
+				? t.form.preFerment_poolish
+				: null
+	);
+</script>
+
+<svelte:head>
+	<title>{t.app.title} — TRMNL</title>
+	<style>
+		html,
+		body {
+			background: #ffffff !important;
+			color: #000000 !important;
+		}
+	</style>
+</svelte:head>
+
+<div class="trmnl">
+	<header class="head">
+		<div class="brand">
+			<span class="title">{t.app.title}</span>
+			<span class="summary">
+				{inputs.pizzaCount} × {formatBallWeight(inputs.ballWeight)} g · {inputs.hydration}% · {yeastLabel}{#if preFermentLabel}
+					· {preFermentLabel}{/if} · {schedule.mode === 'cold' ? t.mode.cold : t.mode.room}
+			</span>
+		</div>
+		<div class="ready">
+			<span class="readyLabel">{t.form.readyBy}</span>
+			<span class="readyTime">{formatDateTime(inputs.readyBy, locale)}</span>
+		</div>
+	</header>
+
+	{#if featured}
+		<section class="panel" class:done={featured.isDone}>
+			<div class="panelLabel">{featured.label}</div>
+			{#if featured.isDone}
+				<div class="panelTitle">{stepTitle(featured.step, t)}</div>
+			{:else}
+				<div class="panelTitle">
+					<span>{stepTitle(featured.step, t)}</span>
+					<span class="panelTime">{formatTime(featured.step.at, locale)}</span>
+				</div>
+				<div class="panelDesc">{stepDescription(featured.step, t, schedule)}</div>
+				{#if nextAfterCurrent}
+					<div class="panelNext">
+						{t.trmnl.next}: {stepTitle(nextAfterCurrent, t)} ·
+						{formatTime(nextAfterCurrent.at, locale)}
+					</div>
+				{/if}
+			{/if}
+		</section>
+	{/if}
+
+	<table class="rows">
+		<tbody>
+			{#each schedule.steps as step, i (step.kind + '-' + step.at.getTime())}
+				<tr
+					class:past={i < idx}
+					class:current={i === idx && idx < schedule.steps.length - 1}
+					class:ready={step.kind === 'ready'}
+				>
+					<td class="rowTime">{formatDateTime(step.at, locale)}</td>
+					<td class="rowStep">{stepTitle(step, t)}</td>
+				</tr>
+			{/each}
+		</tbody>
+	</table>
+</div>
+
+<style>
+	/* The view is sized for TRMNL's 800 × 480 e-ink display: pure black-on-white,
+	   no fills or gradients (browsers drop those on B&W print and e-ink panels
+	   can't render them). The fixed pixel box maps 1:1 to the device. */
+	.trmnl {
+		width: 800px;
+		height: 480px;
+		margin: 0 auto;
+		padding: 16px 20px;
+		box-sizing: border-box;
+		background: #ffffff;
+		color: #000000;
+		font-family:
+			'Inter',
+			ui-sans-serif,
+			system-ui,
+			-apple-system,
+			sans-serif;
+		font-size: 13px;
+		line-height: 1.3;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 16px;
+		border-bottom: 1px solid #000;
+		padding-bottom: 6px;
+	}
+
+	.brand {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+	}
+
+	.title {
+		font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+		font-size: 20px;
+		font-weight: 600;
+		letter-spacing: -0.01em;
+	}
+
+	.summary {
+		font-size: 11px;
+	}
+
+	.ready {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		text-align: right;
+	}
+
+	.readyLabel {
+		font-size: 10px;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	.readyTime {
+		font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+		font-size: 18px;
+		font-weight: 600;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.panel {
+		border: 2px solid #000;
+		padding: 10px 14px;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.panel.done {
+		border-width: 3px;
+		text-align: center;
+		justify-content: center;
+		align-items: center;
+		padding: 18px 14px;
+	}
+
+	.panelLabel {
+		font-size: 10px;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	.panelTitle {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+		font-size: 22px;
+		font-weight: 600;
+		gap: 12px;
+	}
+
+	.panel.done .panelTitle {
+		font-size: 36px;
+		justify-content: center;
+	}
+
+	.panelTime {
+		font-family: 'Inter', sans-serif;
+		font-size: 18px;
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.panelDesc {
+		font-size: 12px;
+	}
+
+	.panelNext {
+		font-size: 11px;
+		font-style: italic;
+		border-top: 1px dotted #000;
+		padding-top: 4px;
+		margin-top: 2px;
+	}
+
+	.rows {
+		width: 100%;
+		border-collapse: collapse;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.rows td {
+		padding: 3px 0;
+		border-bottom: 1px solid #ddd;
+		font-size: 12px;
+		vertical-align: middle;
+	}
+
+	.rows tr:last-child td {
+		border-bottom: 0;
+	}
+
+	.rowTime {
+		width: 170px;
+		white-space: nowrap;
+		padding-right: 12px;
+	}
+
+	.rows tr.past td {
+		text-decoration: line-through;
+		color: #666;
+	}
+
+	.rows tr.current td {
+		font-weight: 700;
+		background: #000;
+		color: #fff;
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+
+	.rows tr.ready td {
+		font-weight: 700;
+	}
+</style>
