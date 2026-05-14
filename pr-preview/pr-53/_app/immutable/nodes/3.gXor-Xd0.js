@@ -1,4 +1,4 @@
-import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as ee}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as x}from"../chunks/DCZ0XrJy.js";import{n as S,t as C}from"../chunks/CGfLsJTe.js";import{a as w,d as T,h as E,i as te,l as D,m as ne,o as re,r as ie,t as O,u as ae}from"../chunks/Ce5iO_eE.js";var k=d({entries:()=>A,prerender:()=>!0,ssr:()=>!0});function A(){return[{locale:void 0},...S.map(e=>({locale:e}))]}function oe(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var se=n(`<style>html,
+import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as ee}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as x}from"../chunks/ClbdUs4Q.js";import{n as S,t as C}from"../chunks/CGfLsJTe.js";import{a as w,d as T,h as E,i as te,l as D,m as ne,o as re,r as ie,t as O,u as ae}from"../chunks/Ce5iO_eE.js";var k=d({entries:()=>A,prerender:()=>!0,ssr:()=>!0});function A(){return[{locale:void 0},...S.map(e=>({locale:e}))]}function oe(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var se=n(`<style>html,
 		body {
 			background: #ffffff !important;
 			color: #000000 !important;
@@ -17,11 +17,11 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 				system-ui,
 				-apple-system,
 				sans-serif;
-			font-size: 16px;
+			font-size: 19px;
 			line-height: 1.3;
 			display: flex;
 			flex-direction: column;
-			gap: 10px;
+			gap: 8px;
 		}
 		.trmnl .head {
 			display: flex;
@@ -36,12 +36,12 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			min-width: 0;
 		}
 		.trmnl .title {
-			font-size: 28px;
+			font-size: 32px;
 			font-weight: 600;
 			letter-spacing: -0.01em;
 		}
 		.trmnl .summary {
-			font-size: 13px;
+			font-size: 15px;
 		}
 		.trmnl .ready {
 			display: flex;
@@ -50,12 +50,12 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			text-align: right;
 		}
 		.trmnl .readyLabel {
-			font-size: 11px;
+			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
 		}
 		.trmnl .readyTime {
-			font-size: 22px;
+			font-size: 26px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
 		}
@@ -74,7 +74,7 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			padding: 18px 14px;
 		}
 		.trmnl .panelLabel {
-			font-size: 11px;
+			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.1em;
 		}
@@ -82,21 +82,21 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			font-size: 28px;
+			font-size: 32px;
 			font-weight: 600;
 			gap: 12px;
 		}
 		.trmnl .panel.done .panelTitle {
-			font-size: 40px;
+			font-size: 44px;
 			justify-content: center;
 		}
 		.trmnl .panelTime {
-			font-size: 22px;
+			font-size: 26px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .panelDesc {
-			font-size: 14px;
+			font-size: 17px;
 		}
 		.trmnl .rows {
 			width: 100%;
@@ -104,23 +104,23 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .rows td {
-			padding: 5px 0;
-			font-size: 15px;
+			padding: 4px 0;
+			font-size: 18px;
 			vertical-align: middle;
 		}
 		.trmnl .rowTime {
-			width: 80px;
+			width: 100px;
 			white-space: nowrap;
 			padding-right: 10px;
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .rowDate {
-			width: 120px;
+			width: 140px;
 			white-space: nowrap;
 			padding-right: 16px;
 		}
 		.trmnl .rowDuration {
-			width: 110px;
+			width: 130px;
 			white-space: nowrap;
 			text-align: right;
 			padding-left: 10px;
