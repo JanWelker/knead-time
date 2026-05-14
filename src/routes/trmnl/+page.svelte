@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
@@ -24,14 +25,20 @@
 		preFerment: null
 	};
 
-	let inputs: DoughInputs = $state(DEFAULT_INPUTS);
+	// Decode the URL synchronously on the client so the very first paint after
+	// hydration already shows the user's recipe — TRMNL's screenshot service
+	// has a 5 s budget, and waiting for onMount can land outside it. On the
+	// server (SSR at build time) `browser` is false, so the prerendered HTML
+	// ships with DEFAULT_INPUTS — that's the fallback TRMNL captures if JS
+	// never runs in its renderer.
+	let inputs: DoughInputs = $state(
+		browser ? { ...DEFAULT_INPUTS, ...decodeInputs(window.location.search) } : DEFAULT_INPUTS
+	);
 	// Use SvelteDate so re-assignment is reactive — TRMNL renders once but in a
 	// local browser this ticks so the highlight follows real time.
 	const now = new SvelteDate();
 
 	onMount(() => {
-		const parsed = decodeInputs(window.location.search);
-		inputs = { ...DEFAULT_INPUTS, ...parsed };
 		const tick = setInterval(() => now.setTime(Date.now()), 30_000);
 		return () => clearInterval(tick);
 	});
