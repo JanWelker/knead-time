@@ -1,4 +1,4 @@
-import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as x}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as S}from"../chunks/CD9hgFOK.js";import{n as C,t as w}from"../chunks/CGfLsJTe.js";import{a as T,i as ee,l as te,m as ne,o as re,r as ie,t as ae,u as E}from"../chunks/4xtt5DDa.js";var D=d({entries:()=>O,prerender:()=>!0,ssr:()=>!0});function O(){return[{locale:void 0},...C.map(e=>({locale:e}))]}function k(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var A=n(`<style>html,
+import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z as u,at as d,b as f,h as p,nt as m,p as h,q as g,r as _,v,x as y,y as b,z as x}from"../chunks/-KuUnI0l.js";import"../chunks/DEDqjojZ.js";import{t as S}from"../chunks/CZRkxotm.js";import{n as C,t as w}from"../chunks/CGfLsJTe.js";import{a as T,i as ee,l as te,m as ne,o as re,r as ie,t as ae,u as E}from"../chunks/4xtt5DDa.js";var D=d({entries:()=>O,prerender:()=>!0,ssr:()=>!0});function O(){return[{locale:void 0},...C.map(e=>({locale:e}))]}function k(e,t){let n=t.getTime(),r=-1;for(let t=0;t<e.length&&e[t].at.getTime()<=n;t++)r=t;return r}var A=n(`<style>html,
 		body {
 			background: #ffffff !important;
 			color: #000000 !important;
@@ -36,7 +36,6 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			min-width: 0;
 		}
 		.trmnl .title {
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
 			font-size: 28px;
 			font-weight: 600;
 			letter-spacing: -0.01em;
@@ -56,7 +55,6 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			letter-spacing: 0.08em;
 		}
 		.trmnl .readyTime {
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
 			font-size: 22px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
@@ -84,7 +82,6 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
 			font-size: 28px;
 			font-weight: 600;
 			gap: 12px;
@@ -94,7 +91,6 @@ import{A as e,B as t,C as n,F as r,H as i,I as a,T as o,U as s,V as c,X as l,Z a
 			justify-content: center;
 		}
 		.trmnl .panelTime {
-			font-family: 'Inter', sans-serif;
 			font-size: 22px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
