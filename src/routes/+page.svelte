@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { base } from '$app/paths';
 	import { onMount } from 'svelte';
 
 	import { buildIcs } from '$lib/dough/ics';
@@ -32,7 +33,7 @@
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
 
-	let copied = $state(false);
+	let copied = $state<'share' | 'trmnl' | null>(null);
 	let hydrated = $state(false);
 
 	onMount(() => {
@@ -54,6 +55,10 @@
 		browser
 			? `${window.location.origin}${window.location.pathname}?${encodeInputs(form.serializable())}`
 			: ''
+	);
+
+	const trmnlUrl = $derived(
+		browser ? `${window.location.origin}${base}/trmnl?${encodeInputs(form.serializable())}` : ''
 	);
 
 	const yeastLabel = $derived(
@@ -88,11 +93,11 @@
 		URL.revokeObjectURL(url);
 	}
 
-	async function shareLink() {
+	async function copy(kind: 'share' | 'trmnl', url: string) {
 		try {
-			await navigator.clipboard.writeText(window.location.href);
-			copied = true;
-			setTimeout(() => (copied = false), 1500);
+			await navigator.clipboard.writeText(url);
+			copied = kind;
+			setTimeout(() => (copied = null), 1500);
 		} catch {
 			// best-effort: select the input on failure (omitted for brevity)
 		}
@@ -218,8 +223,15 @@
 						>
 							{t.actions.print}
 						</button>
-						<button type="button" class={btnClass} onclick={shareLink}>
-							{copied ? t.actions.copied : t.actions.share}
+						<button
+							type="button"
+							class={btnClass}
+							onclick={() => copy('share', window.location.href)}
+						>
+							{copied === 'share' ? t.actions.copied : t.actions.share}
+						</button>
+						<button type="button" class={btnClass} onclick={() => copy('trmnl', trmnlUrl)}>
+							{copied === 'trmnl' ? t.actions.copied : t.actions.trmnl}
 						</button>
 					</div>
 				</div>

@@ -3,7 +3,7 @@
 [![CI](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml/badge.svg)](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/JanWelker/knead-time/branch/main/graph/badge.svg)](https://codecov.io/gh/JanWelker/knead-time)
 
-A time-anchored Neapolitan pizza dough calculator — [try it live](https://janwelker.github.io/knead-time/). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, and a print-to-PDF recipe sheet for the kitchen counter.
+A time-anchored Neapolitan pizza dough calculator — [try it live](https://janwelker.github.io/knead-time/). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
 Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, six languages (EN / DE / IT / FR / NL / JAM), shareable recipes via URL.
 
@@ -59,7 +59,8 @@ src/
 ├── routes/
 │   ├── +layout.svelte    ← global styles, language bootstrap
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
-│   └── +page.svelte      ← the entire calculator UI
+│   ├── +page.svelte      ← the entire calculator UI
+│   └── trmnl/+page.svelte← 800×480 black-on-white schedule for TRMNL e-ink devices
 ├── app.css               ← Tailwind v4 entrypoint + @theme palette
 └── app.html              ← shell
 
@@ -102,6 +103,12 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 The **Print / Save as PDF** action calls `window.print()` — there's no PDF library. Layout is driven by `@media print` rules in `src/app.css` and `print:` Tailwind variants scattered through `+page.svelte` and `ModeBadge.svelte`. The printed sheet hides the input form and chrome, prepends a two-column header (Recipe inputs on the left, Ingredients on the right) above the full-width schedule, and appends a footer with a QR code of the share URL so scanning the printed sheet rehydrates the recipe in the app.
 
 If you touch the printed layout, check it in your browser's print preview — don't rely on `svelte-check`. Keep it readable on a B&W printer (borders and text colour, not background fills), and keep the common shapes on one page. QR generation lives in `src/lib/qr.ts` (thin wrapper around `qrcode-generator`).
+
+### TRMNL e-ink view
+
+The **Copy TRMNL link** action copies an absolute URL to `/trmnl?…` carrying the current recipe. Point a [TRMNL](https://trmnl.com/) **Screenshot plugin** at that URL and the device polls it on its usual cadence; the headless renderer hydrates the same client-side bundle, locks the layout to an 800 × 480 box, and TRMNL captures a black-on-white screenshot for the e-ink panel. A big **Now / Next** card calls out the active step against the rendering clock — past steps fade and strike through, the current step inverts to white-on-black, future steps stay plain — so the same URL stays useful from "soak the biga tonight" all the way to "pizza time".
+
+The route lives at `src/routes/trmnl/+page.svelte` and uses the same `decodeInputs` + `computeSchedule` pipeline as the main app. Highlighting is driven by the pure `currentStepIndex(steps, now)` helper in `src/lib/dough/scheduleStatus.ts` (covered by `scheduleStatus.test.ts`). Keep the styling reserved — no gradients or background fills beyond solid black on the highlight bar — because e-ink can't dither them faithfully.
 
 ### The dough math, briefly
 
