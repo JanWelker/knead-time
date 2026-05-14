@@ -152,16 +152,22 @@
 			flex-direction: column;
 			align-items: flex-end;
 			text-align: right;
+			/* Don't let the flex layout squeeze the readyTime narrower than its
+			   content — a long recipe summary on the left would otherwise force
+			   "Fri May 15 02:09 PM" to wrap into two lines. */
+			flex-shrink: 0;
 		}
 		.trmnl .readyLabel {
 			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
+			white-space: nowrap;
 		}
 		.trmnl .readyTime {
 			font-size: 26px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
 		}
 		.trmnl .panel {
 			border: 2px solid #000;
