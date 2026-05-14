@@ -192,18 +192,21 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			font-size: 32px;
+			font-size: 28px;
 			font-weight: 600;
 			gap: 12px;
 		}
 		.trmnl .panel.done .panelTitle {
-			font-size: 44px;
+			font-size: 40px;
 			justify-content: center;
 		}
 		.trmnl .panelTime {
-			font-size: 26px;
+			font-size: 22px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
+			/* "15:22 - 15:37 (15 Min)" must stay one line — wrapping after the
+			   opening paren reads as a layout glitch. */
+			white-space: nowrap;
 		}
 		.trmnl .panelDesc {
 			font-size: 17px;
