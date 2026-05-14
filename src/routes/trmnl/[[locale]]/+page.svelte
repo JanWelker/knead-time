@@ -121,11 +121,11 @@
 				system-ui,
 				-apple-system,
 				sans-serif;
-			font-size: 16px;
+			font-size: 19px;
 			line-height: 1.3;
 			display: flex;
 			flex-direction: column;
-			gap: 10px;
+			gap: 8px;
 		}
 		.trmnl .head {
 			display: flex;
@@ -140,12 +140,12 @@
 			min-width: 0;
 		}
 		.trmnl .title {
-			font-size: 28px;
+			font-size: 32px;
 			font-weight: 600;
 			letter-spacing: -0.01em;
 		}
 		.trmnl .summary {
-			font-size: 13px;
+			font-size: 15px;
 		}
 		.trmnl .ready {
 			display: flex;
@@ -154,12 +154,12 @@
 			text-align: right;
 		}
 		.trmnl .readyLabel {
-			font-size: 11px;
+			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
 		}
 		.trmnl .readyTime {
-			font-size: 22px;
+			font-size: 26px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
 		}
@@ -178,7 +178,7 @@
 			padding: 18px 14px;
 		}
 		.trmnl .panelLabel {
-			font-size: 11px;
+			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.1em;
 		}
@@ -186,21 +186,21 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			font-size: 28px;
+			font-size: 32px;
 			font-weight: 600;
 			gap: 12px;
 		}
 		.trmnl .panel.done .panelTitle {
-			font-size: 40px;
+			font-size: 44px;
 			justify-content: center;
 		}
 		.trmnl .panelTime {
-			font-size: 22px;
+			font-size: 26px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .panelDesc {
-			font-size: 14px;
+			font-size: 17px;
 		}
 		.trmnl .rows {
 			width: 100%;
@@ -208,23 +208,23 @@
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .rows td {
-			padding: 5px 0;
-			font-size: 15px;
+			padding: 4px 0;
+			font-size: 18px;
 			vertical-align: middle;
 		}
 		.trmnl .rowTime {
-			width: 80px;
+			width: 100px;
 			white-space: nowrap;
 			padding-right: 10px;
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .rowDate {
-			width: 120px;
+			width: 140px;
 			white-space: nowrap;
 			padding-right: 16px;
 		}
 		.trmnl .rowDuration {
-			width: 110px;
+			width: 130px;
 			white-space: nowrap;
 			text-align: right;
 			padding-left: 10px;
