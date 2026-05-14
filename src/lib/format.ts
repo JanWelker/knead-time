@@ -6,6 +6,7 @@ export function padZero(n: number): string {
 }
 
 const dayFormatters = new Map<Locale, Intl.DateTimeFormat>();
+const shortDateFormatters = new Map<Locale, Intl.DateTimeFormat>();
 const timeFormatters = new Map<Locale, Intl.DateTimeFormat>();
 const percentFormatters = new Map<Locale, Intl.NumberFormat>();
 
@@ -35,6 +36,22 @@ export function formatDateTime(date: Date, locale: Locale): string {
 		dayFormatters.set(locale, f);
 	}
 	return f.format(date);
+}
+
+// Compact weekday + date, no time, no commas. Used in the TRMNL schedule
+// strip where the time has its own column and the comma-separated form
+// ("Thu, May 14") reads cluttered next to it.
+export function formatShortDate(date: Date, locale: Locale): string {
+	let f = shortDateFormatters.get(locale);
+	if (!f) {
+		f = new Intl.DateTimeFormat(intlLocaleTag(locale), {
+			weekday: 'short',
+			day: 'numeric',
+			month: 'short'
+		});
+		shortDateFormatters.set(locale, f);
+	}
+	return f.format(date).replace(/,/g, '');
 }
 
 export function formatTime(date: Date, locale: Locale): string {

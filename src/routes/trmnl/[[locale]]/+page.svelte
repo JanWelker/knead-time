@@ -8,7 +8,13 @@
 	import { currentStepIndex } from '$lib/dough/scheduleStatus';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeight, formatDateTime, formatDuration, formatTime } from '$lib/format';
+	import {
+		formatBallWeight,
+		formatDateTime,
+		formatDuration,
+		formatShortDate,
+		formatTime
+	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
@@ -207,9 +213,21 @@
 			vertical-align: middle;
 		}
 		.trmnl .rowTime {
-			width: 200px;
+			width: 80px;
 			white-space: nowrap;
-			padding-right: 12px;
+			padding-right: 10px;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .rowDate {
+			width: 120px;
+			white-space: nowrap;
+			padding-right: 16px;
+		}
+		.trmnl .rowDuration {
+			width: 110px;
+			white-space: nowrap;
+			text-align: right;
+			padding-left: 10px;
 		}
 		.trmnl .rows tr.past td {
 			text-decoration: line-through;
@@ -276,8 +294,12 @@
 					class:current={i === idx && idx < schedule.steps.length - 1}
 					class:rowReady={step.kind === 'ready'}
 				>
-					<td class="rowTime">{formatDateTime(step.at, locale)}</td>
+					<td class="rowTime">{formatTime(step.at, locale)}</td>
+					<td class="rowDate">{formatShortDate(step.at, locale)}</td>
 					<td class="rowStep">{stepTitle(step, t)}</td>
+					<td class="rowDuration"
+						>{step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—'}</td
+					>
 				</tr>
 			{/each}
 		</tbody>
