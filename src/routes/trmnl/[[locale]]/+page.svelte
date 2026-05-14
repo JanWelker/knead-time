@@ -134,7 +134,6 @@
 			min-width: 0;
 		}
 		.trmnl .title {
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
 			font-size: 28px;
 			font-weight: 600;
 			letter-spacing: -0.01em;
@@ -154,7 +153,6 @@
 			letter-spacing: 0.08em;
 		}
 		.trmnl .readyTime {
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
 			font-size: 22px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
@@ -182,7 +180,6 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
 			font-size: 28px;
 			font-weight: 600;
 			gap: 12px;
@@ -192,7 +189,6 @@
 			justify-content: center;
 		}
 		.trmnl .panelTime {
-			font-family: 'Inter', sans-serif;
 			font-size: 22px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
