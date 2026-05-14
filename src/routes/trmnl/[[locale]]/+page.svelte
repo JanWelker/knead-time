@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
@@ -9,7 +10,21 @@
 	import { decodeInputs } from '$lib/dough/urlState';
 	import { formatBallWeight, formatDateTime, formatTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
+
+	// Locale comes from the URL path (/trmnl/<locale>). TRMNL's renderer
+	// doesn't run our JS so navigator.languages detection in the root layout
+	// never fires there — baking the locale into the prerendered HTML is the
+	// only way each language ships with localized labels. Falls back to 'en'
+	// when the path has no locale segment (legacy /trmnl URLs) or a junk one.
+	// The root layout's onMount skips navigator-language detection on this
+	// route (see src/routes/+layout.svelte) so this set sticks on the client.
+	function isLocale(s: unknown): s is Locale {
+		return typeof s === 'string' && (LOCALES as readonly string[]).includes(s);
+	}
+	const pageLocale: Locale = isLocale(page.params.locale) ? page.params.locale : 'en';
+	i18n.set(pageLocale);
 
 	const DEFAULT_INPUTS: DoughInputs = {
 		readyBy: new Date(Date.now() + 24 * 60 * 60 * 1000),
