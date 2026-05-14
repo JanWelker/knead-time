@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#c8401a" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+		<script>
+			(function () {
+				try {
+					var stored = localStorage.getItem('theme');
+					var dark =
+						stored === 'dark' ||
+						((stored === null || stored === 'system') &&
+							window.matchMedia('(prefers-color-scheme: dark)').matches);
+					if (dark) document.documentElement.classList.add('dark');
+				} catch (e) {}
+			})();
+		</script>
+		<link href="./_app/immutable/entry/start.DbnzrWdp.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DGdjmFD8.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/D4pxrxma.js" rel="modulepreload">
+		<link href="./_app/immutable/entry/app.DciZHVek.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DEDqjojZ.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/0.CPyjMb7w.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DgT9lNEt.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DkWjfICr.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/BEYeey8D.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/2.CRq1RttN.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/eNCYumXV.js" rel="modulepreload">
+		
+		<link href="./_app/immutable/assets/0.BYwkUiFA.css" rel="stylesheet">
+	</head>
+	<body
+		data-sveltekit-preload-data="hover"
+		class="bg-dough-50 min-h-screen text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100"
+	>
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_1fj3o64 = {
+						base: new URL(".", location).pathname.slice(0, -1),
+						assets: "/knead-time/pr-preview/pr-56"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("./_app/immutable/entry/start.DbnzrWdp.js"),
+						import("./_app/immutable/entry/app.DciZHVek.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
