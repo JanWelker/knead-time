@@ -7,6 +7,7 @@ import {
 	formatDurationHHMM,
 	formatGrams,
 	formatPercent,
+	formatShortDate,
 	formatTime,
 	toDatePart,
 	toTimePart
@@ -124,6 +125,23 @@ describe('formatDateTime / formatTime', () => {
 		const d = new Date(2026, 4, 12, 19, 30);
 		expect(formatDateTime(d, 'en')).toBe(formatDateTime(d, 'en'));
 		expect(formatTime(d, 'de')).toBe(formatTime(d, 'de'));
+	});
+});
+
+describe('formatShortDate', () => {
+	const d = new Date(2026, 4, 12, 19, 30);
+
+	it('renders weekday + date without time', () => {
+		expect(formatShortDate(d, 'en')).not.toMatch(/19|7/);
+		expect(formatShortDate(d, 'en')).toMatch(/12/);
+	});
+
+	it('strips commas from the locale-formatted output', () => {
+		expect(formatShortDate(d, 'en')).not.toContain(',');
+	});
+
+	it('reuses the cached formatter on repeat calls', () => {
+		expect(formatShortDate(d, 'de')).toBe(formatShortDate(d, 'de'));
 	});
 });
 

@@ -57,8 +57,13 @@
 			: ''
 	);
 
+	// Locale lives in the URL path so the prerendered HTML for that route
+	// ships with localized labels — TRMNL's renderer doesn't run our JS to
+	// re-render after navigator.languages detection.
 	const trmnlUrl = $derived(
-		browser ? `${window.location.origin}${base}/trmnl?${encodeInputs(form.serializable())}` : ''
+		browser
+			? `${window.location.origin}${base}/trmnl/${locale}?${encodeInputs(form.serializable())}`
+			: ''
 	);
 
 	const yeastLabel = $derived(

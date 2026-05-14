@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
@@ -7,9 +8,29 @@
 	import { currentStepIndex } from '$lib/dough/scheduleStatus';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeight, formatDateTime, formatTime } from '$lib/format';
+	import {
+		formatBallWeight,
+		formatDateTime,
+		formatDuration,
+		formatShortDate,
+		formatTime
+	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
+
+	// Locale comes from the URL path (/trmnl/<locale>). TRMNL's renderer
+	// doesn't run our JS so navigator.languages detection in the root layout
+	// never fires there — baking the locale into the prerendered HTML is the
+	// only way each language ships with localized labels. Falls back to 'en'
+	// when the path has no locale segment (legacy /trmnl URLs) or a junk one.
+	// The root layout's onMount skips navigator-language detection on this
+	// route (see src/routes/+layout.svelte) so this set sticks on the client.
+	function isLocale(s: unknown): s is Locale {
+		return typeof s === 'string' && (LOCALES as readonly string[]).includes(s);
+	}
+	const pageLocale: Locale = isLocale(page.params.locale) ? page.params.locale : 'en';
+	i18n.set(pageLocale);
 
 	const DEFAULT_INPUTS: DoughInputs = {
 		readyBy: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -61,10 +82,6 @@
 		return { step: steps[0], label: t.trmnl.next, isDone: false };
 	});
 
-	const nextAfterCurrent = $derived(
-		idx >= 0 && idx < schedule.steps.length - 1 ? schedule.steps[idx + 1] : null
-	);
-
 	const yeastLabel = $derived(
 		inputs.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
 	);
@@ -104,19 +121,17 @@
 				system-ui,
 				-apple-system,
 				sans-serif;
-			font-size: 13px;
+			font-size: 19px;
 			line-height: 1.3;
 			display: flex;
 			flex-direction: column;
-			gap: 10px;
+			gap: 8px;
 		}
 		.trmnl .head {
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
 			gap: 16px;
-			border-bottom: 1px solid #000;
-			padding-bottom: 6px;
 		}
 		.trmnl .brand {
 			display: flex;
@@ -125,30 +140,34 @@
 			min-width: 0;
 		}
 		.trmnl .title {
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-			font-size: 20px;
+			font-size: 32px;
 			font-weight: 600;
 			letter-spacing: -0.01em;
 		}
 		.trmnl .summary {
-			font-size: 11px;
+			font-size: 15px;
 		}
 		.trmnl .ready {
 			display: flex;
 			flex-direction: column;
 			align-items: flex-end;
 			text-align: right;
+			/* Don't let the flex layout squeeze the readyTime narrower than its
+			   content — a long recipe summary on the left would otherwise force
+			   "Fri May 15 02:09 PM" to wrap into two lines. */
+			flex-shrink: 0;
 		}
 		.trmnl .readyLabel {
-			font-size: 10px;
+			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.08em;
+			white-space: nowrap;
 		}
 		.trmnl .readyTime {
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-			font-size: 18px;
+			font-size: 26px;
 			font-weight: 600;
 			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
 		}
 		.trmnl .panel {
 			border: 2px solid #000;
@@ -165,7 +184,7 @@
 			padding: 18px 14px;
 		}
 		.trmnl .panelLabel {
-			font-size: 10px;
+			font-size: 13px;
 			text-transform: uppercase;
 			letter-spacing: 0.1em;
 		}
@@ -173,30 +192,21 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: baseline;
-			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-			font-size: 22px;
+			font-size: 32px;
 			font-weight: 600;
 			gap: 12px;
 		}
 		.trmnl .panel.done .panelTitle {
-			font-size: 36px;
+			font-size: 44px;
 			justify-content: center;
 		}
 		.trmnl .panelTime {
-			font-family: 'Inter', sans-serif;
-			font-size: 18px;
+			font-size: 26px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .panelDesc {
-			font-size: 12px;
-		}
-		.trmnl .panelNext {
-			font-size: 11px;
-			font-style: italic;
-			border-top: 1px dotted #000;
-			padding-top: 4px;
-			margin-top: 2px;
+			font-size: 17px;
 		}
 		.trmnl .rows {
 			width: 100%;
@@ -204,18 +214,26 @@
 			font-variant-numeric: tabular-nums;
 		}
 		.trmnl .rows td {
-			padding: 3px 0;
-			border-bottom: 1px solid #ddd;
-			font-size: 12px;
+			padding: 4px 0;
+			font-size: 18px;
 			vertical-align: middle;
 		}
-		.trmnl .rows tr:last-child td {
-			border-bottom: 0;
-		}
 		.trmnl .rowTime {
-			width: 170px;
+			width: 100px;
 			white-space: nowrap;
-			padding-right: 12px;
+			padding-right: 10px;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .rowDate {
+			width: 140px;
+			white-space: nowrap;
+			padding-right: 16px;
+		}
+		.trmnl .rowDuration {
+			width: 130px;
+			white-space: nowrap;
+			text-align: right;
+			padding-left: 10px;
 		}
 		.trmnl .rows tr.past td {
 			text-decoration: line-through;
@@ -228,7 +246,7 @@
 			padding-left: 6px;
 			padding-right: 6px;
 		}
-		.trmnl .rows tr.ready td {
+		.trmnl .rows tr.rowReady td {
 			font-weight: 700;
 		}
 	</style>
@@ -245,7 +263,11 @@
 		</div>
 		<div class="ready">
 			<span class="readyLabel">{t.form.readyBy}</span>
-			<span class="readyTime">{formatDateTime(inputs.readyBy, locale)}</span>
+			<!-- Locale-formatted dates like "Fri, May 15, 02:17 PM" pack two commas
+			     into the headline slot — at the readyTime size that reads cluttered.
+			     Strip them; falls through cleanly for locales that don't use commas
+			     in their long-date format. -->
+			<span class="readyTime">{formatDateTime(inputs.readyBy, locale).replace(/,/g, '')}</span>
 		</div>
 	</header>
 
@@ -257,15 +279,15 @@
 			{:else}
 				<div class="panelTitle">
 					<span>{stepTitle(featured.step, t)}</span>
-					<span class="panelTime">{formatTime(featured.step.at, locale)}</span>
+					<span class="panelTime">
+						{formatTime(featured.step.at, locale)} - {formatTime(
+							new Date(featured.step.at.getTime() + featured.step.durationMinutes * 60_000),
+							locale
+						)}
+						({formatDuration(featured.step.durationMinutes, locale)})
+					</span>
 				</div>
 				<div class="panelDesc">{stepDescription(featured.step, t, schedule)}</div>
-				{#if nextAfterCurrent}
-					<div class="panelNext">
-						{t.trmnl.next}: {stepTitle(nextAfterCurrent, t)} ·
-						{formatTime(nextAfterCurrent.at, locale)}
-					</div>
-				{/if}
 			{/if}
 		</section>
 	{/if}
@@ -276,10 +298,14 @@
 				<tr
 					class:past={i < idx}
 					class:current={i === idx && idx < schedule.steps.length - 1}
-					class:ready={step.kind === 'ready'}
+					class:rowReady={step.kind === 'ready'}
 				>
-					<td class="rowTime">{formatDateTime(step.at, locale)}</td>
+					<td class="rowTime">{formatTime(step.at, locale)}</td>
+					<td class="rowDate">{formatShortDate(step.at, locale)}</td>
 					<td class="rowStep">{stepTitle(step, t)}</td>
+					<td class="rowDuration"
+						>{step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—'}</td
+					>
 				</tr>
 			{/each}
 		</tbody>
