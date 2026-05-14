@@ -76,10 +76,6 @@
 		return { step: steps[0], label: t.trmnl.next, isDone: false };
 	});
 
-	const nextAfterCurrent = $derived(
-		idx >= 0 && idx < schedule.steps.length - 1 ? schedule.steps[idx + 1] : null
-	);
-
 	const yeastLabel = $derived(
 		inputs.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
 	);
@@ -206,13 +202,6 @@
 		.trmnl .panelDesc {
 			font-size: 14px;
 		}
-		.trmnl .panelNext {
-			font-size: 13px;
-			font-style: italic;
-			border-top: 1px dotted #000;
-			padding-top: 4px;
-			margin-top: 2px;
-		}
 		.trmnl .rows {
 			width: 100%;
 			border-collapse: collapse;
@@ -256,7 +245,11 @@
 		</div>
 		<div class="ready">
 			<span class="readyLabel">{t.form.readyBy}</span>
-			<span class="readyTime">{formatDateTime(inputs.readyBy, locale)}</span>
+			<!-- Locale-formatted dates like "Fri, May 15, 02:17 PM" pack two commas
+			     into the headline slot — at the readyTime size that reads cluttered.
+			     Strip them; falls through cleanly for locales that don't use commas
+			     in their long-date format. -->
+			<span class="readyTime">{formatDateTime(inputs.readyBy, locale).replace(/,/g, '')}</span>
 		</div>
 	</header>
 
@@ -271,12 +264,6 @@
 					<span class="panelTime">{formatTime(featured.step.at, locale)}</span>
 				</div>
 				<div class="panelDesc">{stepDescription(featured.step, t, schedule)}</div>
-				{#if nextAfterCurrent}
-					<div class="panelNext">
-						{t.trmnl.next}: {stepTitle(nextAfterCurrent, t)} ·
-						{formatTime(nextAfterCurrent.at, locale)}
-					</div>
-				{/if}
 			{/if}
 		</section>
 	{/if}
