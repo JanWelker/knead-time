@@ -80,11 +80,156 @@
 
 <svelte:head>
 	<title>{t.app.title} — TRMNL</title>
+	<!-- All styles live here (not in the component's <style> block) so they
+	     ship inline in the SSR'd HTML. TRMNL's renderer doesn't reliably load
+	     external stylesheets — a screenshot of the route showed correct DOM
+	     but no scoped CSS applied. Inline survives that. -->
 	<style>
 		html,
 		body {
 			background: #ffffff !important;
 			color: #000000 !important;
+		}
+		.trmnl {
+			width: 800px;
+			height: 480px;
+			margin: 0 auto;
+			padding: 16px 20px;
+			box-sizing: border-box;
+			background: #ffffff;
+			color: #000000;
+			font-family:
+				'Inter',
+				ui-sans-serif,
+				system-ui,
+				-apple-system,
+				sans-serif;
+			font-size: 13px;
+			line-height: 1.3;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+		.trmnl .head {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			gap: 16px;
+			border-bottom: 1px solid #000;
+			padding-bottom: 6px;
+		}
+		.trmnl .brand {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+			min-width: 0;
+		}
+		.trmnl .title {
+			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+			font-size: 20px;
+			font-weight: 600;
+			letter-spacing: -0.01em;
+		}
+		.trmnl .summary {
+			font-size: 11px;
+		}
+		.trmnl .ready {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-end;
+			text-align: right;
+		}
+		.trmnl .readyLabel {
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+		}
+		.trmnl .readyTime {
+			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+			font-size: 18px;
+			font-weight: 600;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .panel {
+			border: 2px solid #000;
+			padding: 10px 14px;
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+		.trmnl .panel.done {
+			border-width: 3px;
+			text-align: center;
+			justify-content: center;
+			align-items: center;
+			padding: 18px 14px;
+		}
+		.trmnl .panelLabel {
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+		}
+		.trmnl .panelTitle {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+			font-size: 22px;
+			font-weight: 600;
+			gap: 12px;
+		}
+		.trmnl .panel.done .panelTitle {
+			font-size: 36px;
+			justify-content: center;
+		}
+		.trmnl .panelTime {
+			font-family: 'Inter', sans-serif;
+			font-size: 18px;
+			font-weight: 500;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .panelDesc {
+			font-size: 12px;
+		}
+		.trmnl .panelNext {
+			font-size: 11px;
+			font-style: italic;
+			border-top: 1px dotted #000;
+			padding-top: 4px;
+			margin-top: 2px;
+		}
+		.trmnl .rows {
+			width: 100%;
+			border-collapse: collapse;
+			font-variant-numeric: tabular-nums;
+		}
+		.trmnl .rows td {
+			padding: 3px 0;
+			border-bottom: 1px solid #ddd;
+			font-size: 12px;
+			vertical-align: middle;
+		}
+		.trmnl .rows tr:last-child td {
+			border-bottom: 0;
+		}
+		.trmnl .rowTime {
+			width: 170px;
+			white-space: nowrap;
+			padding-right: 12px;
+		}
+		.trmnl .rows tr.past td {
+			text-decoration: line-through;
+			color: #666;
+		}
+		.trmnl .rows tr.current td {
+			font-weight: 700;
+			background: #000;
+			color: #fff;
+			padding-left: 6px;
+			padding-right: 6px;
+		}
+		.trmnl .rows tr.ready td {
+			font-weight: 700;
 		}
 	</style>
 </svelte:head>
@@ -140,172 +285,3 @@
 		</tbody>
 	</table>
 </div>
-
-<style>
-	/* The view is sized for TRMNL's 800 × 480 e-ink display: pure black-on-white,
-	   no fills or gradients (browsers drop those on B&W print and e-ink panels
-	   can't render them). The fixed pixel box maps 1:1 to the device. */
-	.trmnl {
-		width: 800px;
-		height: 480px;
-		margin: 0 auto;
-		padding: 16px 20px;
-		box-sizing: border-box;
-		background: #ffffff;
-		color: #000000;
-		font-family:
-			'Inter',
-			ui-sans-serif,
-			system-ui,
-			-apple-system,
-			sans-serif;
-		font-size: 13px;
-		line-height: 1.3;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-
-	.head {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		gap: 16px;
-		border-bottom: 1px solid #000;
-		padding-bottom: 6px;
-	}
-
-	.brand {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		min-width: 0;
-	}
-
-	.title {
-		font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-		font-size: 20px;
-		font-weight: 600;
-		letter-spacing: -0.01em;
-	}
-
-	.summary {
-		font-size: 11px;
-	}
-
-	.ready {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-		text-align: right;
-	}
-
-	.readyLabel {
-		font-size: 10px;
-		text-transform: uppercase;
-		letter-spacing: 0.08em;
-	}
-
-	.readyTime {
-		font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-		font-size: 18px;
-		font-weight: 600;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.panel {
-		border: 2px solid #000;
-		padding: 10px 14px;
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-	}
-
-	.panel.done {
-		border-width: 3px;
-		text-align: center;
-		justify-content: center;
-		align-items: center;
-		padding: 18px 14px;
-	}
-
-	.panelLabel {
-		font-size: 10px;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-	}
-
-	.panelTitle {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		font-family: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
-		font-size: 22px;
-		font-weight: 600;
-		gap: 12px;
-	}
-
-	.panel.done .panelTitle {
-		font-size: 36px;
-		justify-content: center;
-	}
-
-	.panelTime {
-		font-family: 'Inter', sans-serif;
-		font-size: 18px;
-		font-weight: 500;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.panelDesc {
-		font-size: 12px;
-	}
-
-	.panelNext {
-		font-size: 11px;
-		font-style: italic;
-		border-top: 1px dotted #000;
-		padding-top: 4px;
-		margin-top: 2px;
-	}
-
-	.rows {
-		width: 100%;
-		border-collapse: collapse;
-		font-variant-numeric: tabular-nums;
-	}
-
-	.rows td {
-		padding: 3px 0;
-		border-bottom: 1px solid #ddd;
-		font-size: 12px;
-		vertical-align: middle;
-	}
-
-	.rows tr:last-child td {
-		border-bottom: 0;
-	}
-
-	.rowTime {
-		width: 170px;
-		white-space: nowrap;
-		padding-right: 12px;
-	}
-
-	.rows tr.past td {
-		text-decoration: line-through;
-		color: #666;
-	}
-
-	.rows tr.current td {
-		font-weight: 700;
-		background: #000;
-		color: #fff;
-		padding-left: 6px;
-		padding-right: 6px;
-	}
-
-	.rows tr.ready td {
-		font-weight: 700;
-	}
-</style>
