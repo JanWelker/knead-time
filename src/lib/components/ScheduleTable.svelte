@@ -22,9 +22,20 @@
 	}
 
 	function flagLabel(flag: StepQualityFlag): string {
-		if (flag === 'night') return t.quality.flag_night;
-		if (flag === 'clamped-short') return t.quality.flag_clamped_short;
-		return t.quality.flag_clamped_long;
+		switch (flag) {
+			case 'night':
+				return t.quality.flag_night;
+			case 'cold-bulk-shifted':
+				return t.quality.flag_cold_bulk_shifted;
+			case 'cold-bulk-clamped-short':
+				return t.quality.flag_cold_bulk_clamped_short;
+			case 'cold-bulk-clamped-long':
+				return t.quality.flag_cold_bulk_clamped_long;
+			case 'preferment-clamped-short':
+				return t.quality.flag_preferment_clamped_short;
+			case 'preferment-clamped-long':
+				return t.quality.flag_preferment_clamped_long;
+		}
 	}
 
 	function flagTooltip(flags: StepQualityFlag[]): string {
@@ -47,7 +58,7 @@
 			{@const isReady = step.kind === 'ready'}
 			{@const active = isActiveStep(step.kind)}
 			{@const past = isPast(step)}
-			{@const flags = stepQualityFlags(step)}
+			{@const flags = stepQualityFlags(step, schedule)}
 			<tr
 				class="border-dough-200/70 border-b align-top last:border-0 dark:border-stone-700/70 {past
 					? 'text-stone-400 opacity-60 dark:text-stone-500 print:text-stone-900 print:opacity-100 dark:print:text-stone-900'

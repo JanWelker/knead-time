@@ -3,6 +3,7 @@ import {
 	idealMixWaterTempC,
 	prefermentDurationHours,
 	prefermentEquivHours,
+	prefermentRefHours,
 	TARGET_UNITS_FRESH,
 	TARGET_UNITS_SOURDOUGH,
 	temperatureFactor
@@ -141,11 +142,15 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 
 	let yeastPct: number;
 	let steps: ScheduleStep[];
+	let naturalColdBulkMin: number | null = null;
+	let desiredColdBulkMin: number | null = null;
 
 	if (mode === 'cold') {
 		const fixedMin = PREP_MIN + MIX_MIN + COLD_INITIAL_BULK_MIN + DIVIDE_MIN + COLD_FINAL_PROOF_MIN;
 		const desired = availableMin - fixedMin;
 		const naturalColdMin = Math.min(COLD_BULK_CEIL_MIN, Math.max(COLD_BULK_FLOOR_MIN, desired));
+		desiredColdBulkMin = desired;
+		naturalColdBulkMin = naturalColdMin;
 		const coldMin = adjustColdMinForNight(
 			inputs.readyBy,
 			naturalColdMin,
@@ -204,6 +209,13 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		preFermentHydration: preFerment?.type === 'biga' ? 50 : 100
 	});
 
+	// Unclamped pre-ferment duration the math wanted at this temperature — the
+	// "natural" value the [8, 24] h clamp may have pulled in. Quality scoring
+	// uses the gap between this and the actual duration.
+	const naturalPrefermentHours = preFerment
+		? prefermentRefHours(preFerment.type) / temperatureFactor(inputs.roomTempC)
+		: null;
+
 	return {
 		mode,
 		steps,
@@ -215,7 +227,10 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		warnings,
 		pizzaCount: inputs.pizzaCount,
 		ballWeight: inputs.ballWeight,
-		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC)
+		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC),
+		naturalColdBulkMin,
+		desiredColdBulkMin,
+		naturalPrefermentHours
 	};
 }
 

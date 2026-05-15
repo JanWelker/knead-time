@@ -66,6 +66,14 @@ export interface ComputedSchedule {
 	pizzaCount: number;
 	ballWeight: number;
 	idealWaterTempC: number;
+	// Pre-clamp / pre-shift values used by the recipe fit-score metric. A
+	// "perfect" schedule keeps the actual durations equal to these naturals;
+	// quality.ts deducts a percentage for each gap. Null when the field
+	// doesn't apply (cold-only fields in room mode, no-preferment field
+	// when no pre-ferment is set).
+	naturalColdBulkMin: number | null;
+	desiredColdBulkMin: number | null;
+	naturalPrefermentHours: number | null;
 }
 
 export type ScheduleWarning =
