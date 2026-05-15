@@ -8,24 +8,14 @@
 	import { currentStepIndex } from '$lib/dough/scheduleStatus';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs } from '$lib/dough/urlState';
-	import {
-		formatBallWeight,
-		formatDateTime,
-		formatDuration,
-		formatShortDate,
-		formatTime
-	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
-	import { stepDescription, stepTitle } from '$lib/stepCopy';
+	import { buildTrmnlPayload, decodeTrmnlPayload } from '$lib/trmnl/payload';
 
 	// Locale comes from the URL path (/trmnl/<locale>). TRMNL's renderer
 	// doesn't run our JS so navigator.languages detection in the root layout
 	// never fires there — baking the locale into the prerendered HTML is the
-	// only way each language ships with localized labels. Falls back to 'en'
-	// when the path has no locale segment (legacy /trmnl URLs) or a junk one.
-	// The root layout's onMount skips navigator-language detection on this
-	// route (see src/routes/+layout.svelte) so this set sticks on the client.
+	// only way each language ships with localized labels.
 	function isLocale(s: unknown): s is Locale {
 		return typeof s === 'string' && (LOCALES as readonly string[]).includes(s);
 	}
@@ -46,57 +36,62 @@
 		preFerment: null
 	};
 
-	// Decode the URL synchronously on the client so the very first paint after
-	// hydration already shows the user's recipe — TRMNL's screenshot service
-	// has a 5 s budget, and waiting for onMount can land outside it. On the
-	// server (SSR at build time) `browser` is false, so the prerendered HTML
-	// ships with DEFAULT_INPUTS — that's the fallback TRMNL captures if JS
-	// never runs in its renderer.
-	let inputs: DoughInputs = $state(
-		browser ? { ...DEFAULT_INPUTS, ...decodeInputs(window.location.search) } : DEFAULT_INPUTS
-	);
-	// Use SvelteDate so re-assignment is reactive — TRMNL renders once but in a
-	// local browser this ticks so the highlight follows real time.
 	const now = new SvelteDate();
+	const t = $derived(i18n.t);
+
+	// Two URL formats are accepted on this route:
+	//   * `?p=<base64-payload>` (current) — pre-formatted display payload, used
+	//     by the inline-decoder script so TRMNL's renderer can patch the DOM
+	//     without running computeSchedule or Intl.
+	//   * `?v=…&p=…&b=…` (legacy) — encoded inputs in the v=N share schema; the
+	//     route falls back to computeSchedule on the client. TRMNL's renderer
+	//     can't reach this path so its screenshots of legacy URLs still show
+	//     defaults — re-copy the link from the main app to migrate.
+	const fromUrl = $derived.by(() => {
+		if (!browser) return null;
+		const params = new URLSearchParams(window.location.search);
+		const p = params.get('p');
+		// Heuristic: payload encoding base64 will be >40 chars; legacy `p=` was
+		// the pre-ferment field (e.g. `b30` for biga 30%). Treat short `p` as
+		// legacy so existing share-format URLs route to the input decoder.
+		if (p && p.length > 40) {
+			const decoded = decodeTrmnlPayload(p);
+			if (decoded) return { kind: 'payload', payload: decoded } as const;
+		}
+		const decoded = decodeInputs(window.location.search);
+		return { kind: 'inputs', inputs: { ...DEFAULT_INPUTS, ...decoded } } as const;
+	});
+
+	// SSR ships with DEFAULT_INPUTS. On the client we either accept the
+	// pre-built payload from `?p=` or recompute from decoded inputs.
+	const payload = $derived.by(() => {
+		if (fromUrl?.kind === 'payload') return fromUrl.payload;
+		const inputs = fromUrl?.kind === 'inputs' ? fromUrl.inputs : DEFAULT_INPUTS;
+		return buildTrmnlPayload(inputs, computeSchedule(inputs), t, pageLocale, now);
+	});
+
+	// Recompute the highlight from atIso so it tracks real time when rendered
+	// in a normal browser; in TRMNL's renderer the inline decoder does its own
+	// pass against `Date.now()` at capture time.
+	const idx = $derived(
+		currentStepIndex(
+			payload.steps.map((s) => ({
+				kind: s.isReady ? ('ready' as const) : ('mix' as const),
+				at: new Date(s.atIso),
+				durationMinutes: 0
+			})),
+			now
+		)
+	);
 
 	onMount(() => {
 		const tick = setInterval(() => now.setTime(Date.now()), 30_000);
 		return () => clearInterval(tick);
 	});
-
-	const schedule = $derived(computeSchedule(inputs));
-	const idx = $derived(currentStepIndex(schedule.steps, now));
-	const t = $derived(i18n.t);
-	const locale = $derived(i18n.locale);
-
-	// Decide what to feature in the big panel:
-	//   - past the bake → "done" message
-	//   - middle of the schedule → current step labelled "now"
-	//   - before the first step → first step labelled "next"
-	const featured = $derived.by(() => {
-		const steps = schedule.steps;
-		if (steps.length === 0) return null;
-		const last = steps.length - 1;
-		if (idx === last) return { step: steps[last], label: t.trmnl.done, isDone: true };
-		if (idx >= 0) return { step: steps[idx], label: t.trmnl.now, isDone: false };
-		return { step: steps[0], label: t.trmnl.next, isDone: false };
-	});
-
-	const yeastLabel = $derived(
-		inputs.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
-	);
-
-	const preFermentLabel = $derived(
-		inputs.preFerment?.type === 'biga'
-			? t.form.preFerment_biga
-			: inputs.preFerment?.type === 'poolish'
-				? t.form.preFerment_poolish
-				: null
-	);
 </script>
 
 <svelte:head>
-	<title>{t.app.title} — TRMNL</title>
+	<title>{payload.title} — TRMNL</title>
 	<!-- All styles live here (not in the component's <style> block) so they
 	     ship inline in the SSR'd HTML. TRMNL's renderer doesn't reliably load
 	     external stylesheets — a screenshot of the route showed correct DOM
@@ -152,9 +147,6 @@
 			flex-direction: column;
 			align-items: flex-end;
 			text-align: right;
-			/* Don't let the flex layout squeeze the readyTime narrower than its
-			   content — a long recipe summary on the left would otherwise force
-			   "Fri May 15 02:09 PM" to wrap into two lines. */
 			flex-shrink: 0;
 		}
 		.trmnl .readyLabel {
@@ -204,8 +196,6 @@
 			font-size: 22px;
 			font-weight: 500;
 			font-variant-numeric: tabular-nums;
-			/* "15:22 - 15:37 (15 Min)" must stay one line — wrapping after the
-			   opening paren reads as a layout glitch. */
 			white-space: nowrap;
 		}
 		.trmnl .panelDesc {
@@ -253,62 +243,141 @@
 			font-weight: 700;
 		}
 	</style>
+	<!-- Inline decoder. The screenshot renderer doesn't reach SvelteKit's
+	     hydration bundle, so the prerendered HTML ships with DEFAULT_INPUTS
+	     baked in. This script reads `?p=<base64>` synchronously on load and
+	     patches the data-bearing nodes by ID before the screenshot is taken.
+	     Self-contained: no imports, no external resources. -->
+	<script>
+		(function () {
+			try {
+				if (typeof location === 'undefined' || typeof document === 'undefined') return;
+				var m = location.search.match(/[?&]p=([^&]+)/);
+				if (!m) return;
+				var raw = decodeURIComponent(m[1]);
+				if (raw.length <= 40) return; // legacy `p=b30` etc. — let the bundle handle it
+				var bin = atob(raw);
+				var bytes = new Uint8Array(bin.length);
+				for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+				var json = new TextDecoder().decode(bytes);
+				var p = JSON.parse(json);
+				var set = function (id, text) {
+					var el = document.getElementById(id);
+					if (el && text !== undefined && text !== null) el.textContent = text;
+				};
+				set('trmnl-title', p.title);
+				set('trmnl-summary', p.summary);
+				set('trmnl-ready-label', p.readyLabel);
+				set('trmnl-ready-time', p.readyTime);
+				var panel = document.getElementById('trmnl-panel');
+				if (panel) {
+					if (!p.featured) {
+						panel.style.display = 'none';
+					} else {
+						set('trmnl-featured-label', p.featured.label);
+						set('trmnl-featured-title', p.featured.title);
+						var time = document.getElementById('trmnl-featured-time');
+						var desc = document.getElementById('trmnl-featured-desc');
+						if (p.featured.isDone) {
+							panel.className = 'panel done';
+							if (time) time.style.display = 'none';
+							if (desc) desc.style.display = 'none';
+						} else {
+							panel.className = 'panel';
+							if (time) {
+								time.style.display = '';
+								time.textContent = p.featured.timeRange;
+							}
+							if (desc) {
+								desc.style.display = '';
+								desc.textContent = p.featured.description;
+							}
+						}
+					}
+				}
+				var tbody = document.getElementById('trmnl-rows');
+				if (tbody && p.steps) {
+					var nowMs = Date.now();
+					var lastIdx = -1;
+					for (var j = 0; j < p.steps.length; j++) {
+						if (new Date(p.steps[j].atIso).getTime() <= nowMs) lastIdx = j;
+						else break;
+					}
+					var html = '';
+					for (var k = 0; k < p.steps.length; k++) {
+						var s = p.steps[k];
+						var cls =
+							(k < lastIdx ? 'past' : '') +
+							(k === lastIdx && lastIdx < p.steps.length - 1 ? ' current' : '') +
+							(s.isReady ? ' rowReady' : '');
+						html +=
+							'<tr class="' +
+							cls.trim() +
+							'">' +
+							'<td class="rowTime">' +
+							s.time +
+							'</td>' +
+							'<td class="rowDate">' +
+							s.date +
+							'</td>' +
+							'<td class="rowStep">' +
+							s.title +
+							'</td>' +
+							'<td class="rowDuration">' +
+							s.duration +
+							'</td>' +
+							'</tr>';
+					}
+					tbody.innerHTML = html;
+				}
+			} catch (e) {
+				// Best-effort — leave the prerendered defaults in place if anything fails.
+			}
+		})();
+	</script>
 </svelte:head>
 
 <div class="trmnl">
 	<header class="head">
 		<div class="brand">
-			<span class="title">{t.app.title}</span>
-			<span class="summary">
-				{inputs.pizzaCount} × {formatBallWeight(inputs.ballWeight)} g · {inputs.hydration}% · {yeastLabel}{#if preFermentLabel}
-					· {preFermentLabel}{/if} · {schedule.mode === 'cold' ? t.mode.cold : t.mode.room}
-			</span>
+			<span class="title" id="trmnl-title">{payload.title}</span>
+			<span class="summary" id="trmnl-summary">{payload.summary}</span>
 		</div>
 		<div class="ready">
-			<span class="readyLabel">{t.form.readyBy}</span>
-			<!-- Locale-formatted dates like "Fri, May 15, 02:17 PM" pack two commas
-			     into the headline slot — at the readyTime size that reads cluttered.
-			     Strip them; falls through cleanly for locales that don't use commas
-			     in their long-date format. -->
-			<span class="readyTime">{formatDateTime(inputs.readyBy, locale).replace(/,/g, '')}</span>
+			<span class="readyLabel" id="trmnl-ready-label">{payload.readyLabel}</span>
+			<span class="readyTime" id="trmnl-ready-time">{payload.readyTime}</span>
 		</div>
 	</header>
 
-	{#if featured}
-		<section class="panel" class:done={featured.isDone}>
-			<div class="panelLabel">{featured.label}</div>
-			{#if featured.isDone}
-				<div class="panelTitle">{stepTitle(featured.step, t)}</div>
+	{#if payload.featured}
+		<section class="panel" class:done={payload.featured.isDone} id="trmnl-panel">
+			<div class="panelLabel" id="trmnl-featured-label">{payload.featured.label}</div>
+			{#if payload.featured.isDone}
+				<div class="panelTitle">
+					<span id="trmnl-featured-title">{payload.featured.title}</span>
+				</div>
 			{:else}
 				<div class="panelTitle">
-					<span>{stepTitle(featured.step, t)}</span>
-					<span class="panelTime">
-						{formatTime(featured.step.at, locale)} - {formatTime(
-							new Date(featured.step.at.getTime() + featured.step.durationMinutes * 60_000),
-							locale
-						)}
-						({formatDuration(featured.step.durationMinutes, locale)})
-					</span>
+					<span id="trmnl-featured-title">{payload.featured.title}</span>
+					<span class="panelTime" id="trmnl-featured-time">{payload.featured.timeRange}</span>
 				</div>
-				<div class="panelDesc">{stepDescription(featured.step, t, schedule)}</div>
+				<div class="panelDesc" id="trmnl-featured-desc">{payload.featured.description}</div>
 			{/if}
 		</section>
 	{/if}
 
 	<table class="rows">
-		<tbody>
-			{#each schedule.steps as step, i (step.kind + '-' + step.at.getTime())}
+		<tbody id="trmnl-rows">
+			{#each payload.steps as step, i (step.atIso + '-' + step.title)}
 				<tr
 					class:past={i < idx}
-					class:current={i === idx && idx < schedule.steps.length - 1}
-					class:rowReady={step.kind === 'ready'}
+					class:current={i === idx && idx < payload.steps.length - 1}
+					class:rowReady={step.isReady}
 				>
-					<td class="rowTime">{formatTime(step.at, locale)}</td>
-					<td class="rowDate">{formatShortDate(step.at, locale)}</td>
-					<td class="rowStep">{stepTitle(step, t)}</td>
-					<td class="rowDuration"
-						>{step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—'}</td
-					>
+					<td class="rowTime">{step.time}</td>
+					<td class="rowDate">{step.date}</td>
+					<td class="rowStep">{step.title}</td>
+					<td class="rowDuration">{step.duration}</td>
 				</tr>
 			{/each}
 		</tbody>
