@@ -41,7 +41,6 @@ export type ScheduleStepKind =
 	| 'bulk-room'
 	| 'bulk-cold'
 	| 'divide'
-	| 'warmup'
 	| 'final-proof'
 	| 'ready';
 

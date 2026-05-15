@@ -39,7 +39,7 @@ describe('currentStepIndex', () => {
 
 describe('isActiveStep', () => {
 	const active: ScheduleStepKind[] = ['preferment-mix', 'prep', 'mix', 'divide'];
-	const passive: ScheduleStepKind[] = ['bulk-room', 'bulk-cold', 'warmup', 'final-proof', 'ready'];
+	const passive: ScheduleStepKind[] = ['bulk-room', 'bulk-cold', 'final-proof', 'ready'];
 
 	it.each(active)('marks %s as active (baker action)', (kind) => {
 		expect(isActiveStep(kind)).toBe(true);

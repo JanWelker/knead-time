@@ -15,8 +15,7 @@ const NIGHT_AWARE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'mix',
 	'bulk-room',
 	'bulk-cold',
-	'divide',
-	'warmup'
+	'divide'
 ]);
 
 function inDayWindow(d: Date): boolean {
@@ -290,9 +289,9 @@ describe('computeSchedule — night-window avoidance', () => {
 		expect(last.at.getTime()).toBe(readyBy.getTime());
 	});
 
-	it('emits night-step warning when readyBy forces divide/warmup into the night', () => {
-		// readyBy at 11:00 → divide at 06:45, warmup at 07:00 — both post-cold
-		// steps are anchored to readyBy and cannot be moved by the adjuster.
+	it('emits night-step warning when readyBy forces divide into the night', () => {
+		// readyBy at 11:00 → final-proof at 07:00, divide at 06:45 — divide is
+		// anchored to readyBy via the merged 4 h final-proof and can't be moved.
 		const r = computeSchedule(
 			baseInputs({
 				startAt: new Date('2026-05-10T07:00:00Z'),

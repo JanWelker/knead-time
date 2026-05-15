@@ -21,8 +21,12 @@ export const PREP_MIN = 15;
 export const MIX_MIN = 15;
 export const DIVIDE_MIN = 15;
 export const COLD_INITIAL_BULK_MIN = 60;
-export const COLD_WARMUP_MIN = 180;
-export const COLD_FINAL_PROOF_MIN = 60;
+// In cold mode the balls come out of the fridge and sit on the counter through
+// warm-up + finish proof — from the baker's perspective one "balls resting"
+// phase, not two distinct ones. The 240 min equals the previous warmup (180)
+// + final-proof (60); the yeast equivalent-hours sum is unchanged because both
+// phases were at room temperature already.
+export const COLD_FINAL_PROOF_MIN = 240;
 export const COLD_BULK_FLOOR_MIN = 12 * 60;
 export const COLD_BULK_CEIL_MIN = 48 * 60;
 
@@ -36,25 +40,24 @@ export const NIGHT_START_HOUR = 22;
 export const NIGHT_END_HOUR = 8;
 
 // Sum of every fixed-duration step around the variable bulk-cold leg
-// (prep + mix + initial bulk-room + divide + warmup + final proof). Lets the
+// (prep + mix + initial bulk-room + divide + final proof). Lets the
 // night-window adjuster map a candidate coldMin back to a prepAt without
 // rebuilding the step list.
 const COLD_PRE_POST_OFFSET_MIN =
-	COLD_FINAL_PROOF_MIN + COLD_WARMUP_MIN + DIVIDE_MIN + COLD_INITIAL_BULK_MIN + MIX_MIN + PREP_MIN;
+	COLD_FINAL_PROOF_MIN + DIVIDE_MIN + COLD_INITIAL_BULK_MIN + MIX_MIN + PREP_MIN;
 
 // Steps that require the baker to be active. 'final-proof' is passive (balls
-// just sit on the counter after warmup) and 'ready' is the user-chosen bake
-// moment, so neither participates in night-window checks. The pre-ferment mix
-// is brief active work at the start of a multi-hour maturation block, so it
-// counts as a night-aware action even though the maturation itself is passive.
+// just sit on the counter) and 'ready' is the user-chosen bake moment, so
+// neither participates in night-window checks. The pre-ferment mix is brief
+// active work at the start of a multi-hour maturation block, so it counts as
+// a night-aware action even though the maturation itself is passive.
 const ACTIVE_NIGHT_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'preferment-mix',
 	'prep',
 	'mix',
 	'bulk-room',
 	'bulk-cold',
-	'divide',
-	'warmup'
+	'divide'
 ]);
 
 function isAtNight(d: Date): boolean {
@@ -140,13 +143,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	let steps: ScheduleStep[];
 
 	if (mode === 'cold') {
-		const fixedMin =
-			PREP_MIN +
-			MIX_MIN +
-			COLD_INITIAL_BULK_MIN +
-			DIVIDE_MIN +
-			COLD_WARMUP_MIN +
-			COLD_FINAL_PROOF_MIN;
+		const fixedMin = PREP_MIN + MIX_MIN + COLD_INITIAL_BULK_MIN + DIVIDE_MIN + COLD_FINAL_PROOF_MIN;
 		const desired = availableMin - fixedMin;
 		const naturalColdMin = Math.min(COLD_BULK_CEIL_MIN, Math.max(COLD_BULK_FLOOR_MIN, desired));
 		const coldMin = adjustColdMinForNight(
@@ -157,8 +154,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 
 		const equivalentHours =
 			prefermentEqHours +
-			((COLD_INITIAL_BULK_MIN + COLD_WARMUP_MIN + COLD_FINAL_PROOF_MIN) / 60) *
-				temperatureFactor(inputs.roomTempC) +
+			((COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60) * temperatureFactor(inputs.roomTempC) +
 			(coldMin / 60) * temperatureFactor(inputs.fridgeTempC);
 
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
@@ -190,8 +186,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	}
 
 	// Cold mode shifts coldMin to avoid the night window for the pre-cold
-	// cluster, but post-cold steps (divide/warmup) are anchored to readyBy and
-	// room mode has no slack — warn if anything still lands at night.
+	// cluster, but the post-cold divide is anchored to readyBy and room mode
+	// has no slack — warn if anything still lands at night.
 	if (steps.some((s) => ACTIVE_NIGHT_KINDS.has(s.kind) && isAtNight(s.at))) {
 		warnings.push('night-step');
 	}
@@ -244,8 +240,7 @@ interface ColdArgs {
 
 function buildColdSteps({ readyBy, coldMin, prefermentDurationMin }: ColdArgs): ScheduleStep[] {
 	const finalProofAt = subMin(readyBy, COLD_FINAL_PROOF_MIN);
-	const warmupAt = subMin(finalProofAt, COLD_WARMUP_MIN);
-	const divideAt = subMin(warmupAt, DIVIDE_MIN);
+	const divideAt = subMin(finalProofAt, DIVIDE_MIN);
 	const bulkColdAt = subMin(divideAt, coldMin);
 	const bulkRoomAt = subMin(bulkColdAt, COLD_INITIAL_BULK_MIN);
 	const mixAt = subMin(bulkRoomAt, MIX_MIN);
@@ -267,7 +262,6 @@ function buildColdSteps({ readyBy, coldMin, prefermentDurationMin }: ColdArgs): 
 	steps.push({ kind: 'bulk-room', at: bulkRoomAt, durationMinutes: COLD_INITIAL_BULK_MIN });
 	steps.push({ kind: 'bulk-cold', at: bulkColdAt, durationMinutes: coldMin });
 	steps.push({ kind: 'divide', at: divideAt, durationMinutes: DIVIDE_MIN });
-	steps.push({ kind: 'warmup', at: warmupAt, durationMinutes: COLD_WARMUP_MIN });
 	steps.push({ kind: 'final-proof', at: finalProofAt, durationMinutes: COLD_FINAL_PROOF_MIN });
 	steps.push({ kind: 'ready', at: readyBy, durationMinutes: 0 });
 	return steps;
