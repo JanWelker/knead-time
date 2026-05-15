@@ -11,7 +11,14 @@ the current recipe to your device.
 2. Set the **Strategy** to **Webhook** and pick whatever refresh cadence you like.
    The webhook URL TRMNL gives you ends in a UUID — that's the only thing
    Knead Time needs.
-3. Paste the markup template below into the plugin's **Markup** editor and save.
+3. Markup is split into separate fields per view size: **Full**, **Half Horizontal**, **Half Vertical**, **Quadrant**.
+   The device picks the field that matches the slot your plugin occupies.
+   Paste the template below into the **Full Markup** field. If you also
+   use half/quadrant slots, paste the same template into each — it'll be
+   cramped at smaller sizes, but it renders; iterate from there.
+   If the screen shows **"Full view not available"** even after sending a
+   recipe, the markup landed in the wrong field — it must be in **Full
+   Markup**, not in **Shared Markup** or one of the smaller-view tabs.
 
 ```liquid
 <div class="layout layout--col gap--medium">
@@ -83,6 +90,18 @@ the current recipe to your device.
 
 That's it. Your device picks the recipe up on its next refresh cycle. Every
 time the recipe changes, click **Send to TRMNL** again from the menu.
+
+## Troubleshooting
+
+- **Device shows "Full view not available"** — the **Full Markup** field
+  on the plugin is empty. The template above must go there, not into
+  Shared Markup or a half/quadrant tab.
+- **Webhook returns "Large payload received"** — your recipe exceeds the
+  free-tier 2 KB cap. The encoder targets ≤ 1.6 KB for a worst-case
+  cold-mode + biga recipe; if you're seeing this anyway, open an issue.
+- **Webhook returns "Private Plugin not found"** — the UUID is wrong.
+  Copy it again from `/api/custom_plugins/<uuid>` in the plugin's webhook
+  URL.
 
 ## Payload shape
 
