@@ -5,7 +5,6 @@
 
 	import { buildIcs } from '$lib/dough/ics';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
-	import { buildTrmnlPayload, encodeTrmnlPayload } from '$lib/trmnl/payload';
 	import Community from '$lib/components/Community.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
@@ -14,6 +13,7 @@
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
+	import TrmnlPush from '$lib/components/TrmnlPush.svelte';
 	import Warnings from '$lib/components/Warnings.svelte';
 	import { formatBallWeight, formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
@@ -38,7 +38,7 @@
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
 
-	let copied = $state<'share' | 'trmnl' | null>(null);
+	let copied = $state<'share' | null>(null);
 	let hydrated = $state(false);
 	let actionsRef: HTMLDetailsElement | null = $state(null);
 	let actionsOpen = $state(false);
@@ -63,17 +63,6 @@
 			? `${window.location.origin}${window.location.pathname}?${encodeInputs(form.serializable())}`
 			: ''
 	);
-
-	// Locale lives in the URL path so the prerendered HTML for that route
-	// ships with localized labels — TRMNL's renderer doesn't run our JS to
-	// re-render after navigator.languages detection. The `?p=<base64>` query
-	// carries a pre-formatted display payload; the route's inline-decoder
-	// script patches the DOM with it before TRMNL captures the screenshot.
-	const trmnlUrl = $derived.by(() => {
-		if (!browser) return '';
-		const payload = buildTrmnlPayload(form.serializable(), form.schedule, t, locale, new Date());
-		return `${window.location.origin}${base}/trmnl/${locale}?p=${encodeURIComponent(encodeTrmnlPayload(payload))}`;
-	});
 
 	const yeastLabel = $derived(
 		form.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
@@ -113,7 +102,7 @@
 		URL.revokeObjectURL(url);
 	}
 
-	async function copy(kind: 'share' | 'trmnl', url: string) {
+	async function copy(kind: 'share', url: string) {
 		try {
 			await navigator.clipboard.writeText(url);
 			copied = kind;
@@ -299,14 +288,12 @@
 								>
 									{copied === 'share' ? t.actions.copied : t.actions.share}
 								</button>
-								<button
-									type="button"
-									role="menuitem"
-									class={menuItemClass}
-									onclick={() => copy('trmnl', trmnlUrl)}
-								>
-									{copied === 'trmnl' ? t.actions.copied : t.actions.trmnl}
-								</button>
+								<TrmnlPush
+									inputs={form.serializable()}
+									schedule={form.schedule}
+									{locale}
+									triggerClass={menuItemClass}
+								/>
 							</div>
 						</details>
 					</div>

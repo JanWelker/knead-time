@@ -10,11 +10,11 @@
 	let { children } = $props();
 
 	onMount(() => {
-		// /trmnl/* and /print/* own their own locale (baked into the URL path
-		// so each language can be prerendered separately for the screenshot
-		// service or the print dialog). Auto-detecting from navigator.languages
-		// would clobber that — the URL is authoritative on these routes.
-		const ownsLocale = page.route.id?.startsWith('/trmnl') || page.route.id?.startsWith('/print');
+		// /print/* owns its own locale (baked into the URL path so each
+		// language can be prerendered separately for the print dialog).
+		// Auto-detecting from navigator.languages would clobber that — the
+		// URL is authoritative on that route.
+		const ownsLocale = page.route.id?.startsWith('/print');
 		if (!ownsLocale) {
 			// A persisted user choice wins over navigator detect so a full
 			// reload (e.g. via a community Open link) doesn't snap back.
