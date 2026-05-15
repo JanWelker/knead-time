@@ -5,6 +5,7 @@
 
 	import { buildIcs } from '$lib/dough/ics';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
+	import { buildTrmnlPayload, encodeTrmnlPayload } from '$lib/trmnl/payload';
 	import Community from '$lib/components/Community.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
@@ -65,12 +66,14 @@
 
 	// Locale lives in the URL path so the prerendered HTML for that route
 	// ships with localized labels — TRMNL's renderer doesn't run our JS to
-	// re-render after navigator.languages detection.
-	const trmnlUrl = $derived(
-		browser
-			? `${window.location.origin}${base}/trmnl/${locale}?${encodeInputs(form.serializable())}`
-			: ''
-	);
+	// re-render after navigator.languages detection. The `?p=<base64>` query
+	// carries a pre-formatted display payload; the route's inline-decoder
+	// script patches the DOM with it before TRMNL captures the screenshot.
+	const trmnlUrl = $derived.by(() => {
+		if (!browser) return '';
+		const payload = buildTrmnlPayload(form.serializable(), form.schedule, t, locale, new Date());
+		return `${window.location.origin}${base}/trmnl/${locale}?p=${encodeURIComponent(encodeTrmnlPayload(payload))}`;
+	});
 
 	const yeastLabel = $derived(
 		form.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
@@ -85,7 +88,13 @@
 	);
 
 	function printPage() {
-		window.print();
+		// Open the dedicated print route in a new tab. That route owns the
+		// print stylesheet, mounts a self-contained recipe summary, and
+		// auto-triggers window.print() — the user sees the system dialog
+		// directly without our chrome bleeding through.
+		const qs = encodeInputs(form.serializable());
+		const printUrl = `${base}/print/${locale}?${qs}`;
+		window.open(printUrl, '_blank');
 	}
 
 	function downloadIcs() {
