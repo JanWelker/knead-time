@@ -10,7 +10,6 @@ const TITLE: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'bulk-room': 'bulk_room',
 	'bulk-cold': 'bulk_cold',
 	divide: 'divide',
-	warmup: 'warmup',
 	'final-proof': 'final_proof',
 	ready: 'ready'
 };
@@ -22,7 +21,6 @@ const DESC: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'bulk-room': 'bulk_room_desc',
 	'bulk-cold': 'bulk_cold_desc',
 	divide: 'divide_desc',
-	warmup: 'warmup_desc',
 	'final-proof': 'final_proof_desc',
 	ready: 'ready_desc'
 };

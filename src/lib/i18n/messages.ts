@@ -88,8 +88,6 @@ export interface Messages {
 		bulk_cold_desc: string;
 		divide: string;
 		divide_desc: string;
-		warmup: string;
-		warmup_desc: string;
 		final_proof: string;
 		final_proof_desc: string;
 		ready: string;
@@ -105,6 +103,20 @@ export interface Messages {
 		duration_hours_minutes: string;
 		icon_active: string;
 		icon_passive: string;
+	};
+	quality: {
+		step_imperfect: string;
+		flag_night: string;
+		flag_clamped_short: string;
+		flag_clamped_long: string;
+		fit_heading: string;
+		fit_perfect: string;
+		fit_aria: string;
+		factor_night: string;
+		factor_clamp_preferment: string;
+		factor_clamp_bulk_cold: string;
+		factor_extreme_yeast: string;
+		factor_window: string;
 	};
 	ingredients: {
 		heading: string;
@@ -287,10 +299,8 @@ const en: Messages = {
 		bulk_cold_desc: 'Move the covered dough to the fridge. Long, slow fermentation.',
 		divide: 'Divide & ball',
 		divide_desc: 'Cut the dough into {n} equal balls of {weight} g each and shape them tight.',
-		warmup: 'Warm up balls',
-		warmup_desc: 'Leave the balls at room temperature so they finish proofing evenly.',
 		final_proof: 'Final proof',
-		final_proof_desc: 'Last rest before shaping. Balls should look puffy and relaxed.',
+		final_proof_desc: 'Let the balls rest at room temperature until they look puffy and relaxed.',
 		ready: 'Shape & bake',
 		ready_desc: 'Open each ball, top, and into the oven.'
 	},
@@ -304,6 +314,20 @@ const en: Messages = {
 		duration_hours_minutes: '{h} h {m} min',
 		icon_active: 'Active step',
 		icon_passive: 'Waiting step'
+	},
+	quality: {
+		step_imperfect: 'This step is outside the ideal range — see recipe fit.',
+		flag_night: 'Lands between 22:00 and 08:00.',
+		flag_clamped_short: 'Shorter than the typical duration for this phase.',
+		flag_clamped_long: 'Longer than the typical duration for this phase.',
+		fit_heading: 'Recipe fit',
+		fit_perfect: 'Every step lands in its ideal window.',
+		fit_aria: '{score} out of 5 stars',
+		factor_night: 'A baker step lands in the night window.',
+		factor_clamp_preferment: 'Pre-ferment duration is at the bounds.',
+		factor_clamp_bulk_cold: 'Cold bulk duration is at the bounds.',
+		factor_extreme_yeast: 'Yeast amount is outside the typical range.',
+		factor_window: 'Total fermentation is shorter than the typical range.'
 	},
 	ingredients: {
 		heading: 'Ingredients',
@@ -489,12 +513,9 @@ const de: Messages = {
 		divide: 'Portionieren',
 		divide_desc:
 			'Den Teig in {n} gleich große Teiglinge zu je {weight} g teilen und straff rundwirken.',
-		warmup: 'Teiglinge akklimatisieren',
-		warmup_desc:
-			'Teiglinge bei Raumtemperatur ausgleichen lassen, damit sie gleichmäßig nachgehen.',
 		final_proof: 'Stückgare',
 		final_proof_desc:
-			'Letzte Ruhe vor dem Formen. Die Teiglinge sollen aufgegangen und entspannt aussehen.',
+			'Teiglinge bei Raumtemperatur ruhen lassen, bis sie aufgegangen und entspannt aussehen.',
 		ready: 'Formen & backen',
 		ready_desc: 'Teigling öffnen, belegen, in den Ofen.'
 	},
@@ -508,6 +529,20 @@ const de: Messages = {
 		duration_hours_minutes: '{h} Std {m} Min',
 		icon_active: 'Aktiver Schritt',
 		icon_passive: 'Wartezeit'
+	},
+	quality: {
+		step_imperfect: 'Dieser Schritt liegt außerhalb des idealen Bereichs — siehe Rezeptbewertung.',
+		flag_night: 'Liegt zwischen 22:00 und 08:00 Uhr.',
+		flag_clamped_short: 'Kürzer als die typische Dauer für diese Phase.',
+		flag_clamped_long: 'Länger als die typische Dauer für diese Phase.',
+		fit_heading: 'Rezeptbewertung',
+		fit_perfect: 'Jeder Schritt liegt in seinem idealen Fenster.',
+		fit_aria: '{score} von 5 Sternen',
+		factor_night: 'Ein aktiver Schritt fällt in die Nacht.',
+		factor_clamp_preferment: 'Die Vorteigdauer liegt am Limit.',
+		factor_clamp_bulk_cold: 'Die Kühl-Reifezeit liegt am Limit.',
+		factor_extreme_yeast: 'Die Hefemenge liegt außerhalb des typischen Bereichs.',
+		factor_window: 'Die Gesamtgehzeit ist kürzer als üblich.'
 	},
 	ingredients: {
 		heading: 'Zutaten',
@@ -691,11 +726,9 @@ const it: Messages = {
 		bulk_cold_desc: "Spostare l'impasto coperto in frigorifero — lievitazione lunga e lenta.",
 		divide: 'Staglio',
 		divide_desc: "Dividere l'impasto in {n} panetti da {weight} g e pirlarli stretti.",
-		warmup: 'Acclimatare i panetti',
-		warmup_desc: 'Lasciare i panetti a temperatura ambiente per uniformare la lievitazione.',
 		final_proof: 'Appretto',
 		final_proof_desc:
-			'Ultimo riposo prima della stesura. I panetti devono essere gonfi e rilassati.',
+			'Lasciare riposare i panetti a temperatura ambiente finché non risultano gonfi e rilassati.',
 		ready: 'Stendere e infornare',
 		ready_desc: 'Aprire il panetto, condire, in forno.'
 	},
@@ -709,6 +742,20 @@ const it: Messages = {
 		duration_hours_minutes: '{h} h {m} min',
 		icon_active: 'Passo attivo',
 		icon_passive: 'Attesa'
+	},
+	quality: {
+		step_imperfect: 'Questo passo è fuori dal range ideale — vedi la valutazione della ricetta.',
+		flag_night: 'Si svolge tra le 22:00 e le 08:00.',
+		flag_clamped_short: 'Più breve della durata tipica per questa fase.',
+		flag_clamped_long: 'Più lunga della durata tipica per questa fase.',
+		fit_heading: 'Valutazione ricetta',
+		fit_perfect: 'Ogni passo rientra nel suo intervallo ideale.',
+		fit_aria: '{score} stelle su 5',
+		factor_night: 'Un passo attivo cade nella fascia notturna.',
+		factor_clamp_preferment: 'La durata del preimpasto è ai limiti.',
+		factor_clamp_bulk_cold: 'La durata della maturazione in frigo è ai limiti.',
+		factor_extreme_yeast: 'La quantità di lievito è fuori dal range tipico.',
+		factor_window: 'La lievitazione totale è più breve del consueto.'
 	},
 	ingredients: {
 		heading: 'Ingredienti',
@@ -895,12 +942,9 @@ const fr: Messages = {
 		bulk_cold_desc: 'Mettez la pâte couverte au frigo — fermentation longue et lente.',
 		divide: 'Diviser et bouler',
 		divide_desc: 'Coupez la pâte en {n} pâtons égaux de {weight} g chacun et boulez-les serrés.',
-		warmup: 'Tempérer les pâtons',
-		warmup_desc:
-			"Laissez les pâtons à température ambiante pour qu'ils finissent leur apprêt uniformément.",
 		final_proof: 'Apprêt',
 		final_proof_desc:
-			'Dernier repos avant le façonnage. Les pâtons doivent être gonflés et détendus.',
+			"Laissez les pâtons reposer à température ambiante jusqu'à ce qu'ils soient gonflés et détendus.",
 		ready: 'Façonner et enfourner',
 		ready_desc: 'Ouvrez chaque pâton, garnissez, au four.'
 	},
@@ -914,6 +958,20 @@ const fr: Messages = {
 		duration_hours_minutes: '{h} h {m} min',
 		icon_active: 'Étape active',
 		icon_passive: 'Attente'
+	},
+	quality: {
+		step_imperfect: 'Cette étape est hors de la plage idéale — voir la note de la recette.',
+		flag_night: 'A lieu entre 22h et 08h.',
+		flag_clamped_short: 'Plus courte que la durée typique pour cette phase.',
+		flag_clamped_long: 'Plus longue que la durée typique pour cette phase.',
+		fit_heading: 'Note de la recette',
+		fit_perfect: 'Chaque étape tombe dans sa fenêtre idéale.',
+		fit_aria: '{score} étoiles sur 5',
+		factor_night: 'Une étape active tombe la nuit.',
+		factor_clamp_preferment: 'La durée du pré-ferment est aux limites.',
+		factor_clamp_bulk_cold: 'La durée de pointage au frigo est aux limites.',
+		factor_extreme_yeast: 'La quantité de levure est hors du range typique.',
+		factor_window: 'La fermentation totale est plus courte que la normale.'
 	},
 	ingredients: {
 		heading: 'Ingrédients',
@@ -1099,11 +1157,9 @@ const nl: Messages = {
 		bulk_cold_desc: 'Zet het afgedekte deeg in de koelkast — lange, langzame rijs.',
 		divide: 'Verdelen en bollen',
 		divide_desc: 'Verdeel het deeg in {n} gelijke bolletjes van {weight} g en bol ze strak op.',
-		warmup: 'Bolletjes laten acclimatiseren',
-		warmup_desc: 'Laat de bolletjes op kamertemperatuur zodat ze gelijkmatig narijzen.',
 		final_proof: 'Narijs',
 		final_proof_desc:
-			'Laatste rust voor het uitrekken. De bolletjes horen luchtig en ontspannen te zijn.',
+			'Laat de bolletjes op kamertemperatuur rusten tot ze luchtig en ontspannen zijn.',
 		ready: 'Uitrekken en bakken',
 		ready_desc: 'Open elk bolletje, beleg het, en in de oven.'
 	},
@@ -1117,6 +1173,20 @@ const nl: Messages = {
 		duration_hours_minutes: '{h} u {m} min',
 		icon_active: 'Actieve stap',
 		icon_passive: 'Wachttijd'
+	},
+	quality: {
+		step_imperfect: 'Deze stap valt buiten het ideale bereik — zie receptbeoordeling.',
+		flag_night: 'Valt tussen 22:00 en 08:00.',
+		flag_clamped_short: 'Korter dan de gebruikelijke duur voor deze fase.',
+		flag_clamped_long: 'Langer dan de gebruikelijke duur voor deze fase.',
+		fit_heading: 'Receptbeoordeling',
+		fit_perfect: 'Elke stap valt binnen zijn ideale venster.',
+		fit_aria: '{score} van de 5 sterren',
+		factor_night: 'Een actieve stap valt in de nacht.',
+		factor_clamp_preferment: 'De duur van het voordeeg zit op de grens.',
+		factor_clamp_bulk_cold: 'De duur van de koelrijs zit op de grens.',
+		factor_extreme_yeast: 'De gistdosering valt buiten het gebruikelijke bereik.',
+		factor_window: 'De totale rijstijd is korter dan gebruikelijk.'
 	},
 	ingredients: {
 		heading: 'Ingrediënten',
@@ -1300,10 +1370,8 @@ const jam: Messages = {
 		bulk_cold_desc: 'Carry di cova dough go a fridge — long, slow rise.',
 		divide: 'Split an roll up',
 		divide_desc: 'Cut up di dough inna {n} same-size ball, {weight} g each, an roll dem up tight.',
-		warmup: 'Warm up di ball dem',
-		warmup_desc: 'Lef di ball dem a room temperature so dem finish rise even-even.',
 		final_proof: 'Las rise',
-		final_proof_desc: 'Las res before yu stretch dem. Di ball dem fi look puff up an relax.',
+		final_proof_desc: 'Mek di ball dem res a room temperature till dem puff up an relax.',
 		ready: 'Stretch an bake',
 		ready_desc: 'Open up each ball, dash on di topping dem, inna di oven.'
 	},
@@ -1317,6 +1385,20 @@ const jam: Messages = {
 		duration_hours_minutes: '{h} hr {m} min',
 		icon_active: 'Active step',
 		icon_passive: 'Waiting step'
+	},
+	quality: {
+		step_imperfect: 'Dis step outside di sweet spot — check di recipe fit.',
+		flag_night: 'Run between 22:00 an 08:00.',
+		flag_clamped_short: 'Shorter dan di usual time fi dis phase.',
+		flag_clamped_long: 'Longer dan di usual time fi dis phase.',
+		fit_heading: 'Recipe fit',
+		fit_perfect: 'Every step land inna its ideal window.',
+		fit_aria: '{score} outta 5 star',
+		factor_night: 'A baker step fall inna di night.',
+		factor_clamp_preferment: 'Befo-dough time deh pon di bounds.',
+		factor_clamp_bulk_cold: 'Fridge bulk time deh pon di bounds.',
+		factor_extreme_yeast: 'Ris-ting amount outta di usual range.',
+		factor_window: 'Total rise time shorter dan di usual.'
 	},
 	ingredients: {
 		heading: 'Tings dem',

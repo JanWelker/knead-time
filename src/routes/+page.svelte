@@ -6,6 +6,7 @@
 	import { buildIcs } from '$lib/dough/ics';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
 	import Community from '$lib/components/Community.svelte';
+	import FitScore from '$lib/components/FitScore.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
 	import InputForm from '$lib/components/InputForm.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
@@ -234,7 +235,10 @@
 						>
 							{t.schedule.heading}
 						</h2>
-						<div class="mt-2 print:hidden"><ModeBadge mode={form.schedule.mode} /></div>
+						<div class="mt-2 flex flex-wrap items-center gap-3 print:hidden">
+							<ModeBadge mode={form.schedule.mode} />
+							<FitScore schedule={form.schedule} />
+						</div>
 					</div>
 					<div class="relative print:hidden">
 						<details bind:this={actionsRef} bind:open={actionsOpen}>

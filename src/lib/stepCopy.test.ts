@@ -169,7 +169,7 @@ describe('stepDescription — preferment-mix weights', () => {
 
 describe('stepDescription — proofing steps omit duration (shown in column)', () => {
 	function descFor(
-		kind: 'bulk-room' | 'bulk-cold' | 'warmup' | 'final-proof',
+		kind: 'bulk-room' | 'bulk-cold' | 'final-proof',
 		startAt: Date,
 		readyBy: Date,
 		msgs = MESSAGES.en
@@ -196,10 +196,10 @@ describe('stepDescription — proofing steps omit duration (shown in column)', (
 		expect(desc).not.toMatch(/HH:MM/i);
 	});
 
-	it('bulk-cold, warmup and final-proof descriptions have no duration (cold mode)', () => {
+	it('bulk-cold and final-proof descriptions have no duration (cold mode)', () => {
 		const startAt = new Date('2026-05-11T07:00:00Z');
 		const readyBy = new Date('2026-05-12T19:00:00Z');
-		for (const kind of ['bulk-cold', 'warmup', 'final-proof'] as const) {
+		for (const kind of ['bulk-cold', 'final-proof'] as const) {
 			const { desc, minutes } = descFor(kind, startAt, readyBy);
 			expect(desc, `${kind} should not contain HH:MM`).not.toContain(hhmmOf(minutes));
 			expect(desc).not.toContain('{duration}');
