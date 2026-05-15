@@ -23,37 +23,35 @@ the current recipe to your device.
 ```liquid
 <style>
   .kt {
-    width: 800px;
-    height: 480px;
-    padding: 14px 18px;
+    width: 100%;
     box-sizing: border-box;
     background: #fff;
     color: #000;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    font-size: 18px;
+    font-size: 22px;
     line-height: 1.25;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
   }
-  .kt-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-  .kt-brand { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-  .kt-title { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
-  .kt-summary { font-size: 14px; margin: 0; }
+  .kt-head { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; }
+  .kt-brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+  .kt-title { font-size: 34px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+  .kt-summary { font-size: 18px; margin: 0; }
   .kt-ready { display: flex; flex-direction: column; align-items: flex-end; text-align: right; flex-shrink: 0; }
-  .kt-ready-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
-  .kt-ready-time { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .kt-ready-label { font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .kt-ready-time { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .kt-panel {
     border: 2px solid #000;
-    padding: 6px 12px;
+    padding: 8px 14px;
     display: flex;
     align-items: baseline;
-    gap: 12px;
+    gap: 14px;
   }
-  .kt-panel-done { border-width: 3px; justify-content: center; padding: 12px; }
-  .kt-panel-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
+  .kt-panel-done { border-width: 3px; justify-content: center; padding: 14px; }
+  .kt-panel-label { font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
   .kt-panel-title {
-    font-size: 20px;
+    font-size: 26px;
     font-weight: 700;
     margin: 0;
     flex: 1;
@@ -62,27 +60,30 @@ the current recipe to your device.
     white-space: nowrap;
   }
   .kt-panel-time {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     flex-shrink: 0;
   }
-  .kt-rows { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  .kt-rows td {
-    padding: 2px 0;
-    font-size: 15px;
-    vertical-align: middle;
-    border-bottom: 1px dotted #999;
+  .kt-list { display: flex; flex-direction: column; }
+  .kt-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 4px 0;
+    border-bottom: 1px dotted #aaa;
+    font-size: 20px;
+    font-variant-numeric: tabular-nums;
   }
-  .kt-rows tr:last-child td { border-bottom: none; }
-  .kt-rt { width: 56px; white-space: nowrap; padding-right: 8px; }
-  .kt-rd { width: 96px; white-space: nowrap; padding-right: 12px; }
-  .kt-rs { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .kt-rdur { width: 110px; white-space: nowrap; text-align: right; padding-left: 8px; }
-  .kt-rows tr.kt-past td { color: #888; }
-  .kt-rows tr.kt-current td { font-weight: 700; }
-  .kt-rows tr.kt-ready td { font-weight: 700; }
+  .kt-row:last-child { border-bottom: none; }
+  .kt-rt { width: 78px; flex-shrink: 0; white-space: nowrap; }
+  .kt-rd { width: 130px; flex-shrink: 0; white-space: nowrap; }
+  .kt-rs { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kt-rdur { width: 150px; flex-shrink: 0; text-align: right; white-space: nowrap; }
+  .kt-past { color: #888; }
+  .kt-current { font-weight: 700; }
+  .kt-ready { font-weight: 700; }
 </style>
 <div class="kt">
   <div class="kt-head">
@@ -126,21 +127,21 @@ the current recipe to your device.
     </div>
   {%- endif -%}
 
-  <table class="kt-rows">
+  <div class="kt-list">
     {%- for step in st -%}
       {%- assign step_at = step.u | plus: 0 -%}
       {%- assign row_class = "" -%}
       {%- if step_at < now_unix and forloop.index0 < last_index -%}{%- assign row_class = "kt-past" -%}{%- endif -%}
       {%- if forloop.index0 == current_index and current_index < last_index -%}{%- assign row_class = "kt-current" -%}{%- endif -%}
       {%- if step.r -%}{%- assign row_class = "kt-ready" -%}{%- endif -%}
-      <tr class="{{ row_class }}">
-        <td class="kt-rt">{{ step.tm }}</td>
-        <td class="kt-rd">{{ step.dt }}</td>
-        <td class="kt-rs">{{ step.t }}</td>
-        <td class="kt-rdur">{{ step.dr }}</td>
-      </tr>
+      <div class="kt-row {{ row_class }}">
+        <div class="kt-rt">{{ step.tm }}</div>
+        <div class="kt-rd">{{ step.dt }}</div>
+        <div class="kt-rs">{{ step.t }}</div>
+        <div class="kt-rdur">{{ step.dr }}</div>
+      </div>
     {%- endfor -%}
-  </table>
+  </div>
 </div>
 ```
 
