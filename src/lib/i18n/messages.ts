@@ -123,6 +123,7 @@ export interface Messages {
 		totals_heading: string;
 	};
 	actions: {
+		menu: string;
 		download_ics: string;
 		print: string;
 		share: string;
@@ -177,6 +178,7 @@ export interface Messages {
 		col_preFerment: string;
 		col_open: string;
 		open_link: string;
+		details_label: string;
 	};
 }
 
@@ -320,6 +322,7 @@ const en: Messages = {
 		totals_heading: 'Totals'
 	},
 	actions: {
+		menu: 'Actions',
 		download_ics: 'Download .ics',
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
@@ -375,7 +378,8 @@ const en: Messages = {
 		col_fridge: 'Fridge',
 		col_preFerment: 'Pre-ferment',
 		col_open: 'Recipe',
-		open_link: 'Open'
+		open_link: 'Open',
+		details_label: 'Details'
 	}
 };
 
@@ -522,6 +526,7 @@ const de: Messages = {
 		totals_heading: 'Gesamt'
 	},
 	actions: {
+		menu: 'Aktionen',
 		download_ics: '.ics herunterladen',
 		print: 'Drucken / als PDF',
 		share: 'Link kopieren',
@@ -577,7 +582,8 @@ const de: Messages = {
 		col_fridge: 'Kühlschrank',
 		col_preFerment: 'Vorteig',
 		col_open: 'Rezept',
-		open_link: 'Öffnen'
+		open_link: 'Öffnen',
+		details_label: 'Details'
 	}
 };
 
@@ -721,6 +727,7 @@ const it: Messages = {
 		totals_heading: 'Totale'
 	},
 	actions: {
+		menu: 'Azioni',
 		download_ics: 'Scarica .ics',
 		print: 'Stampa / Salva PDF',
 		share: 'Copia link',
@@ -769,7 +776,8 @@ const it: Messages = {
 		col_fridge: 'Frigo',
 		col_preFerment: 'Pre-impasto',
 		col_open: 'Ricetta',
-		open_link: 'Apri'
+		open_link: 'Apri',
+		details_label: 'Dettagli'
 	},
 	footer: {
 		about: 'Calcolatore per impasto di pizza napoletana ancorato al tempo.',
@@ -924,6 +932,7 @@ const fr: Messages = {
 		totals_heading: 'Total'
 	},
 	actions: {
+		menu: 'Actions',
 		download_ics: 'Télécharger .ics',
 		print: 'Imprimer / Enregistrer en PDF',
 		share: 'Copier le lien',
@@ -979,7 +988,8 @@ const fr: Messages = {
 		col_fridge: 'Frigo',
 		col_preFerment: 'Pré-ferment',
 		col_open: 'Recette',
-		open_link: 'Ouvrir'
+		open_link: 'Ouvrir',
+		details_label: 'Détails'
 	}
 };
 
@@ -1125,6 +1135,7 @@ const nl: Messages = {
 		totals_heading: 'Totaal'
 	},
 	actions: {
+		menu: 'Acties',
 		download_ics: '.ics downloaden',
 		print: 'Afdrukken / Opslaan als PDF',
 		share: 'Deellink kopiëren',
@@ -1180,7 +1191,8 @@ const nl: Messages = {
 		col_fridge: 'Koelkast',
 		col_preFerment: 'Voordeeg',
 		col_open: 'Recept',
-		open_link: 'Openen'
+		open_link: 'Openen',
+		details_label: 'Details'
 	}
 };
 
@@ -1323,6 +1335,7 @@ const jam: Messages = {
 		totals_heading: 'All add up'
 	},
 	actions: {
+		menu: 'Actions',
 		download_ics: 'Download .ics',
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
@@ -1378,7 +1391,8 @@ const jam: Messages = {
 		col_fridge: 'Fridge',
 		col_preFerment: 'Befo-dough',
 		col_open: 'Recipe',
-		open_link: 'Open'
+		open_link: 'Open',
+		details_label: 'Details'
 	}
 };
 
