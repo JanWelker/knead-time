@@ -84,7 +84,13 @@
 	);
 
 	function printPage() {
-		window.print();
+		// Open the dedicated print route in a new tab. That route owns the
+		// print stylesheet, mounts a self-contained recipe summary, and
+		// auto-triggers window.print() — the user sees the system dialog
+		// directly without our chrome bleeding through.
+		const qs = encodeInputs(form.serializable());
+		const printUrl = `${base}/print/${locale}?${qs}`;
+		window.open(printUrl, '_blank');
 	}
 
 	function downloadIcs() {
