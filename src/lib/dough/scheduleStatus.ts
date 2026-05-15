@@ -1,4 +1,4 @@
-import type { ScheduleStep } from './types';
+import type { ScheduleStep, ScheduleStepKind } from './types';
 
 // Index of the step the baker should be acting on at `now`: the latest step
 // whose `at` has already passed. Returns -1 when every step is still in the
@@ -12,4 +12,25 @@ export function currentStepIndex(steps: readonly ScheduleStep[], now: Date): num
 		else break;
 	}
 	return idx;
+}
+
+// Baker-action steps require the baker to *do* something (preferment-mix,
+// prep, mix, divide); passive steps are waiting/fermenting phases. `ready`
+// is neither — it's the end marker. The schedule.ts night-window guard
+// uses a wider notion of "anchored to wall-clock"; this is specifically
+// for UI affordances that flag "is the baker on the clock here?".
+export function isActiveStep(kind: ScheduleStepKind): boolean {
+	switch (kind) {
+		case 'preferment-mix':
+		case 'prep':
+		case 'mix':
+		case 'divide':
+			return true;
+		case 'bulk-room':
+		case 'bulk-cold':
+		case 'warmup':
+		case 'final-proof':
+		case 'ready':
+			return false;
+	}
 }

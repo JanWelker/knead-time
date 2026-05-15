@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { currentStepIndex } from './scheduleStatus';
-import type { ScheduleStep } from './types';
+import { currentStepIndex, isActiveStep } from './scheduleStatus';
+import type { ScheduleStep, ScheduleStepKind } from './types';
 
 function step(kind: ScheduleStep['kind'], iso: string, duration = 0): ScheduleStep {
 	return { kind, at: new Date(iso), durationMinutes: duration };
@@ -34,5 +34,18 @@ describe('currentStepIndex', () => {
 
 	it('returns -1 for an empty schedule', () => {
 		expect(currentStepIndex([], new Date('2026-05-14T10:00:00Z'))).toBe(-1);
+	});
+});
+
+describe('isActiveStep', () => {
+	const active: ScheduleStepKind[] = ['preferment-mix', 'prep', 'mix', 'divide'];
+	const passive: ScheduleStepKind[] = ['bulk-room', 'bulk-cold', 'warmup', 'final-proof', 'ready'];
+
+	it.each(active)('marks %s as active (baker action)', (kind) => {
+		expect(isActiveStep(kind)).toBe(true);
+	});
+
+	it.each(passive)('marks %s as passive (waiting / end marker)', (kind) => {
+		expect(isActiveStep(kind)).toBe(false);
 	});
 });
