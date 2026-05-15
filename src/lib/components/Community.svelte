@@ -53,7 +53,72 @@
 {#if entries.length === 0}
 	<p class="text-sm text-stone-500 dark:text-stone-400">{t.community.empty}</p>
 {:else}
-	<div class="overflow-x-auto">
+	<!-- Mobile: card list. The desktop table is wider than the viewport
+	     on phones and the Open action is at the far right behind a hidden
+	     horizontal scrollbar — most users never reach it. Cards put Open
+	     up front and tuck the rest under a disclosure. -->
+	<ul class="flex flex-col gap-3 md:hidden">
+		{#each entries as entry (entry.url)}
+			<li class="border-dough-200/70 rounded-lg border p-3 dark:border-stone-700/70">
+				<div class="flex items-baseline justify-between gap-3">
+					<span class="font-medium text-stone-800 dark:text-stone-100">
+						{#if entry.handle}
+							<a
+								href="https://github.com/{entry.handle}"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+							>
+								{entry.handle}
+							</a>
+						{:else}
+							{entry.name}
+						{/if}
+					</span>
+					<span class="text-xs whitespace-nowrap text-stone-500 dark:text-stone-400">
+						{formatDate(entry.date)}
+					</span>
+				</div>
+				<a
+					href={resolve('/') + entry.search}
+					rel="external"
+					class="bg-tomato-500 hover:bg-tomato-600 mt-3 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white"
+				>
+					{t.community.open_link}
+				</a>
+				<details class="mt-3 text-sm">
+					<summary
+						class="hover:text-tomato-600 dark:hover:text-tomato-300 cursor-pointer text-stone-500 dark:text-stone-400"
+					>
+						{t.community.details_label}
+					</summary>
+					<dl
+						class="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-stone-600 dark:text-stone-300"
+					>
+						<dt class="font-medium">{t.community.col_pizzas}</dt>
+						<dd class="tabular-nums">{num(entry.inputs.pizzaCount)}</dd>
+						<dt class="font-medium">{t.community.col_ball}</dt>
+						<dd class="tabular-nums">{num(entry.inputs.ballWeight, ' g')}</dd>
+						<dt class="font-medium">{t.community.col_hydration}</dt>
+						<dd class="tabular-nums">{num(entry.inputs.hydration, '%')}</dd>
+						<dt class="font-medium">{t.community.col_salt}</dt>
+						<dd class="tabular-nums">{num(entry.inputs.saltPercent, '%')}</dd>
+						<dt class="font-medium">{t.community.col_yeast}</dt>
+						<dd>{yeastLabel(entry)}</dd>
+						<dt class="font-medium">{t.community.col_temp}</dt>
+						<dd class="tabular-nums">{num(entry.inputs.roomTempC, '°C')}</dd>
+						<dt class="font-medium">{t.community.col_fridge}</dt>
+						<dd class="tabular-nums">{num(entry.inputs.fridgeTempC, '°C')}</dd>
+						<dt class="font-medium">{t.community.col_preFerment}</dt>
+						<dd>{preFermentLabel(entry)}</dd>
+					</dl>
+				</details>
+			</li>
+		{/each}
+	</ul>
+
+	<!-- Desktop: full table. -->
+	<div class="hidden overflow-x-auto md:block">
 		<table class="tabular w-full min-w-[640px] border-collapse text-left text-sm">
 			<thead>
 				<tr

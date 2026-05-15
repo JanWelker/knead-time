@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { detectLocale } from '$lib/i18n/messages';
+	import { loadStoredLocale } from '$lib/i18n/storedLocale';
 	import { theme } from '$lib/theme.svelte';
 	import { onMount } from 'svelte';
 
@@ -13,7 +14,10 @@
 		// language can be prerendered separately for TRMNL's renderer).
 		// Auto-detecting from navigator.languages would clobber that.
 		if (!page.route.id?.startsWith('/trmnl')) {
-			i18n.set(detectLocale(navigator.languages));
+			// A persisted user choice wins over navigator detect so a full
+			// reload (e.g. via a community Open link) doesn't snap back.
+			const stored = loadStoredLocale(localStorage);
+			i18n.set(stored ?? detectLocale(navigator.languages));
 		}
 		document.documentElement.lang = i18n.locale;
 		theme.init();

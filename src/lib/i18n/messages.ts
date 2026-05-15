@@ -176,6 +176,7 @@ export interface Messages {
 		col_preFerment: string;
 		col_open: string;
 		open_link: string;
+		details_label: string;
 	};
 }
 
@@ -373,7 +374,8 @@ const en: Messages = {
 		col_fridge: 'Fridge',
 		col_preFerment: 'Pre-ferment',
 		col_open: 'Recipe',
-		open_link: 'Open'
+		open_link: 'Open',
+		details_label: 'Details'
 	}
 };
 
@@ -574,7 +576,8 @@ const de: Messages = {
 		col_fridge: 'Kühlschrank',
 		col_preFerment: 'Vorteig',
 		col_open: 'Rezept',
-		open_link: 'Öffnen'
+		open_link: 'Öffnen',
+		details_label: 'Details'
 	}
 };
 
@@ -765,7 +768,8 @@ const it: Messages = {
 		col_fridge: 'Frigo',
 		col_preFerment: 'Pre-impasto',
 		col_open: 'Ricetta',
-		open_link: 'Apri'
+		open_link: 'Apri',
+		details_label: 'Dettagli'
 	},
 	footer: {
 		about: 'Calcolatore per impasto di pizza napoletana ancorato al tempo.',
@@ -974,7 +978,8 @@ const fr: Messages = {
 		col_fridge: 'Frigo',
 		col_preFerment: 'Pré-ferment',
 		col_open: 'Recette',
-		open_link: 'Ouvrir'
+		open_link: 'Ouvrir',
+		details_label: 'Détails'
 	}
 };
 
@@ -1174,7 +1179,8 @@ const nl: Messages = {
 		col_fridge: 'Koelkast',
 		col_preFerment: 'Voordeeg',
 		col_open: 'Recept',
-		open_link: 'Openen'
+		open_link: 'Openen',
+		details_label: 'Details'
 	}
 };
 
@@ -1371,7 +1377,8 @@ const jam: Messages = {
 		col_fridge: 'Fridge',
 		col_preFerment: 'Befo-dough',
 		col_open: 'Recipe',
-		open_link: 'Open'
+		open_link: 'Open',
+		details_label: 'Details'
 	}
 };
 
