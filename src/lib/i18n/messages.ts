@@ -107,16 +107,27 @@ export interface Messages {
 	quality: {
 		step_imperfect: string;
 		flag_night: string;
-		flag_clamped_short: string;
-		flag_clamped_long: string;
+		flag_cold_bulk_shifted: string;
+		flag_cold_bulk_clamped_short: string;
+		flag_cold_bulk_clamped_long: string;
+		flag_preferment_clamped_short: string;
+		flag_preferment_clamped_long: string;
 		fit_heading: string;
 		fit_perfect: string;
 		fit_aria: string;
-		factor_night: string;
-		factor_clamp_preferment: string;
-		factor_clamp_bulk_cold: string;
-		factor_extreme_yeast: string;
-		factor_window: string;
+		factor_cold_bulk_shifted: string;
+		factor_cold_bulk_clamped_short: string;
+		factor_cold_bulk_clamped_long: string;
+		factor_preferment_clamped_short: string;
+		factor_preferment_clamped_long: string;
+		factor_night_step: string;
+		factor_infeasible: string;
+		factor_hydration_off: string;
+		factor_salt_off: string;
+		factor_ball_weight_off: string;
+		factor_room_temp_off: string;
+		factor_fridge_temp_off: string;
+		factor_yeast_extreme: string;
 	};
 	ingredients: {
 		heading: string;
@@ -316,18 +327,36 @@ const en: Messages = {
 		icon_passive: 'Waiting step'
 	},
 	quality: {
-		step_imperfect: 'This step is outside the ideal range — see recipe fit.',
+		step_imperfect: 'This step deviates from the math’s natural schedule.',
 		flag_night: 'Lands between 22:00 and 08:00.',
-		flag_clamped_short: 'Shorter than the typical duration for this phase.',
-		flag_clamped_long: 'Longer than the typical duration for this phase.',
-		fit_heading: 'Recipe fit',
-		fit_perfect: 'Every step lands in its ideal window.',
-		fit_aria: '{score} out of 5 stars',
-		factor_night: 'A baker step lands in the night window.',
-		factor_clamp_preferment: 'Pre-ferment duration is at the bounds.',
-		factor_clamp_bulk_cold: 'Cold bulk duration is at the bounds.',
-		factor_extreme_yeast: 'Yeast amount is outside the typical range.',
-		factor_window: 'Total fermentation is shorter than the typical range.'
+		flag_cold_bulk_shifted: 'Extended to keep baker steps out of the night.',
+		flag_cold_bulk_clamped_short: 'Window forced the cold bulk above its natural duration.',
+		flag_cold_bulk_clamped_long: 'Window exceeded the cold-bulk 48 h ceiling.',
+		flag_preferment_clamped_short:
+			'Pre-ferment held at the 8 h floor; the kitchen is warmer than the recipe assumes.',
+		flag_preferment_clamped_long:
+			'Pre-ferment held at the 24 h ceiling; the kitchen is colder than the recipe assumes.',
+		fit_heading: 'fit',
+		fit_perfect: 'Schedule and recipe match the contemporary Neapolitan ideal.',
+		fit_aria: 'Recipe fit {score}%',
+		factor_cold_bulk_shifted: 'Cold bulk extended by {delta} h to dodge a baker step at night.',
+		factor_cold_bulk_clamped_short: 'Window forces cold bulk {delta} h above the natural duration.',
+		factor_cold_bulk_clamped_long:
+			'Window asks for {delta} h more cold bulk than the 48 h ceiling allows.',
+		factor_preferment_clamped_short:
+			'Pre-ferment clamped to 8 h — {delta} h shorter than the kitchen wants.',
+		factor_preferment_clamped_long:
+			'Pre-ferment clamped to 24 h — {delta} h shorter than the kitchen wants.',
+		factor_night_step: 'A baker step still lands at night even after shifting.',
+		factor_infeasible: 'Window is too short to ferment the dough.',
+		factor_hydration_off: 'Hydration is {delta}% outside the 60–80% contemporary range.',
+		factor_salt_off: 'Salt is {delta}% outside the 2–3.5% contemporary range.',
+		factor_ball_weight_off: 'Ball weight is {delta} g outside the 200–320 g contemporary range.',
+		factor_room_temp_off:
+			'Kitchen temperature is {delta} °C outside the 14–30 °C comfortable range.',
+		factor_fridge_temp_off:
+			'Fridge temperature is {delta} °C outside the 2–8 °C cold-ferment range.',
+		factor_yeast_extreme: 'Solved yeast is outside the typical 0.05–1.5% range.'
 	},
 	ingredients: {
 		heading: 'Ingredients',
@@ -531,18 +560,40 @@ const de: Messages = {
 		icon_passive: 'Wartezeit'
 	},
 	quality: {
-		step_imperfect: 'Dieser Schritt liegt außerhalb des idealen Bereichs — siehe Rezeptbewertung.',
+		step_imperfect: 'Dieser Schritt weicht vom natürlichen Zeitplan ab.',
 		flag_night: 'Liegt zwischen 22:00 und 08:00 Uhr.',
-		flag_clamped_short: 'Kürzer als die typische Dauer für diese Phase.',
-		flag_clamped_long: 'Länger als die typische Dauer für diese Phase.',
-		fit_heading: 'Rezeptbewertung',
-		fit_perfect: 'Jeder Schritt liegt in seinem idealen Fenster.',
-		fit_aria: '{score} von 5 Sternen',
-		factor_night: 'Ein aktiver Schritt fällt in die Nacht.',
-		factor_clamp_preferment: 'Die Vorteigdauer liegt am Limit.',
-		factor_clamp_bulk_cold: 'Die Kühl-Reifezeit liegt am Limit.',
-		factor_extreme_yeast: 'Die Hefemenge liegt außerhalb des typischen Bereichs.',
-		factor_window: 'Die Gesamtgehzeit ist kürzer als üblich.'
+		flag_cold_bulk_shifted: 'Verlängert, um aktive Schritte aus der Nacht zu schieben.',
+		flag_cold_bulk_clamped_short:
+			'Zeitfenster zwingt die Kühl-Reifezeit über die natürliche Dauer.',
+		flag_cold_bulk_clamped_long:
+			'Zeitfenster überschreitet die 48-Stunden-Grenze der Kühl-Reifezeit.',
+		flag_preferment_clamped_short:
+			'Vorteig am 8-Stunden-Limit; die Küche ist wärmer als angenommen.',
+		flag_preferment_clamped_long:
+			'Vorteig am 24-Stunden-Limit; die Küche ist kälter als angenommen.',
+		fit_heading: 'Bewertung',
+		fit_perfect: 'Zeitplan und Rezept entsprechen dem zeitgemäßen neapolitanischen Ideal.',
+		fit_aria: 'Rezeptbewertung {score}%',
+		factor_cold_bulk_shifted: 'Kühl-Reifezeit um {delta} h verlängert, um die Nacht zu meiden.',
+		factor_cold_bulk_clamped_short:
+			'Zeitfenster zwingt die Kühl-Reifezeit {delta} h über die natürliche Dauer.',
+		factor_cold_bulk_clamped_long:
+			'Zeitfenster verlangt {delta} h mehr Kühl-Reifezeit als die 48-Stunden-Grenze erlaubt.',
+		factor_preferment_clamped_short:
+			'Vorteig auf 8 h begrenzt — {delta} h kürzer als die Küche möchte.',
+		factor_preferment_clamped_long:
+			'Vorteig auf 24 h begrenzt — {delta} h kürzer als die Küche möchte.',
+		factor_night_step: 'Ein aktiver Schritt fällt trotz Verschieben in die Nacht.',
+		factor_infeasible: 'Zeitfenster ist zu kurz, um den Teig zu fermentieren.',
+		factor_hydration_off: 'Hydration ist {delta}% außerhalb des zeitgemäßen 60–80%-Bereichs.',
+		factor_salt_off: 'Salz ist {delta}% außerhalb des zeitgemäßen 2–3,5%-Bereichs.',
+		factor_ball_weight_off:
+			'Teiglinggewicht ist {delta} g außerhalb des zeitgemäßen 200–320-g-Bereichs.',
+		factor_room_temp_off:
+			'Küchentemperatur ist {delta} °C außerhalb des komfortablen 14–30-°C-Bereichs.',
+		factor_fridge_temp_off:
+			'Kühlschranktemperatur ist {delta} °C außerhalb des 2–8-°C-Bereichs für Kühlreife.',
+		factor_yeast_extreme: 'Berechnete Hefemenge liegt außerhalb des typischen 0,05–1,5%-Bereichs.'
 	},
 	ingredients: {
 		heading: 'Zutaten',
@@ -744,18 +795,40 @@ const it: Messages = {
 		icon_passive: 'Attesa'
 	},
 	quality: {
-		step_imperfect: 'Questo passo è fuori dal range ideale — vedi la valutazione della ricetta.',
+		step_imperfect: 'Questo passo si discosta dal programma naturale del calcolo.',
 		flag_night: 'Si svolge tra le 22:00 e le 08:00.',
-		flag_clamped_short: 'Più breve della durata tipica per questa fase.',
-		flag_clamped_long: 'Più lunga della durata tipica per questa fase.',
-		fit_heading: 'Valutazione ricetta',
-		fit_perfect: 'Ogni passo rientra nel suo intervallo ideale.',
-		fit_aria: '{score} stelle su 5',
-		factor_night: 'Un passo attivo cade nella fascia notturna.',
-		factor_clamp_preferment: 'La durata del preimpasto è ai limiti.',
-		factor_clamp_bulk_cold: 'La durata della maturazione in frigo è ai limiti.',
-		factor_extreme_yeast: 'La quantità di lievito è fuori dal range tipico.',
-		factor_window: 'La lievitazione totale è più breve del consueto.'
+		flag_cold_bulk_shifted: 'Allungata per spostare i passi attivi fuori dalla notte.',
+		flag_cold_bulk_clamped_short:
+			'La finestra costringe la maturazione in frigo oltre la durata naturale.',
+		flag_cold_bulk_clamped_long: 'La finestra supera il tetto di 48 h di maturazione in frigo.',
+		flag_preferment_clamped_short:
+			'Preimpasto al limite di 8 h; la cucina è più calda del previsto.',
+		flag_preferment_clamped_long:
+			'Preimpasto al limite di 24 h; la cucina è più fredda del previsto.',
+		fit_heading: 'valutazione',
+		fit_perfect: 'Programma e ricetta corrispondono al canone napoletano contemporaneo.',
+		fit_aria: 'Valutazione ricetta {score}%',
+		factor_cold_bulk_shifted:
+			'Maturazione in frigo prolungata di {delta} h per evitare un passo notturno.',
+		factor_cold_bulk_clamped_short:
+			'La finestra costringe la maturazione in frigo {delta} h oltre la durata naturale.',
+		factor_cold_bulk_clamped_long:
+			'La finestra richiede {delta} h in più di maturazione in frigo rispetto al tetto di 48 h.',
+		factor_preferment_clamped_short:
+			'Preimpasto limitato a 8 h — {delta} h più breve di quanto vorrebbe la cucina.',
+		factor_preferment_clamped_long:
+			'Preimpasto limitato a 24 h — {delta} h più breve di quanto vorrebbe la cucina.',
+		factor_night_step: 'Un passo attivo cade comunque di notte dopo lo spostamento.',
+		factor_infeasible: 'La finestra è troppo breve per far lievitare l’impasto.',
+		factor_hydration_off: 'L’idratazione è {delta}% fuori dal range contemporaneo 60–80%.',
+		factor_salt_off: 'Il sale è {delta}% fuori dal range contemporaneo 2–3,5%.',
+		factor_ball_weight_off:
+			'Il peso del panetto è {delta} g fuori dal range contemporaneo 200–320 g.',
+		factor_room_temp_off:
+			'La temperatura della cucina è {delta} °C fuori dal range comodo 14–30 °C.',
+		factor_fridge_temp_off:
+			'La temperatura del frigo è {delta} °C fuori dal range 2–8 °C per la maturazione.',
+		factor_yeast_extreme: 'Il lievito calcolato è fuori dal range tipico 0,05–1,5%.'
 	},
 	ingredients: {
 		heading: 'Ingredienti',
@@ -960,18 +1033,39 @@ const fr: Messages = {
 		icon_passive: 'Attente'
 	},
 	quality: {
-		step_imperfect: 'Cette étape est hors de la plage idéale — voir la note de la recette.',
+		step_imperfect: 'Cette étape s’écarte du programme naturel du calcul.',
 		flag_night: 'A lieu entre 22h et 08h.',
-		flag_clamped_short: 'Plus courte que la durée typique pour cette phase.',
-		flag_clamped_long: 'Plus longue que la durée typique pour cette phase.',
-		fit_heading: 'Note de la recette',
-		fit_perfect: 'Chaque étape tombe dans sa fenêtre idéale.',
-		fit_aria: '{score} étoiles sur 5',
-		factor_night: 'Une étape active tombe la nuit.',
-		factor_clamp_preferment: 'La durée du pré-ferment est aux limites.',
-		factor_clamp_bulk_cold: 'La durée de pointage au frigo est aux limites.',
-		factor_extreme_yeast: 'La quantité de levure est hors du range typique.',
-		factor_window: 'La fermentation totale est plus courte que la normale.'
+		flag_cold_bulk_shifted: 'Allongée pour sortir les étapes actives de la nuit.',
+		flag_cold_bulk_clamped_short:
+			'La fenêtre force le pointage au frigo au-delà de sa durée naturelle.',
+		flag_cold_bulk_clamped_long: 'La fenêtre dépasse le plafond de 48 h de pointage au frigo.',
+		flag_preferment_clamped_short:
+			'Pré-ferment au plancher de 8 h ; la cuisine est plus chaude que prévu.',
+		flag_preferment_clamped_long:
+			'Pré-ferment au plafond de 24 h ; la cuisine est plus froide que prévu.',
+		fit_heading: 'note',
+		fit_perfect: 'Le programme et la recette correspondent au canon napolitain contemporain.',
+		fit_aria: 'Note de la recette {score}%',
+		factor_cold_bulk_shifted:
+			'Pointage au frigo allongé de {delta} h pour éviter une étape la nuit.',
+		factor_cold_bulk_clamped_short:
+			'La fenêtre force le pointage au frigo {delta} h au-delà de sa durée naturelle.',
+		factor_cold_bulk_clamped_long:
+			'La fenêtre demande {delta} h de pointage au frigo en plus du plafond de 48 h.',
+		factor_preferment_clamped_short:
+			'Pré-ferment limité à 8 h — {delta} h plus court que ce que veut la cuisine.',
+		factor_preferment_clamped_long:
+			'Pré-ferment limité à 24 h — {delta} h plus court que ce que veut la cuisine.',
+		factor_night_step: 'Une étape active tombe quand même la nuit après ajustement.',
+		factor_infeasible: 'La fenêtre est trop courte pour faire fermenter la pâte.',
+		factor_hydration_off: 'L’hydratation est {delta}% hors du range contemporain 60–80%.',
+		factor_salt_off: 'Le sel est {delta}% hors du range contemporain 2–3,5%.',
+		factor_ball_weight_off: 'Le poids du pâton est {delta} g hors du range contemporain 200–320 g.',
+		factor_room_temp_off:
+			'La température de la cuisine est {delta} °C hors du range confortable 14–30 °C.',
+		factor_fridge_temp_off:
+			'La température du frigo est {delta} °C hors du range 2–8 °C pour le pointage au frigo.',
+		factor_yeast_extreme: 'La levure calculée est hors du range typique 0,05–1,5%.'
 	},
 	ingredients: {
 		heading: 'Ingrédients',
@@ -1175,18 +1269,39 @@ const nl: Messages = {
 		icon_passive: 'Wachttijd'
 	},
 	quality: {
-		step_imperfect: 'Deze stap valt buiten het ideale bereik — zie receptbeoordeling.',
+		step_imperfect: 'Deze stap wijkt af van het natuurlijke schema.',
 		flag_night: 'Valt tussen 22:00 en 08:00.',
-		flag_clamped_short: 'Korter dan de gebruikelijke duur voor deze fase.',
-		flag_clamped_long: 'Langer dan de gebruikelijke duur voor deze fase.',
-		fit_heading: 'Receptbeoordeling',
-		fit_perfect: 'Elke stap valt binnen zijn ideale venster.',
-		fit_aria: '{score} van de 5 sterren',
-		factor_night: 'Een actieve stap valt in de nacht.',
-		factor_clamp_preferment: 'De duur van het voordeeg zit op de grens.',
-		factor_clamp_bulk_cold: 'De duur van de koelrijs zit op de grens.',
-		factor_extreme_yeast: 'De gistdosering valt buiten het gebruikelijke bereik.',
-		factor_window: 'De totale rijstijd is korter dan gebruikelijk.'
+		flag_cold_bulk_shifted: 'Verlengd om actieve stappen uit de nacht te houden.',
+		flag_cold_bulk_clamped_short: 'Het venster dwingt de koelrijs boven de natuurlijke duur.',
+		flag_cold_bulk_clamped_long: 'Het venster overschrijdt het 48-uurs-plafond van de koelrijs.',
+		flag_preferment_clamped_short:
+			'Voordeeg op de 8-uursondergrens; de keuken is warmer dan verwacht.',
+		flag_preferment_clamped_long:
+			'Voordeeg op het 24-uursplafond; de keuken is kouder dan verwacht.',
+		fit_heading: 'beoordeling',
+		fit_perfect: 'Schema en recept voldoen aan het hedendaagse Napolitaanse ideaal.',
+		fit_aria: 'Receptbeoordeling {score}%',
+		factor_cold_bulk_shifted:
+			'Koelrijs met {delta} u verlengd om een nachtelijke stap te vermijden.',
+		factor_cold_bulk_clamped_short:
+			'Het venster dwingt de koelrijs {delta} u boven de natuurlijke duur.',
+		factor_cold_bulk_clamped_long:
+			'Het venster vraagt {delta} u meer koelrijs dan het 48-uursplafond toelaat.',
+		factor_preferment_clamped_short:
+			'Voordeeg beperkt tot 8 u — {delta} u korter dan de keuken wil.',
+		factor_preferment_clamped_long:
+			'Voordeeg beperkt tot 24 u — {delta} u korter dan de keuken wil.',
+		factor_night_step: 'Een actieve stap valt zelfs na verschuiving in de nacht.',
+		factor_infeasible: 'Het venster is te kort om het deeg te laten rijzen.',
+		factor_hydration_off: 'De hydratatie is {delta}% buiten het hedendaagse bereik 60–80%.',
+		factor_salt_off: 'Het zout is {delta}% buiten het hedendaagse bereik 2–3,5%.',
+		factor_ball_weight_off:
+			'Het bolletjesgewicht is {delta} g buiten het hedendaagse bereik 200–320 g.',
+		factor_room_temp_off:
+			'De keukentemperatuur is {delta} °C buiten het comfortabele bereik 14–30 °C.',
+		factor_fridge_temp_off:
+			'De koelkasttemperatuur is {delta} °C buiten het bereik 2–8 °C voor koelrijs.',
+		factor_yeast_extreme: 'De berekende gistdosering valt buiten het typische bereik 0,05–1,5%.'
 	},
 	ingredients: {
 		heading: 'Ingrediënten',
@@ -1387,18 +1502,35 @@ const jam: Messages = {
 		icon_passive: 'Waiting step'
 	},
 	quality: {
-		step_imperfect: 'Dis step outside di sweet spot — check di recipe fit.',
+		step_imperfect: 'Dis step drift from di natural schedule.',
 		flag_night: 'Run between 22:00 an 08:00.',
-		flag_clamped_short: 'Shorter dan di usual time fi dis phase.',
-		flag_clamped_long: 'Longer dan di usual time fi dis phase.',
-		fit_heading: 'Recipe fit',
-		fit_perfect: 'Every step land inna its ideal window.',
-		fit_aria: '{score} outta 5 star',
-		factor_night: 'A baker step fall inna di night.',
-		factor_clamp_preferment: 'Befo-dough time deh pon di bounds.',
-		factor_clamp_bulk_cold: 'Fridge bulk time deh pon di bounds.',
-		factor_extreme_yeast: 'Ris-ting amount outta di usual range.',
-		factor_window: 'Total rise time shorter dan di usual.'
+		flag_cold_bulk_shifted: 'Stretch out fi keep baker step dem outta di night.',
+		flag_cold_bulk_clamped_short: 'Window force di fridge bulk pas di natural time.',
+		flag_cold_bulk_clamped_long: 'Window pass di 48 hr fridge bulk top.',
+		flag_preferment_clamped_short:
+			'Befo-dough lock pon 8 hr; di kitchen hotta dan di recipe figga.',
+		flag_preferment_clamped_long:
+			'Befo-dough lock pon 24 hr; di kitchen cooler dan di recipe figga.',
+		fit_heading: 'fit',
+		fit_perfect: 'Di schedule an di recipe match di contemporary Neapolitan style.',
+		fit_aria: 'Recipe fit {score}%',
+		factor_cold_bulk_shifted:
+			'Fridge bulk stretch by {delta} hr fi dodge a baker step inna di night.',
+		factor_cold_bulk_clamped_short: 'Window force fridge bulk {delta} hr pas di natural time.',
+		factor_cold_bulk_clamped_long:
+			'Window want {delta} hr more fridge bulk dan di 48 hr top allow.',
+		factor_preferment_clamped_short:
+			'Befo-dough lock pon 8 hr — {delta} hr shorter dan di kitchen want.',
+		factor_preferment_clamped_long:
+			'Befo-dough lock pon 24 hr — {delta} hr shorter dan di kitchen want.',
+		factor_night_step: 'A baker step still fall inna di night afta shifting.',
+		factor_infeasible: 'Di window too short fi rise di dough.',
+		factor_hydration_off: 'Hydration {delta}% outside di contemporary 60–80% range.',
+		factor_salt_off: 'Salt {delta}% outside di contemporary 2–3.5% range.',
+		factor_ball_weight_off: 'Ball weight {delta} g outside di contemporary 200–320 g range.',
+		factor_room_temp_off: 'Kitchen temperature {delta} °C outside di easy 14–30 °C range.',
+		factor_fridge_temp_off: 'Fridge temperature {delta} °C outside di 2–8 °C range fi fridge bulk.',
+		factor_yeast_extreme: 'Calculated ris-ting outside di usual 0.05–1.5% range.'
 	},
 	ingredients: {
 		heading: 'Tings dem',

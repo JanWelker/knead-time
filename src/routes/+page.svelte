@@ -246,7 +246,7 @@
 						</h2>
 						<div class="mt-2 flex flex-wrap items-center gap-3 print:hidden">
 							<ModeBadge mode={form.schedule.mode} />
-							<FitScore schedule={form.schedule} />
+							<FitScore schedule={form.schedule} inputs={form.serializable()} />
 						</div>
 					</div>
 					<div class="relative print:hidden">
