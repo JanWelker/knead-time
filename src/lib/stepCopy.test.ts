@@ -142,7 +142,7 @@ describe('stepDescription — preferment-mix weights', () => {
 		expect(desc).not.toContain('{');
 	});
 
-	it('shows the maturation duration in HH:MM and drops "overnight" wording', () => {
+	it('omits the maturation duration (shown in the Duration column) and "overnight" wording', () => {
 		const r = computeSchedule(
 			inputs({
 				startAt: new Date('2026-05-11T07:00:00Z'),
@@ -157,7 +157,9 @@ describe('stepDescription — preferment-mix weights', () => {
 		const m = String(expectedMin % 60).padStart(2, '0');
 
 		const en = stepDescription(pf, MESSAGES.en, r);
-		expect(en).toContain(`${h}:${m}`);
+		expect(en).not.toContain(`${h}:${m}`);
+		expect(en).not.toMatch(/HH:MM/i);
+		expect(en).not.toContain('{duration}');
 		expect(en.toLowerCase()).not.toContain('overnight');
 
 		expect(stepDescription(pf, MESSAGES.de, r).toLowerCase()).not.toContain('über nacht');

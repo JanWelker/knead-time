@@ -103,6 +103,8 @@ export interface Messages {
 		duration_minutes: string;
 		duration_hours: string;
 		duration_hours_minutes: string;
+		icon_active: string;
+		icon_passive: string;
 	};
 	ingredients: {
 		heading: string;
@@ -262,11 +264,11 @@ const en: Messages = {
 	steps: {
 		preferment_mix: 'Mix pre-ferment',
 		preferment_mix_desc:
-			'Combine the pre-ferment ingredients, cover, and let mature at room temperature for {duration} (HH:MM) until prep.',
+			'Combine the pre-ferment ingredients, cover, and let mature at room temperature.',
 		preferment_mix_desc_biga:
-			'Stir {flour} g flour, {water} g water and {yeast} g fresh yeast together just until shaggy — do not knead. Cover and let mature at room temperature for {duration} (HH:MM) until prep.',
+			'Stir {flour} g flour, {water} g water and {yeast} g fresh yeast together just until shaggy — do not knead. Cover and let mature at room temperature.',
 		preferment_mix_desc_poolish:
-			'Whisk {flour} g flour, {water} g water and {yeast} g fresh yeast in a bowl until smooth. Cover and let mature at room temperature for {duration} (HH:MM) until prep.',
+			'Whisk {flour} g flour, {water} g water and {yeast} g fresh yeast in a bowl until smooth. Cover and let mature at room temperature.',
 		prep: 'Weigh & prep',
 		prep_desc:
 			'Weigh out {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Take ingredients out of the fridge.',
@@ -299,7 +301,9 @@ const en: Messages = {
 		col_duration: 'Duration',
 		duration_minutes: '{n} min',
 		duration_hours: '{n} h',
-		duration_hours_minutes: '{h} h {m} min'
+		duration_hours_minutes: '{h} h {m} min',
+		icon_active: 'Active step',
+		icon_passive: 'Waiting step'
 	},
 	ingredients: {
 		heading: 'Ingredients',
@@ -461,11 +465,11 @@ const de: Messages = {
 	steps: {
 		preferment_mix: 'Vorteig ansetzen',
 		preferment_mix_desc:
-			'Zutaten des Vorteigs verrühren, abdecken und bei Raumtemperatur {duration} (HH:MM) reifen lassen, bis der Hauptteig vorbereitet wird.',
+			'Zutaten des Vorteigs verrühren, abdecken und bei Raumtemperatur reifen lassen.',
 		preferment_mix_desc_biga:
-			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur {duration} (HH:MM) reifen lassen.',
+			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur reifen lassen.',
 		preferment_mix_desc_poolish:
-			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur {duration} (HH:MM) reifen lassen.',
+			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur reifen lassen.',
 		prep: 'Abwiegen & vorbereiten',
 		prep_desc:
 			'{flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} abwiegen. Zutaten rechtzeitig aus dem Kühlschrank holen.',
@@ -501,7 +505,9 @@ const de: Messages = {
 		col_duration: 'Dauer',
 		duration_minutes: '{n} Min',
 		duration_hours: '{n} Std',
-		duration_hours_minutes: '{h} Std {m} Min'
+		duration_hours_minutes: '{h} Std {m} Min',
+		icon_active: 'Aktiver Schritt',
+		icon_passive: 'Wartezeit'
 	},
 	ingredients: {
 		heading: 'Zutaten',
@@ -662,11 +668,11 @@ const it: Messages = {
 	steps: {
 		preferment_mix: 'Preparare il preimpasto',
 		preferment_mix_desc:
-			'Mescolare gli ingredienti del preimpasto, coprire e lasciare maturare a temperatura ambiente per {duration} (HH:MM) fino al momento della preparazione.',
+			'Mescolare gli ingredienti del preimpasto, coprire e lasciare maturare a temperatura ambiente.',
 		preferment_mix_desc_biga:
-			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente per {duration} (HH:MM).',
+			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente.',
 		preferment_mix_desc_poolish:
-			'Sbattere {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente per {duration} (HH:MM).',
+			'Sbattere {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente.',
 		prep: 'Pesare e preparare',
 		prep_desc:
 			'Pesare {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Togliere gli ingredienti dal frigo.',
@@ -700,7 +706,9 @@ const it: Messages = {
 		col_duration: 'Durata',
 		duration_minutes: '{n} min',
 		duration_hours: '{n} h',
-		duration_hours_minutes: '{h} h {m} min'
+		duration_hours_minutes: '{h} h {m} min',
+		icon_active: 'Passo attivo',
+		icon_passive: 'Attesa'
 	},
 	ingredients: {
 		heading: 'Ingredienti',
@@ -864,11 +872,11 @@ const fr: Messages = {
 	steps: {
 		preferment_mix: 'Préparer le pré-ferment',
 		preferment_mix_desc:
-			"Mélangez les ingrédients du pré-ferment, couvrez et laissez maturer à température ambiante pendant {duration} (HH:MM) jusqu'à la préparation.",
+			'Mélangez les ingrédients du pré-ferment, couvrez et laissez maturer à température ambiante.',
 		preferment_mix_desc_biga:
-			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante {duration} (HH:MM).",
+			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante.",
 		preferment_mix_desc_poolish:
-			"Fouettez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante {duration} (HH:MM).",
+			"Fouettez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante.",
 		prep: 'Peser et préparer',
 		prep_desc:
 			"Pesez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Sortez les ingrédients du frigo.",
@@ -903,7 +911,9 @@ const fr: Messages = {
 		col_duration: 'Durée',
 		duration_minutes: '{n} min',
 		duration_hours: '{n} h',
-		duration_hours_minutes: '{h} h {m} min'
+		duration_hours_minutes: '{h} h {m} min',
+		icon_active: 'Étape active',
+		icon_passive: 'Attente'
 	},
 	ingredients: {
 		heading: 'Ingrédients',
@@ -1066,11 +1076,11 @@ const nl: Messages = {
 	steps: {
 		preferment_mix: 'Voordeeg mengen',
 		preferment_mix_desc:
-			'Meng de voordeeg-ingrediënten, dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen tot de prep-stap.',
+			'Meng de voordeeg-ingrediënten, dek af en laat op kamertemperatuur rijpen.',
 		preferment_mix_desc_biga:
-			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen.',
+			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat op kamertemperatuur rijpen.',
 		preferment_mix_desc_poolish:
-			'Klop {flour} g bloem, {water} g water en {yeast} g verse gist in een kom glad. Dek af en laat {duration} (HH:MM) op kamertemperatuur rijpen.',
+			'Klop {flour} g bloem, {water} g water en {yeast} g verse gist in een kom glad. Dek af en laat op kamertemperatuur rijpen.',
 		prep: 'Wegen en klaarzetten',
 		prep_desc:
 			'Weeg {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label} af. Haal de ingrediënten uit de koelkast.',
@@ -1104,7 +1114,9 @@ const nl: Messages = {
 		col_duration: 'Duur',
 		duration_minutes: '{n} min',
 		duration_hours: '{n} u',
-		duration_hours_minutes: '{h} u {m} min'
+		duration_hours_minutes: '{h} u {m} min',
+		icon_active: 'Actieve stap',
+		icon_passive: 'Wachttijd'
 	},
 	ingredients: {
 		heading: 'Ingrediënten',
@@ -1265,11 +1277,11 @@ const jam: Messages = {
 	steps: {
 		preferment_mix: 'Mek di befo-dough',
 		preferment_mix_desc:
-			'Mix up di befo-dough tings dem, cova it an mek it sit a room temperature fi {duration} (HH:MM) til prep time.',
+			'Mix up di befo-dough tings dem, cova it an mek it sit a room temperature.',
 		preferment_mix_desc_biga:
-			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature {duration} (HH:MM).',
+			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature.',
 		preferment_mix_desc_poolish:
-			'Whisk {flour} g flour, {water} g wata an {yeast} g fresh ris-ting inna bowl til it smood. Cova it an mek it sit a room temperature {duration} (HH:MM).',
+			'Whisk {flour} g flour, {water} g wata an {yeast} g fresh ris-ting inna bowl til it smood. Cova it an mek it sit a room temperature.',
 		prep: 'Weigh an set up',
 		prep_desc:
 			'Weigh out {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Tek di tings dem outta di fridge.',
@@ -1302,7 +1314,9 @@ const jam: Messages = {
 		col_duration: 'How long',
 		duration_minutes: '{n} min',
 		duration_hours: '{n} hr',
-		duration_hours_minutes: '{h} hr {m} min'
+		duration_hours_minutes: '{h} hr {m} min',
+		icon_active: 'Active step',
+		icon_passive: 'Waiting step'
 	},
 	ingredients: {
 		heading: 'Tings dem',

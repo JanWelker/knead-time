@@ -1,5 +1,5 @@
 import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from './dough/types';
-import { formatBallWeight, formatDurationHHMM, formatGramsValue } from './format';
+import { formatBallWeight, formatGramsValue } from './format';
 import { interpolate } from './i18n/interpolate';
 import type { Messages } from './i18n/messages';
 
@@ -54,8 +54,6 @@ export function stepDescription(
 				weight: formatBallWeight(schedule.ballWeight)
 			});
 		case 'preferment-mix': {
-			const prepStep = schedule.steps.find((s) => s.kind === 'prep')!;
-			const maturationMin = Math.round((prepStep.at.getTime() - step.at.getTime()) / 60_000);
 			const pfTemplate =
 				prefermentType === 'biga'
 					? msgs.steps.preferment_mix_desc_biga
@@ -63,8 +61,7 @@ export function stepDescription(
 			return interpolate(pfTemplate, {
 				flour: formatGramsValue(ingredients.preFerment!.flour),
 				water: formatGramsValue(ingredients.preFerment!.water),
-				yeast: formatGramsValue(ingredients.preFerment!.yeast),
-				duration: formatDurationHHMM(maturationMin)
+				yeast: formatGramsValue(ingredients.preFerment!.yeast)
 			});
 		}
 		case 'prep':
