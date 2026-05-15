@@ -1,37 +1,4 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-		<meta name="theme-color" content="#c8401a" />
-		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
-		<script>
-			(function () {
-				try {
-					var stored = localStorage.getItem('theme');
-					var dark =
-						stored === 'dark' ||
-						((stored === null || stored === 'system') &&
-							window.matchMedia('(prefers-color-scheme: dark)').matches);
-					if (dark) document.documentElement.classList.add('dark');
-				} catch (e) {}
-			})();
-		</script>
-		<link href="../_app/immutable/entry/start.Cg0lnjUG.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/BYHuagzK.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/DNnrfcHJ.js" rel="modulepreload">
-		<link href="../_app/immutable/entry/app.DdBqYMXu.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/DXLwiZ0H.js" rel="modulepreload">
-		<link href="../_app/immutable/nodes/0.B5v14TAr.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/CyLobpRJ.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/ugr-YbNe.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/rN9AD8Pb.js" rel="modulepreload">
-		<link href="../_app/immutable/nodes/4.DWe08ukO.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/DhhQJ9ac.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/C7ShPPyM.js" rel="modulepreload">
-		<!--5xcj7v--><style>
-		html,
+import{$ as e,D as t,H as n,L as r,M as i,Q as a,R as o,S as s,U as c,V as l,W as u,Y as d,b as f,g as p,it as m,m as h,r as g,rt as _,st as v,w as y,x as b,y as x}from"../chunks/DNnrfcHJ.js";import"../chunks/DXLwiZ0H.js";import{t as S}from"../chunks/CyLobpRJ.js";import{r as C,t as w}from"../chunks/ugr-YbNe.js";import{a as T,t as E}from"../chunks/C7ShPPyM.js";import{a as D,n as O,r as k,t as ee}from"../chunks/DhhQJ9ac.js";var A=v({entries:()=>j,prerender:()=>!0,ssr:()=>!0});function j(){return[{locale:void 0},...C.map(e=>({locale:e}))]}var M=t(y(`<style>html,
 		body {
 			background: #ffffff !important;
 			color: #000000 !important;
@@ -175,15 +142,14 @@
 		}
 		.trmnl .rows tr.rowReady td {
 			font-weight: 700;
-		}
-	</style> <script>
+		}</style> <script>
 		(function () {
 			try {
 				if (typeof location === 'undefined' || typeof document === 'undefined') return;
 				var m = location.search.match(/[?&]p=([^&]+)/);
 				if (!m) return;
 				var raw = decodeURIComponent(m[1]);
-				if (raw.length <= 40) return; // legacy `p=b30` etc. — let the bundle handle it
+				if (raw.length <= 40) return; // legacy \`p=b30\` etc. — let the bundle handle it
 				var bin = atob(raw);
 				var bytes = new Uint8Array(bin.length);
 				for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
@@ -262,37 +228,4 @@
 				// Best-effort — leave the prerendered defaults in place if anything fails.
 			}
 		})();
-	</script><!----><title>Knead Time — TRMNL</title>
-		<link href="../_app/immutable/assets/0.DJpoB7jM.css" rel="stylesheet">
-	</head>
-	<body
-		data-sveltekit-preload-data="hover"
-		class="bg-dough-50 min-h-screen text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100"
-	>
-		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><div class="trmnl"><header class="head"><div class="brand"><span class="title" id="trmnl-title">Knead Time</span> <span class="summary" id="trmnl-summary">6 × 280 g · 70% · Frischhefe (Würfel) · Kühlschrank-Gare</span></div> <div class="ready"><span class="readyLabel" id="trmnl-ready-label">Bereit zum Backen</span> <span class="readyTime" id="trmnl-ready-time">Sa. 16. Mai 09:06</span></div></header> <!--[0--><section class="panel" id="trmnl-panel"><div class="panelLabel" id="trmnl-featured-label">Jetzt</div> <!--[-1--><div class="panelTitle"><span id="trmnl-featured-title">Abwiegen &amp; vorbereiten</span> <span class="panelTime" id="trmnl-featured-time">09:06 - 09:21 (15 Min)</span></div> <div class="panelDesc" id="trmnl-featured-desc">970 g Mehl, 679 g Wasser, 29 g Salz und 1.5 g Frischhefe abwiegen. Zutaten rechtzeitig aus dem Kühlschrank holen.</div><!--]--></section><!--]--> <table class="rows"><tbody id="trmnl-rows"><!--[--><tr class="current"><td class="rowTime">09:06</td><td class="rowDate">Fr. 15. Mai</td><td class="rowStep">Abwiegen &amp; vorbereiten</td><td class="rowDuration">15 Min</td></tr><tr><td class="rowTime">09:21</td><td class="rowDate">Fr. 15. Mai</td><td class="rowStep">Teig mischen</td><td class="rowDuration">15 Min</td></tr><tr><td class="rowTime">09:36</td><td class="rowDate">Fr. 15. Mai</td><td class="rowStep">Stockgare (Raum)</td><td class="rowDuration">1 Std</td></tr><tr><td class="rowTime">10:36</td><td class="rowDate">Fr. 15. Mai</td><td class="rowStep">Stockgare (Kühlschrank)</td><td class="rowDuration">18 Std 15 Min</td></tr><tr><td class="rowTime">04:51</td><td class="rowDate">Sa. 16. Mai</td><td class="rowStep">Portionieren</td><td class="rowDuration">15 Min</td></tr><tr><td class="rowTime">05:06</td><td class="rowDate">Sa. 16. Mai</td><td class="rowStep">Teiglinge akklimatisieren</td><td class="rowDuration">3 Std</td></tr><tr><td class="rowTime">08:06</td><td class="rowDate">Sa. 16. Mai</td><td class="rowStep">Stückgare</td><td class="rowDuration">1 Std</td></tr><tr class="rowReady"><td class="rowTime">09:06</td><td class="rowDate">Sa. 16. Mai</td><td class="rowStep">Formen &amp; backen</td><td class="rowDuration">—</td></tr><!--]--></tbody></table></div><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
-			
-			<script>
-				{
-					__sveltekit_1otjit8 = {
-						base: new URL("..", location).pathname.slice(0, -1),
-						assets: "/knead-time"
-					};
-
-					const element = document.currentScript.parentElement;
-
-					Promise.all([
-						import("../_app/immutable/entry/start.Cg0lnjUG.js"),
-						import("../_app/immutable/entry/app.DdBqYMXu.js")
-					]).then(([kit, app]) => {
-						kit.start(app, element, {
-							node_ids: [0, 4],
-							data: [null,null],
-							form: null,
-							error: null
-						});
-					});
-				}
-			</script>
-		</div>
-	</body>
-</html>
+	<\/script>`,1)),N=y(`<div class="panelTitle"><span id="trmnl-featured-title"> </span></div>`),P=y(`<div class="panelTitle"><span id="trmnl-featured-title"> </span> <span class="panelTime" id="trmnl-featured-time"> </span></div> <div class="panelDesc" id="trmnl-featured-desc"> </div>`,1),F=y(`<section id="trmnl-panel"><div class="panelLabel" id="trmnl-featured-label"> </div> <!></section>`),I=y(`<tr><td class="rowTime"> </td><td class="rowDate"> </td><td class="rowStep"> </td><td class="rowDuration"> </td></tr>`),L=y(`<div class="trmnl"><header class="head"><div class="brand"><span class="title" id="trmnl-title"> </span> <span class="summary" id="trmnl-summary"> </span></div> <div class="ready"><span class="readyLabel" id="trmnl-ready-label"> </span> <span class="readyTime" id="trmnl-ready-time"> </span></div></header> <!> <table class="rows"><tbody id="trmnl-rows"></tbody></table></div>`);function R(t,v){e(v,!0);function y(e){return typeof e==`string`&&C.includes(e)}let A=y(S.params.locale)?S.params.locale:`en`;w.set(A);let j={readyBy:new Date(Date.now()+1440*60*1e3),startAt:new Date,pizzaCount:6,ballWeight:280,hydration:70,saltPercent:3,yeastType:`fresh`,starterHydration:100,roomTempC:22,fridgeTempC:4,preFerment:null},R=new ee,z=d(()=>w.t),B=d(()=>{let e=new URLSearchParams(window.location.search).get(`p`);if(e&&e.length>40){let t=k(e);if(t)return{kind:`payload`,payload:t}}let t=T(window.location.search);return{kind:`inputs`,inputs:{...j,...t}}}),V=d(()=>{if(i(B)?.kind===`payload`)return i(B).payload;let e=i(B)?.kind===`inputs`?i(B).inputs:j;return O(e,E(e),i(z),A,R)}),H=d(()=>D(i(V).steps.map(e=>({kind:e.isReady?`ready`:`mix`,at:new Date(e.atIso),durationMinutes:0})),R));g(()=>{let e=setInterval(()=>R.setTime(Date.now()),3e4);return()=>clearInterval(e)});var U=L();p(`5xcj7v`,e=>{var t=M();_(2),r(()=>{l.title=`${i(V).title??``} — TRMNL`}),s(e,t)});var W=n(U),G=n(W),K=n(G),te=n(K,!0);m(K);var q=u(K,2),ne=n(q,!0);m(q),m(G);var J=u(G,2),Y=n(J),re=n(Y,!0);m(Y);var X=u(Y,2),ie=n(X,!0);m(X),m(J),m(W);var Z=u(W,2),ae=e=>{var t=F();let r;var a=n(t),l=n(a,!0);m(a);var d=u(a,2),p=e=>{var t=N(),r=n(t),a=n(r,!0);m(r),m(t),o(()=>b(a,i(V).featured.title)),s(e,t)},g=e=>{var t=P(),r=c(t),a=n(r),l=n(a,!0);m(a);var d=u(a,2),f=n(d,!0);m(d),m(r);var p=u(r,2),h=n(p,!0);m(p),o(()=>{b(l,i(V).featured.title),b(f,i(V).featured.timeRange),b(h,i(V).featured.description)}),s(e,t)};f(d,e=>{i(V).featured.isDone?e(p):e(g,-1)}),m(t),o(()=>{r=h(t,1,`panel`,null,r,{done:i(V).featured.isDone}),b(l,i(V).featured.label)}),s(e,t)};f(Z,e=>{i(V).featured&&e(ae)});var Q=u(Z,2),$=n(Q);x($,23,()=>i(V).steps,e=>e.atIso+`-`+e.title,(e,t,r)=>{var a=I();let c;var l=n(a),d=n(l,!0);m(l);var f=u(l),p=n(f,!0);m(f);var g=u(f),_=n(g,!0);m(g);var v=u(g),y=n(v,!0);m(v),m(a),o(()=>{c=h(a,1,``,null,c,{past:i(r)<i(H),current:i(r)===i(H)&&i(H)<i(V).steps.length-1,rowReady:i(t).isReady}),b(d,i(t).time),b(p,i(t).date),b(_,i(t).title),b(y,i(t).duration)}),s(e,a)}),m($),m(Q),m(U),o(()=>{b(te,i(V).title),b(ne,i(V).summary),b(re,i(V).readyLabel),b(ie,i(V).readyTime)}),s(t,U),a()}export{R as component,A as universal};
