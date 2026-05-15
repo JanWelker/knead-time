@@ -56,7 +56,7 @@
 		savedUuid = trimmed;
 		status = 'sending';
 		errorMessage = '';
-		const merge_variables = buildMergeVariables(inputs, schedule, t, locale, new Date());
+		const merge_variables = buildMergeVariables(inputs, schedule, t, locale);
 		const result = await sendToTrmnl(trimmed, merge_variables);
 		if (result.ok) {
 			status = 'sent';

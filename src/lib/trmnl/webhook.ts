@@ -15,44 +15,50 @@ import { stepDescription, stepTitle } from '../stepCopy';
 // doughcalc lands without preflight rejection.
 export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
 
-// The shape we POST as `merge_variables`. Every value is pre-formatted on
-// our side so the user's Liquid template stays minimal — render text,
-// build the schedule table, branch on `is_ready`. The only computation
-// the template needs to do is "what step is current" via `at_unix`
-// vs. `"now" | date: "%s"`.
+// TRMNL's free tier caps webhook payloads at 2 KB. A cold-mode recipe with
+// a pre-ferment and seven localized step descriptions blows past 2 KB with
+// human-readable JSON keys. Short keys trade verbosity for ~600 bytes of
+// headroom; the Liquid template uses the same names. Mapping documented
+// in docs/trmnl-setup.md.
+//
+//   t  = title                 s  = summary
+//   rl = ready label           rt = ready time (formatted, no commas)
+//   l  = labels container     l.n = "Now"   l.x = "Next"   l.d = "Done"
+//   st = steps                  ↳ step.t   = title
+//                               ↳ step.d   = description
+//                               ↳ step.dt  = date
+//                               ↳ step.tm  = time
+//                               ↳ step.dr  = duration ("15 min" or "—")
+//                               ↳ step.u   = at_unix (seconds since epoch)
+//                               ↳ step.r   = is_ready flag for the bake row
 export interface TrmnlMergeVariables {
-	title: string;
-	summary: string;
-	ready_label: string;
-	ready_time: string;
-	ready_time_unix: number;
-	steps: TrmnlMergeStep[];
-	labels: {
-		now: string;
-		next: string;
-		done: string;
+	t: string;
+	s: string;
+	rl: string;
+	rt: string;
+	l: {
+		n: string;
+		x: string;
+		d: string;
 	};
-	generated_at: string;
-	locale: string;
+	st: TrmnlMergeStep[];
 }
 
 export interface TrmnlMergeStep {
-	title: string;
-	description: string;
-	date: string;
-	time: string;
-	duration: string;
-	duration_minutes: number;
-	at_unix: number;
-	is_ready: boolean;
+	t: string;
+	d: string;
+	dt: string;
+	tm: string;
+	dr: string;
+	u: number;
+	r: boolean;
 }
 
 export function buildMergeVariables(
 	inputs: DoughInputs,
 	schedule: ComputedSchedule,
 	msgs: Messages,
-	locale: Locale,
-	now: Date
+	locale: Locale
 ): TrmnlMergeVariables {
 	const yeastLabel =
 		inputs.yeastType === 'fresh' ? msgs.form.yeast_fresh : msgs.form.yeast_sourdough;
@@ -70,27 +76,23 @@ export function buildMergeVariables(
 		` · ${modeLabel}`;
 
 	return {
-		title: msgs.app.title,
-		summary,
-		ready_label: msgs.form.readyBy,
-		ready_time: formatDateTime(inputs.readyBy, locale).replace(/,/g, ''),
-		ready_time_unix: Math.floor(inputs.readyBy.getTime() / 1000),
-		labels: {
-			now: msgs.trmnl.now,
-			next: msgs.trmnl.next,
-			done: msgs.trmnl.done
+		t: msgs.app.title,
+		s: summary,
+		rl: msgs.form.readyBy,
+		rt: formatDateTime(inputs.readyBy, locale).replace(/,/g, ''),
+		l: {
+			n: msgs.trmnl.now,
+			x: msgs.trmnl.next,
+			d: msgs.trmnl.done
 		},
-		generated_at: now.toISOString(),
-		locale,
-		steps: schedule.steps.map((step) => ({
-			title: stepTitle(step, msgs),
-			description: stepDescription(step, msgs, schedule),
-			date: formatShortDate(step.at, locale),
-			time: formatTime(step.at, locale),
-			duration: step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—',
-			duration_minutes: step.durationMinutes,
-			at_unix: Math.floor(step.at.getTime() / 1000),
-			is_ready: step.kind === 'ready'
+		st: schedule.steps.map((step) => ({
+			t: stepTitle(step, msgs),
+			d: stepDescription(step, msgs, schedule),
+			dt: formatShortDate(step.at, locale),
+			tm: formatTime(step.at, locale),
+			dr: step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—',
+			u: Math.floor(step.at.getTime() / 1000),
+			r: step.kind === 'ready'
 		}))
 	};
 }

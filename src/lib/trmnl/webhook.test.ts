@@ -22,44 +22,37 @@ function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
 }
 
 describe('buildMergeVariables', () => {
-	it('returns a complete merge_variables payload for a defaults-only recipe', () => {
+	it('returns a short-key payload for a defaults-only recipe', () => {
 		const i = inputs();
 		const s = computeSchedule(i);
-		const now = new Date('2026-05-12T10:00:00Z');
-		const m = buildMergeVariables(i, s, MESSAGES.en, 'en', now);
+		const m = buildMergeVariables(i, s, MESSAGES.en, 'en');
 
-		expect(m.title).toBe('Knead Time');
-		expect(m.summary).toContain('6 × 280 g');
-		expect(m.summary).toContain('70%');
-		expect(m.summary).toContain('Fresh yeast');
-		expect(m.summary).toContain('Room ferment');
-		expect(m.ready_label).toBe(MESSAGES.en.form.readyBy);
-		expect(m.ready_time).not.toContain(',');
-		expect(m.ready_time_unix).toBe(Math.floor(i.readyBy.getTime() / 1000));
-		expect(m.labels.now).toBe(MESSAGES.en.trmnl.now);
-		expect(m.labels.next).toBe(MESSAGES.en.trmnl.next);
-		expect(m.labels.done).toBe(MESSAGES.en.trmnl.done);
-		expect(m.generated_at).toBe(now.toISOString());
-		expect(m.locale).toBe('en');
-		expect(m.steps.length).toBe(s.steps.length);
+		expect(m.t).toBe('Knead Time');
+		expect(m.s).toContain('6 × 280 g');
+		expect(m.s).toContain('70%');
+		expect(m.s).toContain('Fresh yeast');
+		expect(m.s).toContain('Room ferment');
+		expect(m.rl).toBe(MESSAGES.en.form.readyBy);
+		expect(m.rt).not.toContain(',');
+		expect(m.l.n).toBe(MESSAGES.en.trmnl.now);
+		expect(m.l.x).toBe(MESSAGES.en.trmnl.next);
+		expect(m.l.d).toBe(MESSAGES.en.trmnl.done);
+		expect(m.st.length).toBe(s.steps.length);
 	});
 
-	it('marks the ready step as is_ready and gives it no duration', () => {
+	it('marks the ready step with r=true and gives it duration "—"', () => {
 		const i = inputs();
-		const s = computeSchedule(i);
-		const m = buildMergeVariables(i, s, MESSAGES.en, 'en', new Date('2026-05-12T10:00:00Z'));
-		const ready = m.steps.find((step) => step.is_ready)!;
-		expect(ready.duration).toBe('—');
-		expect(ready.duration_minutes).toBe(0);
+		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
+		const ready = m.st.find((step) => step.r)!;
+		expect(ready.dr).toBe('—');
 	});
 
-	it('attaches at_unix to each step for Liquid date-arithmetic', () => {
+	it('attaches step.u as unix seconds matching the schedule', () => {
 		const i = inputs();
 		const s = computeSchedule(i);
-		const m = buildMergeVariables(i, s, MESSAGES.en, 'en', new Date('2026-05-12T10:00:00Z'));
-		// Sorted in forward time, matches the schedule.
-		for (let k = 0; k < m.steps.length; k++) {
-			expect(m.steps[k].at_unix).toBe(Math.floor(s.steps[k].at.getTime() / 1000));
+		const m = buildMergeVariables(i, s, MESSAGES.en, 'en');
+		for (let k = 0; k < m.st.length; k++) {
+			expect(m.st[k].u).toBe(Math.floor(s.steps[k].at.getTime() / 1000));
 		}
 	});
 
@@ -68,14 +61,8 @@ describe('buildMergeVariables', () => {
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			preFerment: { type: 'biga', flourPercent: 30 }
 		});
-		const m = buildMergeVariables(
-			i,
-			computeSchedule(i),
-			MESSAGES.en,
-			'en',
-			new Date('2026-05-11T06:00:00Z')
-		);
-		expect(m.summary.toLowerCase()).toContain('biga');
+		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
+		expect(m.s.toLowerCase()).toContain('biga');
 	});
 
 	it('includes a poolish label in the summary when poolish is selected', () => {
@@ -83,26 +70,14 @@ describe('buildMergeVariables', () => {
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			preFerment: { type: 'poolish', flourPercent: 30 }
 		});
-		const m = buildMergeVariables(
-			i,
-			computeSchedule(i),
-			MESSAGES.en,
-			'en',
-			new Date('2026-05-11T06:00:00Z')
-		);
-		expect(m.summary.toLowerCase()).toContain('poolish');
+		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
+		expect(m.s.toLowerCase()).toContain('poolish');
 	});
 
 	it('uses the sourdough yeast label when yeastType is sourdough', () => {
 		const i = inputs({ yeastType: 'sourdough' });
-		const m = buildMergeVariables(
-			i,
-			computeSchedule(i),
-			MESSAGES.en,
-			'en',
-			new Date('2026-05-12T10:00:00Z')
-		);
-		expect(m.summary).toContain('Sourdough');
+		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
+		expect(m.s).toContain('Sourdough');
 	});
 
 	it('surfaces the cold-ferment mode label when the window triggers cold mode', () => {
@@ -110,34 +85,34 @@ describe('buildMergeVariables', () => {
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z')
 		});
-		const m = buildMergeVariables(
-			i,
-			computeSchedule(i),
-			MESSAGES.en,
-			'en',
-			new Date('2026-05-11T06:00:00Z')
-		);
-		expect(m.summary).toContain('Cold ferment');
+		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
+		expect(m.s).toContain('Cold ferment');
 	});
 
 	it('localizes labels and summary in another locale', () => {
 		const i = inputs();
-		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.de, 'de', new Date());
-		expect(m.summary).toContain('Frischhefe');
-		expect(m.ready_label).toBe(MESSAGES.de.form.readyBy);
-		expect(m.locale).toBe('de');
+		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.de, 'de');
+		expect(m.s).toContain('Frischhefe');
+		expect(m.rl).toBe(MESSAGES.de.form.readyBy);
+	});
+
+	it('keeps a cold-mode + biga preferment payload under TRMNL free tier 2 KB cap', () => {
+		// Cold mode + pre-ferment is the worst case: 8 steps, the
+		// preferment-mix description is one of the longest.
+		const i = inputs({
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z'),
+			preFerment: { type: 'biga', flourPercent: 30 }
+		});
+		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
+		const wireBytes = new TextEncoder().encode(JSON.stringify({ merge_variables: m })).length;
+		expect(wireBytes).toBeLessThan(2048);
 	});
 });
 
 describe('sendToTrmnl', () => {
 	const uuid = '123e4567-e89b-12d3-a456-426614174000';
-	const payload = buildMergeVariables(
-		inputs(),
-		computeSchedule(inputs()),
-		MESSAGES.en,
-		'en',
-		new Date('2026-05-12T10:00:00Z')
-	);
+	const payload = buildMergeVariables(inputs(), computeSchedule(inputs()), MESSAGES.en, 'en');
 
 	it('POSTs JSON with merge_variables to the right URL', async () => {
 		const mock: typeof fetch = vi.fn(async () => new Response(null, { status: 200 }));
