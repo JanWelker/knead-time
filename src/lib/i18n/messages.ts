@@ -121,6 +121,7 @@ export interface Messages {
 		totals_heading: string;
 	};
 	actions: {
+		menu: string;
 		download_ics: string;
 		print: string;
 		share: string;
@@ -316,6 +317,7 @@ const en: Messages = {
 		totals_heading: 'Totals'
 	},
 	actions: {
+		menu: 'Actions',
 		download_ics: 'Download .ics',
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
@@ -516,6 +518,7 @@ const de: Messages = {
 		totals_heading: 'Gesamt'
 	},
 	actions: {
+		menu: 'Aktionen',
 		download_ics: '.ics herunterladen',
 		print: 'Drucken / als PDF',
 		share: 'Link kopieren',
@@ -713,6 +716,7 @@ const it: Messages = {
 		totals_heading: 'Totale'
 	},
 	actions: {
+		menu: 'Azioni',
 		download_ics: 'Scarica .ics',
 		print: 'Stampa / Salva PDF',
 		share: 'Copia link',
@@ -914,6 +918,7 @@ const fr: Messages = {
 		totals_heading: 'Total'
 	},
 	actions: {
+		menu: 'Actions',
 		download_ics: 'Télécharger .ics',
 		print: 'Imprimer / Enregistrer en PDF',
 		share: 'Copier le lien',
@@ -1113,6 +1118,7 @@ const nl: Messages = {
 		totals_heading: 'Totaal'
 	},
 	actions: {
+		menu: 'Acties',
 		download_ics: '.ics downloaden',
 		print: 'Afdrukken / Opslaan als PDF',
 		share: 'Deellink kopiëren',
@@ -1309,6 +1315,7 @@ const jam: Messages = {
 		totals_heading: 'All add up'
 	},
 	actions: {
+		menu: 'Actions',
 		download_ics: 'Download .ics',
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',

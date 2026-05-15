@@ -26,6 +26,9 @@
 	const btnClass =
 		'bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
 
+	const menuItemClass =
+		'hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700';
+
 	const cardClass =
 		'border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70 print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none print:break-inside-avoid';
 
@@ -35,6 +38,8 @@
 
 	let copied = $state<'share' | 'trmnl' | null>(null);
 	let hydrated = $state(false);
+	let actionsRef: HTMLDetailsElement | null = $state(null);
+	let actionsOpen = $state(false);
 
 	onMount(() => {
 		const parsed = decodeInputs(window.location.search);
@@ -107,6 +112,26 @@
 			// best-effort: select the input on failure (omitted for brevity)
 		}
 	}
+
+	// Close the actions menu on outside-click + Escape — <details> handles
+	// click-on-summary toggle natively, but doesn't dismiss otherwise.
+	$effect(() => {
+		if (!browser || !actionsOpen) return;
+		function onDocClick(event: MouseEvent) {
+			if (actionsRef && !actionsRef.contains(event.target as Node)) {
+				actionsOpen = false;
+			}
+		}
+		function onKey(event: KeyboardEvent) {
+			if (event.key === 'Escape') actionsOpen = false;
+		}
+		document.addEventListener('click', onDocClick);
+		document.addEventListener('keydown', onKey);
+		return () => {
+			document.removeEventListener('click', onDocClick);
+			document.removeEventListener('keydown', onKey);
+		};
+	});
 </script>
 
 <svelte:head>
@@ -211,33 +236,66 @@
 						</h2>
 						<div class="mt-2 print:hidden"><ModeBadge mode={form.schedule.mode} /></div>
 					</div>
-					<div class="flex flex-wrap gap-2 print:hidden">
-						<button
-							type="button"
-							class={btnClass}
-							onclick={downloadIcs}
-							disabled={!form.schedule.feasible}
-						>
-							{t.actions.download_ics}
-						</button>
-						<button
-							type="button"
-							class={btnClass}
-							onclick={printPage}
-							disabled={!form.schedule.feasible}
-						>
-							{t.actions.print}
-						</button>
-						<button
-							type="button"
-							class={btnClass}
-							onclick={() => copy('share', window.location.href)}
-						>
-							{copied === 'share' ? t.actions.copied : t.actions.share}
-						</button>
-						<button type="button" class={btnClass} onclick={() => copy('trmnl', trmnlUrl)}>
-							{copied === 'trmnl' ? t.actions.copied : t.actions.trmnl}
-						</button>
+					<div class="relative print:hidden">
+						<details bind:this={actionsRef} bind:open={actionsOpen}>
+							<summary
+								class="{btnClass} flex cursor-pointer list-none items-center gap-2 select-none"
+								aria-haspopup="menu"
+								aria-label={t.actions.menu}
+							>
+								<svg
+									width="14"
+									height="14"
+									viewBox="0 0 16 16"
+									fill="currentColor"
+									aria-hidden="true"
+								>
+									<rect y="3" width="16" height="2" rx="1" />
+									<rect y="7" width="16" height="2" rx="1" />
+									<rect y="11" width="16" height="2" rx="1" />
+								</svg>
+								<span>{t.actions.menu}</span>
+							</summary>
+							<div
+								role="menu"
+								class="border-dough-200 absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
+							>
+								<button
+									type="button"
+									role="menuitem"
+									class={menuItemClass}
+									onclick={downloadIcs}
+									disabled={!form.schedule.feasible}
+								>
+									{t.actions.download_ics}
+								</button>
+								<button
+									type="button"
+									role="menuitem"
+									class={menuItemClass}
+									onclick={printPage}
+									disabled={!form.schedule.feasible}
+								>
+									{t.actions.print}
+								</button>
+								<button
+									type="button"
+									role="menuitem"
+									class={menuItemClass}
+									onclick={() => copy('share', window.location.href)}
+								>
+									{copied === 'share' ? t.actions.copied : t.actions.share}
+								</button>
+								<button
+									type="button"
+									role="menuitem"
+									class={menuItemClass}
+									onclick={() => copy('trmnl', trmnlUrl)}
+								>
+									{copied === 'trmnl' ? t.actions.copied : t.actions.trmnl}
+								</button>
+							</div>
+						</details>
 					</div>
 				</div>
 
