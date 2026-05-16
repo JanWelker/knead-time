@@ -81,9 +81,9 @@ the current recipe to your device.
   .kt-rd { width: 130px; flex-shrink: 0; white-space: nowrap; }
   .kt-rs { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .kt-rdur { width: 150px; flex-shrink: 0; text-align: right; white-space: nowrap; }
-  .kt-past { color: #888; }
-  .kt-current { font-weight: 700; }
-  .kt-ready { font-weight: 700; }
+  .kt-r-past { color: #888; }
+  .kt-r-current { font-weight: 700; }
+  .kt-r-final { font-weight: 700; }
 </style>
 <div class="kt">
   <div class="kt-head">
@@ -131,9 +131,9 @@ the current recipe to your device.
     {%- for step in st -%}
       {%- assign step_at = step.u | plus: 0 -%}
       {%- assign row_class = "" -%}
-      {%- if step_at < now_unix and forloop.index0 < last_index -%}{%- assign row_class = "kt-past" -%}{%- endif -%}
-      {%- if forloop.index0 == current_index and current_index < last_index -%}{%- assign row_class = "kt-current" -%}{%- endif -%}
-      {%- if step.r -%}{%- assign row_class = "kt-ready" -%}{%- endif -%}
+      {%- if step_at < now_unix and forloop.index0 < last_index -%}{%- assign row_class = "kt-r-past" -%}{%- endif -%}
+      {%- if forloop.index0 == current_index and current_index < last_index -%}{%- assign row_class = "kt-r-current" -%}{%- endif -%}
+      {%- if step.r -%}{%- assign row_class = "kt-r-final" -%}{%- endif -%}
       <div class="kt-row {{ row_class }}">
         <div class="kt-rt">{{ step.tm }}</div>
         <div class="kt-rd">{{ step.dt }}</div>
