@@ -12,6 +12,13 @@ concurrency:
   group: pr-preview-${{ github.event.number }}
   cancel-in-progress: true
 
+# rossjrw/pr-preview-action@v1.8.1 still pins JamesIves/github-pages-deploy-action
+# v4.7.4 and marocchino/sticky-pull-request-comment v2.9.2, both Node 20. Opt
+# them onto Node 24 ahead of the 2026-06-02 forced migration. Remove once
+# upstream ships Node 24 pins.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   preview:
     runs-on: ubuntu-latest
