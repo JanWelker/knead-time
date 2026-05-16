@@ -1,32 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { computeSchedule } from './dough/schedule';
+import { defaultInputs, findStep } from './dough/testFixtures';
 import type { DoughInputs } from './dough/types';
 import { MESSAGES } from './i18n/messages';
 import { stepDescription, stepTitle } from './stepCopy';
 
+// stepCopy tests use the decimal ball weight (288.5 g) by default because
+// formatBallWeight's decimal-rendering is a regression worth covering.
 function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
-	return {
-		readyBy: new Date('2026-05-12T19:00:00Z'),
-		startAt: new Date('2026-05-12T13:00:00Z'),
-		pizzaCount: 6,
-		ballWeight: 288.5,
-		hydration: 70,
-		saltPercent: 3,
-		oilPercent: 0,
-		sugarPercent: 0,
-		yeastType: 'fresh',
-		starterHydration: 100,
-		roomTempC: 22,
-		fridgeTempC: 4,
-		preFerment: null,
-		...overrides
-	};
+	return defaultInputs({ ballWeight: 288.5, ...overrides });
 }
 
 describe('stepDescription — divide step', () => {
 	it('interpolates pizza count and ball weight into the description (en)', () => {
 		const r = computeSchedule(inputs());
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		const desc = stepDescription(divide, MESSAGES.en, r);
 		expect(desc).toContain('6');
 		expect(desc).toContain('288.5');
@@ -36,7 +24,7 @@ describe('stepDescription — divide step', () => {
 
 	it('interpolates in German', () => {
 		const r = computeSchedule(inputs({ pizzaCount: 4, ballWeight: 280 }));
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		const desc = stepDescription(divide, MESSAGES.de, r);
 		expect(desc).toContain('4');
 		expect(desc).toContain('280');
@@ -45,7 +33,7 @@ describe('stepDescription — divide step', () => {
 
 	it('interpolates in Italian', () => {
 		const r = computeSchedule(inputs({ pizzaCount: 8, ballWeight: 250 }));
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		const desc = stepDescription(divide, MESSAGES.it, r);
 		expect(desc).toContain('8');
 		expect(desc).toContain('250');
@@ -54,20 +42,20 @@ describe('stepDescription — divide step', () => {
 
 	it('falls back to the raw template when no schedule context is supplied', () => {
 		const r = computeSchedule(inputs());
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		expect(stepDescription(divide, MESSAGES.en)).toBe(MESSAGES.en.steps.divide_desc);
 	});
 
 	it('shows the ball weight at 0.1 g precision so Round-numbers shifts are visible', () => {
 		const r = computeSchedule(inputs({ ballWeight: 288.5 }));
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		const desc = stepDescription(divide, MESSAGES.en, r);
 		expect(desc).toContain('288.5');
 	});
 
 	it('omits the decimal for integer ball weights', () => {
 		const r = computeSchedule(inputs({ ballWeight: 280 }));
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		const desc = stepDescription(divide, MESSAGES.en, r);
 		expect(desc).toContain('280 g');
 		expect(desc).not.toContain('280.0');
@@ -75,7 +63,7 @@ describe('stepDescription — divide step', () => {
 
 	it('renders a decimal ball weight identically across locales', () => {
 		const r = computeSchedule(inputs({ ballWeight: 288.5 }));
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		for (const locale of ['en', 'de', 'it'] as const) {
 			const desc = stepDescription(divide, MESSAGES[locale], r);
 			expect(desc, `${locale} should contain 288.5`).toContain('288.5');
@@ -86,7 +74,7 @@ describe('stepDescription — divide step', () => {
 describe('stepTitle', () => {
 	it('returns the localized step title', () => {
 		const r = computeSchedule(inputs());
-		const divide = r.steps.find((s) => s.kind === 'divide')!;
+		const divide = findStep(r, 'divide');
 		expect(stepTitle(divide, MESSAGES.en)).toBe('Divide & ball');
 		expect(stepTitle(divide, MESSAGES.de)).toBe('Portionieren');
 		expect(stepTitle(divide, MESSAGES.it)).toBe('Staglio');
@@ -96,7 +84,7 @@ describe('stepTitle', () => {
 describe('stepDescription — prep / mix weights', () => {
 	it('interpolates ingredient weights and fresh-yeast label', () => {
 		const r = computeSchedule(inputs());
-		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const prep = findStep(r, 'prep');
 		const desc = stepDescription(prep, MESSAGES.en, r);
 		expect(desc).toContain(`${Math.round(r.ingredients.flour)} g flour`);
 		expect(desc).toContain(`${Math.round(r.ingredients.water)} g water`);
@@ -107,7 +95,7 @@ describe('stepDescription — prep / mix weights', () => {
 
 	it('uses the sourdough-starter label when yeast is sourdough', () => {
 		const r = computeSchedule(inputs({ yeastType: 'sourdough' }));
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc).toContain('sourdough starter');
 		expect(desc).not.toContain('fresh yeast');
@@ -115,14 +103,14 @@ describe('stepDescription — prep / mix weights', () => {
 
 	it('localizes the inline yeast label', () => {
 		const r = computeSchedule(inputs());
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		expect(stepDescription(mix, MESSAGES.de, r)).toContain('Frischhefe');
 		expect(stepDescription(mix, MESSAGES.it, r)).toContain('lievito fresco');
 	});
 
 	it('falls back to the raw template when no schedule context is supplied', () => {
 		const r = computeSchedule(inputs());
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		expect(stepDescription(mix, MESSAGES.en)).toBe(MESSAGES.en.steps.mix_desc);
 	});
 });
@@ -136,7 +124,7 @@ describe('stepDescription — preferment-mix weights', () => {
 				preFerment: { type: 'poolish', flourPercent: 30 }
 			})
 		);
-		const pf = r.steps.find((s) => s.kind === 'preferment-mix')!;
+		const pf = findStep(r, 'preferment-mix');
 		const desc = stepDescription(pf, MESSAGES.en, r);
 		expect(r.ingredients.preFerment).not.toBeNull();
 		expect(desc).toContain(`${Math.round(r.ingredients.preFerment!.flour)} g flour`);
@@ -152,8 +140,8 @@ describe('stepDescription — preferment-mix weights', () => {
 				preFerment: { type: 'biga', flourPercent: 30 }
 			})
 		);
-		const pf = r.steps.find((s) => s.kind === 'preferment-mix')!;
-		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const pf = findStep(r, 'preferment-mix');
+		const prep = findStep(r, 'prep');
 		const expectedMin = Math.round((prep.at.getTime() - pf.at.getTime()) / 60_000);
 		const h = String(Math.floor(expectedMin / 60)).padStart(2, '0');
 		const m = String(expectedMin % 60).padStart(2, '0');
@@ -177,7 +165,7 @@ describe('stepDescription — proofing steps omit duration (shown in column)', (
 		msgs = MESSAGES.en
 	) {
 		const r = computeSchedule(inputs({ startAt, readyBy }));
-		const step = r.steps.find((s) => s.kind === kind)!;
+		const step = findStep(r, kind);
 		return { desc: stepDescription(step, msgs, r), minutes: step.durationMinutes };
 	}
 
@@ -224,7 +212,7 @@ describe('stepDescription — proofing steps omit duration (shown in column)', (
 describe('stepDescription — mix step water-temp recommendation', () => {
 	it('interpolates the recommended water temperature into the mix description', () => {
 		const r = computeSchedule(inputs());
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc).toContain(`${r.idealWaterTempC} °C`);
 		expect(desc).not.toContain('{water_temp}');
@@ -232,7 +220,7 @@ describe('stepDescription — mix step water-temp recommendation', () => {
 
 	it('mentions chilling with ice for the baker with a hot kitchen', () => {
 		const r = computeSchedule(inputs({ roomTempC: 30 }));
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc.toLowerCase()).toContain('ice');
 	});
@@ -240,7 +228,7 @@ describe('stepDescription — mix step water-temp recommendation', () => {
 	it('flows the water temperature through the biga and poolish mix copy too', () => {
 		for (const type of ['biga', 'poolish'] as const) {
 			const r = computeSchedule(inputs({ preFerment: { type, flourPercent: 30 } }));
-			const mix = r.steps.find((s) => s.kind === 'mix')!;
+			const mix = findStep(r, 'mix');
 			const desc = stepDescription(mix, MESSAGES.en, r);
 			expect(desc, `${type} mix should interpolate water temp`).toContain(
 				`${r.idealWaterTempC} °C`
@@ -253,13 +241,13 @@ describe('stepDescription — mix step water-temp recommendation', () => {
 describe('stepDescription — mix step with pre-ferment', () => {
 	it('names the pre-ferment by type so the baker knows what to fold in', () => {
 		const poolish = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
-		const poolishMix = poolish.steps.find((s) => s.kind === 'mix')!;
+		const poolishMix = findStep(poolish, 'mix');
 		expect(stepDescription(poolishMix, MESSAGES.en, poolish).toLowerCase()).toContain('poolish');
 		expect(stepDescription(poolishMix, MESSAGES.de, poolish).toLowerCase()).toContain('poolish');
 		expect(stepDescription(poolishMix, MESSAGES.it, poolish).toLowerCase()).toContain('poolish');
 
 		const biga = computeSchedule(inputs({ preFerment: { type: 'biga', flourPercent: 30 } }));
-		const bigaMix = biga.steps.find((s) => s.kind === 'mix')!;
+		const bigaMix = findStep(biga, 'mix');
 		expect(stepDescription(bigaMix, MESSAGES.en, biga).toLowerCase()).toContain('biga');
 		expect(stepDescription(bigaMix, MESSAGES.de, biga).toLowerCase()).toContain('biga');
 		expect(stepDescription(bigaMix, MESSAGES.it, biga).toLowerCase()).toContain('biga');
@@ -267,7 +255,7 @@ describe('stepDescription — mix step with pre-ferment', () => {
 
 	it('omits the yeast field on the mix step because the pre-ferment carries it', () => {
 		const r = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc).not.toContain('fresh yeast');
 		expect(desc).not.toMatch(/\b0 g\b/);
@@ -275,7 +263,7 @@ describe('stepDescription — mix step with pre-ferment', () => {
 
 	it('falls back to the no-preferment mix copy when no pre-ferment is set', () => {
 		const r = computeSchedule(inputs());
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc.toLowerCase()).not.toContain('biga');
 		expect(desc.toLowerCase()).not.toContain('poolish');
@@ -286,7 +274,7 @@ describe('stepDescription — mix step with pre-ferment', () => {
 describe('stepDescription — prep step with pre-ferment', () => {
 	it('flags the remaining ingredients and notes the yeast lives in the pre-ferment', () => {
 		const r = computeSchedule(inputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
-		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const prep = findStep(r, 'prep');
 		const desc = stepDescription(prep, MESSAGES.en, r);
 		expect(desc).not.toContain('fresh yeast');
 		// remaining flour/water for prep should match the main-dough amounts
@@ -297,7 +285,7 @@ describe('stepDescription — prep step with pre-ferment', () => {
 describe('stepDescription — ready step', () => {
 	it('returns the raw template (no interpolation) for the ready step', () => {
 		const r = computeSchedule(inputs());
-		const ready = r.steps.find((s) => s.kind === 'ready')!;
+		const ready = findStep(r, 'ready');
 		expect(stepDescription(ready, MESSAGES.en, r)).toBe(MESSAGES.en.steps.ready_desc);
 		expect(stepDescription(ready, MESSAGES.de, r)).toBe(MESSAGES.de.steps.ready_desc);
 		expect(stepDescription(ready, MESSAGES.it, r)).toBe(MESSAGES.it.steps.ready_desc);
@@ -307,7 +295,7 @@ describe('stepDescription — ready step', () => {
 describe('stepDescription — oil & sugar extras', () => {
 	it('appends an oil-only trailer when oilPercent > 0 and sugarPercent = 0', () => {
 		const r = computeSchedule(inputs({ oilPercent: 5 }));
-		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const prep = findStep(r, 'prep');
 		const desc = stepDescription(prep, MESSAGES.en, r);
 		expect(desc).toContain(`${Math.round(r.ingredients.oil)} g oil`);
 		expect(desc).not.toContain('sugar');
@@ -315,7 +303,7 @@ describe('stepDescription — oil & sugar extras', () => {
 
 	it('appends a sugar-only trailer when sugarPercent > 0 and oilPercent = 0', () => {
 		const r = computeSchedule(inputs({ sugarPercent: 2 }));
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc).toContain(`${Math.round(r.ingredients.sugar)} g sugar`);
 		expect(desc).not.toMatch(/\d+ g oil/);
@@ -323,7 +311,7 @@ describe('stepDescription — oil & sugar extras', () => {
 
 	it('appends a combined trailer when both oil & sugar are present', () => {
 		const r = computeSchedule(inputs({ oilPercent: 5, sugarPercent: 2 }));
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc).toContain(`${Math.round(r.ingredients.oil)} g oil`);
 		expect(desc).toContain(`${Math.round(r.ingredients.sugar)} g sugar`);
@@ -333,7 +321,7 @@ describe('stepDescription — oil & sugar extras', () => {
 		const r = computeSchedule(
 			inputs({ oilPercent: 4, preFerment: { type: 'biga', flourPercent: 30 } })
 		);
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc).toContain(`${Math.round(r.ingredients.oil)} g oil`);
 	});
@@ -342,14 +330,14 @@ describe('stepDescription — oil & sugar extras', () => {
 		const r = computeSchedule(
 			inputs({ sugarPercent: 1.5, preFerment: { type: 'poolish', flourPercent: 30 } })
 		);
-		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const mix = findStep(r, 'mix');
 		const desc = stepDescription(mix, MESSAGES.en, r);
 		expect(desc).toContain(`${Math.round(r.ingredients.sugar)} g sugar`);
 	});
 
 	it('omits the extras trailer when both are 0 (default case)', () => {
 		const r = computeSchedule(inputs());
-		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const prep = findStep(r, 'prep');
 		const desc = stepDescription(prep, MESSAGES.en, r);
 		expect(desc).not.toContain('oil');
 		expect(desc).not.toContain('sugar');

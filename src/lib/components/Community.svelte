@@ -4,6 +4,7 @@
 	import type { CommunityEntry } from '$lib/community/community';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { intlLocaleTag } from '$lib/i18n/messages';
+	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
@@ -22,24 +23,6 @@
 		const [y, m, d] = iso.split('-').map(Number);
 		if (!y || !m || !d) return iso;
 		return dateFormatter.format(new Date(y, m - 1, d));
-	}
-
-	function yeastLabel(entry: CommunityEntry): string {
-		if (entry.inputs.yeastType === 'sourdough') return t.form.yeast_sourdough;
-		if (entry.inputs.yeastType === 'fresh') return t.form.yeast_fresh;
-		return '—';
-	}
-
-	function preFermentLabel(entry: CommunityEntry): string {
-		const pf = entry.inputs.preFerment;
-		if (!pf) return '—';
-		const name = pf.type === 'biga' ? t.form.preFerment_biga : t.form.preFerment_poolish;
-		const short = name.split('(')[0].trim();
-		return `${short} ${pf.flourPercent}%`;
-	}
-
-	function num(value: number | undefined, suffix = ''): string {
-		return value === undefined ? '—' : `${value}${suffix}`;
 	}
 </script>
 
@@ -82,7 +65,7 @@
 				<a
 					href={resolve('/') + entry.search}
 					rel="external"
-					class="bg-tomato-500 hover:bg-tomato-600 mt-3 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white"
+					class="btn-tomato mt-3 inline-flex items-center justify-center"
 				>
 					{t.community.open_link}
 				</a>
@@ -96,21 +79,21 @@
 						class="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-stone-600 dark:text-stone-300"
 					>
 						<dt class="font-medium">{t.community.col_pizzas}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.pizzaCount)}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.pizzaCount)}</dd>
 						<dt class="font-medium">{t.community.col_ball}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.ballWeight, ' g')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.ballWeight, ' g')}</dd>
 						<dt class="font-medium">{t.community.col_hydration}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.hydration, '%')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.hydration, '%')}</dd>
 						<dt class="font-medium">{t.community.col_salt}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.saltPercent, '%')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.saltPercent, '%')}</dd>
 						<dt class="font-medium">{t.community.col_yeast}</dt>
-						<dd>{yeastLabel(entry)}</dd>
+						<dd>{yeastLabel(entry.inputs, t)}</dd>
 						<dt class="font-medium">{t.community.col_temp}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.roomTempC, '°C')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.roomTempC, '°C')}</dd>
 						<dt class="font-medium">{t.community.col_fridge}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.fridgeTempC, '°C')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.fridgeTempC, '°C')}</dd>
 						<dt class="font-medium">{t.community.col_preFerment}</dt>
-						<dd>{preFermentLabel(entry)}</dd>
+						<dd>{preFermentLabel(entry.inputs, t)}</dd>
 					</dl>
 				</details>
 			</li>
@@ -119,7 +102,7 @@
 
 	<!-- Desktop: full table. -->
 	<div class="hidden overflow-x-auto md:block">
-		<table class="tabular w-full min-w-[640px] border-collapse text-left text-sm">
+		<table class="w-full min-w-[640px] border-collapse text-left text-sm tabular-nums">
 			<thead>
 				<tr
 					class="border-dough-300 border-b text-xs tracking-wider text-stone-500 uppercase dark:border-stone-700 dark:text-stone-400"
@@ -139,7 +122,7 @@
 			</thead>
 			<tbody>
 				{#each entries as entry (entry.url)}
-					<tr class="border-dough-200/70 border-b align-top last:border-0 dark:border-stone-700/70">
+					<tr class="row-divider align-top">
 						<td class="py-3 pr-3 font-medium text-stone-800 dark:text-stone-100">
 							{#if entry.handle}
 								<a
@@ -157,19 +140,29 @@
 						<td class="py-3 pr-3 whitespace-nowrap text-stone-500 dark:text-stone-400">
 							{formatDate(entry.date)}
 						</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.pizzaCount)}</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.ballWeight, ' g')}</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.hydration, '%')}</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.saltPercent, '%')}</td>
-						<td class="py-3 pr-3">{yeastLabel(entry)}</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.roomTempC, '°C')}</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.fridgeTempC, '°C')}</td>
-						<td class="py-3 pr-3">{preFermentLabel(entry)}</td>
+						<td class="py-3 pr-3 text-right tabular-nums">{numLabel(entry.inputs.pizzaCount)}</td>
+						<td class="py-3 pr-3 text-right tabular-nums"
+							>{numLabel(entry.inputs.ballWeight, ' g')}</td
+						>
+						<td class="py-3 pr-3 text-right tabular-nums"
+							>{numLabel(entry.inputs.hydration, '%')}</td
+						>
+						<td class="py-3 pr-3 text-right tabular-nums"
+							>{numLabel(entry.inputs.saltPercent, '%')}</td
+						>
+						<td class="py-3 pr-3">{yeastLabel(entry.inputs, t)}</td>
+						<td class="py-3 pr-3 text-right tabular-nums"
+							>{numLabel(entry.inputs.roomTempC, '°C')}</td
+						>
+						<td class="py-3 pr-3 text-right tabular-nums"
+							>{numLabel(entry.inputs.fridgeTempC, '°C')}</td
+						>
+						<td class="py-3 pr-3">{preFermentLabel(entry.inputs, t)}</td>
 						<td class="py-3">
 							<a
 								href={resolve('/') + entry.search}
 								rel="external"
-								class="text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+								class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
 							>
 								{t.community.open_link}
 							</a>

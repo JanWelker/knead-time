@@ -1,23 +1,12 @@
 import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
 import {
+	ACTIVE_NIGHT_KINDS,
 	COLD_BULK_CEIL_MIN,
 	COLD_BULK_FLOOR_MIN,
 	NIGHT_END_HOUR,
 	NIGHT_START_HOUR
 } from './schedule';
-import type { ComputedSchedule, DoughInputs, ScheduleStep, ScheduleStepKind } from './types';
-
-// Baker-action step kinds — kept in sync with schedule.ts' ACTIVE_NIGHT_KINDS.
-// Whether a step is "on the clock" for the baker drives the per-step night
-// flag here and the recipe-level night-step warning there.
-const ACTIVE_NIGHT_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
-	'preferment-mix',
-	'prep',
-	'mix',
-	'bulk-room',
-	'bulk-cold',
-	'divide'
-]);
+import type { ComputedSchedule, DoughInputs, ScheduleStep } from './types';
 
 // Schedule-imperfection penalties (0–100 scale). Tuned so a 2 h cold-bulk
 // night-shift takes the score from 100 to ~88 — visibly off, but still

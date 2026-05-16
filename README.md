@@ -101,7 +101,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 
 ### Print / PDF export
 
-The **Print / Save as PDF** action calls `window.print()` — there's no PDF library. Layout is driven by `@media print` rules in `src/app.css` and `print:` Tailwind variants scattered through `+page.svelte` and `ModeBadge.svelte`. The printed sheet hides the input form and chrome, prepends a two-column header (Recipe inputs on the left, Ingredients on the right) above the full-width schedule, and appends a footer with a QR code of the share URL so scanning the printed sheet rehydrates the recipe in the app.
+The **Print / Save as PDF** action opens a dedicated `/print/[[locale]]?<recipe>` route in a new tab (`src/routes/print/[[locale]]/+page.svelte`). The route is fully self-contained — inline styles in `<svelte:head>`, no Tailwind print variants, no shared chrome — and auto-triggers `window.print()` on mount. It renders a two-column header (Recipe inputs on the left, Ingredients on the right) above the full-width schedule, then a footer with a QR code of the share URL so scanning the printed sheet rehydrates the recipe in the app.
 
 If you touch the printed layout, check it in your browser's print preview — don't rely on `svelte-check`. Keep it readable on a B&W printer (borders and text colour, not background fills), and keep the common shapes on one page. QR generation lives in `src/lib/qr.ts` (thin wrapper around `qrcode-generator`).
 
@@ -188,7 +188,7 @@ has seven columns:
 - **Rankings** is a comma-separated list of `YEAR-LIST:RANK` tokens. `LIST` is
   `it` for the 2018–2021 guides (when 50 Top Pizza was an Italy-only ranking)
   and `w` for 2022–2025 (the standalone World ranking).
-- **Recipe** is the doughcalc **Share** URL that encodes the published
+- **Recipe** is the Knead Time **Share** URL that encodes the published
   numbers. Open the app, dial in the recipe, click **Share**, paste here.
 - **Timing** captures the proving durations the source specifies
   (`step-kind:Nh`, `step-kind:N-Mh`, or `Nm`). The schedule tags any computed

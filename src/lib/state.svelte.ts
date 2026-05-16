@@ -51,24 +51,7 @@ export class FormState {
 	readonly schedule: ComputedSchedule = $derived(computeSchedule(this.inputs));
 
 	serializable(): SerializableInputs {
-		return {
-			readyBy: this.readyBy,
-			startAt: this.startAt,
-			pizzaCount: this.pizzaCount,
-			ballWeight: this.ballWeight,
-			hydration: this.hydration,
-			saltPercent: this.saltPercent,
-			oilPercent: this.oilPercent,
-			sugarPercent: this.sugarPercent,
-			yeastType: this.yeastType,
-			starterHydration: this.starterHydration,
-			roomTempC: this.roomTempC,
-			fridgeTempC: this.fridgeTempC,
-			preFerment:
-				this.preFermentType === 'none'
-					? null
-					: { type: this.preFermentType, flourPercent: this.preFermentFlour }
-		};
+		return this.inputs;
 	}
 
 	roundBallWeight() {

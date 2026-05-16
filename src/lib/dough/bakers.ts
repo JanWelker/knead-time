@@ -16,6 +16,28 @@ export interface BakerArgs {
 	preFermentHydration: number;
 }
 
+// Mass balance: total = sum of every separately-weighed ingredient.
+// Fresh yeast adds its own mass: total = F · (1 + h + s + y + oil + sugar) / 100.
+// Sourdough starter is flour + water from the existing budget, so its mass
+// drops out: total = F · (1 + h + s + oil + sugar) / 100.
+export function computePctSum(args: {
+	hydration: number;
+	saltPercent: number;
+	oilPercent: number;
+	sugarPercent: number;
+	yeastPercent: number;
+	yeastType: YeastType;
+}): number {
+	return (
+		100 +
+		args.hydration +
+		args.saltPercent +
+		args.oilPercent +
+		args.sugarPercent +
+		(args.yeastType === 'sourdough' ? 0 : args.yeastPercent)
+	);
+}
+
 export function computeIngredients(args: BakerArgs): Ingredients {
 	const totalDough = args.pizzaCount * args.ballWeight;
 	const isSourdough = args.yeastType === 'sourdough';
@@ -24,18 +46,7 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 	// preFerment for sourdough; this guard makes the bakers' module match.
 	const hasPreFerment = !isSourdough && args.preFermentFlourPercent > 0;
 
-	// Mass balance:
-	//   total = sum of every separately-weighed ingredient
-	// Fresh yeast adds its own mass: total = F · (1 + h + s + y + oil + sugar) / 100
-	// Sourdough starter is flour + water from the existing budget, so its mass
-	// drops out: total = F · (1 + h + s + oil + sugar) / 100
-	const pctSum =
-		100 +
-		args.hydration +
-		args.saltPercent +
-		args.oilPercent +
-		args.sugarPercent +
-		(isSourdough ? 0 : args.yeastPercent);
+	const pctSum = computePctSum(args);
 	const flourTotal = (totalDough * 100) / pctSum;
 	const waterTotal = (flourTotal * args.hydration) / 100;
 	const salt = (flourTotal * args.saltPercent) / 100;
@@ -96,11 +107,7 @@ export interface RoundBallWeightArgs {
 // that produces it exactly. Prefers a multiple of 100 g when it's not much worse
 // than the nearest multiple of 50 g; otherwise rounds to 50 g.
 export function roundBallWeight(args: RoundBallWeightArgs): number {
-	const isSourdough = args.yeastType === 'sourdough';
-	const yeastPct = isSourdough ? 0 : args.yeastPercent;
-	const pctSum =
-		100 + args.hydration + args.saltPercent + args.oilPercent + args.sugarPercent + yeastPct;
-
+	const pctSum = computePctSum(args);
 	const currentTotal = args.pizzaCount * args.ballWeight;
 	const currentFlour = (currentTotal * 100) / pctSum;
 

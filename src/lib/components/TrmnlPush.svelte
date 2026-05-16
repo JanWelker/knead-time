@@ -91,7 +91,7 @@
 >
 	<form method="dialog" class="space-y-4 p-5">
 		<header class="space-y-1">
-			<h2 class="font-display text-tomato-700 dark:text-tomato-300 text-lg">
+			<h2 class="font-display text-accent text-lg">
 				{t.trmnl_push.dialog_heading}
 			</h2>
 			<p class="text-xs text-stone-500 dark:text-stone-400">{t.trmnl_push.dialog_intro}</p>
@@ -115,7 +115,7 @@
 		<div class="flex flex-wrap items-center gap-2">
 			<button
 				type="button"
-				class="bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+				class="btn-tomato"
 				disabled={status === 'sending' || uuidInput.trim().length === 0}
 				onclick={send}
 			>
@@ -142,7 +142,7 @@
 		{#if status === 'sent'}
 			<p class="text-basil-700 dark:text-basil-300 text-xs">{t.trmnl_push.sent}</p>
 		{:else if status === 'error'}
-			<p class="text-tomato-700 dark:text-tomato-300 text-xs">
+			<p class="text-accent text-xs">
 				{t.trmnl_push.error}: {errorMessage}
 			</p>
 		{/if}

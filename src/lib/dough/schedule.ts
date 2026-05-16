@@ -51,7 +51,7 @@ const COLD_PRE_POST_OFFSET_MIN =
 // neither participates in night-window checks. The pre-ferment mix is brief
 // active work at the start of a multi-hour maturation block, so it counts as
 // a night-aware action even though the maturation itself is passive.
-const ACTIVE_NIGHT_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
+export const ACTIVE_NIGHT_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'preferment-mix',
 	'prep',
 	'mix',
@@ -159,10 +159,12 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			(coldMin / 60) * temperatureFactor(inputs.fridgeTempC);
 
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
-		steps = buildColdSteps({
+		steps = buildSteps({
 			readyBy: inputs.readyBy,
-			coldMin,
-			prefermentDurationMin: preFerment ? prefermentDurationMin : null
+			prefermentDurationMin: preFerment ? prefermentDurationMin : null,
+			bulkRoomMin: COLD_INITIAL_BULK_MIN,
+			bulkColdMin: coldMin,
+			finalProofMin: COLD_FINAL_PROOF_MIN
 		});
 	} else {
 		const roomFixedMin = PREP_MIN + MIX_MIN + DIVIDE_MIN;
@@ -186,11 +188,12 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			((prefermentDurationMin + bulkMin + finalProofMin) / 60) *
 			temperatureFactor(inputs.roomTempC);
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
-		steps = buildRoomSteps({
+		steps = buildSteps({
 			readyBy: inputs.readyBy,
-			bulkMin,
-			finalProofMin,
-			prefermentDurationMin: preFerment ? prefermentDurationMin : null
+			prefermentDurationMin: preFerment ? prefermentDurationMin : null,
+			bulkRoomMin: bulkMin,
+			bulkColdMin: null,
+			finalProofMin
 		});
 	}
 
@@ -258,72 +261,46 @@ function subMin(d: Date, min: number): Date {
 	return new Date(d.getTime() - min * 60_000);
 }
 
-interface ColdArgs {
+interface BuildArgs {
 	readyBy: Date;
-	coldMin: number;
 	prefermentDurationMin: number | null;
+	bulkRoomMin: number;
+	// `null` ⇒ room-only schedule (no cold leg). Non-null ⇒ cold-bulk
+	// sandwiched between the initial room bulk and divide.
+	bulkColdMin: number | null;
+	finalProofMin: number;
 }
 
-function buildColdSteps({ readyBy, coldMin, prefermentDurationMin }: ColdArgs): ScheduleStep[] {
-	const finalProofAt = subMin(readyBy, COLD_FINAL_PROOF_MIN);
+function buildSteps({
+	readyBy,
+	prefermentDurationMin,
+	bulkRoomMin,
+	bulkColdMin,
+	finalProofMin
+}: BuildArgs): ScheduleStep[] {
+	const finalProofAt = subMin(readyBy, finalProofMin);
 	const divideAt = subMin(finalProofAt, DIVIDE_MIN);
-	const bulkColdAt = subMin(divideAt, coldMin);
-	const bulkRoomAt = subMin(bulkColdAt, COLD_INITIAL_BULK_MIN);
+	const bulkColdAt = bulkColdMin !== null ? subMin(divideAt, bulkColdMin) : null;
+	const bulkRoomAt = subMin(bulkColdAt ?? divideAt, bulkRoomMin);
 	const mixAt = subMin(bulkRoomAt, MIX_MIN);
 	const prepAt = subMin(mixAt, PREP_MIN);
 
 	const steps: ScheduleStep[] = [];
 	if (prefermentDurationMin !== null) {
-		const prefermentMixAt = subMin(prepAt, prefermentDurationMin);
 		// One row covers the brief active mixing plus the long maturation — the
 		// schedule table reads "until prep at HH:MM" from this duration.
 		steps.push({
 			kind: 'preferment-mix',
-			at: prefermentMixAt,
+			at: subMin(prepAt, prefermentDurationMin),
 			durationMinutes: prefermentDurationMin
 		});
 	}
 	steps.push({ kind: 'prep', at: prepAt, durationMinutes: PREP_MIN });
 	steps.push({ kind: 'mix', at: mixAt, durationMinutes: MIX_MIN });
-	steps.push({ kind: 'bulk-room', at: bulkRoomAt, durationMinutes: COLD_INITIAL_BULK_MIN });
-	steps.push({ kind: 'bulk-cold', at: bulkColdAt, durationMinutes: coldMin });
-	steps.push({ kind: 'divide', at: divideAt, durationMinutes: DIVIDE_MIN });
-	steps.push({ kind: 'final-proof', at: finalProofAt, durationMinutes: COLD_FINAL_PROOF_MIN });
-	steps.push({ kind: 'ready', at: readyBy, durationMinutes: 0 });
-	return steps;
-}
-
-interface RoomArgs {
-	readyBy: Date;
-	bulkMin: number;
-	finalProofMin: number;
-	prefermentDurationMin: number | null;
-}
-
-function buildRoomSteps({
-	readyBy,
-	bulkMin,
-	finalProofMin,
-	prefermentDurationMin
-}: RoomArgs): ScheduleStep[] {
-	const finalProofAt = subMin(readyBy, finalProofMin);
-	const divideAt = subMin(finalProofAt, DIVIDE_MIN);
-	const bulkAt = subMin(divideAt, bulkMin);
-	const mixAt = subMin(bulkAt, MIX_MIN);
-	const prepAt = subMin(mixAt, PREP_MIN);
-
-	const steps: ScheduleStep[] = [];
-	if (prefermentDurationMin !== null) {
-		const prefermentMixAt = subMin(prepAt, prefermentDurationMin);
-		steps.push({
-			kind: 'preferment-mix',
-			at: prefermentMixAt,
-			durationMinutes: prefermentDurationMin
-		});
+	steps.push({ kind: 'bulk-room', at: bulkRoomAt, durationMinutes: bulkRoomMin });
+	if (bulkColdAt !== null && bulkColdMin !== null) {
+		steps.push({ kind: 'bulk-cold', at: bulkColdAt, durationMinutes: bulkColdMin });
 	}
-	steps.push({ kind: 'prep', at: prepAt, durationMinutes: PREP_MIN });
-	steps.push({ kind: 'mix', at: mixAt, durationMinutes: MIX_MIN });
-	steps.push({ kind: 'bulk-room', at: bulkAt, durationMinutes: bulkMin });
 	steps.push({ kind: 'divide', at: divideAt, durationMinutes: DIVIDE_MIN });
 	steps.push({ kind: 'final-proof', at: finalProofAt, durationMinutes: finalProofMin });
 	steps.push({ kind: 'ready', at: readyBy, durationMinutes: 0 });

@@ -1,27 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { computeSchedule } from '../dough/schedule';
-import type { DoughInputs } from '../dough/types';
+import { defaultInputs as inputs } from '../dough/testFixtures';
 import { LOCALES, MESSAGES } from '../i18n/messages';
 import { buildMergeVariables, sendToTrmnl, TRMNL_WEBHOOK_BASE } from './webhook';
-
-function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
-	return {
-		readyBy: new Date('2026-05-12T19:00:00Z'),
-		startAt: new Date('2026-05-12T13:00:00Z'),
-		pizzaCount: 6,
-		ballWeight: 280,
-		hydration: 70,
-		saltPercent: 3,
-		oilPercent: 0,
-		sugarPercent: 0,
-		yeastType: 'fresh',
-		starterHydration: 100,
-		roomTempC: 22,
-		fridgeTempC: 4,
-		preFerment: null,
-		...overrides
-	};
-}
 
 describe('buildMergeVariables', () => {
 	it('returns a short-key payload for a defaults-only recipe', () => {

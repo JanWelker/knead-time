@@ -1,23 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { makeStorage } from '../storageFixtures';
 import { LOCALE_STORAGE_KEY, loadStoredLocale, saveStoredLocale } from './storedLocale';
-
-function makeStorage(initial: Record<string, string> = {}): Storage {
-	const map = new Map(Object.entries(initial));
-	return {
-		get length() {
-			return map.size;
-		},
-		clear: () => map.clear(),
-		getItem: (key: string) => map.get(key) ?? null,
-		key: (i: number) => [...map.keys()][i] ?? null,
-		removeItem: (key: string) => {
-			map.delete(key);
-		},
-		setItem: (key: string, value: string) => {
-			map.set(key, value);
-		}
-	};
-}
 
 describe('loadStoredLocale', () => {
 	it('returns null when storage is null', () => {
@@ -39,6 +22,30 @@ describe('loadStoredLocale', () => {
 	it('returns the stored locale when supported', () => {
 		expect(loadStoredLocale(makeStorage({ [LOCALE_STORAGE_KEY]: 'de' }))).toBe('de');
 		expect(loadStoredLocale(makeStorage({ [LOCALE_STORAGE_KEY]: 'jam' }))).toBe('jam');
+	});
+});
+
+describe('loadStoredLocale — legacy doughcalc:* migration', () => {
+	const LEGACY = 'doughcalc:locale';
+
+	it('migrates a valid legacy locale to the new key and returns it', () => {
+		const storage = makeStorage({ [LEGACY]: 'de' });
+		expect(loadStoredLocale(storage)).toBe('de');
+		expect(storage.getItem(LOCALE_STORAGE_KEY)).toBe('de');
+		expect(storage.getItem(LEGACY)).toBeNull();
+	});
+
+	it('discards a junk legacy value but still clears the legacy slot', () => {
+		const storage = makeStorage({ [LEGACY]: 'xx' });
+		expect(loadStoredLocale(storage)).toBeNull();
+		expect(storage.getItem(LOCALE_STORAGE_KEY)).toBeNull();
+		expect(storage.getItem(LEGACY)).toBeNull();
+	});
+
+	it('prefers the new key when both are present (does not touch legacy)', () => {
+		const storage = makeStorage({ [LOCALE_STORAGE_KEY]: 'it', [LEGACY]: 'de' });
+		expect(loadStoredLocale(storage)).toBe('it');
+		expect(storage.getItem(LEGACY)).toBe('de');
 	});
 });
 

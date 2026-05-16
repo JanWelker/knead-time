@@ -60,67 +60,37 @@ h3,
 	letter-spacing: -0.01em;
 }
 
-/* Numeric tabular alignment in tables */
-table.tabular td,
-table.tabular th {
-	font-variant-numeric: tabular-nums;
-}
-
 input[type='number'] {
 	font-variant-numeric: tabular-nums;
 }
 
-/* Focus ring tuned to the warm palette */
 :where(input, select, button, textarea):focus-visible {
 	outline: 2px solid var(--color-tomato-500);
 	outline-offset: 2px;
 }
 
-/* Print-only content is hidden on screen and revealed in print. */
-.print-only {
-	display: none;
-}
-
-@page {
-	margin: 9mm 10mm;
-}
-
-@media print {
-	html,
-	html.dark,
-	body {
-		background: white !important;
-		color: black !important;
+@layer components {
+	.card {
+		@apply border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70;
 	}
 
-	html {
-		font-size: 9pt;
+	.btn-tomato {
+		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50;
 	}
 
-	.print-only {
-		display: block;
+	.btn-tomato-sm {
+		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-3 py-1 text-xs font-semibold text-white;
 	}
 
-	/* Compact every tabular row when printing — the screen's generous padding
-	   eats vertical space that should fit a whole recipe on one page. */
-	table.tabular td,
-	table.tabular th {
-		padding-top: 0.15rem !important;
-		padding-bottom: 0.15rem !important;
+	.menu-item {
+		@apply hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700;
 	}
 
-	/* Keep schedule rows from splitting awkwardly across pages. */
-	table.tabular tbody tr {
-		break-inside: avoid;
+	.text-accent {
+		@apply text-tomato-700 dark:text-tomato-300;
 	}
 
-	/* Repeat table headers on every printed page. */
-	thead {
-		display: table-header-group;
-	}
-
-	/* Drop translucent layers so the printed page is fully opaque. */
-	[class*='backdrop-blur'] {
-		backdrop-filter: none !important;
+	.row-divider {
+		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
 	}
 }

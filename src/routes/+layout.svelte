@@ -21,14 +21,13 @@
 			const stored = loadStoredLocale(localStorage);
 			i18n.set(stored ?? detectLocale(navigator.languages));
 		}
-		document.documentElement.lang = i18n.locale;
 		theme.init();
 	});
 
+	// Mirror i18n.locale onto <html lang>; effects only run client-side,
+	// so no SSR guard is needed.
 	$effect(() => {
-		if (typeof document !== 'undefined') {
-			document.documentElement.lang = i18n.locale;
-		}
+		document.documentElement.lang = i18n.locale;
 	});
 </script>
 

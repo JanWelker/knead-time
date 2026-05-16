@@ -68,24 +68,21 @@ function parsePreFerment(encoded: string): { type: 'biga' | 'poolish' | null; pc
 	return { type, pct };
 }
 
-type Decoder = (params: URLSearchParams) => Partial<SerializableInputs>;
-
-const DECODERS: Record<number, Decoder> = {
-	1: decodeV1,
-	2: decodeV2,
-	3: decodeV3
-};
-
 export function decodeInputs(query: string): Partial<SerializableInputs> {
 	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
-	// Legacy links predate the version param — treat them as v1.
-	const raw = params.get(VERSION_KEY);
-	const requested = raw === null ? 1 : Number(raw);
-	const version = Number.isFinite(requested) && DECODERS[requested] ? requested : CURRENT_VERSION;
-	return DECODERS[version](params);
+	// Every published version (v1, v2, v3, missing-v=legacy) adds keys without
+	// renaming or repurposing them, so a single decoder handles them all.
+	// Branch on the version param the first time a future version DOES break
+	// that contract.
+	return decode(params);
 }
 
-function decodeShared(params: URLSearchParams): Partial<SerializableInputs> {
+// Single decoder for every version. Each version adds keys but never renames
+// or repurposes them — so reading a key from an older URL is harmless
+// (params.get returns null, the field stays undefined, FormState defaults
+// fill in). The version param itself is retained for forward-compat: when a
+// future version DOES rename/repurpose a key, branch on `version` here.
+function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	const out: Partial<SerializableInputs> = {};
 
 	const r = params.get(KEYS_V3.readyBy);
@@ -106,6 +103,10 @@ function decodeShared(params: URLSearchParams): Partial<SerializableInputs> {
 	if (h !== null) out.hydration = h;
 	const s = num(params.get(KEYS_V3.saltPercent));
 	if (s !== null) out.saltPercent = s;
+	const o = num(params.get(KEYS_V3.oilPercent));
+	if (o !== null) out.oilPercent = o;
+	const sg = num(params.get(KEYS_V3.sugarPercent));
+	if (sg !== null) out.sugarPercent = sg;
 
 	const y = params.get(KEYS_V3.yeastType);
 	if (y === 'f') out.yeastType = 'fresh';
@@ -117,6 +118,9 @@ function decodeShared(params: URLSearchParams): Partial<SerializableInputs> {
 	const t = num(params.get(KEYS_V3.roomTempC));
 	if (t !== null) out.roomTempC = t;
 
+	const ft = num(params.get(KEYS_V3.fridgeTempC));
+	if (ft !== null) out.fridgeTempC = ft;
+
 	const p = params.get(KEYS_V3.preFerment);
 	if (p) {
 		const { type, pct } = parsePreFerment(p);
@@ -127,31 +131,6 @@ function decodeShared(params: URLSearchParams): Partial<SerializableInputs> {
 		}
 	}
 
-	return out;
-}
-
-function decodeV1(params: URLSearchParams): Partial<SerializableInputs> {
-	// v=1 omits 'ft', 'o', 'sg'; the FormState defaults (4 °C, 0, 0) fill in
-	// via state.apply — these match the constants v=1 recipes were originally
-	// computed against, so old share-links keep their recipe.
-	return decodeShared(params);
-}
-
-function decodeV2(params: URLSearchParams): Partial<SerializableInputs> {
-	const out = decodeShared(params);
-	const ft = num(params.get(KEYS_V3.fridgeTempC));
-	if (ft !== null) out.fridgeTempC = ft;
-	// v=2 omits oil & sugar — FormState defaults (0/0) match v=2 recipes
-	// (none of them carried oil or sugar at the time the share-URL was made).
-	return out;
-}
-
-function decodeV3(params: URLSearchParams): Partial<SerializableInputs> {
-	const out = decodeV2(params);
-	const o = num(params.get(KEYS_V3.oilPercent));
-	if (o !== null) out.oilPercent = o;
-	const sg = num(params.get(KEYS_V3.sugarPercent));
-	if (sg !== null) out.sugarPercent = sg;
 	return out;
 }
 

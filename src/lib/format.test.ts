@@ -120,12 +120,6 @@ describe('formatDateTime / formatTime', () => {
 			expect(formatTime(d, loc)).toMatch(/05/);
 		}
 	});
-
-	it('reuses the cached formatter on repeat calls', () => {
-		const d = new Date(2026, 4, 12, 19, 30);
-		expect(formatDateTime(d, 'en')).toBe(formatDateTime(d, 'en'));
-		expect(formatTime(d, 'de')).toBe(formatTime(d, 'de'));
-	});
 });
 
 describe('formatShortDate', () => {
@@ -138,10 +132,6 @@ describe('formatShortDate', () => {
 
 	it('strips commas from the locale-formatted output', () => {
 		expect(formatShortDate(d, 'en')).not.toContain(',');
-	});
-
-	it('reuses the cached formatter on repeat calls', () => {
-		expect(formatShortDate(d, 'de')).toBe(formatShortDate(d, 'de'));
 	});
 });
 
