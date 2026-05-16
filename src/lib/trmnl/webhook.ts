@@ -7,7 +7,7 @@ import {
 	formatTime
 } from '../format';
 import type { Locale, Messages } from '../i18n/messages';
-import { stepDescription, stepTitle } from '../stepCopy';
+import { stepTitle } from '../stepCopy';
 
 // TRMNL Private Plugin webhooks live at this hostname; only the UUID at
 // the end varies between users. Confirmed CORS-open: the endpoint replies
@@ -23,14 +23,24 @@ export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
 //
 //   t  = title                 s  = summary
 //   rl = ready label           rt = ready time (formatted, no commas)
-//   l  = labels container     l.n = "Now"   l.x = "Next"   l.d = "Done"
+//   l  = labels container     l.n  = "Now"   l.x = "Next"   l.d = "Done"
+//                             l.sn = "since" (prefix for in-progress panel)
+//                             l.lf = "left"  (suffix for remaining time)
+//                             l.uh = "h"     l.um = "min" (remaining-time units)
 //   st = steps                  ↳ step.t   = title
-//                               ↳ step.d   = description
 //                               ↳ step.dt  = date
 //                               ↳ step.tm  = time
 //                               ↳ step.dr  = duration ("15 min" or "—")
 //                               ↳ step.u   = at_unix (seconds since epoch)
+//                               ↳ step.du  = duration_seconds — numeric, so the
+//                                            Liquid Now panel can compute
+//                                            "remaining = u + du − now"
 //                               ↳ step.r   = is_ready flag for the bake row
+// Step descriptions (the long, interpolated paragraph shown in the web app)
+// are intentionally NOT in the payload. The default Full-Markup template
+// renders only titles + times + durations, and including descriptions
+// blew past the 2 KB cap in de/it/fr (each long German description costs
+// ~80 bytes × 8 steps).
 export interface TrmnlMergeVariables {
 	t: string;
 	s: string;
@@ -40,17 +50,21 @@ export interface TrmnlMergeVariables {
 		n: string;
 		x: string;
 		d: string;
+		sn: string;
+		lf: string;
+		uh: string;
+		um: string;
 	};
 	st: TrmnlMergeStep[];
 }
 
 export interface TrmnlMergeStep {
 	t: string;
-	d: string;
 	dt: string;
 	tm: string;
 	dr: string;
 	u: number;
+	du: number;
 	r: boolean;
 }
 
@@ -83,15 +97,19 @@ export function buildMergeVariables(
 		l: {
 			n: msgs.trmnl.now,
 			x: msgs.trmnl.next,
-			d: msgs.trmnl.done
+			d: msgs.trmnl.done,
+			sn: msgs.trmnl.since,
+			lf: msgs.trmnl.left,
+			uh: msgs.trmnl.unit_h,
+			um: msgs.trmnl.unit_min
 		},
 		st: schedule.steps.map((step) => ({
 			t: stepTitle(step, msgs),
-			d: stepDescription(step, msgs, schedule),
 			dt: formatShortDate(step.at, locale),
 			tm: formatTime(step.at, locale),
 			dr: step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—',
 			u: Math.floor(step.at.getTime() / 1000),
+			du: step.durationMinutes * 60,
 			r: step.kind === 'ready'
 		}))
 	};
