@@ -10,12 +10,12 @@ Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; ev
 
 ## Domain model
 
-Schedule: `preferment-mix → prep → mix → bulk → divide → warmup → final-proof → ready`, computed backwards from `readyBy`.
+Schedule: `preferment-mix → prep → mix → bulk → divide → final-proof → ready`, computed backwards from `readyBy`. Cold-mode `final-proof` is a single 4 h "balls on the counter from fridge to bake" phase (`COLD_FINAL_PROOF_MIN = 240`) — the previous separate `warmup` step was folded in at v3 with no change to the equivalent-hours sum (both legs were at room temperature).
 
 - **Cold vs room is deterministic on available time, not a toggle.** Window ≥ 16 h → cold-bulk at `fridgeTempC`; else room.
 - **Pre-ferment is a real fermentation phase.** Biga ~14 h / poolish ~12 h at 22 °C, Q10-scaled, clamped [8, 24] h (`prefermentDurationHours` in `fermentation.ts`). Duration is both reserved on the schedule and added to the equivalent-hours yeast solve. For fresh-yeast recipes the pre-ferment carries **all the yeast** — no fresh yeast on baking day.
 - **Pre-ferment ⊥ sourdough.** `effectivePreFerment` in `schedule.ts` nulls biga/poolish when `yeastType === 'sourdough'`; InputForm hides the dropdown. URL state retains the choice so toggling is reversible.
-- **Night-window guard**: no baker-action step starts in `[22:00, 08:00)` local. Cold mode stretches `bulk-cold` within floor/ceiling to lift the pre-cold cluster into waking hours; post-cold steps are anchored to `readyBy`. When a step can't be lifted, emit a `night-step` warning — **never silently rearrange**. Guard may pull the first step before `startAt` — **`startAt` is a soft hint**.
+- **Night-window guard**: no baker-action step starts in `[22:00, 08:00)` local. Cold mode stretches `bulk-cold` within floor/ceiling to lift the pre-cold cluster into waking hours; the post-cold `divide` is anchored to `readyBy`. When a step can't be lifted, emit a `night-step` warning — **never silently rearrange**. Guard may pull the first step before `startAt` — **`startAt` is a soft hint**.
 
 ## Inputs
 
@@ -35,8 +35,8 @@ Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100
 - **Ingredients (grams).** No pre-ferment → flat table. With pre-ferment → Pre-dough / Main dough / Totals (a single subtracted table reads as a math error). With pre-ferment, main-dough yeast row is hidden — totals row surfaces the yeast.
 - **Schedule.** Step descriptions interpolate context (flour/water/salt/yeast on `prep`/`mix`; per-ball weight on `divide`; pre-ferment weights on `preferment-mix`). Day-two `prep`/`mix` omit yeast under a pre-ferment. **Separate `mix`/`prep` templates per pre-ferment type** (`*_with_biga`, `*_with_poolish`, `prep_desc_with_preferment`): biga = stiff/no-knead day-one + day-two fold-in; poolish = whisk-and-pour. `preferment-mix` row spans the full duration; no separate `preferment-proof` step.
 - **`.ics` export.** One VEVENT per step. **`DESCRIPTION` must match the on-page description verbatim**, interpolations included.
-- **Print / Save as PDF.** `window.print()` only — no PDF lib. Driven by `@media print` in `src/app.css` + Tailwind `print:` variants. Must read **B&W** (borders + text colour, no background fills) and **fit one page** on A4/Letter for common shapes (fresh × {no-preferment, biga, poolish} × {room, cold}). Print-only Ingredients is a second mount inside the print header so the screen card can be `print:hidden`-ed cleanly. QR of the share URL is appended via `src/lib/qr.ts` (wraps `qrcode-generator`).
-- **TRMNL e-ink view** at `/trmnl/<locale>?<recipe>` — see TRMNL section; constraints are empirical, not aesthetic.
+- **Print / Save as PDF.** Print button opens a dedicated `/print/[[locale]]?<recipe>` route in a new tab (SSR + prerendered, mirrors the TRMNL push pattern). The route auto-triggers `window.print()` on mount with inline styles so the main app's gradient/dark-mode rules don't bleed in. The legacy `@media print` machinery on the main route is kept as a Cmd-P fallback. Both paths must read on **B&W** (borders + text colour, no background fills) and **fit one page** on A4/Letter for common shapes (fresh × {no-preferment, biga, poolish} × {room, cold}). QR of the share URL via `src/lib/qr.ts` (wraps `qrcode-generator`).
+- **TRMNL e-ink view** is **pushed** to a Private Plugin webhook from the user's browser — see the TRMNL push section.
 
 ## Math
 
@@ -45,29 +45,40 @@ Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100
   - Fresh: `pctSum = 100 + h + s + y`.
   - Sourdough: `pctSum = 100 + h + s` (starter is flour + water from existing budget).
   - Pre-ferment redistributes flour/water/yeast — never changes totals.
-- **Yeast solves one equivalent-hours equation** across pre-ferment + bulk (+ initial room block) + warmup + final proof: `yeast% = target / Σ(hours_i · f(T_i))`.
+- **Yeast solves one equivalent-hours equation** across pre-ferment + bulk (+ initial room block) + final proof: `yeast% = target / Σ(hours_i · f(T_i))`.
 - `PREFERMENT_REF_HOURS_{BIGA,POOLISH}` in `fermentation.ts` shifts every existing recipe's yeast % → **major app-version bump**.
 - With pre-ferment + fresh yeast: `ingredients.yeast = 0`, `ingredients.preFerment.yeast` carries the full mass. **No hardcoded pinch** — it must come from the equivalent-hours solve.
 - All calculation logic stays pure and framework-free in `src/lib/dough/`. Components only render.
+- `ComputedSchedule` also exposes `naturalColdBulkMin`, `desiredColdBulkMin`, `naturalPrefermentHours` — pre-shift / pre-clamp values for the recipe-fit metric below. Read-only signals; nothing in the math branches on them. Don't drop them without also updating `quality.ts`.
 
-## TRMNL e-ink view
+### Recipe fit score
 
-`/trmnl/[[locale]]/+page.svelte` renders for [TRMNL](https://trmnl.com/) Screenshot plugins — 800 × 480 px black-on-white captured server-side. **Each constraint below cost a round-trip; treat them as load-bearing.**
+`src/lib/dough/quality.ts` exposes `stepQualityFlags(step, schedule)` and `recipeFitScore(schedule, inputs)`. Score is **0–100**, deviation-based — 100 = the math's natural schedule with every input in the contemporary Neapolitan band. Two factor families:
 
-- **TRMNL's renderer does not reliably execute JS or fetch external assets.** Treat the rendered HTML as one self-contained file: SSR'd DOM, inline CSS, no hydration assumed. The user's specific recipe (from `?…`) only renders in real browsers; TRMNL captures the build-time defaults — known limitation, fixable later via an inline-JS bundle.
-- **SSR on for this route only**: `+page.ts` exports `ssr = true`, overriding the layout's `ssr = false`. Without it the prerender is an empty SPA shell.
-- **Locale lives in the URL path.** `+page.ts` `entries()` prerenders all six locales + a `/trmnl` no-locale fallback (English). Root layout's `onMount` **skips locale auto-detect when `page.route.id` starts with `/trmnl`** so the URL-derived locale isn't clobbered on hydration. Copy-TRMNL-link button emits `/trmnl/<currentLocale>?<recipe>` — both segments must respect `base`.
-- **All styles in `<svelte:head><style>`**, not the component `<style>` (which becomes an external sheet TRMNL won't fetch). Class selectors are `.trmnl`-prefixed to namespace against the unloaded Tailwind layout sheet.
-- **Borders: 2 px solid black, or none.** TRMNL upscales the capture ~1.7×; 1 px light-gray borders resample as broken/dotted fragments. Row separation comes from padding + current-row inversion + bold ready-row.
-- **One typeface.** The device renders one face; don't reintroduce per-element serif overrides — everything inherits the container's Inter / system-sans stack.
-- **Namespace row-only classes with `row-`** (e.g. `rowReady`). A shared `class="ready"` between the header column and `step.kind === 'ready'` row stacked the row's `<td>`s vertically.
-- **Header `readyTime`/`readyLabel` are `white-space: nowrap`** and the `.ready` flex child is `flex-shrink: 0` — otherwise a long left-side summary forces the date onto two lines.
+- **Schedule imperfection** (math couldn't deliver natural timing): `cold-bulk-shifted` (night-shift extended the cold leg), `cold-bulk-clamped-{short,long}`, `preferment-clamped-{short,long}`, `night-step` (residual warning), `infeasible`.
+- **Recipe-input KPIs** (deviation from contemporary Neapolitan): `hydration-off` (60–80 %), `salt-off` (2–3.5 %), `ball-weight-off` (200–320 g), `room-temp-off` (14–30 °C), `fridge-temp-off` (2–8 °C), `yeast-extreme` (solved < 0.05 % or > 1.5 %).
+
+Per-hour rates and per-factor deduction caps are named constants at the top of `quality.ts`. Pure-TS; same 100 % coverage rule as the rest of `src/lib/`.
 
 ## Community recipes
 
 - Source: `src/lib/community/community.md`, rows `| Name | Date | Recipe-URL |` (date `YYYY-MM-DD`, URL = full Share output). Name is plain text; a leading `@<handle>` matching GitHub's username rules links to that profile.
 - Imported via Vite `?raw`, parsed in `src/lib/community/community.ts`. **Bad rows are dropped silently** so one bad row can't break the page.
-- `Community.svelte` link uses `resolve('/')` and `rel="external"` so a full reload re-runs `onMount` → `decodeInputs`. Hidden in print.
+- `Community.svelte` renders cards on narrow widths (with an `Open` button up front + secondary fields under a `<details>`) and the full table at `md+`. Link uses `resolve('/')` and `rel="external"` so a full reload re-runs `onMount` → `decodeInputs`. Hidden in print.
+
+## TRMNL push
+
+The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private Plugin webhook from the user's browser. There is **no `/trmnl/<locale>` route** — the screenshot-plugin path was tried (SSR + inline CSS + an inline-JS decoder) and failed because the renderer doesn't reliably execute JS, so every capture showed build-time defaults. The push model sidesteps that: doughcalc POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>` and TRMNL renders them via the user's Liquid template at refresh time. Implementation in `src/lib/trmnl/`; setup walkthrough + Liquid template in `docs/trmnl-setup.md`. Each bullet below cost at least one round-trip with the actual device.
+
+- **CORS-open.** Endpoint returns `Access-Control-Allow-Origin: *` and accepts `Content-Type: application/json` (verified via OPTIONS preflight + probe). Browser-side `fetch` from the static deploy lands cleanly; **don't add an edge worker** — it's not needed.
+- **2 KB payload cap (free tier)**, 5 KB on TRMNL+. `merge_variables` uses 1–2 char keys (`t`, `s`, `rl`, `rt`, `l.{n,x,d}`, `st[].{t,d,dt,tm,dr,u,r}`) and drops always-unused fields so a worst-case cold-mode + biga recipe lands under 2 KB. A regression test in `webhook.test.ts` measures the wire size; renaming keys back to verbose forms or adding fields without measuring fails the gate.
+- **12 POSTs/h rate limit (free tier)**. We POST only on explicit user click — well under.
+- **Markup goes in the plugin's Full Markup field**, not Shared Markup, not the half/quadrant tabs. The device error "Full view not available" means exactly that — the Full slot is empty.
+- **Don't use TRMNL framework class names** (`.title`, `.panel`, `.row`, `.value`, `.label`, …) in the Liquid template — they exist in the framework with their own much-larger sizing and override ours unpredictably. Every doughcalc class is `kt-*` prefixed, and class names **must not collide within our own CSS** either — the header's `.kt-ready` flex-column container once cascaded onto the row's `.kt-ready` bold modifier and made the row stack vertically. Row state modifiers are now `kt-r-past` / `kt-r-current` / `kt-r-final`.
+- **Schedule rows are `<div>` flexbox, not `<table>`**. The framework has selectors that broke `<tr>`/`<td>` layout for at least one row. Flex containers can't be hit by them.
+- **Container width is `100%`**, not fixed `800 px`. TRMNL wraps the markup in an inner container narrower than 800; a fixed pixel width overflows on the right.
+- **Liquid date math picks the current step at render time**: `{%- assign now_unix = "now" | date: "%s" | plus: 0 -%}` and compare to `st[].u` (unix seconds). The user POSTs once per recipe change; the device's per-refresh re-render updates the "Now / Next / Done" highlight without another POST.
+- **Send button lives in `TrmnlPush.svelte`**, mounted from the schedule's action menu. UUID validates against `/^[0-9a-f]{8}-…/i` before save; persists under `doughcalc:trmnlUuid` in `localStorage`.
 
 ## URL state (shareable links)
 
@@ -90,6 +101,7 @@ Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100
 - Locales: `en, de, it, fr, nl, jam` (Jamaican Patois, ISO 639-3). Metric only — grams, °C.
 - `detectLocale` matches 2- and 3-letter prefixes. `intlLocaleTag('jam') === 'en-JM'` (no CLDR data for `jam`).
 - All user-facing strings live in `src/lib/i18n/messages.ts`. **No hardcoded copy in components.** Parity test fails loudly on missing keys — add to all six in the same change.
+- **User-selected locale is persisted to `localStorage`** (`doughcalc:locale`) and preferred over `detectLocale(navigator.languages)` on mount — `src/lib/i18n/storedLocale.ts`. A full reload (e.g. a community Open link with `rel="external"`) keeps the user's chosen language. `/print/*` owns its own locale via the URL path and opts out of both auto-detect and the stored value.
 
 ## Design
 
