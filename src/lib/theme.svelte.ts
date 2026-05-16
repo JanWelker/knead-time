@@ -1,11 +1,7 @@
+import { loadStoredTheme, saveStoredTheme } from './storedTheme';
+
 export type ThemeChoice = 'system' | 'light' | 'dark';
 export type ResolvedTheme = 'light' | 'dark';
-
-const STORAGE_KEY = 'theme';
-
-function isThemeChoice(value: unknown): value is ThemeChoice {
-	return value === 'system' || value === 'light' || value === 'dark';
-}
 
 function systemPrefersDark(): boolean {
 	if (typeof window === 'undefined' || !window.matchMedia) return false;
@@ -18,8 +14,7 @@ class Theme {
 
 	init() {
 		if (typeof window === 'undefined') return;
-		const stored = localStorage.getItem(STORAGE_KEY);
-		this.choice = isThemeChoice(stored) ? stored : 'system';
+		this.choice = loadStoredTheme(localStorage);
 		this.apply();
 
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -29,10 +24,7 @@ class Theme {
 
 	set(choice: ThemeChoice) {
 		this.choice = choice;
-		if (typeof localStorage !== 'undefined') {
-			if (choice === 'system') localStorage.removeItem(STORAGE_KEY);
-			else localStorage.setItem(STORAGE_KEY, choice);
-		}
+		if (typeof localStorage !== 'undefined') saveStoredTheme(localStorage, choice);
 		this.apply();
 	}
 

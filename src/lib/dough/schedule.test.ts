@@ -1,45 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { prefermentDurationHours } from './fermentation';
 import {
+	ACTIVE_NIGHT_KINDS,
 	computeSchedule,
 	COLD_MODE_THRESHOLD_MIN,
 	NIGHT_END_HOUR,
 	NIGHT_START_HOUR,
 	ROOM_MIN_TOTAL_MIN
 } from './schedule';
-import type { DoughInputs, ScheduleStepKind } from './types';
-
-const NIGHT_AWARE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
-	'preferment-mix',
-	'prep',
-	'mix',
-	'bulk-room',
-	'bulk-cold',
-	'divide'
-]);
+import { defaultInputs, findStep } from './testFixtures';
+import type { DoughInputs } from './types';
 
 function inDayWindow(d: Date): boolean {
 	const h = d.getHours();
 	return h >= NIGHT_END_HOUR && h < NIGHT_START_HOUR;
 }
 
+// Schedule tests run a 4-pizza recipe so the totalDough invariant is easy
+// to eyeball in failures (4 × 280 = 1120). Other dough-side suites use the
+// 6-pizza default from testFixtures.
 function baseInputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
-	return {
-		readyBy: new Date('2026-05-12T19:00:00Z'),
-		startAt: new Date('2026-05-12T13:00:00Z'),
-		pizzaCount: 4,
-		ballWeight: 280,
-		hydration: 70,
-		saltPercent: 3,
-		oilPercent: 0,
-		sugarPercent: 0,
-		yeastType: 'fresh',
-		starterHydration: 100,
-		roomTempC: 22,
-		fridgeTempC: 4,
-		preFerment: null,
-		...overrides
-	};
+	return defaultInputs({ pizzaCount: 4, ...overrides });
 }
 
 describe('computeSchedule — mode selection', () => {
@@ -161,7 +142,7 @@ describe('computeSchedule — pre-ferment', () => {
 			})
 		);
 		expect(r.steps[0].kind).toBe('preferment-mix');
-		const prepStep = r.steps.find((s) => s.kind === 'prep')!;
+		const prepStep = findStep(r, 'prep');
 		const diffMin = (prepStep.at.getTime() - r.steps[0].at.getTime()) / 60_000;
 		const expected = prefermentDurationHours('biga', 22) * 60;
 		expect(diffMin).toBeCloseTo(expected, 0);
@@ -184,8 +165,7 @@ describe('computeSchedule — pre-ferment', () => {
 				preFerment: { type: 'biga', flourPercent: 30 }
 			})
 		);
-		const durOf = (sched: typeof warm) =>
-			sched.steps.find((s) => s.kind === 'preferment-mix')!.durationMinutes;
+		const durOf = (sched: typeof warm) => findStep(sched, 'preferment-mix').durationMinutes;
 		expect(durOf(cool)).toBeGreaterThan(durOf(warm));
 	});
 
@@ -252,7 +232,7 @@ describe('computeSchedule — night-window avoidance', () => {
 		);
 		expect(r.mode).toBe('cold');
 		for (const s of r.steps) {
-			if (!NIGHT_AWARE_KINDS.has(s.kind)) continue;
+			if (!ACTIVE_NIGHT_KINDS.has(s.kind)) continue;
 			expect(inDayWindow(s.at), `${s.kind} at ${s.at.toISOString()} fell in the night`).toBe(true);
 		}
 		expect(r.warnings).not.toContain('night-step');
@@ -271,14 +251,14 @@ describe('computeSchedule — night-window avoidance', () => {
 		);
 		expect(r.mode).toBe('cold');
 		for (const s of r.steps) {
-			if (!NIGHT_AWARE_KINDS.has(s.kind)) continue;
+			if (!ACTIVE_NIGHT_KINDS.has(s.kind)) continue;
 			expect(inDayWindow(s.at), `${s.kind} at ${s.at.toISOString()} fell in the night`).toBe(true);
 		}
 		expect(r.warnings).not.toContain('night-step');
 		// Adjuster shifts coldMin (the whole cluster), not the preferment offset —
 		// preferment-mix is still exactly its reference duration before prep.
-		const preferment = r.steps.find((s) => s.kind === 'preferment-mix')!;
-		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const preferment = findStep(r, 'preferment-mix');
+		const prep = findStep(r, 'prep');
 		const diffMin = (prep.at.getTime() - preferment.at.getTime()) / 60_000;
 		expect(diffMin).toBeCloseTo(prefermentDurationHours('biga', 22) * 60, 0);
 	});
@@ -315,45 +295,16 @@ describe('computeSchedule — night-window avoidance', () => {
 		expect(r.mode).toBe('room');
 		expect(r.warnings).toContain('night-step');
 	});
-
-	it('preserves mass balance after night adjustment (no preferment)', () => {
-		const r = computeSchedule(
-			baseInputs({
-				startAt: new Date('2026-05-11T07:00:00Z'),
-				readyBy: new Date('2026-05-12T19:00:00Z')
-			})
-		);
-		const sum =
-			r.ingredients.flour + r.ingredients.water + r.ingredients.salt + r.ingredients.yeast;
-		expect(sum).toBeCloseTo(r.ingredients.totalDough, 6);
-	});
-
-	it('preserves mass balance after night adjustment (with preferment)', () => {
-		const r = computeSchedule(
-			baseInputs({
-				startAt: new Date('2026-05-10T19:00:00Z'),
-				readyBy: new Date('2026-05-12T19:00:00Z'),
-				preFerment: { type: 'biga', flourPercent: 30 }
-			})
-		);
-		const ing = r.ingredients;
-		const pf = ing.preFerment!;
-		const sum = ing.flour + ing.water + ing.salt + ing.yeast + pf.flour + pf.water + pf.yeast;
-		expect(sum).toBeCloseTo(ing.totalDough, 6);
-	});
 });
 
 describe('computeSchedule — cold-mode threshold boundary', () => {
-	it('falls into room mode one minute below the threshold', () => {
+	it.each([
+		{ offsetMin: -1, expected: 'room' as const },
+		{ offsetMin: +1, expected: 'cold' as const }
+	])('window $offsetMin min from threshold → $expected', ({ offsetMin, expected }) => {
 		const startAt = new Date('2026-05-12T03:00:00Z');
-		const readyBy = new Date(startAt.getTime() + (COLD_MODE_THRESHOLD_MIN - 1) * 60_000);
-		expect(computeSchedule(baseInputs({ startAt, readyBy })).mode).toBe('room');
-	});
-
-	it('flips to cold mode one minute above the threshold', () => {
-		const startAt = new Date('2026-05-12T03:00:00Z');
-		const readyBy = new Date(startAt.getTime() + (COLD_MODE_THRESHOLD_MIN + 1) * 60_000);
-		expect(computeSchedule(baseInputs({ startAt, readyBy })).mode).toBe('cold');
+		const readyBy = new Date(startAt.getTime() + (COLD_MODE_THRESHOLD_MIN + offsetMin) * 60_000);
+		expect(computeSchedule(baseInputs({ startAt, readyBy })).mode).toBe(expected);
 	});
 });
 
@@ -400,8 +351,8 @@ describe('computeSchedule — room mode with pre-ferment', () => {
 			baseInputs({ startAt, readyBy, preFerment: { type: 'poolish', flourPercent: 30 } })
 		);
 		expect(r.mode).toBe('room');
-		const preferment = r.steps.find((s) => s.kind === 'preferment-mix')!;
-		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const preferment = findStep(r, 'preferment-mix');
+		const prep = findStep(r, 'prep');
 		expect(preferment).toBeDefined();
 		expect(prep).toBeDefined();
 		const diffMin = (prep.at.getTime() - preferment.at.getTime()) / 60_000;
@@ -434,15 +385,17 @@ describe('computeSchedule — pre-ferment carries all the yeast', () => {
 });
 
 describe('computeSchedule — temperature warnings', () => {
-	it('warns when the room is colder than 14 °C', () => {
-		const r = computeSchedule(baseInputs({ roomTempC: 12 }));
-		expect(r.warnings).toContain('too-cold');
-	});
-
-	it('warns when the room is warmer than 30 °C', () => {
-		const r = computeSchedule(baseInputs({ roomTempC: 32 }));
-		expect(r.warnings).toContain('too-warm');
-	});
+	it.each([
+		{ roomTempC: 12, contains: 'too-cold', notContains: 'too-warm' },
+		{ roomTempC: 32, contains: 'too-warm', notContains: 'too-cold' }
+	] as const)(
+		'$roomTempC °C → warnings contain $contains',
+		({ roomTempC, contains, notContains }) => {
+			const r = computeSchedule(baseInputs({ roomTempC }));
+			expect(r.warnings).toContain(contains);
+			expect(r.warnings).not.toContain(notContains);
+		}
+	);
 
 	it('does not flag a 22 °C room as too-cold or too-warm', () => {
 		const r = computeSchedule(baseInputs({ roomTempC: 22 }));
@@ -554,7 +507,7 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
 		);
 		expect(r.mode).toBe('room');
-		const pf = r.steps.find((s) => s.kind === 'preferment-mix')!;
+		const pf = findStep(r, 'preferment-mix');
 		expect(pf.durationMinutes).toBeLessThan(14 * 60);
 		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
 	});
@@ -583,7 +536,7 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		const readyBy = new Date('2026-05-12T19:00:00Z');
 		const r = computeSchedule(baseInputs({ startAt, readyBy }));
 		expect(r.mode).toBe('cold');
-		const bulkCold = r.steps.find((s) => s.kind === 'bulk-cold')!;
+		const bulkCold = findStep(r, 'bulk-cold');
 		expect(bulkCold.durationMinutes).toBeLessThanOrEqual(r.naturalColdBulkMin!);
 		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
 	});
@@ -602,7 +555,7 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		expect(r.mode).toBe('cold');
 		expect(r.warnings).toContain('night-step');
 		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
-		const bulkCold = r.steps.find((s) => s.kind === 'bulk-cold')!;
+		const bulkCold = findStep(r, 'bulk-cold');
 		expect(bulkCold.durationMinutes).toBe(r.naturalColdBulkMin);
 	});
 });

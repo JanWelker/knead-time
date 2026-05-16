@@ -58,10 +58,7 @@
 		title={summaryTooltip}
 		aria-label={interpolate(t.quality.fit_aria, { score: fit.score })}
 	>
-		<span
-			class="font-display text-tomato-700 dark:text-tomato-300 inline-block tabular-nums"
-			aria-hidden="true"
-		>
+		<span class="font-display text-accent inline-block tabular-nums" aria-hidden="true">
 			{fit.score}%
 		</span>
 		<span>{t.quality.fit_heading}</span>

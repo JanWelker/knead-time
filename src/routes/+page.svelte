@@ -16,25 +16,14 @@
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import TrmnlPush from '$lib/components/TrmnlPush.svelte';
 	import Warnings from '$lib/components/Warnings.svelte';
-	import { formatBallWeight, formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
-	import { qrCode } from '$lib/qr';
 	import { FormState } from '$lib/state.svelte';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
 
 	const currentYear = new Date().getFullYear();
 	const appVersion = __APP_VERSION__;
-
-	const btnClass =
-		'bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50';
-
-	const menuItemClass =
-		'hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700';
-
-	const cardClass =
-		'border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70 print:rounded-none print:border-0 print:bg-transparent print:p-0 print:shadow-none print:backdrop-blur-none print:break-inside-avoid';
 
 	const form = new FormState();
 	const t = $derived(i18n.t);
@@ -60,36 +49,14 @@
 		}
 	});
 
-	const shareUrl = $derived(
-		browser
-			? `${window.location.origin}${window.location.pathname}?${encodeInputs(form.serializable())}`
-			: ''
-	);
-
-	const yeastLabel = $derived(
-		form.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
-	);
-
-	const preFermentLabel = $derived(
-		form.preFermentType === 'biga'
-			? t.form.preFerment_biga
-			: form.preFermentType === 'poolish'
-				? t.form.preFerment_poolish
-				: null
-	);
-
 	// Surfaces source-recipe context (timings, name) when the form params
 	// match a known pizzeria. Adjusting only the bake time keeps the match.
 	const activePizzeria = $derived(findMatchingPizzeria(form.inputs));
 
 	function printPage() {
-		// Open the dedicated print route in a new tab. That route owns the
-		// print stylesheet, mounts a self-contained recipe summary, and
-		// auto-triggers window.print() — the user sees the system dialog
-		// directly without our chrome bleeding through.
+		// Dedicated print route owns its stylesheet and auto-triggers print().
 		const qs = encodeInputs(form.serializable());
-		const printUrl = `${base}/print/${locale}?${qs}`;
-		window.open(printUrl, '_blank');
+		window.open(`${base}/print/${locale}?${qs}`, '_blank');
 	}
 
 	function downloadIcs() {
@@ -108,13 +75,14 @@
 		URL.revokeObjectURL(url);
 	}
 
-	async function copy(kind: 'share', url: string) {
+	async function copy(url: string) {
 		try {
 			await navigator.clipboard.writeText(url);
-			copied = kind;
+			copied = 'share';
 			setTimeout(() => (copied = null), 1500);
 		} catch {
-			// best-effort: select the input on failure (omitted for brevity)
+			// Browser denied clipboard access — drop silently; the share URL
+			// is also visible in the address bar.
 		}
 	}
 
@@ -143,111 +111,39 @@
 	<title>{t.app.title} — {t.app.tagline}</title>
 </svelte:head>
 
-<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 print:max-w-none print:px-0 print:py-0">
-	<header
-		class="print:border-dough-300 mb-8 flex flex-wrap items-start justify-between gap-4 print:mb-3 print:block print:border-b print:pb-2"
-	>
+<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+	<header class="mb-8 flex flex-wrap items-start justify-between gap-4">
 		<div>
-			<h1
-				class="font-display text-tomato-700 dark:text-tomato-300 text-4xl sm:text-5xl print:text-2xl"
-			>
-				{t.app.title}
-			</h1>
-			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300 print:hidden">
-				{t.app.tagline}
-			</p>
+			<h1 class="font-display text-accent text-4xl sm:text-5xl">{t.app.title}</h1>
+			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300">{t.app.tagline}</p>
 		</div>
-		<div class="flex flex-wrap items-center gap-2 print:hidden">
+		<div class="flex flex-wrap items-center gap-2">
 			<LangSwitcher />
 			<ThemeSwitcher />
 		</div>
 	</header>
 
-	<section class="print-only mb-3 break-inside-avoid">
-		<div class="grid grid-cols-2 gap-6">
-			<div>
-				<h2 class="font-display text-tomato-700 mb-1 text-lg">{t.print.recipe_heading}</h2>
-				<table class="tabular w-full border-collapse">
-					<tbody>
-						<tr class="border-dough-200/70 border-b last:border-0">
-							<th class="text-left font-normal text-stone-600">{t.form.readyBy}</th>
-							<td class="text-right font-medium tabular-nums">
-								{formatDateTime(form.readyBy, locale)}
-							</td>
-						</tr>
-						<tr class="border-dough-200/70 border-b last:border-0">
-							<th class="text-left font-normal text-stone-600">{t.form.pizzaCount}</th>
-							<td class="text-right font-medium tabular-nums">
-								{form.pizzaCount} × {formatBallWeight(form.ballWeight)} g
-							</td>
-						</tr>
-						<tr class="border-dough-200/70 border-b last:border-0">
-							<th class="text-left font-normal text-stone-600">{t.form.hydration}</th>
-							<td class="text-right font-medium tabular-nums">{form.hydration}%</td>
-						</tr>
-						<tr class="border-dough-200/70 border-b last:border-0">
-							<th class="text-left font-normal text-stone-600">{t.form.salt}</th>
-							<td class="text-right font-medium tabular-nums">{form.saltPercent}%</td>
-						</tr>
-						<tr class="border-dough-200/70 border-b last:border-0">
-							<th class="text-left font-normal text-stone-600">{t.form.yeastType}</th>
-							<td class="text-right font-medium">{yeastLabel}</td>
-						</tr>
-						<tr class="border-dough-200/70 border-b last:border-0">
-							<th class="text-left font-normal text-stone-600">{t.form.roomTemp}</th>
-							<td class="text-right font-medium tabular-nums">{form.roomTempC} °C</td>
-						</tr>
-						{#if form.schedule.mode === 'cold'}
-							<tr class="border-dough-200/70 border-b last:border-0">
-								<th class="text-left font-normal text-stone-600">{t.form.fridgeTemp}</th>
-								<td class="text-right font-medium tabular-nums">{form.fridgeTempC} °C</td>
-							</tr>
-						{/if}
-						{#if preFermentLabel}
-							<tr class="border-dough-200/70 border-b last:border-0">
-								<th class="text-left font-normal text-stone-600">{t.form.preFerment}</th>
-								<td class="text-right font-medium">{preFermentLabel}</td>
-							</tr>
-						{/if}
-					</tbody>
-				</table>
-			</div>
-			<div>
-				<h2 class="font-display text-tomato-700 mb-1 text-lg">{t.ingredients.heading}</h2>
-				<Ingredients
-					ingredients={form.schedule.ingredients}
-					yeastType={form.yeastType}
-					yeastPercent={form.schedule.yeastPercent}
-				/>
-			</div>
-		</div>
-	</section>
-
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-5 print:block print:gap-0">
-		<section
-			class="border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur lg:col-span-2 lg:min-w-0 dark:border-stone-700 dark:bg-stone-900/70 print:hidden"
-		>
+	<div class="grid grid-cols-1 gap-8 lg:grid-cols-5">
+		<section class="card lg:col-span-2 lg:min-w-0">
 			<InputForm state={form} />
 		</section>
 
-		<section class="space-y-6 lg:col-span-3 print:space-y-2">
-			<div class={cardClass}>
-				<div class="mb-4 flex flex-wrap items-end justify-between gap-3 print:mb-1">
+		<section class="space-y-6 lg:col-span-3">
+			<div class="card">
+				<div class="mb-4 flex flex-wrap items-end justify-between gap-3">
 					<div>
-						<h2
-							class="font-display print:text-tomato-700 text-2xl text-stone-900 dark:text-stone-100 print:text-lg"
-						>
+						<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
 							{t.schedule.heading}
 						</h2>
-						<div class="mt-2 flex flex-wrap items-center gap-3 print:hidden">
+						<div class="mt-2 flex flex-wrap items-center gap-3">
 							<ModeBadge mode={form.schedule.mode} />
 							<FitScore schedule={form.schedule} inputs={form.serializable()} />
 						</div>
 					</div>
-					<div class="relative print:hidden">
+					<div class="relative">
 						<details bind:this={actionsRef} bind:open={actionsOpen}>
 							<summary
-								class="{btnClass} flex cursor-pointer list-none items-center gap-2 select-none"
+								class="btn-tomato flex cursor-pointer list-none items-center gap-2 select-none"
 								aria-haspopup="menu"
 								aria-label={t.actions.menu}
 							>
@@ -271,7 +167,7 @@
 								<button
 									type="button"
 									role="menuitem"
-									class={menuItemClass}
+									class="menu-item"
 									onclick={downloadIcs}
 									disabled={!form.schedule.feasible}
 								>
@@ -280,7 +176,7 @@
 								<button
 									type="button"
 									role="menuitem"
-									class={menuItemClass}
+									class="menu-item"
 									onclick={printPage}
 									disabled={!form.schedule.feasible}
 								>
@@ -289,8 +185,8 @@
 								<button
 									type="button"
 									role="menuitem"
-									class={menuItemClass}
-									onclick={() => copy('share', window.location.href)}
+									class="menu-item"
+									onclick={() => copy(window.location.href)}
 								>
 									{copied === 'share' ? t.actions.copied : t.actions.share}
 								</button>
@@ -298,7 +194,7 @@
 									inputs={form.serializable()}
 									schedule={form.schedule}
 									{locale}
-									triggerClass={menuItemClass}
+									triggerClass="menu-item"
 								/>
 							</div>
 						</details>
@@ -306,19 +202,19 @@
 				</div>
 
 				<Warnings warnings={form.schedule.warnings} />
-				<div class="mt-4 print:mt-1">
+				<div class="mt-4">
 					<ScheduleTable schedule={form.schedule} sourceTiming={activePizzeria?.timing} />
 				</div>
 			</div>
 
-			<div class="{cardClass} print:hidden">
-				<div class="mb-4 flex flex-wrap items-center justify-between gap-3 print:mb-1">
-					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100 print:text-base">
+			<div class="card">
+				<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
 						{t.ingredients.heading}
 					</h2>
 					<button
 						type="button"
-						class="bg-tomato-500 hover:bg-tomato-600 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold text-white print:hidden"
+						class="btn-tomato-sm inline-flex items-center gap-1"
 						onclick={() => form.roundBallWeight()}
 						title={t.form.ballWeight_round_help}
 						aria-label={t.form.ballWeight_round_help}
@@ -336,15 +232,15 @@
 		</section>
 	</div>
 
-	<section class="{cardClass} mt-8 print:hidden">
+	<section class="card mt-8">
 		<Community />
 	</section>
 
-	<section class="{cardClass} mt-8 print:hidden">
+	<section class="card mt-8">
 		<Pizzerias />
 	</section>
 
-	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400 print:hidden">
+	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400">
 		<p>{t.footer.about}</p>
 		<p class="mt-1 text-stone-400 dark:text-stone-500">{t.actions.share_help}</p>
 		<p
@@ -396,20 +292,5 @@
 				v{appVersion}
 			</a>
 		</p>
-	</footer>
-
-	<footer class="print-only mt-4 border-t border-stone-300 pt-3 text-[8pt] text-stone-500">
-		<div class="flex items-end justify-between gap-4">
-			<p>{t.footer.about} <span class="text-stone-400">· v{appVersion}</span></p>
-			{#if shareUrl}
-				{@const qr = qrCode(shareUrl)}
-				<div class="flex shrink-0 flex-col items-center gap-1">
-					<svg viewBox="0 0 {qr.size} {qr.size}" class="h-24 w-24 text-black" aria-hidden="true">
-						<path d={qr.path} fill="currentColor" />
-					</svg>
-					<p class="text-stone-600">{t.print.scan_to_open}</p>
-				</div>
-			{/if}
-		</div>
 	</footer>
 </main>

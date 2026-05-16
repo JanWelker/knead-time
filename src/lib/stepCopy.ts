@@ -84,45 +84,25 @@ export function stepDescription(
 			);
 		case 'mix': {
 			const waterTemp = schedule.idealWaterTempC;
+			const base = {
+				flour: formatGramsValue(ingredients.flour),
+				water: formatGramsValue(ingredients.water),
+				salt: formatGramsValue(ingredients.salt),
+				water_temp: waterTemp
+			};
+			let body: string;
 			if (prefermentType === 'biga') {
-				return appendExtras(
-					interpolate(msgs.steps.mix_desc_with_biga, {
-						flour: formatGramsValue(ingredients.flour),
-						water: formatGramsValue(ingredients.water),
-						salt: formatGramsValue(ingredients.salt),
-						water_temp: waterTemp
-					}),
-					ingredients.oil,
-					ingredients.sugar,
-					msgs
-				);
-			}
-			if (prefermentType === 'poolish') {
-				return appendExtras(
-					interpolate(msgs.steps.mix_desc_with_poolish, {
-						flour: formatGramsValue(ingredients.flour),
-						water: formatGramsValue(ingredients.water),
-						salt: formatGramsValue(ingredients.salt),
-						water_temp: waterTemp
-					}),
-					ingredients.oil,
-					ingredients.sugar,
-					msgs
-				);
-			}
-			return appendExtras(
-				interpolate(template, {
-					flour: formatGramsValue(ingredients.flour),
-					water: formatGramsValue(ingredients.water),
-					salt: formatGramsValue(ingredients.salt),
+				body = interpolate(msgs.steps.mix_desc_with_biga, base);
+			} else if (prefermentType === 'poolish') {
+				body = interpolate(msgs.steps.mix_desc_with_poolish, base);
+			} else {
+				body = interpolate(template, {
+					...base,
 					yeast: formatGramsValue(ingredients.yeast),
-					yeast_label: yeastLabel,
-					water_temp: waterTemp
-				}),
-				ingredients.oil,
-				ingredients.sugar,
-				msgs
-			);
+					yeast_label: yeastLabel
+				});
+			}
+			return appendExtras(body, ingredients.oil, ingredients.sugar, msgs);
 		}
 		default:
 			return template;

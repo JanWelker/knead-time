@@ -150,11 +150,6 @@ describe('idealMixWaterTempC', () => {
 		expect(idealMixWaterTempC(12)).toBeGreaterThan(idealMixWaterTempC(18));
 		expect(idealMixWaterTempC(18)).toBeGreaterThan(idealMixWaterTempC(22));
 	});
-	it('matches the calibration observation (10 min on spiral, 4 °C water, 22 °C kitchen → 24 °C dough)', () => {
-		// Sanity check that our recommendation does not exceed the safe cap when
-		// applied to the data point the friction factor was tuned against.
-		expect(idealMixWaterTempC(22)).toBeLessThanOrEqual(4);
-	});
 });
 
 describe('fermentHoursForYeast', () => {

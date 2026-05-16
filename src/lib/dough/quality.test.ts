@@ -1,30 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { recipeFitScore, stepQualityFlags, type FitFactor } from './quality';
 import { computeSchedule } from './schedule';
+import { defaultInputs as inputs } from './testFixtures';
 import type { ComputedSchedule, DoughInputs, ScheduleStep, ScheduleWarning } from './types';
 
-// Default inputs are a 6 h room-mode window that lands cleanly in daytime —
-// no cold mode (no shift / no clamp possible), no pre-ferment, no night
-// warning, every KPI in the contemporary Neapolitan band → 100 score.
-// Each test overrides only the field it's exercising.
-function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
-	return {
-		readyBy: new Date('2026-05-12T19:00:00Z'),
-		startAt: new Date('2026-05-12T13:00:00Z'),
-		pizzaCount: 6,
-		ballWeight: 280,
-		hydration: 70,
-		saltPercent: 3,
-		oilPercent: 0,
-		sugarPercent: 0,
-		yeastType: 'fresh',
-		starterHydration: 100,
-		roomTempC: 22,
-		fridgeTempC: 4,
-		preFerment: null,
-		...overrides
-	};
-}
+// Default inputs (testFixtures.defaultInputs): 6 h room-mode window, daytime,
+// no pre-ferment — every KPI sits in the contemporary Neapolitan band, so
+// the fit score lands at 100 unless a test overrides a field.
 
 function step(kind: ScheduleStep['kind'], atLocalHHMM: string, durationMinutes = 0): ScheduleStep {
 	const [h, m] = atLocalHHMM.split(':').map(Number);
@@ -246,15 +228,18 @@ describe('recipeFitScore — schedule imperfection', () => {
 });
 
 describe('recipeFitScore — recipe-input KPI deviations', () => {
-	it('deducts for hydration outside [60, 80] %', () => {
-		const lowH = inputs({ hydration: 55 });
-		const highH = inputs({ hydration: 88 });
-		expect(factorKinds(recipeFitScore(computeSchedule(lowH), lowH).factors)).toContain(
-			'hydration-off'
-		);
-		expect(factorKinds(recipeFitScore(computeSchedule(highH), highH).factors)).toContain(
-			'hydration-off'
-		);
+	it.each([
+		{ field: 'hydration', value: 55, expected: 'hydration-off' as const },
+		{ field: 'hydration', value: 88, expected: 'hydration-off' as const },
+		{ field: 'saltPercent', value: 5, expected: 'salt-off' as const },
+		{ field: 'ballWeight', value: 150, expected: 'ball-weight-off' as const },
+		{ field: 'ballWeight', value: 450, expected: 'ball-weight-off' as const },
+		{ field: 'roomTempC', value: 10, expected: 'room-temp-off' as const },
+		{ field: 'roomTempC', value: 34, expected: 'room-temp-off' as const },
+		{ field: 'fridgeTempC', value: 12, expected: 'fridge-temp-off' as const }
+	])('$field=$value flags $expected', ({ field, value, expected }) => {
+		const i = inputs({ [field]: value } as Partial<DoughInputs>);
+		expect(factorKinds(recipeFitScore(computeSchedule(i), i).factors)).toContain(expected);
 	});
 
 	it('returns the band-distance as the delta for hydration', () => {
@@ -262,40 +247,6 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 		const fit = recipeFitScore(computeSchedule(i), i);
 		const f = fit.factors.find((x) => x.factor === 'hydration-off')!;
 		expect(f.delta).toBe(5);
-	});
-
-	it('deducts for salt outside [2, 3.5] %', () => {
-		const i = inputs({ saltPercent: 5 });
-		expect(factorKinds(recipeFitScore(computeSchedule(i), i).factors)).toContain('salt-off');
-	});
-
-	it('deducts for ball weight outside [200, 320] g', () => {
-		const tiny = inputs({ ballWeight: 150 });
-		const huge = inputs({ ballWeight: 450 });
-		expect(factorKinds(recipeFitScore(computeSchedule(tiny), tiny).factors)).toContain(
-			'ball-weight-off'
-		);
-		expect(factorKinds(recipeFitScore(computeSchedule(huge), huge).factors)).toContain(
-			'ball-weight-off'
-		);
-	});
-
-	it('deducts for room temperature outside [14, 30] °C', () => {
-		const cold = inputs({ roomTempC: 10 });
-		const hot = inputs({ roomTempC: 34 });
-		expect(factorKinds(recipeFitScore(computeSchedule(cold), cold).factors)).toContain(
-			'room-temp-off'
-		);
-		expect(factorKinds(recipeFitScore(computeSchedule(hot), hot).factors)).toContain(
-			'room-temp-off'
-		);
-	});
-
-	it('deducts for fridge temperature outside [2, 8] °C', () => {
-		const warm = inputs({ fridgeTempC: 12 });
-		expect(factorKinds(recipeFitScore(computeSchedule(warm), warm).factors)).toContain(
-			'fridge-temp-off'
-		);
 	});
 
 	it('deducts when solved yeast lands outside the typical [0.05, 1.5] % band', () => {

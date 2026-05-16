@@ -36,7 +36,7 @@
 
 <form class="space-y-8" onsubmit={(e) => e.preventDefault()}>
 	<fieldset class="space-y-3">
-		<legend class="font-display text-tomato-700 dark:text-tomato-300 text-lg">
+		<legend class="font-display text-accent text-lg">
 			{t.form.section_when}
 		</legend>
 		<label class="block">
@@ -93,26 +93,19 @@
 	</fieldset>
 
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-tomato-700 dark:text-tomato-300 col-span-full text-lg">
+		<legend class="font-display text-accent col-span-full text-lg">
 			{t.form.section_recipe}
 		</legend>
 
 		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={state.pizzaCount} />
 
-		<div class="block">
-			<label class="block text-sm font-medium text-stone-700 dark:text-stone-200" for="ball-weight">
-				{t.form.ballWeight}
-			</label>
-			<input
-				id="ball-weight"
-				type="number"
-				min="100"
-				max="600"
-				step="1"
-				class={selectClass}
-				bind:value={state.ballWeight}
-			/>
-		</div>
+		<FormField
+			label={t.form.ballWeight}
+			min={100}
+			max={600}
+			step={1}
+			bind:value={state.ballWeight}
+		/>
 
 		<FormField
 			label={t.form.hydration}
@@ -208,7 +201,7 @@
 		class="border-dough-300 bg-dough-50/60 group min-w-0 rounded-lg border border-dashed p-3 text-xs text-stone-700 open:bg-white/70 dark:border-stone-600 dark:bg-stone-800/40 dark:text-stone-300 dark:open:bg-stone-900/60"
 	>
 		<summary
-			class="text-tomato-700 dark:text-tomato-300 flex cursor-pointer list-none items-center gap-2 font-medium select-none"
+			class="text-accent flex cursor-pointer list-none items-center gap-2 font-medium select-none"
 		>
 			<span
 				class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"

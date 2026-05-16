@@ -13,6 +13,8 @@ export default defineConfig({
 				'src/lib/**/*.test.ts',
 				'src/lib/**/*.svelte.ts',
 				'src/lib/dough/types.ts',
+				'src/lib/dough/testFixtures.ts',
+				'src/lib/storageFixtures.ts',
 				'src/lib/i18n/messages.ts'
 			],
 			reporter: ['text', 'json-summary', 'html', 'lcov'],

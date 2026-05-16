@@ -2,28 +2,11 @@
 	import { resolve } from '$app/paths';
 	import { pizzeriaEntries, type PizzeriaEntry, type Ranking } from '$lib/pizzerias/pizzerias';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 
 	const t = $derived(i18n.t);
 
 	const entries: PizzeriaEntry[] = pizzeriaEntries;
-
-	function yeastLabel(entry: PizzeriaEntry): string {
-		if (entry.inputs.yeastType === 'sourdough') return t.form.yeast_sourdough;
-		if (entry.inputs.yeastType === 'fresh') return t.form.yeast_fresh;
-		return '—';
-	}
-
-	function preFermentLabel(entry: PizzeriaEntry): string {
-		const pf = entry.inputs.preFerment;
-		if (!pf) return '—';
-		const name = pf.type === 'biga' ? t.form.preFerment_biga : t.form.preFerment_poolish;
-		const short = name.split('(')[0].trim();
-		return `${short} ${pf.flourPercent}%`;
-	}
-
-	function num(value: number | undefined, suffix = ''): string {
-		return value === undefined ? '—' : `${value}${suffix}`;
-	}
 
 	function listLabel(list: Ranking['list']): string {
 		return list === 'italy' ? t.pizzerias.list_italy : t.pizzerias.list_world;
@@ -86,7 +69,7 @@
 					<a
 						href={resolve('/') + entry.recipeSearch}
 						rel="external"
-						class="bg-tomato-500 hover:bg-tomato-600 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white"
+						class="btn-tomato inline-flex items-center justify-center"
 					>
 						{t.pizzerias.open_link}
 					</a>
@@ -94,7 +77,7 @@
 						href={entry.sourceUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="bg-tomato-500 hover:bg-tomato-600 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white"
+						class="btn-tomato inline-flex items-center justify-center"
 					>
 						{t.pizzerias.source_link}
 					</a>
@@ -109,29 +92,29 @@
 						class="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-stone-600 dark:text-stone-300"
 					>
 						<dt class="font-medium">{t.pizzerias.col_pizzas}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.pizzaCount)}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.pizzaCount)}</dd>
 						<dt class="font-medium">{t.pizzerias.col_ball}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.ballWeight, ' g')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.ballWeight, ' g')}</dd>
 						<dt class="font-medium">{t.pizzerias.col_hydration}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.hydration, '%')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.hydration, '%')}</dd>
 						<dt class="font-medium">{t.pizzerias.col_salt}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.saltPercent, '%')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.saltPercent, '%')}</dd>
 						{#if (entry.inputs.oilPercent ?? 0) > 0}
 							<dt class="font-medium">{t.pizzerias.col_oil}</dt>
-							<dd class="tabular-nums">{num(entry.inputs.oilPercent, '%')}</dd>
+							<dd class="tabular-nums">{numLabel(entry.inputs.oilPercent, '%')}</dd>
 						{/if}
 						{#if (entry.inputs.sugarPercent ?? 0) > 0}
 							<dt class="font-medium">{t.pizzerias.col_sugar}</dt>
-							<dd class="tabular-nums">{num(entry.inputs.sugarPercent, '%')}</dd>
+							<dd class="tabular-nums">{numLabel(entry.inputs.sugarPercent, '%')}</dd>
 						{/if}
 						<dt class="font-medium">{t.pizzerias.col_yeast}</dt>
-						<dd>{yeastLabel(entry)}</dd>
+						<dd>{yeastLabel(entry.inputs, t)}</dd>
 						<dt class="font-medium">{t.pizzerias.col_temp}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.roomTempC, '°C')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.roomTempC, '°C')}</dd>
 						<dt class="font-medium">{t.pizzerias.col_fridge}</dt>
-						<dd class="tabular-nums">{num(entry.inputs.fridgeTempC, '°C')}</dd>
+						<dd class="tabular-nums">{numLabel(entry.inputs.fridgeTempC, '°C')}</dd>
 						<dt class="font-medium">{t.pizzerias.col_preFerment}</dt>
-						<dd>{preFermentLabel(entry)}</dd>
+						<dd>{preFermentLabel(entry.inputs, t)}</dd>
 					</dl>
 					{#if entry.notes}
 						<p class="mt-2 text-xs text-stone-500 italic dark:text-stone-400">
@@ -145,7 +128,7 @@
 
 	<!-- Desktop: full table. -->
 	<div class="hidden overflow-x-auto md:block">
-		<table class="tabular w-full min-w-[840px] border-collapse text-left text-sm">
+		<table class="w-full min-w-[840px] border-collapse text-left text-sm tabular-nums">
 			<thead>
 				<tr
 					class="border-dough-300 border-b text-xs tracking-wider text-stone-500 uppercase dark:border-stone-700 dark:text-stone-400"
@@ -163,7 +146,7 @@
 			</thead>
 			<tbody>
 				{#each entries as entry (entry.recipeUrl)}
-					<tr class="border-dough-200/70 border-b align-top last:border-0 dark:border-stone-700/70">
+					<tr class="row-divider align-top">
 						<td class="py-3 pr-3 font-medium text-stone-800 dark:text-stone-100">
 							{#if entry.profileUrl}
 								<a
@@ -203,15 +186,19 @@
 								{/each}
 							</ul>
 						</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.hydration, '%')}</td>
-						<td class="py-3 pr-3 text-right tabular-nums">{num(entry.inputs.saltPercent, '%')}</td>
-						<td class="py-3 pr-3">{yeastLabel(entry)}</td>
-						<td class="py-3 pr-3">{preFermentLabel(entry)}</td>
+						<td class="py-3 pr-3 text-right tabular-nums"
+							>{numLabel(entry.inputs.hydration, '%')}</td
+						>
+						<td class="py-3 pr-3 text-right tabular-nums"
+							>{numLabel(entry.inputs.saltPercent, '%')}</td
+						>
+						<td class="py-3 pr-3">{yeastLabel(entry.inputs, t)}</td>
+						<td class="py-3 pr-3">{preFermentLabel(entry.inputs, t)}</td>
 						<td class="py-3 pr-3">
 							<a
 								href={resolve('/') + entry.recipeSearch}
 								rel="external"
-								class="text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+								class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
 							>
 								{t.pizzerias.open_link}
 							</a>
@@ -221,7 +208,7 @@
 								href={entry.sourceUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+								class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
 							>
 								{t.pizzerias.source_link}
 							</a>

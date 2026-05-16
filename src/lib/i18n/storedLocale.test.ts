@@ -1,23 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { makeStorage } from '../storageFixtures';
 import { LOCALE_STORAGE_KEY, loadStoredLocale, saveStoredLocale } from './storedLocale';
-
-function makeStorage(initial: Record<string, string> = {}): Storage {
-	const map = new Map(Object.entries(initial));
-	return {
-		get length() {
-			return map.size;
-		},
-		clear: () => map.clear(),
-		getItem: (key: string) => map.get(key) ?? null,
-		key: (i: number) => [...map.keys()][i] ?? null,
-		removeItem: (key: string) => {
-			map.delete(key);
-		},
-		setItem: (key: string, value: string) => {
-			map.set(key, value);
-		}
-	};
-}
 
 describe('loadStoredLocale', () => {
 	it('returns null when storage is null', () => {
