@@ -12,7 +12,7 @@ import { stepTitle } from '../stepCopy';
 // TRMNL Private Plugin webhooks live at this hostname; only the UUID at
 // the end varies between users. Confirmed CORS-open: the endpoint replies
 // with `Access-Control-Allow-Origin: *` so a browser-side POST from
-// doughcalc lands without preflight rejection.
+// Knead Time lands without preflight rejection.
 export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
 
 // TRMNL's free tier caps webhook payloads at 2 KB. A cold-mode recipe with

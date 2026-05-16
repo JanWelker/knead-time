@@ -188,7 +188,7 @@ has seven columns:
 - **Rankings** is a comma-separated list of `YEAR-LIST:RANK` tokens. `LIST` is
   `it` for the 2018–2021 guides (when 50 Top Pizza was an Italy-only ranking)
   and `w` for 2022–2025 (the standalone World ranking).
-- **Recipe** is the doughcalc **Share** URL that encodes the published
+- **Recipe** is the Knead Time **Share** URL that encodes the published
   numbers. Open the app, dial in the recipe, click **Share**, paste here.
 - **Timing** captures the proving durations the source specifies
   (`step-kind:Nh`, `step-kind:N-Mh`, or `Nm`). The schedule tags any computed

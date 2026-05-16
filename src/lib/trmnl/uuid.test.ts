@@ -54,6 +54,32 @@ describe('loadTrmnlUuid', () => {
 	});
 });
 
+describe('loadTrmnlUuid — legacy doughcalc:* migration', () => {
+	const LEGACY = 'doughcalc:trmnlUuid';
+	const uuid = '123e4567-e89b-12d3-a456-426614174000';
+
+	it('migrates a valid legacy uuid to the new key and returns it', () => {
+		const storage = makeStorage({ [LEGACY]: uuid });
+		expect(loadTrmnlUuid(storage)).toBe(uuid);
+		expect(storage.getItem(TRMNL_UUID_STORAGE_KEY)).toBe(uuid);
+		expect(storage.getItem(LEGACY)).toBeNull();
+	});
+
+	it('discards a junk legacy value but still clears the legacy slot', () => {
+		const storage = makeStorage({ [LEGACY]: 'not-a-uuid' });
+		expect(loadTrmnlUuid(storage)).toBeNull();
+		expect(storage.getItem(TRMNL_UUID_STORAGE_KEY)).toBeNull();
+		expect(storage.getItem(LEGACY)).toBeNull();
+	});
+
+	it('prefers the new key when both are present (does not touch legacy)', () => {
+		const other = '00000000-0000-0000-0000-000000000001';
+		const storage = makeStorage({ [TRMNL_UUID_STORAGE_KEY]: uuid, [LEGACY]: other });
+		expect(loadTrmnlUuid(storage)).toBe(uuid);
+		expect(storage.getItem(LEGACY)).toBe(other);
+	});
+});
+
 describe('saveTrmnlUuid', () => {
 	it('writes the uuid to storage', () => {
 		const storage = makeStorage();

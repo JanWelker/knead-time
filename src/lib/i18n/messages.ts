@@ -529,7 +529,7 @@ const en: Messages = {
 	pizzerias: {
 		heading: '50 Top Pizza recipes',
 		intro:
-			'Dough recipes from the 50 Top Pizza guide, encoded for doughcalc. Open one and adjust the bake time to your day.',
+			'Dough recipes from the 50 Top Pizza guide, encoded for Knead Time. Open one and adjust the bake time to your day.',
 		empty: 'No pizzerias on the list yet.',
 		contribute: {
 			before_md: 'Know a chef’s published recipe? Add it to ',
@@ -830,7 +830,7 @@ const de: Messages = {
 	pizzerias: {
 		heading: '50-Top-Pizza-Rezepte',
 		intro:
-			'Teigrezepte aus dem 50-Top-Pizza-Führer, codiert für doughcalc. Öffne ein Rezept und passe die Backzeit an.',
+			'Teigrezepte aus dem 50-Top-Pizza-Führer, codiert für Knead Time. Öffne ein Rezept und passe die Backzeit an.',
 		empty: 'Noch keine Pizzerien auf der Liste.',
 		contribute: {
 			before_md: 'Kennst du das veröffentlichte Rezept eines Pizzaiolos? Trage es in ',
@@ -1122,7 +1122,7 @@ const it: Messages = {
 	pizzerias: {
 		heading: 'Ricette di 50 Top Pizza',
 		intro:
-			"Ricette dell'impasto dalla guida 50 Top Pizza, codificate per doughcalc. Apri una ricetta e regola l'orario di cottura.",
+			"Ricette dell'impasto dalla guida 50 Top Pizza, codificate per Knead Time. Apri una ricetta e regola l'orario di cottura.",
 		empty: 'Nessuna pizzeria ancora.',
 		contribute: {
 			before_md: 'Conosci la ricetta pubblicata di un pizzaiolo? Aggiungila a ',
@@ -1431,7 +1431,7 @@ const fr: Messages = {
 	pizzerias: {
 		heading: 'Recettes de 50 Top Pizza',
 		intro:
-			'Recettes de pâte tirées du guide 50 Top Pizza, encodées pour doughcalc. Ouvrez-en une et ajustez l’heure de cuisson.',
+			'Recettes de pâte tirées du guide 50 Top Pizza, encodées pour Knead Time. Ouvrez-en une et ajustez l’heure de cuisson.',
 		empty: 'Aucune pizzéria pour le moment.',
 		contribute: {
 			before_md: 'Vous connaissez la recette publiée d’un pizzaïolo ? Ajoutez-la à ',
@@ -1731,7 +1731,7 @@ const nl: Messages = {
 	pizzerias: {
 		heading: '50 Top Pizza-recepten',
 		intro:
-			'Deegrecepten uit de 50 Top Pizza-gids, gecodeerd voor doughcalc. Open er een en stel de baktijd in.',
+			'Deegrecepten uit de 50 Top Pizza-gids, gecodeerd voor Knead Time. Open er een en stel de baktijd in.',
 		empty: 'Nog geen pizzeria’s.',
 		contribute: {
 			before_md: 'Ken je het gepubliceerde recept van een pizzaiolo? Voeg het toe aan ',
@@ -2023,7 +2023,7 @@ const jam: Messages = {
 	pizzerias: {
 		heading: '50 Top Pizza recipe dem',
 		intro:
-			'Dough recipe dem from di 50 Top Pizza guide, encode fi doughcalc. Open one an adjust di bake time fi yuh day.',
+			'Dough recipe dem from di 50 Top Pizza guide, encode fi Knead Time. Open one an adjust di bake time fi yuh day.',
 		empty: 'No pizzeria nuh deh pon di list yet.',
 		contribute: {
 			before_md: 'Yuh know a pizzaiolo published recipe? Add it to ',

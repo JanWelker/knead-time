@@ -25,6 +25,30 @@ describe('loadStoredLocale', () => {
 	});
 });
 
+describe('loadStoredLocale — legacy doughcalc:* migration', () => {
+	const LEGACY = 'doughcalc:locale';
+
+	it('migrates a valid legacy locale to the new key and returns it', () => {
+		const storage = makeStorage({ [LEGACY]: 'de' });
+		expect(loadStoredLocale(storage)).toBe('de');
+		expect(storage.getItem(LOCALE_STORAGE_KEY)).toBe('de');
+		expect(storage.getItem(LEGACY)).toBeNull();
+	});
+
+	it('discards a junk legacy value but still clears the legacy slot', () => {
+		const storage = makeStorage({ [LEGACY]: 'xx' });
+		expect(loadStoredLocale(storage)).toBeNull();
+		expect(storage.getItem(LOCALE_STORAGE_KEY)).toBeNull();
+		expect(storage.getItem(LEGACY)).toBeNull();
+	});
+
+	it('prefers the new key when both are present (does not touch legacy)', () => {
+		const storage = makeStorage({ [LOCALE_STORAGE_KEY]: 'it', [LEGACY]: 'de' });
+		expect(loadStoredLocale(storage)).toBe('it');
+		expect(storage.getItem(LEGACY)).toBe('de');
+	});
+});
+
 describe('saveStoredLocale', () => {
 	it('writes the locale to storage', () => {
 		const storage = makeStorage();
