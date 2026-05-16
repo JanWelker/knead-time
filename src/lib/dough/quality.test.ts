@@ -111,6 +111,21 @@ describe('stepQualityFlags — cold-bulk and preferment', () => {
 		expect(stepQualityFlags(pf, s)).toContain('preferment-clamped-short');
 	});
 
+	it('flags a preferment-mix row when time forced its actual duration below the 8 h floor', () => {
+		// 7 h room-mode window with biga (14 h natural at 22 °C). With only
+		// 7 h − 45 min = 6.25 h available for the pre-ferment after fixed
+		// steps, its actual duration ends up well below the 8 h floor.
+		const i = inputs({
+			startAt: new Date('2026-05-12T11:00:00Z'),
+			readyBy: new Date('2026-05-12T18:00:00Z'),
+			preFerment: { type: 'biga', flourPercent: 30 }
+		});
+		const s = computeSchedule(i);
+		const pf = s.steps.find((st) => st.kind === 'preferment-mix')!;
+		expect(pf.durationMinutes).toBeLessThan(8 * 60);
+		expect(stepQualityFlags(pf, s)).toContain('preferment-clamped-short');
+	});
+
 	it('flags a preferment-mix row when its natural duration is above the 24 h ceiling', () => {
 		// At 10 °C the math wants ~28 h for biga → clamped to 24 h.
 		const i = inputs({
