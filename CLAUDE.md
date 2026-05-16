@@ -25,7 +25,8 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 - Ball weight accepts decimals (e.g. 288.5 g).
 - Yeast: fresh (cube) or sourdough starter (+ starter hydration).
 - `roomTempC` and `fridgeTempC` are both user inputs. Fridge default 4 °C — matches the previous hardcoded value so v=1 share-links stay stable.
-- Defaults: 280 g / 70 % / 3 % salt. No AVPN enforcement.
+- **Optional**: `oilPercent` and `sugarPercent` (both default 0). When > 0 they expand `pctSum` like salt — see the Math section. Form fields hide their effect when 0; old share-URLs decode to 0 so legacy recipes don't gain enriched-dough character.
+- Defaults: 280 g / 70 % / 3 % salt / 0 % oil / 0 % sugar. No AVPN enforcement.
 
 ### "Round numbers" action
 
@@ -33,8 +34,8 @@ Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100
 
 ## Outputs
 
-- **Ingredients (grams).** No pre-ferment → flat table. With pre-ferment → Pre-dough / Main dough / Totals (a single subtracted table reads as a math error). With pre-ferment, main-dough yeast row is hidden — totals row surfaces the yeast.
-- **Schedule.** Step descriptions interpolate context (flour/water/salt/yeast on `prep`/`mix`; per-ball weight on `divide`; pre-ferment weights on `preferment-mix`). Day-two `prep`/`mix` omit yeast under a pre-ferment. **Separate `mix`/`prep` templates per pre-ferment type** (`*_with_biga`, `*_with_poolish`, `prep_desc_with_preferment`): biga = stiff/no-knead day-one + day-two fold-in; poolish = whisk-and-pour. `preferment-mix` row spans the full duration; no separate `preferment-proof` step.
+- **Ingredients (grams).** No pre-ferment → flat table. With pre-ferment → Pre-dough / Main dough / Totals (a single subtracted table reads as a math error). With pre-ferment, main-dough yeast row is hidden — totals row surfaces the yeast. **Oil and sugar rows render only when > 0** (so defaults-only recipes stay unchanged).
+- **Schedule.** Step descriptions interpolate context (flour/water/salt/yeast on `prep`/`mix`; per-ball weight on `divide`; pre-ferment weights on `preferment-mix`). Day-two `prep`/`mix` omit yeast under a pre-ferment. **Separate `mix`/`prep` templates per pre-ferment type** (`*_with_biga`, `*_with_poolish`, `prep_desc_with_preferment`): biga = stiff/no-knead day-one + day-two fold-in; poolish = whisk-and-pour. `preferment-mix` row spans the full duration; no separate `preferment-proof` step. **Oil/sugar trailers** (`extras_oil`, `extras_sugar`, `extras_oil_sugar`) are appended in `stepCopy.appendExtras` to `prep` (no PF) and to every `mix` variant when the inputs are > 0 — never to `preferment-mix`. **Source-timing badge**: when the form matches a `pizzeriaEntries` row and a step's computed duration falls outside the source range (±15 % tolerance), `ScheduleTable` renders the original value beneath the duration.
 - **`.ics` export.** One VEVENT per step. **`DESCRIPTION` must match the on-page description verbatim**, interpolations included.
 - **Print / Save as PDF.** Print button opens a dedicated `/print/[[locale]]?<recipe>` route in a new tab (SSR + prerendered, mirrors the TRMNL push pattern). The route auto-triggers `window.print()` on mount with inline styles so the main app's gradient/dark-mode rules don't bleed in. The legacy `@media print` machinery on the main route is kept as a Cmd-P fallback. Both paths must read on **B&W** (borders + text colour, no background fills) and **fit one page** on A4/Letter for common shapes (fresh × {no-preferment, biga, poolish} × {room, cold}). QR of the share URL via `src/lib/qr.ts` (wraps `qrcode-generator`).
 - **TRMNL e-ink view** is **pushed** to a Private Plugin webhook from the user's browser — see the TRMNL push section.
@@ -97,6 +98,7 @@ The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private P
 
 - Form state → URL. **Keep encoding compact**: short keys, optional fields omitted.
 - **Versioned**: `encodeInputs` always stamps `CURRENT_VERSION`; `decodeInputs` dispatches via `DECODERS: Record<number, Decoder>` in `src/lib/dough/urlState.ts`. Missing `v` = v1. Unknown `v` falls back to current decoder.
+- **Current version is `v=3`** (adds `o` = oilPercent, `sg` = sugarPercent; both omitted from the URL when 0). `v=2` decodes oil/sugar as `undefined`, the form's defaults (0/0) fill in — every pre-v=3 share-link reproduces its original recipe. `v=1` predates `ft` (fridgeTempC) and decodes that field the same way.
 - **Schema-change protocol**: bump `CURRENT_VERSION`, add `decodeVN`, register in `DECODERS`. **Never delete an old decoder** — old bookmarks and community rows must keep resolving.
 - URL schema version is **independent** from app version.
 
