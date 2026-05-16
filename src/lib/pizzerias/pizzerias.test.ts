@@ -8,13 +8,13 @@ import {
 } from './pizzerias';
 
 describe('parsePizzerias', () => {
-	it('parses a row with linked name, location, rankings, recipe, timing and source', () => {
+	it('parses a row with linked name, location, rankings, recipe, timing, notes and source', () => {
 		const md = `
 # Pizzerias
 
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| [Pepe in Grani](https://50toppizza.it/pepe) | Caiazzo, Italy | 2018-it:1, 2024-w:25 | https://example.com/?v=2&n=7&b=250&h=62&s=2.75&y=f&t=22 | bulk-room:4-5h, final-proof:2h | https://blog.example/franco-pepe |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| [Pepe in Grani](https://50toppizza.it/pepe) | Caiazzo, Italy | 2018-it:1, 2024-w:25 | https://example.com/?v=3&n=7&b=250&h=62&s=2.75&y=f&t=22 | bulk-room:4-5h, final-proof:2h | Plus a tiny sourdough starter we dropped. | https://blog.example/franco-pepe |
 `;
 		const entries = parsePizzerias(md);
 		expect(entries).toHaveLength(1);
@@ -34,6 +34,7 @@ describe('parsePizzerias', () => {
 			'bulk-room': { minMinutes: 240, maxMinutes: 300 },
 			'final-proof': { minMinutes: 120, maxMinutes: 120 }
 		});
+		expect(e.notes).toBe('Plus a tiny sourdough starter we dropped.');
 		expect(e.inputs.pizzaCount).toBe(7);
 		expect(e.inputs.ballWeight).toBe(250);
 		expect(e.inputs.hydration).toBe(62);
@@ -42,9 +43,9 @@ describe('parsePizzerias', () => {
 
 	it('accepts a plain (unlinked) pizzeria name', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Some Spot | Town, Country | 2024-w:50 | https://example.com/?n=4 |  | https://src.example/x |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Some Spot | Town, Country | 2024-w:50 | https://example.com/?n=4 |  |  | https://src.example/x |
 `;
 		const entries = parsePizzerias(md);
 		expect(entries).toHaveLength(1);
@@ -56,23 +57,24 @@ describe('parsePizzerias', () => {
 		const md = `
 intro paragraph
 
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Foo | City, Country | 2024-w:1 | https://example.com/?n=4 |  | https://src.example/y |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Foo | City, Country | 2024-w:1 | https://example.com/?n=4 |  |  | https://src.example/y |
 
 closing paragraph
 `;
 		expect(parsePizzerias(md)).toHaveLength(1);
 	});
 
-	it('drops rows with fewer than six cells', () => {
+	it('drops rows with fewer than seven cells', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
 | Only one |
 | Short | City, IT | 2024-w:1 |
 | Five | City, IT | 2024-w:2 | https://example.com/?n=4 | https://src.example/z |
-| Full | City, IT | 2024-w:3 | https://example.com/?n=4 |  | https://src.example/z |
+| Six | City, IT | 2024-w:3 | https://example.com/?n=4 |  | https://src.example/z |
+| Full | City, IT | 2024-w:4 | https://example.com/?n=4 |  |  | https://src.example/z |
 `;
 		const entries = parsePizzerias(md);
 		expect(entries.map((e) => e.name)).toEqual(['Full']);
@@ -80,11 +82,11 @@ closing paragraph
 
 	it('drops rows whose recipe URL cannot be parsed', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Bad URL | City, IT | 2024-w:1 | not a url |  | https://src.example/x |
-| Bad host | City, IT | 2024-w:1 | http://[bad-ipv6 |  | https://src.example/y |
-| Good | City, IT | 2024-w:1 | https://example.com/?n=4 |  | https://src.example/z |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Bad URL | City, IT | 2024-w:1 | not a url |  |  | https://src.example/x |
+| Bad host | City, IT | 2024-w:1 | http://[bad-ipv6 |  |  | https://src.example/y |
+| Good | City, IT | 2024-w:1 | https://example.com/?n=4 |  |  | https://src.example/z |
 `;
 		const entries = parsePizzerias(md);
 		expect(entries.map((e) => e.name)).toEqual(['Good']);
@@ -92,59 +94,59 @@ closing paragraph
 
 	it('drops rows missing a source URL', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| No source | City, IT | 2024-w:1 | https://example.com/?n=4 |  | missing |
-| With source | City, IT | 2024-w:1 | https://example.com/?n=4 |  | https://src.example/x |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| No source | City, IT | 2024-w:1 | https://example.com/?n=4 |  |  | missing |
+| With source | City, IT | 2024-w:1 | https://example.com/?n=4 |  |  | https://src.example/x |
 `;
 		expect(parsePizzerias(md).map((e) => e.name)).toEqual(['With source']);
 	});
 
 	it('drops rows without parseable rankings', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| No ranks | City, IT | nothing here | https://example.com/?n=4 |  | https://src.example/x |
-| Bad year | City, IT | 18-it:1 | https://example.com/?n=4 |  | https://src.example/y |
-| Good | City, IT | 2024-w:1 | https://example.com/?n=4 |  | https://src.example/z |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| No ranks | City, IT | nothing here | https://example.com/?n=4 |  |  | https://src.example/x |
+| Bad year | City, IT | 18-it:1 | https://example.com/?n=4 |  |  | https://src.example/y |
+| Good | City, IT | 2024-w:1 | https://example.com/?n=4 |  |  | https://src.example/z |
 `;
 		expect(parsePizzerias(md).map((e) => e.name)).toEqual(['Good']);
 	});
 
 	it('drops rows with a location missing the country', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Lonely | OnlyCity | 2024-w:1 | https://example.com/?n=4 |  | https://src.example/x |
-| Paired | City, Country | 2024-w:1 | https://example.com/?n=4 |  | https://src.example/y |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Lonely | OnlyCity | 2024-w:1 | https://example.com/?n=4 |  |  | https://src.example/x |
+| Paired | City, Country | 2024-w:1 | https://example.com/?n=4 |  |  | https://src.example/y |
 `;
 		expect(parsePizzerias(md).map((e) => e.name)).toEqual(['Paired']);
 	});
 
 	it('drops rows with an empty pizzeria-name cell', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-|   | City, Country | 2024-w:1 | https://example.com/?n=4 |  | https://src.example/x |
-| Named | City, Country | 2024-w:2 | https://example.com/?n=4 |  | https://src.example/y |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+|   | City, Country | 2024-w:1 | https://example.com/?n=4 |  |  | https://src.example/x |
+| Named | City, Country | 2024-w:2 | https://example.com/?n=4 |  |  | https://src.example/y |
 `;
 		expect(parsePizzerias(md).map((e) => e.name)).toEqual(['Named']);
 	});
 
 	it('accepts a markdown-link source URL', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Spot | City, Country | 2024-w:1 | https://example.com/?n=4 |  | [the interview](https://src.example/x) |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Spot | City, Country | 2024-w:1 | https://example.com/?n=4 |  |  | [the interview](https://src.example/x) |
 `;
 		expect(parsePizzerias(md)[0].sourceUrl).toBe('https://src.example/x');
 	});
 
 	it('parses multiple rankings sharing the same year tag', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Multi | City, Country | 2018-it:1, 2019-it:1, 2022-w:26 | https://example.com/?n=4 |  | https://src.example/x |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Multi | City, Country | 2018-it:1, 2019-it:1, 2022-w:26 | https://example.com/?n=4 |  |  | https://src.example/x |
 `;
 		expect(parsePizzerias(md)[0].rankings).toEqual([
 			{ year: 2018, rank: 1, list: 'italy' },
@@ -155,11 +157,11 @@ closing paragraph
 
 	it('parses single-value and ranged timing tokens with h or m units', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Ranged | City, IT | 2024-w:1 | https://example.com/?n=4 | bulk-cold:24-48h, final-proof:3-4h | https://src.example/x |
-| Minutes | City, IT | 2024-w:2 | https://example.com/?n=4 | bulk-room:90m | https://src.example/y |
-| Fractional | City, IT | 2024-w:3 | https://example.com/?n=4 | preferment-mix:1.5h | https://src.example/z |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Ranged | City, IT | 2024-w:1 | https://example.com/?n=4 | bulk-cold:24-48h, final-proof:3-4h |  | https://src.example/x |
+| Minutes | City, IT | 2024-w:2 | https://example.com/?n=4 | bulk-room:90m |  | https://src.example/y |
+| Fractional | City, IT | 2024-w:3 | https://example.com/?n=4 | preferment-mix:1.5h |  | https://src.example/z |
 `;
 		const [a, b, c] = parsePizzerias(md);
 		expect(a.timing).toEqual({
@@ -172,9 +174,9 @@ closing paragraph
 
 	it('ignores unknown step kinds and malformed timing tokens', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Mixed | City, IT | 2024-w:1 | https://example.com/?n=4 | unknown-step:5h, gibberish, bulk-room:5h, divide:1h | https://src.example/x |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Mixed | City, IT | 2024-w:1 | https://example.com/?n=4 | unknown-step:5h, gibberish, bulk-room:5h, divide:1h |  | https://src.example/x |
 `;
 		// divide is a real step kind but not in TIMING_STEP_KINDS, so it's also dropped.
 		expect(parsePizzerias(md)[0].timing).toEqual({
@@ -184,11 +186,23 @@ closing paragraph
 
 	it('treats an empty Timing cell as no source timings', () => {
 		const md = `
-| Pizzeria | Location | Rankings | Recipe | Timing | Source |
-| --- | --- | --- | --- | --- | --- |
-| Empty | City, IT | 2024-w:1 | https://example.com/?n=4 |    | https://src.example/x |
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Empty | City, IT | 2024-w:1 | https://example.com/?n=4 |    |  | https://src.example/x |
 `;
 		expect(parsePizzerias(md)[0].timing).toEqual({});
+	});
+
+	it('exposes the Notes cell verbatim (empty when blank)', () => {
+		const md = `
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| WithNote | City, IT | 2024-w:1 | https://example.com/?n=4 |  | + 5% oil (out of model) | https://src.example/x |
+| NoNote | City, IT | 2024-w:2 | https://example.com/?n=4 |  |  | https://src.example/y |
+`;
+		const [a, b] = parsePizzerias(md);
+		expect(a.notes).toBe('+ 5% oil (out of model)');
+		expect(b.notes).toBe('');
 	});
 
 	it('returns an empty list for markdown without a table', () => {
@@ -207,6 +221,7 @@ describe('comparePizzerias', () => {
 		recipeSearch: '',
 		sourceUrl: '',
 		timing: {},
+		notes: '',
 		inputs: {}
 	});
 
@@ -238,6 +253,8 @@ describe('findMatchingPizzeria', () => {
 			ballWeight: 250,
 			hydration: 62,
 			saltPercent: 2.75,
+			oilPercent: 0,
+			sugarPercent: 0,
 			yeastType: 'fresh',
 			starterHydration: 100,
 			roomTempC: 22,
@@ -258,6 +275,7 @@ describe('findMatchingPizzeria', () => {
 			recipeSearch: '',
 			sourceUrl: '',
 			timing: {},
+			notes: '',
 			inputs: inputs(over)
 		};
 	}
@@ -321,6 +339,17 @@ describe('findMatchingPizzeria', () => {
 		).toBeNull();
 	});
 
+	it('matches on oil & sugar percentages exactly', () => {
+		const withOil = entry({ oilPercent: 5, sugarPercent: 2 });
+		expect(findMatchingPizzeria(inputs({ oilPercent: 5, sugarPercent: 2 }), [withOil])).toBe(
+			withOil
+		);
+		// Different oil → no match.
+		expect(findMatchingPizzeria(inputs({ oilPercent: 4, sugarPercent: 2 }), [withOil])).toBeNull();
+		// Different sugar → no match.
+		expect(findMatchingPizzeria(inputs({ oilPercent: 5, sugarPercent: 1 }), [withOil])).toBeNull();
+	});
+
 	it('returns null when no entry matches', () => {
 		expect(findMatchingPizzeria(inputs(), [])).toBeNull();
 	});
@@ -335,6 +364,8 @@ describe('findMatchingPizzeria', () => {
 			ballWeight: shipped.inputs.ballWeight!,
 			hydration: shipped.inputs.hydration!,
 			saltPercent: shipped.inputs.saltPercent!,
+			oilPercent: shipped.inputs.oilPercent ?? 0,
+			sugarPercent: shipped.inputs.sugarPercent ?? 0,
 			yeastType: shipped.inputs.yeastType!,
 			starterHydration: shipped.inputs.starterHydration ?? 100,
 			roomTempC: shipped.inputs.roomTempC!,

@@ -27,6 +27,10 @@ export interface PizzeriaEntry {
 	recipeSearch: string;
 	sourceUrl: string;
 	timing: SourceTiming;
+	// Free-form caveats the encoding can't capture — flour blends, dropped
+	// ingredients, "approximation", etc. Empty string when the recipe maps
+	// cleanly.
+	notes: string;
 	inputs: Partial<SerializableInputs>;
 }
 
@@ -54,9 +58,10 @@ export function parsePizzerias(markdown: string): PizzeriaEntry[] {
 			.slice(1, -1)
 			.split('|')
 			.map((c) => c.trim());
-		if (cells.length < 6) continue;
+		if (cells.length < 7) continue;
 
-		const [nameCell, locationCell, rankingsCell, recipeCell, timingCell, sourceCell] = cells;
+		const [nameCell, locationCell, rankingsCell, recipeCell, timingCell, notesCell, sourceCell] =
+			cells;
 
 		const { name, profileUrl } = parseNameCell(nameCell);
 		if (!name) continue;
@@ -86,6 +91,7 @@ export function parsePizzerias(markdown: string): PizzeriaEntry[] {
 			recipeSearch,
 			sourceUrl,
 			timing: parseTiming(timingCell),
+			notes: notesCell,
 			inputs: decodeInputs(recipeSearch)
 		});
 	}
@@ -188,6 +194,10 @@ function matchesRecipe(a: Partial<SerializableInputs>, b: DoughInputs): boolean 
 	if (a.ballWeight !== b.ballWeight) return false;
 	if (a.hydration !== b.hydration) return false;
 	if (a.saltPercent !== b.saltPercent) return false;
+	// Pre-v=3 share URLs omit oil/sugar; the parser leaves them undefined, the
+	// form supplies 0. Treat unset === 0 so legacy entries keep matching.
+	if ((a.oilPercent ?? 0) !== b.oilPercent) return false;
+	if ((a.sugarPercent ?? 0) !== b.sugarPercent) return false;
 	if (a.yeastType !== b.yeastType) return false;
 	if (a.roomTempC !== b.roomTempC) return false;
 	if (a.fridgeTempC !== b.fridgeTempC) return false;

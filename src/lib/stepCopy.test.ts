@@ -12,6 +12,8 @@ function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
 		ballWeight: 288.5,
 		hydration: 70,
 		saltPercent: 3,
+		oilPercent: 0,
+		sugarPercent: 0,
 		yeastType: 'fresh',
 		starterHydration: 100,
 		roomTempC: 22,
@@ -299,5 +301,57 @@ describe('stepDescription — ready step', () => {
 		expect(stepDescription(ready, MESSAGES.en, r)).toBe(MESSAGES.en.steps.ready_desc);
 		expect(stepDescription(ready, MESSAGES.de, r)).toBe(MESSAGES.de.steps.ready_desc);
 		expect(stepDescription(ready, MESSAGES.it, r)).toBe(MESSAGES.it.steps.ready_desc);
+	});
+});
+
+describe('stepDescription — oil & sugar extras', () => {
+	it('appends an oil-only trailer when oilPercent > 0 and sugarPercent = 0', () => {
+		const r = computeSchedule(inputs({ oilPercent: 5 }));
+		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const desc = stepDescription(prep, MESSAGES.en, r);
+		expect(desc).toContain(`${Math.round(r.ingredients.oil)} g oil`);
+		expect(desc).not.toContain('sugar');
+	});
+
+	it('appends a sugar-only trailer when sugarPercent > 0 and oilPercent = 0', () => {
+		const r = computeSchedule(inputs({ sugarPercent: 2 }));
+		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc).toContain(`${Math.round(r.ingredients.sugar)} g sugar`);
+		expect(desc).not.toMatch(/\d+ g oil/);
+	});
+
+	it('appends a combined trailer when both oil & sugar are present', () => {
+		const r = computeSchedule(inputs({ oilPercent: 5, sugarPercent: 2 }));
+		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc).toContain(`${Math.round(r.ingredients.oil)} g oil`);
+		expect(desc).toContain(`${Math.round(r.ingredients.sugar)} g sugar`);
+	});
+
+	it('appends extras to the mix step when a biga pre-ferment is set', () => {
+		const r = computeSchedule(
+			inputs({ oilPercent: 4, preFerment: { type: 'biga', flourPercent: 30 } })
+		);
+		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc).toContain(`${Math.round(r.ingredients.oil)} g oil`);
+	});
+
+	it('appends extras to the mix step when a poolish pre-ferment is set', () => {
+		const r = computeSchedule(
+			inputs({ sugarPercent: 1.5, preFerment: { type: 'poolish', flourPercent: 30 } })
+		);
+		const mix = r.steps.find((s) => s.kind === 'mix')!;
+		const desc = stepDescription(mix, MESSAGES.en, r);
+		expect(desc).toContain(`${Math.round(r.ingredients.sugar)} g sugar`);
+	});
+
+	it('omits the extras trailer when both are 0 (default case)', () => {
+		const r = computeSchedule(inputs());
+		const prep = r.steps.find((s) => s.kind === 'prep')!;
+		const desc = stepDescription(prep, MESSAGES.en, r);
+		expect(desc).not.toContain('oil');
+		expect(desc).not.toContain('sugar');
 	});
 });

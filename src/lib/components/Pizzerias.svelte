@@ -116,6 +116,14 @@
 						<dd class="tabular-nums">{num(entry.inputs.hydration, '%')}</dd>
 						<dt class="font-medium">{t.pizzerias.col_salt}</dt>
 						<dd class="tabular-nums">{num(entry.inputs.saltPercent, '%')}</dd>
+						{#if (entry.inputs.oilPercent ?? 0) > 0}
+							<dt class="font-medium">{t.pizzerias.col_oil}</dt>
+							<dd class="tabular-nums">{num(entry.inputs.oilPercent, '%')}</dd>
+						{/if}
+						{#if (entry.inputs.sugarPercent ?? 0) > 0}
+							<dt class="font-medium">{t.pizzerias.col_sugar}</dt>
+							<dd class="tabular-nums">{num(entry.inputs.sugarPercent, '%')}</dd>
+						{/if}
 						<dt class="font-medium">{t.pizzerias.col_yeast}</dt>
 						<dd>{yeastLabel(entry)}</dd>
 						<dt class="font-medium">{t.pizzerias.col_temp}</dt>
@@ -125,6 +133,11 @@
 						<dt class="font-medium">{t.pizzerias.col_preFerment}</dt>
 						<dd>{preFermentLabel(entry)}</dd>
 					</dl>
+					{#if entry.notes}
+						<p class="mt-2 text-xs text-stone-500 italic dark:text-stone-400">
+							{entry.notes}
+						</p>
+					{/if}
 				</details>
 			</li>
 		{/each}
@@ -163,6 +176,14 @@
 								</a>
 							{:else}
 								{entry.name}
+							{/if}
+							{#if entry.notes}
+								<div
+									class="mt-1 max-w-xs text-xs font-normal text-stone-500 italic dark:text-stone-400"
+									title={entry.notes}
+								>
+									{entry.notes}
+								</div>
 							{/if}
 						</td>
 						<td class="py-3 pr-3 whitespace-nowrap text-stone-500 dark:text-stone-400">

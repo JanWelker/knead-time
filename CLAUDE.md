@@ -42,9 +42,10 @@ Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100
 ## Math
 
 - Baker's %: flour = 100; water/salt/yeast as % of flour. Flour = `pizzaCount × ballWeight ÷ pctSum`.
+- **Optional baker's-percentage additions**: `oilPercent` and `sugarPercent` (both 0 by default). When > 0 they expand `pctSum` the same way salt does — every gram is separately weighed and comes out of the ball-weight budget. They never enter the pre-ferment (which stays a flour-water-yeast culture); oil/sugar are always weighed for the main dough at the `mix` (or `prep` when no pre-ferment) step.
 - **Mass-balance invariant** (tested for every combination):
-  - Fresh: `pctSum = 100 + h + s + y`.
-  - Sourdough: `pctSum = 100 + h + s` (starter is flour + water from existing budget).
+  - Fresh: `pctSum = 100 + h + s + y + oil + sugar`.
+  - Sourdough: `pctSum = 100 + h + s + oil + sugar` (starter is flour + water from existing budget).
   - Pre-ferment redistributes flour/water/yeast — never changes totals.
 - **Yeast solves one equivalent-hours equation** across pre-ferment + bulk (+ initial room block) + final proof: `yeast% = target / Σ(hours_i · f(T_i))`.
 - `PREFERMENT_REF_HOURS_{BIGA,POOLISH}` in `fermentation.ts` shifts every existing recipe's yeast % → **major app-version bump**.
@@ -69,11 +70,13 @@ Per-hour rates and per-factor deduction caps are named constants at the top of `
 
 ## 50 Top Pizza recipes
 
-- Source: `src/lib/pizzerias/pizzerias.md`, rows `| [Pizzeria](50top-url) | City, Country | Rankings | Recipe-URL | Source-URL |`. Parsed by `src/lib/pizzerias/pizzerias.ts`; same drop-silently behaviour as the community table.
+- Source: `src/lib/pizzerias/pizzerias.md`, rows `| [Pizzeria](50top-url) | City, Country | Rankings | Recipe-URL | Timing | Notes | Source-URL |`. Parsed by `src/lib/pizzerias/pizzerias.ts`; same drop-silently behaviour as the community table.
 - **Rankings** is a comma-separated list of `YEAR-LIST:RANK` tokens. `LIST` is `it` for 2018–2021 (50 Top Pizza was Italy-only at the time) and `w` for 2022–2025 (standalone World ranking). Mixing both in one row is intentional — Pepe in Grani's full history spans both scopes.
+- **Timing** captures the proving durations the source recipe specifies (`step-kind:Nh`, `step-kind:N-Mh`, or `Nm`). Recognised kinds: `preferment-mix`, `bulk-room`, `bulk-cold`, `final-proof`. `ScheduleTable` tags any step whose computed duration falls outside the source range with the original value.
+- **Notes** is free-form caveat text — flour blends, dropped ingredients ("source uses fresh yeast + 1.9 % sourdough starter; doughcalc can't combine them"), "approximation" markers, etc. Empty when the recipe maps cleanly.
 - Only add a row when there's a **verifiable primary source** for the dough numbers (chef interview, cookbook, official video). The **Source** column is mandatory; the parser drops rows without one.
-- Recipes are encoded with the doughcalc Share URL; `decodeInputs` reads them. When a chef's restaurant method combines mechanisms doughcalc can't represent (e.g. fresh yeast + sourdough starter together), encode the **published home recipe** rather than the restaurant's full setup, and link the Source so readers can dig deeper.
-- `Pizzerias.svelte` mirrors `Community.svelte` (mobile cards, desktop table) with extra columns for the ranking-history chips and the Source link. Mounted above the Community section on the main page. Hidden in print.
+- Recipes are encoded with the doughcalc Share URL; `decodeInputs` reads them. When a chef's restaurant method combines mechanisms doughcalc can't represent (e.g. fresh yeast + sourdough starter together), encode the **published home recipe**, document the gap in **Notes**, and link the Source so readers can dig deeper.
+- `Pizzerias.svelte` mirrors `Community.svelte` (mobile cards, desktop table) with extra columns for ranking-history chips, Source link, and an italic Notes caption under the name. Mounted below the Community section on the main page. Hidden in print.
 
 ## TRMNL push
 

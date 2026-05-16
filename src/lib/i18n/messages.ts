@@ -49,6 +49,10 @@ export interface Messages {
 		hydration: string;
 		hydration_help: string;
 		salt: string;
+		oil: string;
+		oil_help: string;
+		sugar: string;
+		sugar_help: string;
 		yeastType: string;
 		yeast_fresh: string;
 		yeast_sourdough: string;
@@ -82,6 +86,9 @@ export interface Messages {
 		mix_desc: string;
 		mix_desc_with_biga: string;
 		mix_desc_with_poolish: string;
+		extras_oil: string;
+		extras_sugar: string;
+		extras_oil_sugar: string;
 		bulk_room: string;
 		bulk_room_desc: string;
 		bulk_cold: string;
@@ -136,6 +143,8 @@ export interface Messages {
 		flour: string;
 		water: string;
 		salt: string;
+		oil: string;
+		sugar: string;
 		fresh_yeast: string;
 		sourdough_starter: string;
 		fresh_yeast_inline: string;
@@ -241,6 +250,8 @@ export interface Messages {
 		col_ball: string;
 		col_hydration: string;
 		col_salt: string;
+		col_oil: string;
+		col_sugar: string;
 		col_yeast: string;
 		col_temp: string;
 		col_fridge: string;
@@ -313,6 +324,11 @@ const en: Messages = {
 		hydration: 'Hydration (%)',
 		hydration_help: 'Water as a percentage of flour weight.',
 		salt: 'Salt (% of flour)',
+		oil: 'Oil (% of flour)',
+		oil_help: 'Olive oil or similar. 0 % for a Neapolitan dough; 2–5 % for enriched styles.',
+		sugar: 'Sugar (% of flour)',
+		sugar_help:
+			'Plain sugar or diastatic malt. 0 % for Neapolitan; ~1–2 % helps browning in cooler ovens.',
 		yeastType: 'Yeast',
 		yeast_fresh: 'Fresh yeast (cube)',
 		yeast_sourdough: 'Sourdough starter',
@@ -354,6 +370,9 @@ const en: Messages = {
 			'Tear the ripe biga into the spiral mixer with {flour} g flour and {water} g water (~{water_temp} °C — chill with ice cubes if needed) and run until cohesive. Add {salt} g salt and mix about 10 minutes more until smooth, keeping the dough below 24 °C.',
 		mix_desc_with_poolish:
 			'Pour the ripe poolish into the spiral mixer with {flour} g flour, {water} g water (~{water_temp} °C — chill with ice cubes if needed) and {salt} g salt. Run about 10 minutes until smooth, keeping the dough below 24 °C.',
+		extras_oil: 'Plus {oil} g oil.',
+		extras_sugar: 'Plus {sugar} g sugar.',
+		extras_oil_sugar: 'Plus {oil} g oil and {sugar} g sugar.',
 		bulk_room: 'Bulk ferment (room)',
 		bulk_room_desc: 'Cover the dough and let it rise at room temperature.',
 		bulk_cold: 'Bulk ferment (fridge)',
@@ -415,6 +434,8 @@ const en: Messages = {
 		flour: 'Flour',
 		water: 'Water',
 		salt: 'Salt',
+		oil: 'Oil',
+		sugar: 'Sugar',
 		fresh_yeast: 'Fresh yeast',
 		sourdough_starter: 'Sourdough starter',
 		fresh_yeast_inline: 'fresh yeast',
@@ -524,6 +545,8 @@ const en: Messages = {
 		col_ball: 'Ball',
 		col_hydration: 'Hydration',
 		col_salt: 'Salt',
+		col_oil: 'Oil',
+		col_sugar: 'Sugar',
 		col_yeast: 'Yeast',
 		col_temp: 'Room',
 		col_fridge: 'Fridge',
@@ -596,6 +619,11 @@ const de: Messages = {
 		hydration: 'Hydration (%)',
 		hydration_help: 'Wasser als Prozentanteil des Mehls.',
 		salt: 'Salz (% vom Mehl)',
+		oil: 'Öl (% vom Mehl)',
+		oil_help: 'Olivenöl o. ä. 0 % für Neapolitaner; 2–5 % für angereicherte Teige.',
+		sugar: 'Zucker (% vom Mehl)',
+		sugar_help:
+			'Zucker oder diastatisches Malz. 0 % für Neapolitaner; ~1–2 % helfen in kühleren Öfen beim Bräunen.',
 		yeastType: 'Hefe',
 		yeast_fresh: 'Frischhefe (Würfel)',
 		yeast_sourdough: 'Sauerteig-Anstellgut',
@@ -637,6 +665,9 @@ const de: Messages = {
 			'Die reife Biga im Spiralkneter mit {flour} g Mehl und {water} g Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) zu einem zusammenhängenden Teig vermengen. {salt} g Salz einarbeiten und weitere ca. 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		mix_desc_with_poolish:
 			'Den reifen Poolish mit {flour} g Mehl, {water} g Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und {salt} g Salz in den Spiralkneter geben. Etwa 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
+		extras_oil: 'Außerdem {oil} g Öl.',
+		extras_sugar: 'Außerdem {sugar} g Zucker.',
+		extras_oil_sugar: 'Außerdem {oil} g Öl und {sugar} g Zucker.',
 		bulk_room: 'Stockgare (Raum)',
 		bulk_room_desc: 'Teig abdecken und bei Raumtemperatur gehen lassen.',
 		bulk_cold: 'Stockgare (Kühlschrank)',
@@ -704,6 +735,8 @@ const de: Messages = {
 		flour: 'Mehl',
 		water: 'Wasser',
 		salt: 'Salz',
+		oil: 'Öl',
+		sugar: 'Zucker',
 		fresh_yeast: 'Frischhefe',
 		sourdough_starter: 'Sauerteig',
 		fresh_yeast_inline: 'Frischhefe',
@@ -813,6 +846,8 @@ const de: Messages = {
 		col_ball: 'Teigling',
 		col_hydration: 'Hydration',
 		col_salt: 'Salz',
+		col_oil: 'Öl',
+		col_sugar: 'Zucker',
 		col_yeast: 'Hefe',
 		col_temp: 'Raum',
 		col_fridge: 'Kühlschrank',
@@ -884,6 +919,11 @@ const it: Messages = {
 		hydration: 'Idratazione (%)',
 		hydration_help: 'Acqua in percentuale sulla farina.',
 		salt: 'Sale (% sulla farina)',
+		oil: 'Olio (% sulla farina)',
+		oil_help: 'Olio di oliva o simile. 0 % per una napoletana; 2–5 % per impasti arricchiti.',
+		sugar: 'Zucchero (% sulla farina)',
+		sugar_help:
+			'Zucchero o malto diastatico. 0 % per una napoletana; ~1–2 % aiutano la doratura in forni meno caldi.',
 		yeastType: 'Lievito',
 		yeast_fresh: 'Lievito di birra fresco',
 		yeast_sourdough: 'Lievito madre',
@@ -925,6 +965,9 @@ const it: Messages = {
 			"Spezzettare la biga matura nell'impastatrice a spirale con {flour} g di farina e {water} g di acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e lavorare fino a ottenere un impasto coeso. Incorporare {salt} g di sale e lavorare altri 10 minuti circa fino a impasto liscio, mantenendolo sotto i 24 °C.",
 		mix_desc_with_poolish:
 			"Versare il poolish maturo nell'impastatrice a spirale con {flour} g di farina, {water} g di acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e {salt} g di sale. Lavorare circa 10 minuti fino a impasto liscio, mantenendolo sotto i 24 °C.",
+		extras_oil: 'Più {oil} g di olio.',
+		extras_sugar: 'Più {sugar} g di zucchero.',
+		extras_oil_sugar: 'Più {oil} g di olio e {sugar} g di zucchero.',
 		bulk_room: 'Puntata (ambiente)',
 		bulk_room_desc: "Coprire l'impasto e farlo lievitare a temperatura ambiente.",
 		bulk_cold: 'Puntata (frigo)',
@@ -991,6 +1034,8 @@ const it: Messages = {
 		flour: 'Farina',
 		water: 'Acqua',
 		salt: 'Sale',
+		oil: 'Olio',
+		sugar: 'Zucchero',
 		fresh_yeast: 'Lievito fresco',
 		sourdough_starter: 'Lievito madre',
 		fresh_yeast_inline: 'lievito fresco',
@@ -1093,6 +1138,8 @@ const it: Messages = {
 		col_ball: 'Panetto',
 		col_hydration: 'Idratazione',
 		col_salt: 'Sale',
+		col_oil: 'Olio',
+		col_sugar: 'Zucchero',
 		col_yeast: 'Lievito',
 		col_temp: 'Stanza',
 		col_fridge: 'Frigo',
@@ -1172,6 +1219,12 @@ const fr: Messages = {
 		hydration: 'Hydratation (%)',
 		hydration_help: 'Eau en pourcentage de la farine.',
 		salt: 'Sel (% de farine)',
+		oil: 'Huile (% de farine)',
+		oil_help:
+			"Huile d'olive ou similaire. 0 % pour une napolitaine ; 2–5 % pour les pâtes enrichies.",
+		sugar: 'Sucre (% de farine)',
+		sugar_help:
+			'Sucre ou malt diastasique. 0 % pour la napolitaine ; ~1–2 % aident la coloration dans les fours moins chauds.',
 		yeastType: 'Levure',
 		yeast_fresh: 'Levure fraîche (cube)',
 		yeast_sourdough: 'Levain',
@@ -1215,6 +1268,9 @@ const fr: Messages = {
 			"Émiettez la biga mûre dans le pétrin à spirale avec {flour} g de farine et {water} g d'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin) et mélangez jusqu'à obtenir une pâte cohérente. Incorporez {salt} g de sel, puis pétrissez environ 10 minutes de plus jusqu'à ce que ce soit lisse, en la gardant sous 24 °C.",
 		mix_desc_with_poolish:
 			"Versez le poolish mûr dans le pétrin à spirale avec {flour} g de farine, {water} g d'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin) et {salt} g de sel. Pétrissez environ 10 minutes jusqu'à obtenir une pâte lisse, en la gardant sous 24 °C.",
+		extras_oil: "Plus {oil} g d'huile.",
+		extras_sugar: 'Plus {sugar} g de sucre.',
+		extras_oil_sugar: "Plus {oil} g d'huile et {sugar} g de sucre.",
 		bulk_room: 'Pointage (ambiante)',
 		bulk_room_desc: 'Couvrez la pâte et laissez-la lever à température ambiante.',
 		bulk_cold: 'Pointage (frigo)',
@@ -1280,6 +1336,8 @@ const fr: Messages = {
 		flour: 'Farine',
 		water: 'Eau',
 		salt: 'Sel',
+		oil: 'Huile',
+		sugar: 'Sucre',
 		fresh_yeast: 'Levure fraîche',
 		sourdough_starter: 'Levain',
 		fresh_yeast_inline: 'levure fraîche',
@@ -1389,6 +1447,8 @@ const fr: Messages = {
 		col_ball: 'Pâton',
 		col_hydration: 'Hydratation',
 		col_salt: 'Sel',
+		col_oil: 'Huile',
+		col_sugar: 'Sucre',
 		col_yeast: 'Levure',
 		col_temp: 'Pièce',
 		col_fridge: 'Frigo',
@@ -1461,6 +1521,11 @@ const nl: Messages = {
 		hydration: 'Hydratatie (%)',
 		hydration_help: 'Water als percentage van de bloem.',
 		salt: 'Zout (% van bloem)',
+		oil: 'Olie (% van bloem)',
+		oil_help: 'Olijfolie o.i.d. 0 % voor Napolitaans; 2–5 % voor verrijkt deeg.',
+		sugar: 'Suiker (% van bloem)',
+		sugar_help:
+			'Suiker of diastatische mout. 0 % voor Napolitaans; ~1–2 % helpt de bruining in koelere ovens.',
 		yeastType: 'Gist',
 		yeast_fresh: 'Verse gist (blokje)',
 		yeast_sourdough: 'Zuurdesem',
@@ -1503,6 +1568,9 @@ const nl: Messages = {
 			'Scheur de rijpe biga in de spiraalkneder met {flour} g bloem en {water} g water (~{water_temp} °C — eventueel met ijsblokjes koelen) en meng tot een samenhangend deeg. Werk {salt} g zout erdoor en kneed nog ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
 		mix_desc_with_poolish:
 			'Giet de rijpe poolish in de spiraalkneder met {flour} g bloem, {water} g water (~{water_temp} °C — eventueel met ijsblokjes koelen) en {salt} g zout. Kneed ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
+		extras_oil: 'Plus {oil} g olie.',
+		extras_sugar: 'Plus {sugar} g suiker.',
+		extras_oil_sugar: 'Plus {oil} g olie en {sugar} g suiker.',
 		bulk_room: 'Bulkrijs (kamer)',
 		bulk_room_desc: 'Dek het deeg af en laat het rijzen op kamertemperatuur.',
 		bulk_cold: 'Bulkrijs (koelkast)',
@@ -1568,6 +1636,8 @@ const nl: Messages = {
 		flour: 'Bloem',
 		water: 'Water',
 		salt: 'Zout',
+		oil: 'Olie',
+		sugar: 'Suiker',
 		fresh_yeast: 'Verse gist',
 		sourdough_starter: 'Zuurdesem',
 		fresh_yeast_inline: 'verse gist',
@@ -1677,6 +1747,8 @@ const nl: Messages = {
 		col_ball: 'Bol',
 		col_hydration: 'Hydratatie',
 		col_salt: 'Zout',
+		col_oil: 'Olie',
+		col_sugar: 'Suiker',
 		col_yeast: 'Gist',
 		col_temp: 'Kamer',
 		col_fridge: 'Koelkast',
@@ -1748,6 +1820,10 @@ const jam: Messages = {
 		hydration: 'Wata percent (%)',
 		hydration_help: 'Wata as a percent a di flour weight.',
 		salt: 'Salt (% a flour)',
+		oil: 'Oil (% a flour)',
+		oil_help: 'Olive oil or similar. 0 % fi Neapolitan; 2–5 % fi enrich dough.',
+		sugar: 'Sugar (% a flour)',
+		sugar_help: 'Sugar or malt. 0 % fi Neapolitan; ~1–2 % help di crust brown inna cooler oven.',
 		yeastType: 'Ris-ting',
 		yeast_fresh: 'Fresh ris-ting (cube)',
 		yeast_sourdough: 'Sour starta',
@@ -1789,6 +1865,9 @@ const jam: Messages = {
 			'Tear up di ripe biga inna di spiral mixer wid {flour} g flour an {water} g wata (~{water_temp} °C — chill it wid ice cube if yu need to) an mix til it come togedda. Work in {salt} g salt, den run it bout 10 minit more til smood, an keep di dough unda 24 °C.',
 		mix_desc_with_poolish:
 			'Pour di ripe poolish inna di spiral mixer wid {flour} g flour, {water} g wata (~{water_temp} °C — chill it wid ice cube if yu need to) an {salt} g salt. Run it bout 10 minit til smood, an keep di dough unda 24 °C.',
+		extras_oil: 'Plus {oil} g oil.',
+		extras_sugar: 'Plus {sugar} g sugar.',
+		extras_oil_sugar: 'Plus {oil} g oil an {sugar} g sugar.',
 		bulk_room: 'Big rise (room)',
 		bulk_room_desc: 'Cova di dough an mek it rise a room temperature.',
 		bulk_cold: 'Big rise (fridge)',
@@ -1849,6 +1928,8 @@ const jam: Messages = {
 		flour: 'Flour',
 		water: 'Wata',
 		salt: 'Salt',
+		oil: 'Oil',
+		sugar: 'Sugar',
 		fresh_yeast: 'Fresh ris-ting',
 		sourdough_starter: 'Sour starta',
 		fresh_yeast_inline: 'fresh ris-ting',
@@ -1958,6 +2039,8 @@ const jam: Messages = {
 		col_ball: 'Ball',
 		col_hydration: 'Hydration',
 		col_salt: 'Salt',
+		col_oil: 'Oil',
+		col_sugar: 'Sugar',
 		col_yeast: 'Ris-ting',
 		col_temp: 'Room',
 		col_fridge: 'Fridge',

@@ -31,6 +31,8 @@ function baseInputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
 		ballWeight: 280,
 		hydration: 70,
 		saltPercent: 3,
+		oilPercent: 0,
+		sugarPercent: 0,
 		yeastType: 'fresh',
 		starterHydration: 100,
 		roomTempC: 22,

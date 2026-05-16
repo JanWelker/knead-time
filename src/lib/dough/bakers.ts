@@ -5,6 +5,10 @@ export interface BakerArgs {
 	ballWeight: number;
 	hydration: number;
 	saltPercent: number;
+	// Extra baker's-percentage ingredients. Either may be 0; both expand
+	// pctSum so the ball weight remains exact.
+	oilPercent: number;
+	sugarPercent: number;
 	yeastPercent: number;
 	yeastType: 'fresh' | 'sourdough';
 	starterHydration: number;
@@ -22,13 +26,21 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 
 	// Mass balance:
 	//   total = sum of every separately-weighed ingredient
-	// Fresh yeast is a new mass: total = F · (1 + h + s + y) / 100
-	// Sourdough starter is just flour + water from the existing budget, so it does
-	// not add to the total mass equation: total = F · (1 + h + s) / 100
-	const pctSum = 100 + args.hydration + args.saltPercent + (isSourdough ? 0 : args.yeastPercent);
+	// Fresh yeast adds its own mass: total = F · (1 + h + s + y + oil + sugar) / 100
+	// Sourdough starter is flour + water from the existing budget, so its mass
+	// drops out: total = F · (1 + h + s + oil + sugar) / 100
+	const pctSum =
+		100 +
+		args.hydration +
+		args.saltPercent +
+		args.oilPercent +
+		args.sugarPercent +
+		(isSourdough ? 0 : args.yeastPercent);
 	const flourTotal = (totalDough * 100) / pctSum;
 	const waterTotal = (flourTotal * args.hydration) / 100;
 	const salt = (flourTotal * args.saltPercent) / 100;
+	const oil = (flourTotal * args.oilPercent) / 100;
+	const sugar = (flourTotal * args.sugarPercent) / 100;
 	const yeastMass = (flourTotal * args.yeastPercent) / 100;
 
 	let preFerment: Ingredients['preFerment'] = null;
@@ -37,7 +49,8 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 		const pfWater = (pfFlour * args.preFermentHydration) / 100;
 		// All of the recipe's yeast goes into the pre-ferment — that's how
 		// biga/poolish technique actually works: the pre-dough is the yeast
-		// carrier, no extra yeast is added on baking day.
+		// carrier, no extra yeast is added on baking day. Oil and sugar stay
+		// in the main dough; they'd inhibit the pre-ferment's culture.
 		preFerment = { flour: pfFlour, water: pfWater, yeast: yeastMass };
 	}
 
@@ -49,6 +62,8 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 			water: waterTotal - starterWater,
 			salt,
 			yeast: yeastMass,
+			oil,
+			sugar,
 			totalDough,
 			preFerment: null
 		};
@@ -59,6 +74,8 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 		water: waterTotal - (preFerment?.water ?? 0),
 		salt,
 		yeast: hasPreFerment ? 0 : yeastMass,
+		oil,
+		sugar,
 		totalDough,
 		preFerment
 	};
@@ -69,6 +86,8 @@ export interface RoundBallWeightArgs {
 	ballWeight: number;
 	hydration: number;
 	saltPercent: number;
+	oilPercent: number;
+	sugarPercent: number;
 	yeastPercent: number;
 	yeastType: YeastType;
 }
@@ -79,7 +98,8 @@ export interface RoundBallWeightArgs {
 export function roundBallWeight(args: RoundBallWeightArgs): number {
 	const isSourdough = args.yeastType === 'sourdough';
 	const yeastPct = isSourdough ? 0 : args.yeastPercent;
-	const pctSum = 100 + args.hydration + args.saltPercent + yeastPct;
+	const pctSum =
+		100 + args.hydration + args.saltPercent + args.oilPercent + args.sugarPercent + yeastPct;
 
 	const currentTotal = args.pizzaCount * args.ballWeight;
 	const currentFlour = (currentTotal * 100) / pctSum;

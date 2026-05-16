@@ -211,6 +211,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		ballWeight: inputs.ballWeight,
 		hydration: inputs.hydration,
 		saltPercent: inputs.saltPercent,
+		oilPercent: inputs.oilPercent,
+		sugarPercent: inputs.sugarPercent,
 		yeastPercent: yeastPct,
 		yeastType: inputs.yeastType,
 		starterHydration: inputs.starterHydration,
