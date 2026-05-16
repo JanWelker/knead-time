@@ -53,6 +53,7 @@ src/
 │   ├── components/       ← Svelte 5 UI (uses runes)
 │   ├── i18n/             ← messages (en/de/it/fr/nl/jam), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
+│   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered above the community table
 │   ├── state.svelte.ts   ← form state as a $state class
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
 │   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
@@ -167,6 +168,30 @@ shows your inputs as columns, and links the row back to the recipe.
 For the **Name** column use either your full name (renders as plain text) or
 a GitHub handle prefixed with `@` (renders as a link to your profile, e.g.
 `@JanWelker` → <https://github.com/JanWelker>).
+
+## Contributing a 50 Top Pizza recipe
+
+Above the community table, the page lists pizzerias from the
+[50 Top Pizza](https://www.50toppizza.it/) guide (2018–2025) whose dough
+recipes are publicly documented. The data lives in
+[`src/lib/pizzerias/pizzerias.md`](src/lib/pizzerias/pizzerias.md). Each row
+has five columns:
+
+```md
+| Pizzeria                                                      | Location       | Rankings                            | Recipe                                        | Source                        |
+| ------------------------------------------------------------- | -------------- | ----------------------------------- | --------------------------------------------- | ----------------------------- |
+| [Pepe in Grani](https://www.50toppizza.it/.../pepe-in-grani/) | Caiazzo, Italy | 2018-it:1, 2019-it:1, 2022-w:26 ... | https://janwelker.github.io/knead-time/?v=2&… | https://youngandfoodish.com/… |
+```
+
+- **Pizzeria** name is a markdown link to the pizzeria's 50 Top Pizza profile.
+- **Location** is `City, Country`.
+- **Rankings** is a comma-separated list of `YEAR-LIST:RANK` tokens. `LIST` is
+  `it` for the 2018–2021 guides (when 50 Top Pizza was an Italy-only ranking)
+  and `w` for 2022–2025 (the standalone World ranking).
+- **Recipe** is the doughcalc **Share** URL that encodes the published
+  numbers. Open the app, dial in the recipe, click **Share**, paste here.
+- **Source** is the primary source for those numbers — a chef's interview,
+  cookbook excerpt, official video, etc. Don't submit a row without one.
 
 ## Conventions worth knowing
 

@@ -67,6 +67,14 @@ Per-hour rates and per-factor deduction caps are named constants at the top of `
 - Imported via Vite `?raw`, parsed in `src/lib/community/community.ts`. **Bad rows are dropped silently** so one bad row can't break the page.
 - `Community.svelte` renders cards on narrow widths (with an `Open` button up front + secondary fields under a `<details>`) and the full table at `md+`. Link uses `resolve('/')` and `rel="external"` so a full reload re-runs `onMount` → `decodeInputs`. Hidden in print.
 
+## 50 Top Pizza recipes
+
+- Source: `src/lib/pizzerias/pizzerias.md`, rows `| [Pizzeria](50top-url) | City, Country | Rankings | Recipe-URL | Source-URL |`. Parsed by `src/lib/pizzerias/pizzerias.ts`; same drop-silently behaviour as the community table.
+- **Rankings** is a comma-separated list of `YEAR-LIST:RANK` tokens. `LIST` is `it` for 2018–2021 (50 Top Pizza was Italy-only at the time) and `w` for 2022–2025 (standalone World ranking). Mixing both in one row is intentional — Pepe in Grani's full history spans both scopes.
+- Only add a row when there's a **verifiable primary source** for the dough numbers (chef interview, cookbook, official video). The **Source** column is mandatory; the parser drops rows without one.
+- Recipes are encoded with the doughcalc Share URL; `decodeInputs` reads them. When a chef's restaurant method combines mechanisms doughcalc can't represent (e.g. fresh yeast + sourdough starter together), encode the **published home recipe** rather than the restaurant's full setup, and link the Source so readers can dig deeper.
+- `Pizzerias.svelte` mirrors `Community.svelte` (mobile cards, desktop table) with extra columns for the ranking-history chips and the Source link. Mounted above the Community section on the main page. Hidden in print.
+
 ## TRMNL push
 
 The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private Plugin webhook from the user's browser. There is **no `/trmnl/<locale>` route** — the screenshot-plugin path was tried (SSR + inline CSS + an inline-JS decoder) and failed because the renderer doesn't reliably execute JS, so every capture showed build-time defaults. The push model sidesteps that: doughcalc POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>` and TRMNL renders them via the user's Liquid template at refresh time. Implementation in `src/lib/trmnl/`; setup walkthrough + Liquid template in `docs/trmnl-setup.md`. Each bullet below cost at least one round-trip with the actual device.

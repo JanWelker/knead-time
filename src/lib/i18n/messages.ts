@@ -221,6 +221,36 @@ export interface Messages {
 		open_link: string;
 		details_label: string;
 	};
+	pizzerias: {
+		heading: string;
+		intro: string;
+		empty: string;
+		contribute: {
+			before_md: string;
+			md: string;
+			between: string;
+			pr: string;
+			after: string;
+		};
+		col_pizzeria: string;
+		col_location: string;
+		col_rankings: string;
+		col_pizzas: string;
+		col_ball: string;
+		col_hydration: string;
+		col_salt: string;
+		col_yeast: string;
+		col_temp: string;
+		col_fridge: string;
+		col_preFerment: string;
+		col_open: string;
+		col_source: string;
+		open_link: string;
+		source_link: string;
+		details_label: string;
+		list_italy: string;
+		list_world: string;
+	};
 }
 
 const en: Messages = {
@@ -470,6 +500,37 @@ const en: Messages = {
 		col_open: 'Recipe',
 		open_link: 'Open',
 		details_label: 'Details'
+	},
+	pizzerias: {
+		heading: '50 Top Pizza recipes',
+		intro:
+			'Dough recipes from the 50 Top Pizza guide, encoded for doughcalc. Open one and adjust the bake time to your day.',
+		empty: 'No pizzerias on the list yet.',
+		contribute: {
+			before_md: 'Know a chef’s published recipe? Add it to ',
+			md: 'pizzerias.md',
+			between: ' and open a ',
+			pr: 'pull request',
+			after: '.'
+		},
+		col_pizzeria: 'Pizzeria',
+		col_location: 'Location',
+		col_rankings: 'Rankings',
+		col_pizzas: 'Pizzas',
+		col_ball: 'Ball',
+		col_hydration: 'Hydration',
+		col_salt: 'Salt',
+		col_yeast: 'Yeast',
+		col_temp: 'Room',
+		col_fridge: 'Fridge',
+		col_preFerment: 'Pre-ferment',
+		col_open: 'Recipe',
+		col_source: 'Source',
+		open_link: 'Open',
+		source_link: 'Source',
+		details_label: 'Details',
+		list_italy: 'IT',
+		list_world: 'W'
 	}
 };
 
@@ -726,6 +787,37 @@ const de: Messages = {
 		col_open: 'Rezept',
 		open_link: 'Öffnen',
 		details_label: 'Details'
+	},
+	pizzerias: {
+		heading: '50-Top-Pizza-Rezepte',
+		intro:
+			'Teigrezepte aus dem 50-Top-Pizza-Führer, codiert für doughcalc. Öffne ein Rezept und passe die Backzeit an.',
+		empty: 'Noch keine Pizzerien auf der Liste.',
+		contribute: {
+			before_md: 'Kennst du das veröffentlichte Rezept eines Pizzaiolos? Trage es in ',
+			md: 'pizzerias.md',
+			between: ' ein und öffne einen ',
+			pr: 'Pull Request',
+			after: '.'
+		},
+		col_pizzeria: 'Pizzeria',
+		col_location: 'Ort',
+		col_rankings: 'Platzierungen',
+		col_pizzas: 'Pizzen',
+		col_ball: 'Teigling',
+		col_hydration: 'Hydration',
+		col_salt: 'Salz',
+		col_yeast: 'Hefe',
+		col_temp: 'Raum',
+		col_fridge: 'Kühlschrank',
+		col_preFerment: 'Vorteig',
+		col_open: 'Rezept',
+		col_source: 'Quelle',
+		open_link: 'Öffnen',
+		source_link: 'Quelle',
+		details_label: 'Details',
+		list_italy: 'IT',
+		list_world: 'Welt'
 	}
 };
 
@@ -973,6 +1065,37 @@ const it: Messages = {
 		col_open: 'Ricetta',
 		open_link: 'Apri',
 		details_label: 'Dettagli'
+	},
+	pizzerias: {
+		heading: 'Ricette di 50 Top Pizza',
+		intro:
+			"Ricette dell'impasto dalla guida 50 Top Pizza, codificate per doughcalc. Apri una ricetta e regola l'orario di cottura.",
+		empty: 'Nessuna pizzeria ancora.',
+		contribute: {
+			before_md: 'Conosci la ricetta pubblicata di un pizzaiolo? Aggiungila a ',
+			md: 'pizzerias.md',
+			between: ' e apri una ',
+			pr: 'pull request',
+			after: '.'
+		},
+		col_pizzeria: 'Pizzeria',
+		col_location: 'Località',
+		col_rankings: 'Classifiche',
+		col_pizzas: 'Pizze',
+		col_ball: 'Panetto',
+		col_hydration: 'Idratazione',
+		col_salt: 'Sale',
+		col_yeast: 'Lievito',
+		col_temp: 'Stanza',
+		col_fridge: 'Frigo',
+		col_preFerment: 'Pre-impasto',
+		col_open: 'Ricetta',
+		col_source: 'Fonte',
+		open_link: 'Apri',
+		source_link: 'Fonte',
+		details_label: 'Dettagli',
+		list_italy: 'IT',
+		list_world: 'Mondo'
 	},
 	footer: {
 		about: 'Calcolatore per impasto di pizza napoletana ancorato al tempo.',
@@ -1236,6 +1359,37 @@ const fr: Messages = {
 		col_open: 'Recette',
 		open_link: 'Ouvrir',
 		details_label: 'Détails'
+	},
+	pizzerias: {
+		heading: 'Recettes de 50 Top Pizza',
+		intro:
+			'Recettes de pâte tirées du guide 50 Top Pizza, encodées pour doughcalc. Ouvrez-en une et ajustez l’heure de cuisson.',
+		empty: 'Aucune pizzéria pour le moment.',
+		contribute: {
+			before_md: 'Vous connaissez la recette publiée d’un pizzaïolo ? Ajoutez-la à ',
+			md: 'pizzerias.md',
+			between: ' et ouvrez une ',
+			pr: 'pull request',
+			after: '.'
+		},
+		col_pizzeria: 'Pizzéria',
+		col_location: 'Lieu',
+		col_rankings: 'Classements',
+		col_pizzas: 'Pizzas',
+		col_ball: 'Pâton',
+		col_hydration: 'Hydratation',
+		col_salt: 'Sel',
+		col_yeast: 'Levure',
+		col_temp: 'Pièce',
+		col_fridge: 'Frigo',
+		col_preFerment: 'Pré-ferment',
+		col_open: 'Recette',
+		col_source: 'Source',
+		open_link: 'Ouvrir',
+		source_link: 'Source',
+		details_label: 'Détails',
+		list_italy: 'IT',
+		list_world: 'Monde'
 	}
 };
 
@@ -1491,6 +1645,37 @@ const nl: Messages = {
 		col_open: 'Recept',
 		open_link: 'Openen',
 		details_label: 'Details'
+	},
+	pizzerias: {
+		heading: '50 Top Pizza-recepten',
+		intro:
+			'Deegrecepten uit de 50 Top Pizza-gids, gecodeerd voor doughcalc. Open er een en stel de baktijd in.',
+		empty: 'Nog geen pizzeria’s.',
+		contribute: {
+			before_md: 'Ken je het gepubliceerde recept van een pizzaiolo? Voeg het toe aan ',
+			md: 'pizzerias.md',
+			between: ' en open een ',
+			pr: 'pull request',
+			after: '.'
+		},
+		col_pizzeria: 'Pizzeria',
+		col_location: 'Plaats',
+		col_rankings: 'Ranglijsten',
+		col_pizzas: 'Pizza’s',
+		col_ball: 'Bol',
+		col_hydration: 'Hydratatie',
+		col_salt: 'Zout',
+		col_yeast: 'Gist',
+		col_temp: 'Kamer',
+		col_fridge: 'Koelkast',
+		col_preFerment: 'Voordeeg',
+		col_open: 'Recept',
+		col_source: 'Bron',
+		open_link: 'Openen',
+		source_link: 'Bron',
+		details_label: 'Details',
+		list_italy: 'IT',
+		list_world: 'Wereld'
 	}
 };
 
@@ -1739,6 +1924,37 @@ const jam: Messages = {
 		col_open: 'Recipe',
 		open_link: 'Open',
 		details_label: 'Details'
+	},
+	pizzerias: {
+		heading: '50 Top Pizza recipe dem',
+		intro:
+			'Dough recipe dem from di 50 Top Pizza guide, encode fi doughcalc. Open one an adjust di bake time fi yuh day.',
+		empty: 'No pizzeria nuh deh pon di list yet.',
+		contribute: {
+			before_md: 'Yuh know a pizzaiolo published recipe? Add it to ',
+			md: 'pizzerias.md',
+			between: ' an open a ',
+			pr: 'pull request',
+			after: '.'
+		},
+		col_pizzeria: 'Pizzeria',
+		col_location: 'Place',
+		col_rankings: 'Ranking dem',
+		col_pizzas: 'Pizza dem',
+		col_ball: 'Ball',
+		col_hydration: 'Hydration',
+		col_salt: 'Salt',
+		col_yeast: 'Ris-ting',
+		col_temp: 'Room',
+		col_fridge: 'Fridge',
+		col_preFerment: 'Befo-dough',
+		col_open: 'Recipe',
+		col_source: 'Source',
+		open_link: 'Open',
+		source_link: 'Source',
+		details_label: 'Details',
+		list_italy: 'IT',
+		list_world: 'Worl'
 	}
 };
 

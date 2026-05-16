@@ -6,6 +6,7 @@
 	import { buildIcs } from '$lib/dough/ics';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
 	import Community from '$lib/components/Community.svelte';
+	import Pizzerias from '$lib/components/Pizzerias.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
 	import InputForm from '$lib/components/InputForm.svelte';
@@ -329,6 +330,10 @@
 			</div>
 		</section>
 	</div>
+
+	<section class="{cardClass} mt-8 print:hidden">
+		<Pizzerias />
+	</section>
 
 	<section class="{cardClass} mt-8 print:hidden">
 		<Community />
