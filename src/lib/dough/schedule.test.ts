@@ -495,6 +495,116 @@ describe('computeSchedule — yeast magnitude warnings', () => {
 	});
 });
 
+describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
+	function firstStepAt(r: ReturnType<typeof computeSchedule>): Date {
+		return r.steps[0].at;
+	}
+
+	it('keeps cold-mode prep at or after startAt when desired cold-bulk is below the 12 h floor', () => {
+		// 17 h window → desired (~11.25 h) below the 12 h floor. Old behaviour
+		// clamped cold-bulk up to 12 h, pulling prep 45 min before startAt.
+		const startAt = new Date('2026-05-12T13:00:00Z');
+		const readyBy = new Date('2026-05-13T06:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt, readyBy }));
+		expect(r.mode).toBe('cold');
+		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+		expect(r.steps[r.steps.length - 1].at.getTime()).toBe(readyBy.getTime());
+	});
+
+	it('keeps preferment-mix at or after startAt for a tight biga window', () => {
+		// 31 h window → biga preferment + bake cluster need 19.75 h fixed and
+		// leave 11.25 h for cold-bulk, below the 12 h floor. Old behaviour
+		// landed preferment-mix 45 min before startAt.
+		const startAt = new Date('2026-05-11T11:00:00Z');
+		const readyBy = new Date('2026-05-12T18:00:00Z');
+		const r = computeSchedule(
+			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+		);
+		expect(r.mode).toBe('cold');
+		expect(r.steps[0].kind).toBe('preferment-mix');
+		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+	});
+
+	it('keeps preferment-mix at or after startAt for a tight poolish window', () => {
+		const startAt = new Date('2026-05-11T11:00:00Z');
+		const readyBy = new Date('2026-05-12T16:00:00Z');
+		const r = computeSchedule(
+			baseInputs({ startAt, readyBy, preFerment: { type: 'poolish', flourPercent: 30 } })
+		);
+		expect(r.steps[0].kind).toBe('preferment-mix');
+		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+	});
+
+	it('keeps room-mode prep at or after startAt when the window is below the 3 h soft minimum', () => {
+		const startAt = new Date('2026-05-12T17:00:00Z');
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt, readyBy }));
+		expect(r.mode).toBe('room');
+		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+	});
+
+	it('shrinks the pre-ferment when it alone exceeds a tight room-mode window', () => {
+		// 10 h window with biga (14 h natural at 22 °C). Room mode (10 h < 16 h
+		// threshold after pref). Pre-ferment must shrink so first step >= startAt.
+		const startAt = new Date('2026-05-12T08:00:00Z');
+		const readyBy = new Date('2026-05-12T18:00:00Z');
+		const r = computeSchedule(
+			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+		);
+		expect(r.mode).toBe('room');
+		const pf = r.steps.find((s) => s.kind === 'preferment-mix')!;
+		expect(pf.durationMinutes).toBeLessThan(14 * 60);
+		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+	});
+
+	it('returns 0 yeast percent (not Infinity) when the window is too short to ferment', () => {
+		// 30 min window → bulk and final-proof both shrink to 0; guard against
+		// dividing by 0 equivalent-hours in the yeast solve.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T18:30:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.feasible).toBe(false);
+		expect(Number.isFinite(r.yeastPercent)).toBe(true);
+		expect(r.yeastPercent).toBe(0);
+	});
+
+	it('night-window adjuster never extends cold-bulk past natural (would push start before startAt)', () => {
+		// Same scenario as the existing night-shift test but tighter. The
+		// adjuster used to be able to extend cold-bulk upward (back-shifting
+		// the cluster to previous-day daytime); under the new contract it can
+		// only shrink, so the first step never lands before startAt even when
+		// the cluster has to be shortened to dodge night.
+		const startAt = new Date('2026-05-12T01:00:00Z');
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt, readyBy }));
+		expect(r.mode).toBe('cold');
+		const bulkCold = r.steps.find((s) => s.kind === 'bulk-cold')!;
+		expect(bulkCold.durationMinutes).toBeLessThanOrEqual(r.naturalColdBulkMin!);
+		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+	});
+
+	it('night-window adjuster falls back to naturalColdMin when no candidate clears night', () => {
+		// 31 h window + biga ⇒ naturalColdMin ≈ 11.25 h. Every cm in [0, 11.25 h]
+		// puts prefermentMix in the 22:00–08:00 window (would need cm ≥ 14.25 h
+		// to lift prep into 08:00–12:00 daytime, but that's above natural and
+		// the contract forbids extending). Adjuster returns naturalColdMin and
+		// the night-step warning fires.
+		const startAt = new Date('2026-05-12T01:00:00Z');
+		const readyBy = new Date('2026-05-13T08:00:00Z');
+		const r = computeSchedule(
+			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+		);
+		expect(r.mode).toBe('cold');
+		expect(r.warnings).toContain('night-step');
+		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+		const bulkCold = r.steps.find((s) => s.kind === 'bulk-cold')!;
+		expect(bulkCold.durationMinutes).toBe(r.naturalColdBulkMin);
+	});
+});
+
 describe('computeSchedule — fridge temperature', () => {
 	it('uses less yeast when the fridge runs warmer (more fermentation during cold-bulk)', () => {
 		const startAt = new Date('2026-05-11T07:00:00Z');

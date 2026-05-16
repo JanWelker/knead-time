@@ -2,7 +2,6 @@ import { computeIngredients } from './bakers';
 import {
 	idealMixWaterTempC,
 	prefermentDurationHours,
-	prefermentEquivHours,
 	prefermentRefHours,
 	TARGET_UNITS_FRESH,
 	TARGET_UNITS_SOURDOUGH,
@@ -75,9 +74,11 @@ function clusterClean(prepAt: Date, prefermentOffsetMin: number | null): boolean
 	return true;
 }
 
-// Find a cold-bulk duration within [FLOOR, CEIL] that keeps every pre-cold
+// Find a cold-bulk duration in [0, naturalColdMin] that keeps every pre-cold
 // action step out of the night window, preferring the candidate closest to the
-// natural value. Returns the natural value untouched if no clean coldMin exists.
+// natural value. The search never extends above naturalColdMin — that would
+// pull the first step before startAt, which the schedule contract forbids.
+// Returns the natural value untouched if no clean coldMin exists.
 function adjustColdMinForNight(
 	readyBy: Date,
 	naturalColdMin: number,
@@ -86,19 +87,10 @@ function adjustColdMinForNight(
 	const prepAtFor = (cm: number) =>
 		new Date(readyBy.getTime() - (COLD_PRE_POST_OFFSET_MIN + cm) * 60_000);
 
-	if (clusterClean(prepAtFor(naturalColdMin), prefermentOffsetMin)) return naturalColdMin;
-
-	let best = naturalColdMin;
-	let bestDelta = Infinity;
-	for (let cm = COLD_BULK_FLOOR_MIN; cm <= COLD_BULK_CEIL_MIN; cm++) {
-		if (!clusterClean(prepAtFor(cm), prefermentOffsetMin)) continue;
-		const delta = Math.abs(cm - naturalColdMin);
-		if (delta <= bestDelta) {
-			bestDelta = delta;
-			best = cm;
-		}
+	for (let cm = naturalColdMin; cm >= 0; cm--) {
+		if (clusterClean(prepAtFor(cm), prefermentOffsetMin)) return cm;
 	}
-	return best;
+	return naturalColdMin;
 }
 
 // Sourdough recipes use the starter itself as their pre-ferment — adding a
@@ -115,31 +107,28 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const totalAvailableMin = Math.floor(
 		(inputs.readyBy.getTime() - inputs.startAt.getTime()) / 60_000
 	);
-	// A pre-ferment matures for several hours before mix-day prep; reserve that
-	// span so preferment-mix lands at/after startAt instead of before it. The
-	// duration is temperature-driven (see fermentation.prefermentDurationHours).
-	const prefermentDurationMin = preFerment
+	// Temperature-driven pre-ferment duration, clamped to the [8, 24] h band
+	// in fermentation.prefermentDurationHours. May still be shrunk below this
+	// natural value if the wall-clock window can't accommodate it (see below).
+	const naturalPrefermentMin = preFerment
 		? Math.round(prefermentDurationHours(preFerment.type, inputs.roomTempC) * 60)
 		: 0;
-	const availableMin = totalAvailableMin - prefermentDurationMin;
 	const warnings: ScheduleWarning[] = [];
 
 	if (inputs.roomTempC < 14) warnings.push('too-cold');
 	if (inputs.roomTempC > 30) warnings.push('too-warm');
 
+	// Cold mode is gated on the time available AFTER the natural pre-ferment
+	// fits — a 17 h window with a 12 h poolish leaves 5 h, well in room-mode
+	// territory. Below the threshold the math also doesn't try to schedule a
+	// cold ferment that wouldn't develop properly.
+	const availableMin = totalAvailableMin - naturalPrefermentMin;
 	const useCold = availableMin >= COLD_MODE_THRESHOLD_MIN;
 	const mode: FermentMode = useCold ? 'cold' : 'room';
-	const feasible = availableMin >= ROOM_MIN_TOTAL_MIN;
+	const feasible = totalAvailableMin >= ROOM_MIN_TOTAL_MIN;
 	if (!feasible) warnings.push('too-short');
 
-	// Pre-ferment contributes equivalent-hours-at-22°C to the fermentation
-	// budget like every other phase. Inside the wall-clock clamp this is the
-	// type's reference load (14 h biga / 12 h poolish); at the band edges it's
-	// the clamped wall-clock × f(T).
-	const prefermentEqHours = preFerment
-		? prefermentEquivHours(preFerment.type, inputs.roomTempC)
-		: 0;
-
+	let prefermentDurationMin = naturalPrefermentMin;
 	let yeastPct: number;
 	let steps: ScheduleStep[];
 	let naturalColdBulkMin: number | null = null;
@@ -147,9 +136,16 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 
 	if (mode === 'cold') {
 		const fixedMin = PREP_MIN + MIX_MIN + COLD_INITIAL_BULK_MIN + DIVIDE_MIN + COLD_FINAL_PROOF_MIN;
-		const desired = availableMin - fixedMin;
-		const naturalColdMin = Math.min(COLD_BULK_CEIL_MIN, Math.max(COLD_BULK_FLOOR_MIN, desired));
+		// Cold mode is only entered when totalAvailable − naturalPreferment ≥
+		// 16 h, so this is always ≥ ~10 h — the pre-ferment-overflow branch
+		// can only fire in room mode.
+		const desired = totalAvailableMin - fixedMin - naturalPrefermentMin;
 		desiredColdBulkMin = desired;
+		// Cap cold-bulk at the 48 h ceiling. We do NOT clamp UP to the 12 h
+		// floor — that would pull the schedule's first step before startAt,
+		// which the contract forbids. Sub-floor cold-bulk is allowed and
+		// flagged via the recipe-fit score.
+		const naturalColdMin = Math.min(COLD_BULK_CEIL_MIN, desired);
 		naturalColdBulkMin = naturalColdMin;
 		const coldMin = adjustColdMinForNight(
 			inputs.readyBy,
@@ -158,7 +154,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		);
 
 		const equivalentHours =
-			prefermentEqHours +
+			(prefermentDurationMin / 60) * temperatureFactor(inputs.roomTempC) +
 			((COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60) * temperatureFactor(inputs.roomTempC) +
 			(coldMin / 60) * temperatureFactor(inputs.fridgeTempC);
 
@@ -169,13 +165,26 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			prefermentDurationMin: preFerment ? prefermentDurationMin : null
 		});
 	} else {
-		const totalMin = Math.max(ROOM_MIN_TOTAL_MIN, availableMin);
-		const ferment = totalMin - (PREP_MIN + MIX_MIN + DIVIDE_MIN);
-		const finalProofMin = clamp(Math.floor(ferment / 3), 30, 90);
-		const bulkMin = Math.max(30, ferment - finalProofMin);
+		const roomFixedMin = PREP_MIN + MIX_MIN + DIVIDE_MIN;
+		const fermentBudget = totalAvailableMin - roomFixedMin - naturalPrefermentMin;
+		let bulkMin: number;
+		let finalProofMin: number;
+		if (fermentBudget >= 0) {
+			// Pre-ferment fits; the rest goes to bulk + final-proof in roughly
+			// a 2:1 ratio. Both can shrink to 0 if the window is very tight.
+			finalProofMin = Math.min(90, Math.max(0, Math.floor(fermentBudget / 3)));
+			bulkMin = Math.max(0, fermentBudget - finalProofMin);
+		} else {
+			// Pre-ferment alone overflows. Shrink it so first-step >= startAt
+			// still holds; bulk and final-proof are 0.
+			prefermentDurationMin = Math.max(0, totalAvailableMin - roomFixedMin);
+			bulkMin = 0;
+			finalProofMin = 0;
+		}
 
 		const equivalentHours =
-			prefermentEqHours + ((bulkMin + finalProofMin) / 60) * temperatureFactor(inputs.roomTempC);
+			((prefermentDurationMin + bulkMin + finalProofMin) / 60) *
+			temperatureFactor(inputs.roomTempC);
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
 		steps = buildRoomSteps({
 			readyBy: inputs.readyBy,
@@ -236,11 +245,11 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 
 function unitsToPercent(yeastType: 'fresh' | 'sourdough', equivalentHours: number): number {
 	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
+	// equivalentHours can hit 0 when the window is so short that every
+	// fermentation phase shrinks to nothing — feasibility is already false
+	// in that case, so callers see the warning rather than an Infinity %.
+	if (equivalentHours <= 0) return 0;
 	return target / equivalentHours;
-}
-
-function clamp(value: number, min: number, max: number): number {
-	return Math.min(max, Math.max(min, value));
 }
 
 function subMin(d: Date, min: number): Date {

@@ -146,7 +146,15 @@ function coldBulkClampMin(schedule: ComputedSchedule): { short: number; long: nu
 function prefermentClampHours(schedule: ComputedSchedule): { short: number; long: number } {
 	const natural = schedule.naturalPrefermentHours;
 	if (natural === null) return { short: 0, long: 0 };
-	const short = Math.max(0, PREFERMENT_MIN_HOURS - natural);
+	// Actual duration on the emitted step — may be < natural when the wall-clock
+	// window was too tight to fit the pre-ferment and we shrank it to honour
+	// startAt. The pre-ferment-mix step is always present when naturalHours is
+	// non-null, so a missing step would be a schedule-shape bug, not an input.
+	const actualHours = schedule.steps.find((s) => s.kind === 'preferment-mix')!.durationMinutes / 60;
+	// 'short' folds two reasons into one penalty: temperature wanted below
+	// MIN, OR time-budget forced actual below MIN. The user reads this as
+	// "the pre-ferment is too short" regardless of cause.
+	const short = Math.max(0, PREFERMENT_MIN_HOURS - Math.min(natural, actualHours));
 	const long = Math.max(0, natural - PREFERMENT_MAX_HOURS);
 	return { short, long };
 }
