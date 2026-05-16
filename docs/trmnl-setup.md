@@ -113,17 +113,26 @@ the current recipe to your device.
     </div>
   {%- elsif current_index >= 0 -%}
     {%- assign featured = st[current_index] -%}
+    {%- assign remaining = featured.u | plus: featured.du | minus: now_unix -%}
+    {%- if remaining < 0 -%}{%- assign remaining = 0 -%}{%- endif -%}
+    {%- if remaining >= 3600 -%}
+      {%- assign rem_val = remaining | divided_by: 3600 -%}
+      {%- assign rem_unit = l.uh -%}
+    {%- else -%}
+      {%- assign rem_val = remaining | divided_by: 60 -%}
+      {%- assign rem_unit = l.um -%}
+    {%- endif -%}
     <div class="kt-panel">
       <span class="kt-panel-label">{{ l.n }}</span>
       <span class="kt-panel-title">{{ featured.t }}</span>
-      <span class="kt-panel-time">{{ featured.tm }} · {{ featured.dr }}</span>
+      <span class="kt-panel-time">{{ l.sn }} {{ featured.dt }} {{ featured.tm }} · ~{{ rem_val }} {{ rem_unit }} {{ l.lf }}</span>
     </div>
   {%- else -%}
     {%- assign featured = st | first -%}
     <div class="kt-panel">
       <span class="kt-panel-label">{{ l.x }}</span>
       <span class="kt-panel-title">{{ featured.t }}</span>
-      <span class="kt-panel-time">{{ featured.tm }} · {{ featured.dr }}</span>
+      <span class="kt-panel-time">{{ featured.dt }} {{ featured.tm }} · {{ featured.dr }}</span>
     </div>
   {%- endif -%}
 
@@ -174,7 +183,9 @@ time the recipe changes, click **Send to TRMNL** again from the menu.
 Field names are kept short on purpose — TRMNL's free tier caps webhook
 payloads at 2 KB and a cold-mode recipe with a pre-ferment otherwise blows
 past that with verbose JSON keys. The Liquid template above uses these names
-verbatim.
+verbatim. Step descriptions (the long paragraph rendered in the web app)
+are intentionally omitted — they cost ~80 bytes × 8 steps in German and
+the default template doesn't render them.
 
 | Field     | Type    | Notes                                                                |
 | --------- | ------- | -------------------------------------------------------------------- |
@@ -185,13 +196,17 @@ verbatim.
 | `l.n`     | string  | "Now" label (featured panel mid-schedule).                           |
 | `l.x`     | string  | "Next" label (featured panel before the schedule starts).            |
 | `l.d`     | string  | "Done" label (featured panel after the bake).                        |
+| `l.sn`    | string  | "since" prefix used in the Now panel (e.g. `Since Fri 21:59 …`).     |
+| `l.lf`    | string  | "left" suffix used after the remaining-time number.                  |
+| `l.uh`    | string  | Hour unit for remaining time ("h" / "Std" / "u" / "hr").             |
+| `l.um`    | string  | Minute unit for remaining time ("min" / "Min").                      |
 | `st`      | array   | One entry per schedule step.                                         |
 | `st[].t`  | string  | Localized step title.                                                |
-| `st[].d`  | string  | Localized, interpolated description.                                 |
 | `st[].dt` | string  | Short localized date.                                                |
 | `st[].tm` | string  | Localized time.                                                      |
 | `st[].dr` | string  | "15 min" / "—" for the ready row.                                    |
-| `st[].u`  | number  | Unix seconds — for the current-step computation.                     |
+| `st[].u`  | number  | Unix seconds at step start — for the current-step computation.       |
+| `st[].du` | number  | Duration in seconds — Now panel computes remaining = `u + du − now`. |
 | `st[].r`  | boolean | The final "bake" row.                                                |
 
 ## Limits

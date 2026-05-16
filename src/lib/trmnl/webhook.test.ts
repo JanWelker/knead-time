@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { computeSchedule } from '../dough/schedule';
 import type { DoughInputs } from '../dough/types';
-import { MESSAGES } from '../i18n/messages';
+import { LOCALES, MESSAGES } from '../i18n/messages';
 import { buildMergeVariables, sendToTrmnl, TRMNL_WEBHOOK_BASE } from './webhook';
 
 function inputs(overrides: Partial<DoughInputs> = {}): DoughInputs {
@@ -37,7 +37,20 @@ describe('buildMergeVariables', () => {
 		expect(m.l.n).toBe(MESSAGES.en.trmnl.now);
 		expect(m.l.x).toBe(MESSAGES.en.trmnl.next);
 		expect(m.l.d).toBe(MESSAGES.en.trmnl.done);
+		expect(m.l.sn).toBe(MESSAGES.en.trmnl.since);
+		expect(m.l.lf).toBe(MESSAGES.en.trmnl.left);
+		expect(m.l.uh).toBe(MESSAGES.en.trmnl.unit_h);
+		expect(m.l.um).toBe(MESSAGES.en.trmnl.unit_min);
 		expect(m.st.length).toBe(s.steps.length);
+	});
+
+	it('attaches step.du as duration_seconds for the Now-panel Liquid math', () => {
+		const i = inputs();
+		const s = computeSchedule(i);
+		const m = buildMergeVariables(i, s, MESSAGES.en, 'en');
+		for (let k = 0; k < m.st.length; k++) {
+			expect(m.st[k].du).toBe(s.steps[k].durationMinutes * 60);
+		}
 	});
 
 	it('marks the ready step with r=true and gives it duration "—"', () => {
@@ -96,17 +109,22 @@ describe('buildMergeVariables', () => {
 		expect(m.rl).toBe(MESSAGES.de.form.readyBy);
 	});
 
-	it('keeps a cold-mode + biga preferment payload under TRMNL free tier 2 KB cap', () => {
-		// Cold mode + pre-ferment is the worst case: 8 steps, the
-		// preferment-mix description is one of the longest.
+	it('keeps a cold-mode + biga preferment payload under TRMNL free tier 2 KB cap in every locale', () => {
+		// Cold mode + pre-ferment is the worst case: 8 steps with the longest
+		// titles. German/French translations of step titles are noticeably
+		// longer than English, so the cap must hold for every locale we ship
+		// — checking only `en` once let an over-cap regression slip through.
 		const i = inputs({
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z'),
 			preFerment: { type: 'biga', flourPercent: 30 }
 		});
-		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
-		const wireBytes = new TextEncoder().encode(JSON.stringify({ merge_variables: m })).length;
-		expect(wireBytes).toBeLessThan(2048);
+		const s = computeSchedule(i);
+		for (const loc of LOCALES) {
+			const m = buildMergeVariables(i, s, MESSAGES[loc], loc);
+			const wireBytes = new TextEncoder().encode(JSON.stringify({ merge_variables: m })).length;
+			expect(wireBytes, `locale ${loc} payload over 2 KB cap`).toBeLessThan(2048);
+		}
 	});
 });
 

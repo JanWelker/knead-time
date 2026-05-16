@@ -161,6 +161,10 @@ export interface Messages {
 		now: string;
 		next: string;
 		done: string;
+		since: string;
+		left: string;
+		unit_h: string;
+		unit_min: string;
 	};
 	trmnl_push: {
 		menu_item: string;
@@ -403,7 +407,11 @@ const en: Messages = {
 	trmnl: {
 		now: 'Now',
 		next: 'Next',
-		done: 'Pizza time!'
+		done: 'Pizza time!',
+		since: 'since',
+		left: 'left',
+		unit_h: 'h',
+		unit_min: 'min'
 	},
 	trmnl_push: {
 		menu_item: 'Send to TRMNL…',
@@ -655,7 +663,11 @@ const de: Messages = {
 	trmnl: {
 		now: 'Jetzt',
 		next: 'Als Nächstes',
-		done: 'Pizzazeit!'
+		done: 'Pizzazeit!',
+		since: 'seit',
+		left: 'übrig',
+		unit_h: 'Std',
+		unit_min: 'Min'
 	},
 	trmnl_push: {
 		menu_item: 'An TRMNL senden…',
@@ -905,7 +917,11 @@ const it: Messages = {
 	trmnl: {
 		now: 'Ora',
 		next: 'Prossimo',
-		done: 'È ora di cuocere!'
+		done: 'È ora di cuocere!',
+		since: 'da',
+		left: 'rimaste',
+		unit_h: 'h',
+		unit_min: 'min'
 	},
 	trmnl_push: {
 		menu_item: 'Invia a TRMNL…',
@@ -1157,7 +1173,11 @@ const fr: Messages = {
 	trmnl: {
 		now: 'Maintenant',
 		next: 'À suivre',
-		done: 'Au four !'
+		done: 'Au four !',
+		since: 'depuis',
+		left: 'restant',
+		unit_h: 'h',
+		unit_min: 'min'
 	},
 	trmnl_push: {
 		menu_item: 'Envoyer à TRMNL…',
@@ -1408,7 +1428,11 @@ const nl: Messages = {
 	trmnl: {
 		now: 'Nu',
 		next: 'Volgende',
-		done: 'Tijd om te bakken!'
+		done: 'Tijd om te bakken!',
+		since: 'sinds',
+		left: 'over',
+		unit_h: 'u',
+		unit_min: 'min'
 	},
 	trmnl_push: {
 		menu_item: 'Naar TRMNL sturen…',
@@ -1652,7 +1676,11 @@ const jam: Messages = {
 	trmnl: {
 		now: 'Now',
 		next: 'Next up',
-		done: 'Pizza time!'
+		done: 'Pizza time!',
+		since: 'since',
+		left: 'lef',
+		unit_h: 'hr',
+		unit_min: 'min'
 	},
 	trmnl_push: {
 		menu_item: 'Send to TRMNL…',
