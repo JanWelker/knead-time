@@ -1,0 +1,144 @@
+import type { ComputedSchedule, DoughInputs } from '../dough/types';
+import {
+	formatBallWeight,
+	formatDateTime,
+	formatDuration,
+	formatShortDate,
+	formatTime
+} from '../format';
+import type { Locale, Messages } from '../i18n/messages';
+import { stepDescription, stepTitle } from '../stepCopy';
+
+// TRMNL Private Plugin webhooks live at this hostname; only the UUID at
+// the end varies between users. Confirmed CORS-open: the endpoint replies
+// with `Access-Control-Allow-Origin: *` so a browser-side POST from
+// doughcalc lands without preflight rejection.
+export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
+
+// TRMNL's free tier caps webhook payloads at 2 KB. A cold-mode recipe with
+// a pre-ferment and seven localized step descriptions blows past 2 KB with
+// human-readable JSON keys. Short keys trade verbosity for ~600 bytes of
+// headroom; the Liquid template uses the same names. Mapping documented
+// in docs/trmnl-setup.md.
+//
+//   t  = title                 s  = summary
+//   rl = ready label           rt = ready time (formatted, no commas)
+//   l  = labels container     l.n = "Now"   l.x = "Next"   l.d = "Done"
+//   st = steps                  ↳ step.t   = title
+//                               ↳ step.d   = description
+//                               ↳ step.dt  = date
+//                               ↳ step.tm  = time
+//                               ↳ step.dr  = duration ("15 min" or "—")
+//                               ↳ step.u   = at_unix (seconds since epoch)
+//                               ↳ step.r   = is_ready flag for the bake row
+export interface TrmnlMergeVariables {
+	t: string;
+	s: string;
+	rl: string;
+	rt: string;
+	l: {
+		n: string;
+		x: string;
+		d: string;
+	};
+	st: TrmnlMergeStep[];
+}
+
+export interface TrmnlMergeStep {
+	t: string;
+	d: string;
+	dt: string;
+	tm: string;
+	dr: string;
+	u: number;
+	r: boolean;
+}
+
+export function buildMergeVariables(
+	inputs: DoughInputs,
+	schedule: ComputedSchedule,
+	msgs: Messages,
+	locale: Locale
+): TrmnlMergeVariables {
+	const yeastLabel =
+		inputs.yeastType === 'fresh' ? msgs.form.yeast_fresh : msgs.form.yeast_sourdough;
+	const preFermentLabel =
+		inputs.preFerment?.type === 'biga'
+			? msgs.form.preFerment_biga
+			: inputs.preFerment?.type === 'poolish'
+				? msgs.form.preFerment_poolish
+				: null;
+	const modeLabel = schedule.mode === 'cold' ? msgs.mode.cold : msgs.mode.room;
+
+	const summary =
+		`${inputs.pizzaCount} × ${formatBallWeight(inputs.ballWeight)} g · ${inputs.hydration}% · ${yeastLabel}` +
+		(preFermentLabel ? ` · ${preFermentLabel}` : '') +
+		` · ${modeLabel}`;
+
+	return {
+		t: msgs.app.title,
+		s: summary,
+		rl: msgs.form.readyBy,
+		rt: formatDateTime(inputs.readyBy, locale).replace(/,/g, ''),
+		l: {
+			n: msgs.trmnl.now,
+			x: msgs.trmnl.next,
+			d: msgs.trmnl.done
+		},
+		st: schedule.steps.map((step) => ({
+			t: stepTitle(step, msgs),
+			d: stepDescription(step, msgs, schedule),
+			dt: formatShortDate(step.at, locale),
+			tm: formatTime(step.at, locale),
+			dr: step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—',
+			u: Math.floor(step.at.getTime() / 1000),
+			r: step.kind === 'ready'
+		}))
+	};
+}
+
+export interface TrmnlSendOk {
+	ok: true;
+}
+
+export interface TrmnlSendErr {
+	ok: false;
+	status: number;
+	message: string;
+}
+
+export type TrmnlSendResult = TrmnlSendOk | TrmnlSendErr;
+
+// Plugin Setting UUID in the URL is the only auth. TRMNL's free tier
+// allows 12 POSTs/h up to 2 KB payload; well within budget for a
+// recipe push, and we don't have a use case for higher frequency.
+export async function sendToTrmnl(
+	uuid: string,
+	merge_variables: TrmnlMergeVariables,
+	fetchImpl: typeof fetch = fetch
+): Promise<TrmnlSendResult> {
+	const url = TRMNL_WEBHOOK_BASE + uuid;
+	let res: Response;
+	try {
+		res = await fetchImpl(url, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ merge_variables })
+		});
+	} catch (err) {
+		return {
+			ok: false,
+			status: 0,
+			message: err instanceof Error ? err.message : String(err)
+		};
+	}
+	if (res.ok) return { ok: true };
+	let message = `HTTP ${res.status}`;
+	try {
+		const body = (await res.json()) as { message?: unknown };
+		if (typeof body.message === 'string') message = body.message;
+	} catch {
+		// non-JSON error body — keep the HTTP status as the message
+	}
+	return { ok: false, status: res.status, message };
+}

@@ -152,7 +152,6 @@ export interface Messages {
 		share: string;
 		copied: string;
 		share_help: string;
-		trmnl: string;
 	};
 	print: {
 		recipe_heading: string;
@@ -162,6 +161,21 @@ export interface Messages {
 		now: string;
 		next: string;
 		done: string;
+	};
+	trmnl_push: {
+		menu_item: string;
+		dialog_heading: string;
+		dialog_intro: string;
+		uuid_label: string;
+		send: string;
+		sending: string;
+		sent: string;
+		disconnect: string;
+		close: string;
+		error: string;
+		error_invalid_uuid: string;
+		setup_hint: string;
+		setup_link: string;
 	};
 	warnings: {
 		too_short: string;
@@ -380,8 +394,7 @@ const en: Messages = {
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
 		copied: 'Copied!',
-		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.',
-		trmnl: 'Copy TRMNL link'
+		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.'
 	},
 	print: {
 		recipe_heading: 'Recipe',
@@ -391,6 +404,22 @@ const en: Messages = {
 		now: 'Now',
 		next: 'Next',
 		done: 'Pizza time!'
+	},
+	trmnl_push: {
+		menu_item: 'Send to TRMNL…',
+		dialog_heading: 'Send recipe to your TRMNL device',
+		dialog_intro:
+			'Push this recipe to a TRMNL Private Plugin. Set up the plugin once on trmnl.com, then paste its UUID here.',
+		uuid_label: 'Plugin UUID',
+		send: 'Send to TRMNL',
+		sending: 'Sending…',
+		sent: 'Recipe sent. Your device updates on its next refresh.',
+		disconnect: 'Forget',
+		close: 'Close',
+		error: 'Could not send',
+		error_invalid_uuid: 'That doesn’t look like a plugin UUID.',
+		setup_hint: 'First time?',
+		setup_link: 'See the TRMNL setup guide'
 	},
 	warnings: {
 		too_short:
@@ -617,8 +646,7 @@ const de: Messages = {
 		print: 'Drucken / als PDF',
 		share: 'Link kopieren',
 		copied: 'Kopiert!',
-		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.',
-		trmnl: 'TRMNL-Link kopieren'
+		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.'
 	},
 	print: {
 		recipe_heading: 'Rezept',
@@ -628,6 +656,22 @@ const de: Messages = {
 		now: 'Jetzt',
 		next: 'Als Nächstes',
 		done: 'Pizzazeit!'
+	},
+	trmnl_push: {
+		menu_item: 'An TRMNL senden…',
+		dialog_heading: 'Rezept an dein TRMNL-Gerät senden',
+		dialog_intro:
+			'Schiebe dieses Rezept zu einem privaten TRMNL-Plugin. Lege das Plugin einmal auf trmnl.com an und füge hier seine UUID ein.',
+		uuid_label: 'Plugin-UUID',
+		send: 'An TRMNL senden',
+		sending: 'Wird gesendet…',
+		sent: 'Rezept gesendet. Dein Gerät zeigt es beim nächsten Refresh.',
+		disconnect: 'Vergessen',
+		close: 'Schließen',
+		error: 'Senden fehlgeschlagen',
+		error_invalid_uuid: 'Das sieht nicht wie eine Plugin-UUID aus.',
+		setup_hint: 'Zum ersten Mal?',
+		setup_link: 'Zur TRMNL-Einrichtungsanleitung'
 	},
 	warnings: {
 		too_short:
@@ -852,8 +896,7 @@ const it: Messages = {
 		print: 'Stampa / Salva PDF',
 		share: 'Copia link',
 		copied: 'Copiato!',
-		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.',
-		trmnl: 'Copia link TRMNL'
+		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.'
 	},
 	print: {
 		recipe_heading: 'Ricetta',
@@ -863,6 +906,22 @@ const it: Messages = {
 		now: 'Ora',
 		next: 'Prossimo',
 		done: 'È ora di cuocere!'
+	},
+	trmnl_push: {
+		menu_item: 'Invia a TRMNL…',
+		dialog_heading: 'Invia la ricetta al tuo dispositivo TRMNL',
+		dialog_intro:
+			'Spedisci questa ricetta a un Plugin privato TRMNL. Configura il plugin una volta su trmnl.com e incolla qui il suo UUID.',
+		uuid_label: 'UUID del plugin',
+		send: 'Invia a TRMNL',
+		sending: 'Invio in corso…',
+		sent: 'Ricetta inviata. Il dispositivo la mostrerà al prossimo aggiornamento.',
+		disconnect: 'Dimentica',
+		close: 'Chiudi',
+		error: 'Invio non riuscito',
+		error_invalid_uuid: 'Questo non sembra un UUID di plugin.',
+		setup_hint: 'Prima volta?',
+		setup_link: 'Guida alla configurazione TRMNL'
 	},
 	warnings: {
 		too_short:
@@ -1089,8 +1148,7 @@ const fr: Messages = {
 		print: 'Imprimer / Enregistrer en PDF',
 		share: 'Copier le lien',
 		copied: 'Copié !',
-		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte.",
-		trmnl: 'Copier le lien TRMNL'
+		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte."
 	},
 	print: {
 		recipe_heading: 'Recette',
@@ -1100,6 +1158,22 @@ const fr: Messages = {
 		now: 'Maintenant',
 		next: 'À suivre',
 		done: 'Au four !'
+	},
+	trmnl_push: {
+		menu_item: 'Envoyer à TRMNL…',
+		dialog_heading: 'Envoyer la recette à votre TRMNL',
+		dialog_intro:
+			'Pousse cette recette vers un Plugin privé TRMNL. Configure le plugin une fois sur trmnl.com puis colle son UUID ici.',
+		uuid_label: 'UUID du plugin',
+		send: 'Envoyer à TRMNL',
+		sending: 'Envoi en cours…',
+		sent: 'Recette envoyée. Le dispositif l’affichera au prochain rafraîchissement.',
+		disconnect: 'Oublier',
+		close: 'Fermer',
+		error: 'Échec de l’envoi',
+		error_invalid_uuid: 'Cela ne ressemble pas à un UUID de plugin.',
+		setup_hint: 'Première fois ?',
+		setup_link: 'Guide de configuration TRMNL'
 	},
 	warnings: {
 		too_short:
@@ -1325,8 +1399,7 @@ const nl: Messages = {
 		print: 'Afdrukken / Opslaan als PDF',
 		share: 'Deellink kopiëren',
 		copied: 'Gekopieerd!',
-		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.',
-		trmnl: 'TRMNL-link kopiëren'
+		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.'
 	},
 	print: {
 		recipe_heading: 'Recept',
@@ -1336,6 +1409,22 @@ const nl: Messages = {
 		now: 'Nu',
 		next: 'Volgende',
 		done: 'Tijd om te bakken!'
+	},
+	trmnl_push: {
+		menu_item: 'Naar TRMNL sturen…',
+		dialog_heading: 'Recept naar je TRMNL-apparaat sturen',
+		dialog_intro:
+			'Push dit recept naar een privé TRMNL-plugin. Stel de plugin één keer in op trmnl.com en plak hier zijn UUID.',
+		uuid_label: 'Plugin-UUID',
+		send: 'Naar TRMNL sturen',
+		sending: 'Bezig met sturen…',
+		sent: 'Recept gestuurd. Je apparaat toont het bij de volgende refresh.',
+		disconnect: 'Vergeten',
+		close: 'Sluiten',
+		error: 'Sturen mislukt',
+		error_invalid_uuid: 'Dat lijkt niet op een plugin-UUID.',
+		setup_hint: 'Eerste keer?',
+		setup_link: 'Bekijk de TRMNL-installatiegids'
 	},
 	warnings: {
 		too_short: 'Niet genoeg tijd. Kies een later moment of accepteer dat het deeg ondergerezen is.',
@@ -1554,8 +1643,7 @@ const jam: Messages = {
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
 		copied: 'Copy!',
-		share_help: 'Di recipe live inna di URL — anybody wid di link get di same dough.',
-		trmnl: 'Copy TRMNL link'
+		share_help: 'Di recipe live inna di URL — anybody wid di link get di same dough.'
 	},
 	print: {
 		recipe_heading: 'Recipe',
@@ -1565,6 +1653,22 @@ const jam: Messages = {
 		now: 'Now',
 		next: 'Next up',
 		done: 'Pizza time!'
+	},
+	trmnl_push: {
+		menu_item: 'Send to TRMNL…',
+		dialog_heading: 'Send di recipe to yu TRMNL',
+		dialog_intro:
+			'Push dis recipe to a TRMNL Private Plugin. Set up di plugin one time pon trmnl.com, den paste di UUID yah.',
+		uuid_label: 'Plugin UUID',
+		send: 'Send to TRMNL',
+		sending: 'Sending…',
+		sent: 'Recipe gone through. Di device update pon di next refresh.',
+		disconnect: 'Forget it',
+		close: 'Close',
+		error: 'Couldn’t send',
+		error_invalid_uuid: 'Dat nuh look like a plugin UUID.',
+		setup_hint: 'First time?',
+		setup_link: 'Check di TRMNL setup guide'
 	},
 	warnings: {
 		too_short:

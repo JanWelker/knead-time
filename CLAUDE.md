@@ -1,116 +1,121 @@
 # doughcalc
 
-Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; every step schedules backwards from that moment. Fully client-side, no backend.
+Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; every step schedules backwards from `readyBy`. Fully client-side, no backend.
 
 ## Stack & deploy
 
-- SvelteKit **5** + TypeScript + Tailwind v4 + Vitest. Husky pre-commit runs format/lint/test. Node 22+.
-- Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`, `static/.nojekyll`). CI lints/type-checks/tests/builds every push & PR (`.github/workflows/ci.yml`); push to `main` deploys to GitHub Pages (`deploy.yml`).
-- `svelte.config.js` reads `BASE_PATH` from env (deploy workflow sets `/<repo>` for project pages, empty otherwise). **All in-app links/assets must respect it** — use `$app/paths` (`base` or `resolve()`), never hard-code `/`.
+- SvelteKit 5 + TS + Tailwind v4 + Vitest. Node 22+. Husky pre-commit runs format/lint/test.
+- Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`). CI on every push/PR; push to `main` deploys to GitHub Pages.
+- `BASE_PATH` env drives `svelte.config.js`. **All in-app links/assets must use `$app/paths` (`base`/`resolve()`) — never hard-code `/`.**
 
 ## Domain model
 
-User picks `readyBy` + `startAt`; the scheduler computes `preferment-mix → prep → mix → bulk → divide → warmup → final-proof → ready` working backwards from `readyBy`.
+Schedule: `preferment-mix → prep → mix → bulk → divide → warmup → final-proof → ready`, computed backwards from `readyBy`.
 
-- **Cold ↔ room ferment switch is deterministic on available time, not a UI toggle.** Window ≥ 16 h → cold-bulk leg at 4 °C; otherwise room ferment.
-- **Pre-ferment is a real fermentation phase, not a decorative block.** When biga/poolish is selected, a wall-clock duration is computed from the type and `roomTempC` (`prefermentDurationHours` in `fermentation.ts`) — biga ~14 h, poolish ~12 h at 22 °C, scaled by Q10 and clamped to [8, 24] h. That duration is both (a) reserved before mix-day prep on the schedule and (b) added to the equivalent-hours sum that solves for yeast %. The pre-ferment carries **all of the recipe's yeast** for fresh-yeast recipes (no fresh yeast on baking day) — matches how biga/poolish technique actually works. `preferment-mix` defaults to landing at/after `startAt` (regression-tested), but the night-window guard below can pull it earlier.
-- **Pre-ferment is mutually exclusive with sourdough.** The starter is itself the pre-ferment culture, so `effectivePreFerment` in `schedule.ts` nulls the biga/poolish spec under `yeastType === 'sourdough'`. The InputForm hides the dropdown for sourdough. URL state retains the user's pre-ferment choice (so toggling sourdough on/off is reversible), but it never reaches the math while sourdough is selected.
-- **Night-window guard**: no baker-action step starts in `[22:00, 08:00)` local time. Cold mode stretches `bulk-cold` within its floor/ceiling so the pre-cold cluster lands during waking hours; post-cold steps (divide, warmup) are anchored to `readyBy` and can't shift. Room mode has no slack. When a step can't be lifted out, emit a `night-step` warning — **never silently rearrange**. The guard can pull the first step earlier than `startAt`, so **`startAt` is a soft hint, not a strict floor**.
+- **Cold vs room is deterministic on available time, not a toggle.** Window ≥ 16 h → cold-bulk at `fridgeTempC`; else room.
+- **Pre-ferment is a real fermentation phase.** Biga ~14 h / poolish ~12 h at 22 °C, Q10-scaled, clamped [8, 24] h (`prefermentDurationHours` in `fermentation.ts`). Duration is both reserved on the schedule and added to the equivalent-hours yeast solve. For fresh-yeast recipes the pre-ferment carries **all the yeast** — no fresh yeast on baking day.
+- **Pre-ferment ⊥ sourdough.** `effectivePreFerment` in `schedule.ts` nulls biga/poolish when `yeastType === 'sourdough'`; InputForm hides the dropdown. URL state retains the choice so toggling is reversible.
+- **Night-window guard**: no baker-action step starts in `[22:00, 08:00)` local. Cold mode stretches `bulk-cold` within floor/ceiling to lift the pre-cold cluster into waking hours; post-cold steps are anchored to `readyBy`. When a step can't be lifted, emit a `night-step` warning — **never silently rearrange**. Guard may pull the first step before `startAt` — **`startAt` is a soft hint**.
 
-### Inputs
+## Inputs
 
-Source of truth: `DoughInputs` in `src/lib/dough/types.ts`. Notable rules:
+Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 
-- Ball weight accepts decimals (e.g. 288.5 g) — the form input must allow that.
-- Yeast is **fresh (cube)** or **sourdough starter** (with starter-hydration when applicable).
-- Both kitchen and fridge temperatures are user inputs (`roomTempC`, `fridgeTempC`). The fridge temperature only matters during the cold-bulk phase; warmer fridges ferment more per hour, lowering the solved yeast %. Default 4 °C — matches the previously hardcoded value so v=1 share-links remain stable.
-- Defaults reflect contemporary high-hydration Neapolitan (280 g / 70% / 3% salt). No AVPN enforcement.
+- Ball weight accepts decimals (e.g. 288.5 g).
+- Yeast: fresh (cube) or sourdough starter (+ starter hydration).
+- `roomTempC` and `fridgeTempC` are both user inputs. Fridge default 4 °C — matches the previous hardcoded value so v=1 share-links stay stable.
+- Defaults: 280 g / 70 % / 3 % salt. No AVPN enforcement.
 
 ### "Round numbers" action
 
-Sits next to ball weight. Nudges ball weight (0.1 g precision) so flour lands on a multiple of 100 g (or 50 g when 100 would drift too far). **Must be idempotent** (second click is a no-op). **Must work for both fresh and sourdough** — `pctSum` branches differ (see math).
+Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100 drifts too far). **Idempotent** (second click = no-op). **Works for fresh and sourdough** — `pctSum` branches differ.
 
-### Outputs
+## Outputs
 
-- **Ingredients in grams.** No pre-ferment → flat table. With pre-ferment → three sections (**Pre-dough / Main dough / Totals**), because a single subtracted table reads as a math error (the totals row never matches the visible sum). With a pre-ferment the main-dough yeast row is hidden (all yeast lives in the pre-dough), so the totals row is what surfaces the yeast quantity.
-- **Schedule table with absolute timestamps.** Step copy interpolates schedule context so each description is self-contained: pizza count + per-ball weight on `divide`; flour/water/salt/yeast weights on `prep` and `mix` (with localized yeast label); pre-ferment flour/water/yeast on `preferment-mix`. **`mix` and `prep` have separate templates per pre-ferment type** (`mix_desc_with_biga`, `mix_desc_with_poolish`, `prep_desc_with_preferment`) — biga gets stiff/no-knead day-one copy and the day-two mix folds it in; poolish gets a smoother whisk-and-pour treatment. With a pre-ferment, day-two `prep` and `mix` deliberately omit the yeast field — the pre-dough is the carrier. The collapsed `preferment-mix` row spans the full wall-clock duration (active mix + maturation); there is no separate `preferment-proof` step.
-- **`.ics` export.** One VEVENT per step. **VEVENT `DESCRIPTION` must match the on-page step description verbatim**, interpolations included.
-- **Print / Save as PDF.** `window.print()` only — no PDF lib. Driven by `@media print` in `src/app.css` + Tailwind `print:` variants. Hides input form/chrome, prepends a recipe-summary block (Recipe + Ingredients side-by-side at the top, schedule full-width below), appends a footer with a QR code of the share URL so a printed copy is reproducible — scanning the QR rehydrates the recipe in the app. **Must read on B&W** — borders and text colour, not background fills (browsers strip those). **Must fit on one page** for the common shapes (fresh-yeast no-preferment, biga or poolish in room or cold mode) on A4 / Letter. The lever is `@media print` in `src/app.css` — a single rule clamps `table.tabular` row padding, plus tighter `@page` margins, a smaller base font, and `print:`-scoped Tailwind overrides on headings/spacing. The print-only Ingredients render is a second mount of `<Ingredients>` inside the print header so the on-screen card can be `print:hidden`-ed without restructuring the screen layout. Use `print:hidden` on chrome that isn't load-bearing on a printed sheet (helper paragraphs, mode badge — the recipe summary already encodes the mode via the fridge-temp row). QR generation lives in `src/lib/qr.ts` (wraps `qrcode-generator`).
-- **TRMNL e-ink view.** A `/trmnl/<locale>?<recipe>` static page sized for [TRMNL](https://trmnl.com/)'s 800 × 480 e-ink display. See the "TRMNL e-ink view" section below — every styling and layout constraint there is empirical, not aesthetic.
+- **Ingredients (grams).** No pre-ferment → flat table. With pre-ferment → Pre-dough / Main dough / Totals (a single subtracted table reads as a math error). With pre-ferment, main-dough yeast row is hidden — totals row surfaces the yeast.
+- **Schedule.** Step descriptions interpolate context (flour/water/salt/yeast on `prep`/`mix`; per-ball weight on `divide`; pre-ferment weights on `preferment-mix`). Day-two `prep`/`mix` omit yeast under a pre-ferment. **Separate `mix`/`prep` templates per pre-ferment type** (`*_with_biga`, `*_with_poolish`, `prep_desc_with_preferment`): biga = stiff/no-knead day-one + day-two fold-in; poolish = whisk-and-pour. `preferment-mix` row spans the full duration; no separate `preferment-proof` step.
+- **`.ics` export.** One VEVENT per step. **`DESCRIPTION` must match the on-page description verbatim**, interpolations included.
+- **Print / Save as PDF.** `window.print()` only — no PDF lib. Driven by `@media print` in `src/app.css` + Tailwind `print:` variants. Must read **B&W** (borders + text colour, no background fills) and **fit one page** on A4/Letter for common shapes (fresh × {no-preferment, biga, poolish} × {room, cold}). Print-only Ingredients is a second mount inside the print header so the screen card can be `print:hidden`-ed cleanly. QR of the share URL is appended via `src/lib/qr.ts` (wraps `qrcode-generator`).
+- **TRMNL e-ink view** at `/trmnl/<locale>?<recipe>` — see TRMNL section; constraints are empirical, not aesthetic.
 
-### Math
+## Math
 
-- Baker's percentages: flour = 100%; water/salt/yeast as % of flour. Total dough = `pizzaCount × ballWeight`; flour = total ÷ pctSum.
-- **Mass-balance invariant** (tested for every combination — don't regress): the sum of every separately-weighed ingredient equals `pizzaCount × ballWeight`.
-  - Fresh yeast adds new mass: `pctSum = 100 + h + s + y`.
-  - Sourdough starter is flour + water from the existing budget: `pctSum = 100 + h + s`.
-  - A pre-ferment redistributes flour/water/yeast between pre-dough and main dough; it does not change totals.
-- **Yeast solves a single equivalent-hours equation across every fermentation phase.** `yeast% = target / Σ(hours_i · f(T_i))`, where the phases are the pre-ferment (when set), bulk (room or cold + initial room block), warmup, and final proof. Pre-ferment ref-load is `PREFERMENT_REF_HOURS_{BIGA,POOLISH}` in `fermentation.ts` — touching either constant changes every existing recipe's yeast %, so it's a **major** app-version bump.
-- With a pre-ferment selected for a fresh-yeast recipe, `ingredients.yeast` (main dough) is **0** and `ingredients.preFerment.yeast` carries the full mass. Don't reintroduce a hardcoded pinch — the pre-ferment yeast must come from the equivalent-hours solve, not a magic number.
-- **Keep all calculation logic pure and framework-free in `src/lib/dough/`.** Svelte components only render results.
-
-## Community recipes
-
-- Page renders a community-recipes table at the bottom. Source: `src/lib/community/community.md`, rows are `| Name | Date | Recipe-URL |` (date `YYYY-MM-DD`, URL is the full **Share**-button output). **Name** is plain text by default; if the cell starts with `@` and the rest matches GitHub's username rules, it's rendered as a link to `https://github.com/<handle>` — opt-in via the leading `@`. Contributors add entries via PR — no backend, no submission flow.
-- Imported at build time via Vite `?raw`, parsed in `src/lib/community/community.ts`. Rows that fail date/URL checks are **dropped silently** so one bad row can't break the page.
-- `Community.svelte` renders one column per decoded input + an **Open** link. The link uses `resolve('/')` for base-path correctness and `rel="external"` so a full reload re-runs `onMount` → `decodeInputs` and hydrates the form. Hidden in print.
+- Baker's %: flour = 100; water/salt/yeast as % of flour. Flour = `pizzaCount × ballWeight ÷ pctSum`.
+- **Mass-balance invariant** (tested for every combination):
+  - Fresh: `pctSum = 100 + h + s + y`.
+  - Sourdough: `pctSum = 100 + h + s` (starter is flour + water from existing budget).
+  - Pre-ferment redistributes flour/water/yeast — never changes totals.
+- **Yeast solves one equivalent-hours equation** across pre-ferment + bulk (+ initial room block) + warmup + final proof: `yeast% = target / Σ(hours_i · f(T_i))`.
+- `PREFERMENT_REF_HOURS_{BIGA,POOLISH}` in `fermentation.ts` shifts every existing recipe's yeast % → **major app-version bump**.
+- With pre-ferment + fresh yeast: `ingredients.yeast = 0`, `ingredients.preFerment.yeast` carries the full mass. **No hardcoded pinch** — it must come from the equivalent-hours solve.
+- All calculation logic stays pure and framework-free in `src/lib/dough/`. Components only render.
 
 ## TRMNL e-ink view
 
-`/trmnl/[[locale]]/+page.svelte` renders the schedule for [TRMNL](https://trmnl.com/) Screenshot plugins — an 800 × 480 px black-on-white page that their service captures and pushes to the e-ink device. Constraints below are empirical, not aesthetic; each one cost at least one "user pastes URL, sends screenshot, fix" round-trip.
+`/trmnl/[[locale]]/+page.svelte` renders for [TRMNL](https://trmnl.com/) Screenshot plugins — 800 × 480 px black-on-white captured server-side. **Each constraint below cost a round-trip; treat them as load-bearing.**
 
-- **TRMNL's screenshot service does not reliably execute our JS or fetch external assets.** A vanilla SPA shell rendered as a blank page; even after SSR put real DOM in the HTML, the external `_app/immutable/assets/*.css` link didn't load. Treat the rendered HTML as a single self-contained file: SSR-rendered DOM, inline CSS, no expectation that hydration runs. The user's specific recipe (decoded from `?…` query) only appears in browsers where JS executes — in TRMNL the build-time defaults are what gets captured, and that's a known limitation a future inline-JS bundle would fix.
-- **SSR is enabled for this route only** (`+page.ts` exports `ssr = true`), overriding the parent layout's `ssr = false`. Without it the prerendered HTML is an empty SPA shell and TRMNL captures blank.
-- **Locale lives in the URL path, not navigator detection or query params.** The layout's `detectLocale(navigator.languages)` lives in `onMount` and never runs in TRMNL's renderer, so every prerendered HTML would otherwise ship in English. `+page.ts` exports `entries()` that prerenders all six locales (`/trmnl/en`, `/trmnl/de`, …) plus a `/trmnl` no-locale fallback (defaults to English so legacy links still resolve). The **root layout's `onMount` skips its locale auto-detect when `page.route.id` starts with `/trmnl`** so the URL-derived locale isn't clobbered on the client either. The Copy TRMNL link button emits `/trmnl/<currentLocale>?<recipe>`; both segments must respect `$app/paths`'s `base`.
-- **All page styles live in `<svelte:head><style>`, not the component's `<style>` block.** The latter is emitted as an external stylesheet that TRMNL's renderer doesn't fetch. Class selectors are prefixed `.trmnl` to namespace against the (unloaded) global Tailwind layout stylesheet.
-- **TRMNL renders at 800 × 480 and their preview UI upscales the capture ~1.7×.** 1 px light-gray borders resample unevenly and show as broken/dotted fragments. Use 2 px solid black, no separator at all, or `border-style: dotted` only when dotting is _intentional_. Schedule row separation comes from padding + the current-row inversion + bold ready-row — not borders.
-- **One typeface across the view.** The e-ink device renders one face; the screen view's Fraunces serif degraded to whatever the renderer fell back to. Don't reintroduce serif `font-family` overrides on individual elements — everything inherits the container's Inter / system-sans stack.
-- **Class names must not collide between the header and schedule rows.** A `class="ready"` shared between the header's "ready by" flex column (right-aligned, flex-direction: column) and the schedule's last row (`step.kind === 'ready'`) made the row stack its `<td>`s vertically. Namespace row-only classes with a `row-` prefix (e.g. `rowReady`).
-- **The readyTime/readyLabel in the header are `white-space: nowrap`** and the `.ready` flex child is `flex-shrink: 0` — a long recipe summary on the left would otherwise force the date onto two lines.
+- **TRMNL's renderer does not reliably execute JS or fetch external assets.** Treat the rendered HTML as one self-contained file: SSR'd DOM, inline CSS, no hydration assumed. The user's specific recipe (from `?…`) only renders in real browsers; TRMNL captures the build-time defaults — known limitation, fixable later via an inline-JS bundle.
+- **SSR on for this route only**: `+page.ts` exports `ssr = true`, overriding the layout's `ssr = false`. Without it the prerender is an empty SPA shell.
+- **Locale lives in the URL path.** `+page.ts` `entries()` prerenders all six locales + a `/trmnl` no-locale fallback (English). Root layout's `onMount` **skips locale auto-detect when `page.route.id` starts with `/trmnl`** so the URL-derived locale isn't clobbered on hydration. Copy-TRMNL-link button emits `/trmnl/<currentLocale>?<recipe>` — both segments must respect `base`.
+- **All styles in `<svelte:head><style>`**, not the component `<style>` (which becomes an external sheet TRMNL won't fetch). Class selectors are `.trmnl`-prefixed to namespace against the unloaded Tailwind layout sheet.
+- **Borders: 2 px solid black, or none.** TRMNL upscales the capture ~1.7×; 1 px light-gray borders resample as broken/dotted fragments. Row separation comes from padding + current-row inversion + bold ready-row.
+- **One typeface.** The device renders one face; don't reintroduce per-element serif overrides — everything inherits the container's Inter / system-sans stack.
+- **Namespace row-only classes with `row-`** (e.g. `rowReady`). A shared `class="ready"` between the header column and `step.kind === 'ready'` row stacked the row's `<td>`s vertically.
+- **Header `readyTime`/`readyLabel` are `white-space: nowrap`** and the `.ready` flex child is `flex-shrink: 0` — otherwise a long left-side summary forces the date onto two lines.
+
+## Community recipes
+
+- Source: `src/lib/community/community.md`, rows `| Name | Date | Recipe-URL |` (date `YYYY-MM-DD`, URL = full Share output). Name is plain text; a leading `@<handle>` matching GitHub's username rules links to that profile.
+- Imported via Vite `?raw`, parsed in `src/lib/community/community.ts`. **Bad rows are dropped silently** so one bad row can't break the page.
+- `Community.svelte` link uses `resolve('/')` and `rel="external"` so a full reload re-runs `onMount` → `decodeInputs`. Hidden in print.
 
 ## URL state (shareable links)
 
-- Form state serializes into the URL. **Keep the encoding compact** — short keys, optional fields omitted.
-- **Versioned schema.** Encoded URL carries `v`; `encodeInputs` always stamps the current version; `decodeInputs` dispatches on `v` via `DECODERS: Record<number, Decoder>` in `src/lib/dough/urlState.ts`. Missing `v` → treated as v1 (legacy links and pre-versioning community.md rows keep working). Unknown `v` → falls back to the current decoder, best-effort.
-- **Schema change protocol**: bump `CURRENT_VERSION`, write `decodeVN`, register it in `DECODERS`. **Never delete an old decoder** — bookmarks and community.md rows shared before the bump must keep resolving.
+- Form state → URL. **Keep encoding compact**: short keys, optional fields omitted.
+- **Versioned**: `encodeInputs` always stamps `CURRENT_VERSION`; `decodeInputs` dispatches via `DECODERS: Record<number, Decoder>` in `src/lib/dough/urlState.ts`. Missing `v` = v1. Unknown `v` falls back to current decoder.
+- **Schema-change protocol**: bump `CURRENT_VERSION`, add `decodeVN`, register in `DECODERS`. **Never delete an old decoder** — old bookmarks and community rows must keep resolving.
+- URL schema version is **independent** from app version.
 
 ## App version
 
-- Version lives in `package.json` and is inlined at build time via Vite `define: { __APP_VERSION__: ... }` in `vite.config.ts` (declared in `src/app.d.ts` and `eslint.config.js`). The screen footer renders `v<version>` next to the license, linked to `github.com/JanWelker/knead-time/releases/tag/v<version>`; the print footer appends `· v<version>` so a printed sheet records its build.
-- `.github/workflows/deploy.yml` tags `v<version>` on `main` after a successful Pages deploy. The step is idempotent (skips when the tag already exists on `origin`), so it only fires on commits that bumped the version — i.e. every version that ships is also a git tag, which is what makes the footer's `/releases/tag/v<version>` link resolve.
-- **Bump on every change, semver-style** (use `npm version <patch|minor|major> --no-git-tag-version`). Patch: fixes, docs, refactors, internal tweaks. Minor: new user-facing features (new inputs, new UI, new locale, etc.) that stay backwards-compatible. Major: user contract breaks — e.g. defaults change in a way that surprises returning users, or a share-link URL shared before the bump no longer reproduces the same recipe.
-- The URL schema version (`v=` in shared links) is **independent** from the app version. Bumping `CURRENT_VERSION` in `urlState.ts` does not require a major app bump as long as old decoders stay in `DECODERS`.
+- Version in `package.json`, inlined via Vite `define: __APP_VERSION__` (declared in `src/app.d.ts` + `eslint.config.js`). Screen footer renders `v<version>` linked to `github.com/JanWelker/knead-time/releases/tag/v<version>`; print footer appends `· v<version>`.
+- `deploy.yml` tags `v<version>` on `main` after a successful Pages deploy — idempotent, so it fires only on version-bump commits. That's what makes the `/releases/tag/...` link resolve.
+- **Bump on every change** (`npm version <patch|minor|major> --no-git-tag-version`):
+  - **Patch**: fixes, docs, refactors, internal tweaks.
+  - **Minor**: new user-facing features, backwards-compatible (new input, new locale, new UI).
+  - **Major**: user contract breaks — default change that surprises returning users, or an old share-link no longer reproduces the same recipe.
 
 ## i18n
 
 - Locales: `en, de, it, fr, nl, jam` (Jamaican Patois, ISO 639-3). Metric only — grams, °C.
-- `detectLocale` matches 2- and 3-letter prefixes. `intlLocaleTag('jam') === 'en-JM'` (CLDR has no `jam` data).
-- All user-facing strings live in `src/lib/i18n/messages.ts`. **No hardcoded copy in components.** The parity test fails loudly when any locale is missing a key — add to all six in the same change.
+- `detectLocale` matches 2- and 3-letter prefixes. `intlLocaleTag('jam') === 'en-JM'` (no CLDR data for `jam`).
+- All user-facing strings live in `src/lib/i18n/messages.ts`. **No hardcoded copy in components.** Parity test fails loudly on missing keys — add to all six in the same change.
 
 ## Design
 
-Responsive, playful, Italian-warm (tomato / basil / dough palette) — not cartoonish. Must read well on a phone on the counter, at narrow widths.
+Responsive, playful, Italian-warm (tomato / basil / dough). Must read well on a phone on the counter at narrow widths.
 
 ## Git workflow
 
-`main` is protected. **Never commit or push directly to `main`.** Every change: branch → commit → push → PR → CI green → merge.
+`main` is protected. **Never commit or push directly to `main`.** Branch → commit → push → PR → CI green → merge.
 
 ## Testing
 
-This is a math-and-schedule app; bugs in fermentation/scheduling are silent until someone overproofs a dough. **Coverage is a hard requirement, not a nice-to-have.** New math, new schedule shapes, new schema versions, new warnings — they land with the tests that prove them, or they don't land.
+Math/schedule bugs are silent until a dough overproofs. **Coverage is a hard gate, not aspirational.**
 
-- **Tests live next to the code they cover** (`foo.ts` + `foo.test.ts`).
-- **100 % lines, functions, branches, and statements across every instrumented file in `src/lib/`.** Pinned in `vitest.config.ts`. The thresholds fail `npm run test:coverage` if a regression slips in, so the bar is enforced, not aspirational.
-- **If a branch is hard to reach, delete it.** Defensive guards against invariants the caller already enforces (e.g. "what if equivalentHours is 0?" — it can't be) are dead code. Don't write fake tests to cover them; remove them. Only keep a defensive branch if you can write a realistic input that reaches it.
-- **Mass-balance and yeast-solve invariants are regression-tested for every input combination** — fresh/sourdough × no-preferment/biga/poolish × room/cold mode. Adding a new input or yeast carrier means adding a row to each of those matrices.
-- **Run `npm run test:coverage` before opening a PR.** CI runs the same command (`.github/workflows/ci.yml`), so the thresholds are a hard CI gate — a missing test or a newly-unreached branch fails the workflow. The Husky pre-commit hook runs the faster `npm run test` (no coverage) for local snappiness; don't lean on it.
-- **UI components are not part of the coverage target.** Svelte files (and `.svelte.ts` runtime modules) are excluded in `vitest.config.ts` and verified by manual browser smoke tests. Don't write Vitest harnesses for `.svelte` — the renderer and DOM aren't worth the maintenance.
+- Tests live next to the code (`foo.ts` + `foo.test.ts`).
+- **100 % lines/functions/branches/statements across `src/lib/`** — pinned in `vitest.config.ts`, enforced by `npm run test:coverage` (CI runs the same).
+- **If a branch is hard to reach, delete it.** Don't write fake tests for defensive guards against caller-enforced invariants — remove the guard.
+- **Mass-balance and yeast-solve invariants are regression-tested for every combination**: fresh/sourdough × {none, biga, poolish} × {room, cold}. New input or yeast carrier → new row in each matrix.
+- Pre-commit hook runs the faster `npm run test` (no coverage); don't lean on it — **run `npm run test:coverage` before opening a PR.**
+- **UI components are not in the coverage target.** `.svelte` and `.svelte.ts` are excluded; verify manually in a browser.
 
 ## Conventions
 
-- Comments explain **why**, not what — only when non-obvious (e.g. citing a fermentation-table magic number).
-- Keep dependencies minimal. Prefer hand-rolling small utilities (the `.ics` generator is hand-written) over pulling in large libs.
-- **Keep `README.md` in sync** when changing npm scripts, CI/deploy workflows, project structure, or anything a contributor would hit in their first hour.
+- Comments explain **why** when non-obvious (e.g. citing a fermentation magic number). Otherwise none.
+- Minimal dependencies. Prefer hand-rolled utilities (`.ics` generator is hand-written) over large libs.
+- **Keep `README.md` in sync** with npm scripts, CI/deploy, structure — anything a contributor hits in their first hour.
+- **Parallelize independent work.** When a task decomposes into independent subtasks (e.g. update all six locales, edit unrelated files, run separate investigations), spawn agents in parallel — single message, multiple `Agent` tool calls — instead of doing them serially.
 
 ## Out of scope
 
