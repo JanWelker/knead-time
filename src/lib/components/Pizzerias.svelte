@@ -94,7 +94,7 @@
 						href={entry.sourceUrl}
 						target="_blank"
 						rel="noopener noreferrer"
-						class="border-dough-300 hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-medium text-stone-700 dark:border-stone-600 dark:text-stone-200"
+						class="bg-tomato-500 hover:bg-tomato-600 inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white"
 					>
 						{t.pizzerias.source_link}
 					</a>
@@ -200,7 +200,7 @@
 								href={entry.sourceUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+								class="text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
 							>
 								{t.pizzerias.source_link}
 							</a>

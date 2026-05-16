@@ -101,6 +101,8 @@ export interface Messages {
 		duration_minutes: string;
 		duration_hours: string;
 		duration_hours_minutes: string;
+		duration_range: string;
+		source_timing_label: string;
 		icon_active: string;
 		icon_passive: string;
 	};
@@ -371,6 +373,8 @@ const en: Messages = {
 		duration_minutes: '{n} min',
 		duration_hours: '{n} h',
 		duration_hours_minutes: '{h} h {m} min',
+		duration_range: '{low}–{high}',
+		source_timing_label: 'Original: {duration}',
 		icon_active: 'Active step',
 		icon_passive: 'Waiting step'
 	},
@@ -654,6 +658,8 @@ const de: Messages = {
 		duration_minutes: '{n} Min',
 		duration_hours: '{n} Std',
 		duration_hours_minutes: '{h} Std {m} Min',
+		duration_range: '{low}–{high}',
+		source_timing_label: 'Original: {duration}',
 		icon_active: 'Aktiver Schritt',
 		icon_passive: 'Wartezeit'
 	},
@@ -939,6 +945,8 @@ const it: Messages = {
 		duration_minutes: '{n} min',
 		duration_hours: '{n} h',
 		duration_hours_minutes: '{h} h {m} min',
+		duration_range: '{low}–{high}',
+		source_timing_label: 'Originale: {duration}',
 		icon_active: 'Passo attivo',
 		icon_passive: 'Attesa'
 	},
@@ -1227,6 +1235,8 @@ const fr: Messages = {
 		duration_minutes: '{n} min',
 		duration_hours: '{n} h',
 		duration_hours_minutes: '{h} h {m} min',
+		duration_range: '{low}–{high}',
+		source_timing_label: 'Original : {duration}',
 		icon_active: 'Étape active',
 		icon_passive: 'Attente'
 	},
@@ -1513,6 +1523,8 @@ const nl: Messages = {
 		duration_minutes: '{n} min',
 		duration_hours: '{n} u',
 		duration_hours_minutes: '{h} u {m} min',
+		duration_range: '{low}–{high}',
+		source_timing_label: 'Origineel: {duration}',
 		icon_active: 'Actieve stap',
 		icon_passive: 'Wachttijd'
 	},
@@ -1796,6 +1808,8 @@ const jam: Messages = {
 		duration_minutes: '{n} min',
 		duration_hours: '{n} hr',
 		duration_hours_minutes: '{h} hr {m} min',
+		duration_range: '{low}–{high}',
+		source_timing_label: 'Original: {duration}',
 		icon_active: 'Active step',
 		icon_passive: 'Waiting step'
 	},
