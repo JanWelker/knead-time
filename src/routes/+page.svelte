@@ -6,6 +6,7 @@
 	import { buildIcs } from '$lib/dough/ics';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
 	import Community from '$lib/components/Community.svelte';
+	import Pizzerias from '$lib/components/Pizzerias.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
 	import InputForm from '$lib/components/InputForm.svelte';
@@ -18,6 +19,7 @@
 	import { formatBallWeight, formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
+	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
 	import { qrCode } from '$lib/qr';
 	import { FormState } from '$lib/state.svelte';
 	import { stepDescription, stepTitle } from '$lib/stepCopy';
@@ -75,6 +77,10 @@
 				? t.form.preFerment_poolish
 				: null
 	);
+
+	// Surfaces source-recipe context (timings, name) when the form params
+	// match a known pizzeria. Adjusting only the bake time keeps the match.
+	const activePizzeria = $derived(findMatchingPizzeria(form.inputs));
 
 	function printPage() {
 		// Open the dedicated print route in a new tab. That route owns the
@@ -301,7 +307,7 @@
 
 				<Warnings warnings={form.schedule.warnings} />
 				<div class="mt-4 print:mt-1">
-					<ScheduleTable schedule={form.schedule} />
+					<ScheduleTable schedule={form.schedule} sourceTiming={activePizzeria?.timing} />
 				</div>
 			</div>
 
@@ -332,6 +338,10 @@
 
 	<section class="{cardClass} mt-8 print:hidden">
 		<Community />
+	</section>
+
+	<section class="{cardClass} mt-8 print:hidden">
+		<Pizzerias />
 	</section>
 
 	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400 print:hidden">

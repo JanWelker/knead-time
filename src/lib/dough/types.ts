@@ -14,6 +14,11 @@ export interface DoughInputs {
 	ballWeight: number;
 	hydration: number;
 	saltPercent: number;
+	// Optional baker's-percentage additions. 0 = absent. They expand pctSum
+	// like salt does: every gram of oil/sugar is a separately-weighed mass
+	// that comes out of the ball-weight budget.
+	oilPercent: number;
+	sugarPercent: number;
 	yeastType: YeastType;
 	starterHydration: number;
 	roomTempC: number;
@@ -26,6 +31,9 @@ export interface Ingredients {
 	water: number;
 	salt: number;
 	yeast: number;
+	// 0 when the recipe doesn't call for them. UI hides the rows on 0.
+	oil: number;
+	sugar: number;
 	totalDough: number;
 	preFerment: {
 		flour: number;

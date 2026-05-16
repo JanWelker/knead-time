@@ -19,6 +19,8 @@ export class FormState {
 	ballWeight: number = $state(280);
 	hydration: number = $state(70);
 	saltPercent: number = $state(3);
+	oilPercent: number = $state(0);
+	sugarPercent: number = $state(0);
 	yeastType: YeastType = $state('fresh');
 	starterHydration: number = $state(100);
 	roomTempC: number = $state(22);
@@ -34,6 +36,8 @@ export class FormState {
 		ballWeight: this.ballWeight,
 		hydration: this.hydration,
 		saltPercent: this.saltPercent,
+		oilPercent: this.oilPercent,
+		sugarPercent: this.sugarPercent,
 		yeastType: this.yeastType,
 		starterHydration: this.starterHydration,
 		roomTempC: this.roomTempC,
@@ -54,6 +58,8 @@ export class FormState {
 			ballWeight: this.ballWeight,
 			hydration: this.hydration,
 			saltPercent: this.saltPercent,
+			oilPercent: this.oilPercent,
+			sugarPercent: this.sugarPercent,
 			yeastType: this.yeastType,
 			starterHydration: this.starterHydration,
 			roomTempC: this.roomTempC,
@@ -71,6 +77,8 @@ export class FormState {
 			ballWeight: this.ballWeight,
 			hydration: this.hydration,
 			saltPercent: this.saltPercent,
+			oilPercent: this.oilPercent,
+			sugarPercent: this.sugarPercent,
 			yeastPercent: this.schedule.yeastPercent,
 			yeastType: this.yeastType
 		});
@@ -83,6 +91,8 @@ export class FormState {
 		if (partial.ballWeight !== undefined) this.ballWeight = partial.ballWeight;
 		if (partial.hydration !== undefined) this.hydration = partial.hydration;
 		if (partial.saltPercent !== undefined) this.saltPercent = partial.saltPercent;
+		if (partial.oilPercent !== undefined) this.oilPercent = partial.oilPercent;
+		if (partial.sugarPercent !== undefined) this.sugarPercent = partial.sugarPercent;
 		if (partial.yeastType !== undefined) this.yeastType = partial.yeastType;
 		if (partial.starterHydration !== undefined) this.starterHydration = partial.starterHydration;
 		if (partial.roomTempC !== undefined) this.roomTempC = partial.roomTempC;

@@ -5,10 +5,37 @@
 	import { isActiveStep } from '$lib/dough/scheduleStatus';
 	import { stepQualityFlags, type StepQualityFlag } from '$lib/dough/quality';
 	import type { ComputedSchedule, ScheduleStep } from '$lib/dough/types';
+	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
+	import { interpolate } from '$lib/i18n/interpolate';
 
-	let { schedule }: { schedule: ComputedSchedule } = $props();
+	let { schedule, sourceTiming }: { schedule: ComputedSchedule; sourceTiming?: SourceTiming } =
+		$props();
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
+
+	// Format a duration range. Single-value ranges (min === max) collapse to
+	// one number; ranges render as "4–5 h" using `duration_range` so locales
+	// can localize the separator.
+	function formatRange(minMinutes: number, maxMinutes: number): string {
+		if (minMinutes === maxMinutes) return formatDuration(minMinutes, locale);
+		return interpolate(t.schedule.duration_range, {
+			low: formatDuration(minMinutes, locale),
+			high: formatDuration(maxMinutes, locale)
+		});
+	}
+
+	// "Outside the source range" — does the computed duration fall outside the
+	// chef's published times by more than a small tolerance? Caption only
+	// renders when this is true. ±15% of the midpoint absorbs small rounding
+	// differences (Q10 quirks, night-window nudges) so we don't yell about
+	// agreements that effectively match.
+	const RANGE_TOLERANCE = 0.15;
+
+	function outsideSourceRange(durationMinutes: number, min: number, max: number): boolean {
+		const mid = (min + max) / 2;
+		const pad = mid * RANGE_TOLERANCE;
+		return durationMinutes < min - pad || durationMinutes > max + pad;
+	}
 	// Captured once per render — the schedule view isn't a live clock.
 	// Refreshing the page recomputes which rows have moved into the past.
 	const now = new Date();
@@ -139,6 +166,16 @@
 						{formatDuration(step.durationMinutes, locale)}
 					{:else}
 						—
+					{/if}
+					{#if sourceTiming?.[step.kind] && step.durationMinutes > 0 && outsideSourceRange(step.durationMinutes, sourceTiming[step.kind]!.minMinutes, sourceTiming[step.kind]!.maxMinutes)}
+						<div class="text-tomato-700 dark:text-tomato-300 mt-1 text-xs font-medium">
+							{interpolate(t.schedule.source_timing_label, {
+								duration: formatRange(
+									sourceTiming[step.kind]!.minMinutes,
+									sourceTiming[step.kind]!.maxMinutes
+								)
+							})}
+						</div>
 					{/if}
 				</td>
 			</tr>

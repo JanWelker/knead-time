@@ -8,6 +8,8 @@ const base: SerializableInputs = {
 	ballWeight: 280,
 	hydration: 70,
 	saltPercent: 3,
+	oilPercent: 0,
+	sugarPercent: 0,
 	yeastType: 'fresh',
 	starterHydration: 100,
 	roomTempC: 22,
@@ -102,7 +104,7 @@ describe('urlState round-trip', () => {
 
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=2');
+		expect(encodeInputs(base)).toContain('v=3');
 	});
 
 	it('decodes legacy links that predate the v parameter as v1', () => {
@@ -130,6 +132,29 @@ describe('urlState versioning', () => {
 	it('v=2 links carry fridgeTempC explicitly', () => {
 		const out = decodeInputs('?v=2&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22&ft=6');
 		expect(out.fridgeTempC).toBe(6);
+	});
+
+	it('v=2 links omit oil & sugar so FormState defaults (0/0) fill in', () => {
+		// Every share-link issued before v=3 was a plain Neapolitan recipe — no
+		// oil, no sugar. The decoder must leave oilPercent/sugarPercent
+		// undefined so state.apply preserves the form defaults.
+		const out = decodeInputs('?v=2&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22&ft=4');
+		expect(out.oilPercent).toBeUndefined();
+		expect(out.sugarPercent).toBeUndefined();
+	});
+
+	it('round-trips oil & sugar on v=3', () => {
+		const out = decodeInputs(encodeInputs({ ...base, oilPercent: 5, sugarPercent: 2 }));
+		expect(out.oilPercent).toBe(5);
+		expect(out.sugarPercent).toBe(2);
+	});
+
+	it('omits oil & sugar from the encoded URL when both are 0', () => {
+		const encoded = encodeInputs(base);
+		// Compact URLs: don't carry zero defaults — saves bytes and matches the
+		// shape of every existing share-link issued before v=3.
+		expect(encoded).not.toContain('o=');
+		expect(encoded).not.toContain('sg=');
 	});
 
 	it('falls back to the current decoder when the requested version is unknown', () => {

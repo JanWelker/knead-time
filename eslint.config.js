@@ -29,6 +29,14 @@ export default ts.config(
 		}
 	},
 	{
+		// Pizzerias.svelte renders external URLs (50 Top Pizza profile pages,
+		// recipe sources) supplied by pizzerias.md, so resolve() does not apply.
+		files: ['src/lib/components/Pizzerias.svelte'],
+		rules: {
+			'svelte/no-navigation-without-resolve': 'off'
+		}
+	},
+	{
 		files: ['**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {
 			parser: ts.parser

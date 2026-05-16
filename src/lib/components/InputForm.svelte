@@ -126,6 +126,24 @@
 		<FormField label={t.form.salt} min={0} max={5} step={0.1} bind:value={state.saltPercent} />
 
 		<FormField
+			label={t.form.oil}
+			min={0}
+			max={15}
+			step={0.1}
+			help={t.form.oil_help}
+			bind:value={state.oilPercent}
+		/>
+
+		<FormField
+			label={t.form.sugar}
+			min={0}
+			max={5}
+			step={0.1}
+			help={t.form.sugar_help}
+			bind:value={state.sugarPercent}
+		/>
+
+		<FormField
 			label={t.form.roomTemp}
 			min={10}
 			max={35}

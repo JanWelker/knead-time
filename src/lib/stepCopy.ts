@@ -70,41 +70,75 @@ export function stepDescription(
 					salt: formatGramsValue(ingredients.salt)
 				});
 			}
-			return interpolate(template, {
-				flour: formatGramsValue(ingredients.flour),
-				water: formatGramsValue(ingredients.water),
-				salt: formatGramsValue(ingredients.salt),
-				yeast: formatGramsValue(ingredients.yeast),
-				yeast_label: yeastLabel
-			});
+			return appendExtras(
+				interpolate(template, {
+					flour: formatGramsValue(ingredients.flour),
+					water: formatGramsValue(ingredients.water),
+					salt: formatGramsValue(ingredients.salt),
+					yeast: formatGramsValue(ingredients.yeast),
+					yeast_label: yeastLabel
+				}),
+				ingredients.oil,
+				ingredients.sugar,
+				msgs
+			);
 		case 'mix': {
 			const waterTemp = schedule.idealWaterTempC;
 			if (prefermentType === 'biga') {
-				return interpolate(msgs.steps.mix_desc_with_biga, {
-					flour: formatGramsValue(ingredients.flour),
-					water: formatGramsValue(ingredients.water),
-					salt: formatGramsValue(ingredients.salt),
-					water_temp: waterTemp
-				});
+				return appendExtras(
+					interpolate(msgs.steps.mix_desc_with_biga, {
+						flour: formatGramsValue(ingredients.flour),
+						water: formatGramsValue(ingredients.water),
+						salt: formatGramsValue(ingredients.salt),
+						water_temp: waterTemp
+					}),
+					ingredients.oil,
+					ingredients.sugar,
+					msgs
+				);
 			}
 			if (prefermentType === 'poolish') {
-				return interpolate(msgs.steps.mix_desc_with_poolish, {
+				return appendExtras(
+					interpolate(msgs.steps.mix_desc_with_poolish, {
+						flour: formatGramsValue(ingredients.flour),
+						water: formatGramsValue(ingredients.water),
+						salt: formatGramsValue(ingredients.salt),
+						water_temp: waterTemp
+					}),
+					ingredients.oil,
+					ingredients.sugar,
+					msgs
+				);
+			}
+			return appendExtras(
+				interpolate(template, {
 					flour: formatGramsValue(ingredients.flour),
 					water: formatGramsValue(ingredients.water),
 					salt: formatGramsValue(ingredients.salt),
+					yeast: formatGramsValue(ingredients.yeast),
+					yeast_label: yeastLabel,
 					water_temp: waterTemp
-				});
-			}
-			return interpolate(template, {
-				flour: formatGramsValue(ingredients.flour),
-				water: formatGramsValue(ingredients.water),
-				salt: formatGramsValue(ingredients.salt),
-				yeast: formatGramsValue(ingredients.yeast),
-				yeast_label: yeastLabel,
-				water_temp: waterTemp
-			});
+				}),
+				ingredients.oil,
+				ingredients.sugar,
+				msgs
+			);
 		}
 		default:
 			return template;
 	}
+}
+
+// Appends a localized "plus N g oil / M g sugar" trailer when either is present.
+// The combined-key wording reads more naturally than two separate clauses, so we
+// pick the matching variant rather than concatenating.
+function appendExtras(base: string, oil: number, sugar: number, msgs: Messages): string {
+	const oilStr = formatGramsValue(oil);
+	const sugarStr = formatGramsValue(sugar);
+	if (oil > 0 && sugar > 0) {
+		return base + ' ' + interpolate(msgs.steps.extras_oil_sugar, { oil: oilStr, sugar: sugarStr });
+	}
+	if (oil > 0) return base + ' ' + interpolate(msgs.steps.extras_oil, { oil: oilStr });
+	if (sugar > 0) return base + ' ' + interpolate(msgs.steps.extras_sugar, { sugar: sugarStr });
+	return base;
 }

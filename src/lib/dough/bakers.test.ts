@@ -6,6 +6,8 @@ const baseArgs = {
 	ballWeight: 280,
 	hydration: 70,
 	saltPercent: 3,
+	oilPercent: 0,
+	sugarPercent: 0,
 	yeastPercent: 0.2,
 	yeastType: 'fresh' as const,
 	starterHydration: 100,
@@ -196,6 +198,8 @@ describe('roundBallWeight', () => {
 		ballWeight: 280,
 		hydration: 70,
 		saltPercent: 3,
+		oilPercent: 0,
+		sugarPercent: 0,
 		yeastPercent: 0.085,
 		yeastType: 'fresh' as const
 	};
@@ -260,5 +264,70 @@ describe('roundBallWeight', () => {
 		const pctSum = 100 + sd.hydration + sd.saltPercent;
 		const newFlour = (sd.pizzaCount * newBw * 100) / pctSum;
 		expect(distToMultiple(newFlour, 50)).toBeLessThan(0.5);
+	});
+
+	it('includes oil & sugar in pctSum so the ball weight stays exact', () => {
+		const withExtras = { ...args, oilPercent: 5, sugarPercent: 2 };
+		const newBw = roundBallWeight(withExtras);
+		const pctSum =
+			100 +
+			withExtras.hydration +
+			withExtras.saltPercent +
+			withExtras.oilPercent +
+			withExtras.sugarPercent +
+			withExtras.yeastPercent;
+		const newFlour = (withExtras.pizzaCount * newBw * 100) / pctSum;
+		// Flour should still snap to a 50 g multiple.
+		expect(distToMultiple(newFlour, 50)).toBeLessThan(0.5);
+	});
+});
+
+describe('computeIngredients — oil & sugar', () => {
+	it('expands pctSum so total dough still equals pizzaCount × ballWeight', () => {
+		const r = computeIngredients({ ...baseArgs, oilPercent: 5, sugarPercent: 2 });
+		expect(r.flour + r.water + r.salt + r.yeast + r.oil + r.sugar).toBeCloseTo(1120, 6);
+	});
+
+	it("honors oil & sugar baker's percentages exactly", () => {
+		const r = computeIngredients({ ...baseArgs, oilPercent: 5, sugarPercent: 2 });
+		expect(r.oil / r.flour).toBeCloseTo(0.05, 6);
+		expect(r.sugar / r.flour).toBeCloseTo(0.02, 6);
+	});
+
+	it('returns 0 g oil & sugar when their percentages are 0', () => {
+		const r = computeIngredients(baseArgs);
+		expect(r.oil).toBe(0);
+		expect(r.sugar).toBe(0);
+	});
+
+	it('keeps the mass-balance invariant with sourdough + oil + sugar', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			yeastType: 'sourdough',
+			yeastPercent: 20,
+			oilPercent: 3,
+			sugarPercent: 1
+		});
+		expect(r.flour + r.water + r.salt + r.yeast + r.oil + r.sugar).toBeCloseTo(1120, 6);
+	});
+
+	it('keeps oil & sugar in the main dough when a pre-ferment is set', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			preFermentFlourPercent: 30,
+			preFermentHydration: 100,
+			oilPercent: 4,
+			sugarPercent: 1.5
+		});
+		expect(r.preFerment).not.toBeNull();
+		// Oil & sugar are weighed for the main dough only.
+		const pctSum = 100 + 70 + 3 + 4 + 1.5 + 0.2;
+		const flourTotal = (1120 * 100) / pctSum;
+		expect(r.oil).toBeCloseTo((flourTotal * 4) / 100, 6);
+		expect(r.sugar).toBeCloseTo((flourTotal * 1.5) / 100, 6);
+		const pf = r.preFerment!;
+		expect(
+			r.flour + r.water + r.salt + r.yeast + r.oil + r.sugar + pf.flour + pf.water + pf.yeast
+		).toBeCloseTo(1120, 6);
 	});
 });

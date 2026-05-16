@@ -73,6 +73,12 @@
 					{@render row(t.ingredients.flour, ingredients.flour)}
 					{@render row(t.ingredients.water, ingredients.water)}
 					{@render row(t.ingredients.salt, ingredients.salt)}
+					{#if ingredients.oil > 0}
+						{@render row(t.ingredients.oil, ingredients.oil)}
+					{/if}
+					{#if ingredients.sugar > 0}
+						{@render row(t.ingredients.sugar, ingredients.sugar)}
+					{/if}
 					{#if ingredients.yeast > 0}
 						{@render row(yeastLabel, ingredients.yeast)}
 					{/if}
@@ -91,6 +97,12 @@
 					{@render row(t.ingredients.flour, totals!.flour)}
 					{@render row(t.ingredients.water, totals!.water)}
 					{@render row(t.ingredients.salt, totals!.salt)}
+					{#if ingredients.oil > 0}
+						{@render row(t.ingredients.oil, ingredients.oil)}
+					{/if}
+					{#if ingredients.sugar > 0}
+						{@render row(t.ingredients.sugar, ingredients.sugar)}
+					{/if}
 					{@render row(yeastLabel, totals!.yeast, formatPercent(yeastPercent))}
 					<tr>
 						<th class="font-display text-tomato-700 py-2 pr-3 text-left">{t.ingredients.total}</th>
@@ -107,6 +119,12 @@
 				{@render row(t.ingredients.flour, ingredients.flour)}
 				{@render row(t.ingredients.water, ingredients.water)}
 				{@render row(t.ingredients.salt, ingredients.salt)}
+				{#if ingredients.oil > 0}
+					{@render row(t.ingredients.oil, ingredients.oil)}
+				{/if}
+				{#if ingredients.sugar > 0}
+					{@render row(t.ingredients.sugar, ingredients.sugar)}
+				{/if}
 				{@render row(yeastLabel, ingredients.yeast, formatPercent(yeastPercent))}
 				<tr>
 					<th class="font-display text-tomato-700 dark:text-tomato-300 py-2 pr-3 text-left">
