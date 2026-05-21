@@ -20,7 +20,7 @@
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
 	import { FormState } from '$lib/state.svelte';
-	import { stepDescription, stepTitle } from '$lib/stepCopy';
+	import { stepDetailText, stepTitle } from '$lib/stepCopy';
 
 	const currentYear = new Date().getFullYear();
 	const appVersion = __APP_VERSION__;
@@ -62,7 +62,7 @@
 	function downloadIcs() {
 		const ics = buildIcs(form.schedule.steps, (step) => ({
 			summary: stepTitle(step, t),
-			description: stepDescription(step, t, form.schedule)
+			description: stepDetailText(step, t, form.schedule)
 		}));
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);

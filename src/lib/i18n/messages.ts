@@ -86,9 +86,6 @@ export interface Messages {
 		mix_desc: string;
 		mix_desc_with_biga: string;
 		mix_desc_with_poolish: string;
-		extras_oil: string;
-		extras_sugar: string;
-		extras_oil_sugar: string;
 		bulk_room: string;
 		bulk_room_desc: string;
 		bulk_cold: string;
@@ -112,6 +109,7 @@ export interface Messages {
 		source_timing_label: string;
 		icon_active: string;
 		icon_passive: string;
+		now: string;
 	};
 	quality: {
 		step_imperfect: string;
@@ -355,24 +353,20 @@ const en: Messages = {
 		preferment_mix_desc:
 			'Combine the pre-ferment ingredients, cover, and let mature at room temperature.',
 		preferment_mix_desc_biga:
-			'Stir {flour} g flour, {water} g water and {yeast} g fresh yeast together just until shaggy — do not knead. Cover and let mature at room temperature.',
+			'Stir the flour, water and fresh yeast together just until shaggy — do not knead, the biga should stay crumbly. Cover and let it mature at room temperature.',
 		preferment_mix_desc_poolish:
-			'Whisk {flour} g flour, {water} g water and {yeast} g fresh yeast in a bowl until smooth. Cover and let mature at room temperature.',
+			'Whisk the flour, water and fresh yeast in a bowl until smooth. Cover and let it mature at room temperature.',
 		prep: 'Weigh & prep',
-		prep_desc:
-			'Weigh out {flour} g flour, {water} g water, {salt} g salt and {yeast} g {yeast_label}. Take ingredients out of the fridge.',
+		prep_desc: 'Take the dough ingredients out of the fridge and weigh out each amount.',
 		prep_desc_with_preferment:
-			'Weigh out the remaining {flour} g flour, {water} g water and {salt} g salt. The pre-ferment carries all the yeast.',
+			'Weigh out the remaining flour, water and salt — the pre-ferment already carries all the yeast.',
 		mix: 'Mix dough',
 		mix_desc:
-			'Load the spiral mixer with {flour} g flour, {water} g water (~{water_temp} °C — chill with ice cubes if needed), {salt} g salt and {yeast} g {yeast_label}. Run about 10 minutes until smooth, keeping the dough below 24 °C.',
+			'Load the weighed ingredients into the spiral mixer with the water at about {water_temp} °C — chill it with ice cubes if your kitchen is warm. Knead about 10 minutes until smooth, keeping the dough below 24 °C.',
 		mix_desc_with_biga:
-			'Tear the ripe biga into the spiral mixer with {flour} g flour and {water} g water (~{water_temp} °C — chill with ice cubes if needed) and run until cohesive. Add {salt} g salt and mix about 10 minutes more until smooth, keeping the dough below 24 °C.',
+			'Tear the ripe biga into the spiral mixer, add the flour and water (about {water_temp} °C — chill with ice cubes if needed) and run until cohesive. Work in the salt and knead about 10 minutes more until smooth, keeping the dough below 24 °C.',
 		mix_desc_with_poolish:
-			'Pour the ripe poolish into the spiral mixer with {flour} g flour, {water} g water (~{water_temp} °C — chill with ice cubes if needed) and {salt} g salt. Run about 10 minutes until smooth, keeping the dough below 24 °C.',
-		extras_oil: 'Plus {oil} g oil.',
-		extras_sugar: 'Plus {sugar} g sugar.',
-		extras_oil_sugar: 'Plus {oil} g oil and {sugar} g sugar.',
+			'Pour the ripe poolish into the spiral mixer with the flour, water (about {water_temp} °C — chill with ice cubes if needed) and salt. Knead about 10 minutes until smooth, keeping the dough below 24 °C.',
 		bulk_room: 'Bulk ferment (room)',
 		bulk_room_desc: 'Cover the dough and let it rise at room temperature.',
 		bulk_cold: 'Bulk ferment (fridge)',
@@ -395,7 +389,8 @@ const en: Messages = {
 		duration_range: '{low}–{high}',
 		source_timing_label: 'Original: {duration}',
 		icon_active: 'Active step',
-		icon_passive: 'Waiting step'
+		icon_passive: 'Waiting step',
+		now: 'Now'
 	},
 	quality: {
 		step_imperfect: 'This step deviates from the math’s natural schedule.',
@@ -650,24 +645,20 @@ const de: Messages = {
 		preferment_mix_desc:
 			'Zutaten des Vorteigs verrühren, abdecken und bei Raumtemperatur reifen lassen.',
 		preferment_mix_desc_biga:
-			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur reifen lassen.',
+			'Mehl, Wasser und Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur reifen lassen.',
 		preferment_mix_desc_poolish:
-			'{flour} g Mehl, {water} g Wasser und {yeast} g Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur reifen lassen.',
+			'Mehl, Wasser und Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur reifen lassen.',
 		prep: 'Abwiegen & vorbereiten',
-		prep_desc:
-			'{flour} g Mehl, {water} g Wasser, {salt} g Salz und {yeast} g {yeast_label} abwiegen. Zutaten rechtzeitig aus dem Kühlschrank holen.',
+		prep_desc: 'Die Zutaten rechtzeitig aus dem Kühlschrank holen und jede Menge abwiegen.',
 		prep_desc_with_preferment:
-			'Restliche {flour} g Mehl, {water} g Wasser und {salt} g Salz abwiegen. Die gesamte Hefe steckt bereits im Vorteig.',
+			'Das restliche Mehl, Wasser und Salz abwiegen — die gesamte Hefe steckt bereits im Vorteig.',
 		mix: 'Teig mischen',
 		mix_desc:
-			'{flour} g Mehl, {water} g Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen), {salt} g Salz und {yeast} g {yeast_label} in den Spiralkneter geben. Etwa 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
+			'Die abgewogenen Zutaten mit dem Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) in den Spiralkneter geben. Etwa 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		mix_desc_with_biga:
-			'Die reife Biga im Spiralkneter mit {flour} g Mehl und {water} g Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) zu einem zusammenhängenden Teig vermengen. {salt} g Salz einarbeiten und weitere ca. 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
+			'Die reife Biga mit Mehl und Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) im Spiralkneter zu einem zusammenhängenden Teig vermengen. Das Salz einarbeiten und weitere ca. 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		mix_desc_with_poolish:
-			'Den reifen Poolish mit {flour} g Mehl, {water} g Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und {salt} g Salz in den Spiralkneter geben. Etwa 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
-		extras_oil: 'Außerdem {oil} g Öl.',
-		extras_sugar: 'Außerdem {sugar} g Zucker.',
-		extras_oil_sugar: 'Außerdem {oil} g Öl und {sugar} g Zucker.',
+			'Den reifen Poolish mit Mehl, Wasser (~{water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz in den Spiralkneter geben. Etwa 10 Minuten glatt kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		bulk_room: 'Stockgare (Raum)',
 		bulk_room_desc: 'Teig abdecken und bei Raumtemperatur gehen lassen.',
 		bulk_cold: 'Stockgare (Kühlschrank)',
@@ -692,7 +683,8 @@ const de: Messages = {
 		duration_range: '{low}–{high}',
 		source_timing_label: 'Original: {duration}',
 		icon_active: 'Aktiver Schritt',
-		icon_passive: 'Wartezeit'
+		icon_passive: 'Wartezeit',
+		now: 'Jetzt'
 	},
 	quality: {
 		step_imperfect: 'Dieser Schritt weicht vom natürlichen Zeitplan ab.',
@@ -950,24 +942,20 @@ const it: Messages = {
 		preferment_mix_desc:
 			'Mescolare gli ingredienti del preimpasto, coprire e lasciare maturare a temperatura ambiente.',
 		preferment_mix_desc_biga:
-			'Mescolare {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente.',
+			'Mescolare farina, acqua e lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente.',
 		preferment_mix_desc_poolish:
-			'Sbattere {flour} g di farina, {water} g di acqua e {yeast} g di lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente.',
+			'Sbattere farina, acqua e lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente.',
 		prep: 'Pesare e preparare',
-		prep_desc:
-			'Pesare {flour} g di farina, {water} g di acqua, {salt} g di sale e {yeast} g di {yeast_label}. Togliere gli ingredienti dal frigo.',
+		prep_desc: 'Togliere gli ingredienti dal frigo e pesare ogni quantità.',
 		prep_desc_with_preferment:
-			'Pesare i {flour} g di farina rimanenti, {water} g di acqua e {salt} g di sale. Tutto il lievito è già nel preimpasto.',
+			'Pesare la farina, l’acqua e il sale rimanenti — tutto il lievito è già nel preimpasto.',
 		mix: 'Impastare',
 		mix_desc:
-			"Mettere {flour} g di farina, {water} g di acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve), {salt} g di sale e {yeast} g di {yeast_label} nell'impastatrice a spirale. Lavorare circa 10 minuti fino a impasto liscio, mantenendolo sotto i 24 °C.",
+			"Mettere gli ingredienti pesati nell'impastatrice a spirale con l'acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve). Lavorare circa 10 minuti fino a impasto liscio, mantenendolo sotto i 24 °C.",
 		mix_desc_with_biga:
-			"Spezzettare la biga matura nell'impastatrice a spirale con {flour} g di farina e {water} g di acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e lavorare fino a ottenere un impasto coeso. Incorporare {salt} g di sale e lavorare altri 10 minuti circa fino a impasto liscio, mantenendolo sotto i 24 °C.",
+			"Spezzettare la biga matura nell'impastatrice a spirale con la farina e l'acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e lavorare fino a ottenere un impasto coeso. Incorporare il sale e lavorare altri 10 minuti circa fino a impasto liscio, mantenendolo sotto i 24 °C.",
 		mix_desc_with_poolish:
-			"Versare il poolish maturo nell'impastatrice a spirale con {flour} g di farina, {water} g di acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e {salt} g di sale. Lavorare circa 10 minuti fino a impasto liscio, mantenendolo sotto i 24 °C.",
-		extras_oil: 'Più {oil} g di olio.',
-		extras_sugar: 'Più {sugar} g di zucchero.',
-		extras_oil_sugar: 'Più {oil} g di olio e {sugar} g di zucchero.',
+			"Versare il poolish maturo nell'impastatrice a spirale con la farina, l'acqua (~{water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale. Lavorare circa 10 minuti fino a impasto liscio, mantenendolo sotto i 24 °C.",
 		bulk_room: 'Puntata (ambiente)',
 		bulk_room_desc: "Coprire l'impasto e farlo lievitare a temperatura ambiente.",
 		bulk_cold: 'Puntata (frigo)',
@@ -991,7 +979,8 @@ const it: Messages = {
 		duration_range: '{low}–{high}',
 		source_timing_label: 'Originale: {duration}',
 		icon_active: 'Passo attivo',
-		icon_passive: 'Attesa'
+		icon_passive: 'Attesa',
+		now: 'Ora'
 	},
 	quality: {
 		step_imperfect: 'Questo passo si discosta dal programma naturale del calcolo.',
@@ -1253,24 +1242,20 @@ const fr: Messages = {
 		preferment_mix_desc:
 			'Mélangez les ingrédients du pré-ferment, couvrez et laissez maturer à température ambiante.',
 		preferment_mix_desc_biga:
-			"Mélangez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante.",
+			"Mélangez la farine, l'eau et la levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante.",
 		preferment_mix_desc_poolish:
-			"Fouettez {flour} g de farine, {water} g d'eau et {yeast} g de levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante.",
+			"Fouettez la farine, l'eau et la levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante.",
 		prep: 'Peser et préparer',
-		prep_desc:
-			"Pesez {flour} g de farine, {water} g d'eau, {salt} g de sel et {yeast} g de {yeast_label}. Sortez les ingrédients du frigo.",
+		prep_desc: 'Sortez les ingrédients du frigo et pesez chaque quantité.',
 		prep_desc_with_preferment:
-			"Pesez les {flour} g de farine restants, {water} g d'eau et {salt} g de sel. Toute la levure est déjà dans le pré-ferment.",
+			"Pesez la farine, l'eau et le sel restants — toute la levure est déjà dans le pré-ferment.",
 		mix: 'Pétrir la pâte',
 		mix_desc:
-			"Versez {flour} g de farine, {water} g d'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin), {salt} g de sel et {yeast} g de {yeast_label} dans le pétrin à spirale. Pétrissez environ 10 minutes jusqu'à obtenir une pâte lisse, en la gardant sous 24 °C.",
+			"Versez les ingrédients pesés dans le pétrin à spirale avec l'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin). Pétrissez environ 10 minutes jusqu'à obtenir une pâte lisse, en la gardant sous 24 °C.",
 		mix_desc_with_biga:
-			"Émiettez la biga mûre dans le pétrin à spirale avec {flour} g de farine et {water} g d'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin) et mélangez jusqu'à obtenir une pâte cohérente. Incorporez {salt} g de sel, puis pétrissez environ 10 minutes de plus jusqu'à ce que ce soit lisse, en la gardant sous 24 °C.",
+			"Émiettez la biga mûre dans le pétrin à spirale avec la farine et l'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin) et mélangez jusqu'à obtenir une pâte cohérente. Incorporez le sel, puis pétrissez environ 10 minutes de plus jusqu'à ce que ce soit lisse, en la gardant sous 24 °C.",
 		mix_desc_with_poolish:
-			"Versez le poolish mûr dans le pétrin à spirale avec {flour} g de farine, {water} g d'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin) et {salt} g de sel. Pétrissez environ 10 minutes jusqu'à obtenir une pâte lisse, en la gardant sous 24 °C.",
-		extras_oil: "Plus {oil} g d'huile.",
-		extras_sugar: 'Plus {sugar} g de sucre.',
-		extras_oil_sugar: "Plus {oil} g d'huile et {sugar} g de sucre.",
+			"Versez le poolish mûr dans le pétrin à spirale avec la farine, l'eau (~{water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel. Pétrissez environ 10 minutes jusqu'à obtenir une pâte lisse, en la gardant sous 24 °C.",
 		bulk_room: 'Pointage (ambiante)',
 		bulk_room_desc: 'Couvrez la pâte et laissez-la lever à température ambiante.',
 		bulk_cold: 'Pointage (frigo)',
@@ -1294,7 +1279,8 @@ const fr: Messages = {
 		duration_range: '{low}–{high}',
 		source_timing_label: 'Original : {duration}',
 		icon_active: 'Étape active',
-		icon_passive: 'Attente'
+		icon_passive: 'Attente',
+		now: 'Maintenant'
 	},
 	quality: {
 		step_imperfect: 'Cette étape s’écarte du programme naturel du calcul.',
@@ -1553,24 +1539,20 @@ const nl: Messages = {
 		preferment_mix_desc:
 			'Meng de voordeeg-ingrediënten, dek af en laat op kamertemperatuur rijpen.',
 		preferment_mix_desc_biga:
-			'Meng {flour} g bloem, {water} g water en {yeast} g verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat op kamertemperatuur rijpen.',
+			'Meng bloem, water en verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat op kamertemperatuur rijpen.',
 		preferment_mix_desc_poolish:
-			'Klop {flour} g bloem, {water} g water en {yeast} g verse gist in een kom glad. Dek af en laat op kamertemperatuur rijpen.',
+			'Klop bloem, water en verse gist in een kom glad. Dek af en laat op kamertemperatuur rijpen.',
 		prep: 'Wegen en klaarzetten',
-		prep_desc:
-			'Weeg {flour} g bloem, {water} g water, {salt} g zout en {yeast} g {yeast_label} af. Haal de ingrediënten uit de koelkast.',
+		prep_desc: 'Haal de ingrediënten uit de koelkast en weeg elke hoeveelheid af.',
 		prep_desc_with_preferment:
-			'Weeg de resterende {flour} g bloem, {water} g water en {salt} g zout af. De gist zit volledig in het voordeeg.',
+			'Weeg de resterende bloem, water en zout af — de gist zit volledig in het voordeeg.',
 		mix: 'Deeg kneden',
 		mix_desc:
-			'Doe {flour} g bloem, {water} g water (~{water_temp} °C — eventueel met ijsblokjes koelen), {salt} g zout en {yeast} g {yeast_label} in de spiraalkneder. Kneed ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
+			'Doe de afgewogen ingrediënten in de spiraalkneder met het water (~{water_temp} °C — eventueel met ijsblokjes koelen). Kneed ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
 		mix_desc_with_biga:
-			'Scheur de rijpe biga in de spiraalkneder met {flour} g bloem en {water} g water (~{water_temp} °C — eventueel met ijsblokjes koelen) en meng tot een samenhangend deeg. Werk {salt} g zout erdoor en kneed nog ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
+			'Scheur de rijpe biga in de spiraalkneder met de bloem en het water (~{water_temp} °C — eventueel met ijsblokjes koelen) en meng tot een samenhangend deeg. Werk het zout erdoor en kneed nog ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
 		mix_desc_with_poolish:
-			'Giet de rijpe poolish in de spiraalkneder met {flour} g bloem, {water} g water (~{water_temp} °C — eventueel met ijsblokjes koelen) en {salt} g zout. Kneed ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
-		extras_oil: 'Plus {oil} g olie.',
-		extras_sugar: 'Plus {sugar} g suiker.',
-		extras_oil_sugar: 'Plus {oil} g olie en {sugar} g suiker.',
+			'Giet de rijpe poolish in de spiraalkneder met de bloem, het water (~{water_temp} °C — eventueel met ijsblokjes koelen) en het zout. Kneed ongeveer 10 minuten tot een glad deeg en houd de deegtemperatuur onder 24 °C.',
 		bulk_room: 'Bulkrijs (kamer)',
 		bulk_room_desc: 'Dek het deeg af en laat het rijzen op kamertemperatuur.',
 		bulk_cold: 'Bulkrijs (koelkast)',
@@ -1594,7 +1576,8 @@ const nl: Messages = {
 		duration_range: '{low}–{high}',
 		source_timing_label: 'Origineel: {duration}',
 		icon_active: 'Actieve stap',
-		icon_passive: 'Wachttijd'
+		icon_passive: 'Wachttijd',
+		now: 'Nu'
 	},
 	quality: {
 		step_imperfect: 'Deze stap wijkt af van het natuurlijke schema.',
@@ -1850,24 +1833,20 @@ const jam: Messages = {
 		preferment_mix_desc:
 			'Mix up di befo-dough tings dem, cova it an mek it sit a room temperature.',
 		preferment_mix_desc_biga:
-			'Mix up {flour} g flour, {water} g wata an {yeast} g fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature.',
+			'Mix up flour, wata an fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature.',
 		preferment_mix_desc_poolish:
-			'Whisk {flour} g flour, {water} g wata an {yeast} g fresh ris-ting inna bowl til it smood. Cova it an mek it sit a room temperature.',
+			'Whisk flour, wata an fresh ris-ting inna bowl til it smood. Cova it an mek it sit a room temperature.',
 		prep: 'Weigh an set up',
-		prep_desc:
-			'Weigh out {flour} g flour, {water} g wata, {salt} g salt an {yeast} g {yeast_label}. Tek di tings dem outta di fridge.',
+		prep_desc: 'Tek di tings dem outta di fridge an weigh out each amount.',
 		prep_desc_with_preferment:
-			'Weigh out di {flour} g flour weh lef, {water} g wata an {salt} g salt. Di whole a di ris-ting deh inna di befo-dough already.',
+			'Weigh out di flour, wata an salt weh lef — di whole a di ris-ting deh inna di befo-dough already.',
 		mix: 'Knead di dough',
 		mix_desc:
-			'Put {flour} g flour, {water} g wata (~{water_temp} °C — chill it wid ice cube if yu need to), {salt} g salt an {yeast} g {yeast_label} inna di spiral mixer. Run it bout 10 minit til smood, an keep di dough unda 24 °C.',
+			'Put di weigh-out tings dem inna di spiral mixer wid di wata (~{water_temp} °C — chill it wid ice cube if yu need to). Run it bout 10 minit til smood, an keep di dough unda 24 °C.',
 		mix_desc_with_biga:
-			'Tear up di ripe biga inna di spiral mixer wid {flour} g flour an {water} g wata (~{water_temp} °C — chill it wid ice cube if yu need to) an mix til it come togedda. Work in {salt} g salt, den run it bout 10 minit more til smood, an keep di dough unda 24 °C.',
+			'Tear up di ripe biga inna di spiral mixer wid di flour an wata (~{water_temp} °C — chill it wid ice cube if yu need to) an mix til it come togedda. Work in di salt, den run it bout 10 minit more til smood, an keep di dough unda 24 °C.',
 		mix_desc_with_poolish:
-			'Pour di ripe poolish inna di spiral mixer wid {flour} g flour, {water} g wata (~{water_temp} °C — chill it wid ice cube if yu need to) an {salt} g salt. Run it bout 10 minit til smood, an keep di dough unda 24 °C.',
-		extras_oil: 'Plus {oil} g oil.',
-		extras_sugar: 'Plus {sugar} g sugar.',
-		extras_oil_sugar: 'Plus {oil} g oil an {sugar} g sugar.',
+			'Pour di ripe poolish inna di spiral mixer wid di flour, wata (~{water_temp} °C — chill it wid ice cube if yu need to) an di salt. Run it bout 10 minit til smood, an keep di dough unda 24 °C.',
 		bulk_room: 'Big rise (room)',
 		bulk_room_desc: 'Cova di dough an mek it rise a room temperature.',
 		bulk_cold: 'Big rise (fridge)',
@@ -1890,7 +1869,8 @@ const jam: Messages = {
 		duration_range: '{low}–{high}',
 		source_timing_label: 'Original: {duration}',
 		icon_active: 'Active step',
-		icon_passive: 'Waiting step'
+		icon_passive: 'Waiting step',
+		now: 'Now'
 	},
 	quality: {
 		step_imperfect: 'Dis step drift from di natural schedule.',

@@ -18,7 +18,7 @@
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { qrCode } from '$lib/qr';
-	import { stepDescription, stepTitle } from '$lib/stepCopy';
+	import { stepDescription, stepIngredients, stepTitle } from '$lib/stepCopy';
 
 	// Locale lives in the URL path so each language can ship its own prerendered
 	// HTML; the root layout skips its navigator-based detection on this route.
@@ -218,6 +218,14 @@
 		.printpage-step-title {
 			font-weight: 600;
 		}
+		.printpage-step-ingredients {
+			font-size: 8pt;
+			margin-top: 0.5mm;
+		}
+		.printpage-ing:not(:last-child)::after {
+			content: ' · ';
+			color: #888;
+		}
 		.printpage-step-desc {
 			font-size: 8pt;
 			color: #444;
@@ -383,10 +391,18 @@
 			<tbody>
 				{#each schedule.steps as step (step.kind + '-' + step.at.getTime())}
 					{@const isReady = step.kind === 'ready'}
+					{@const ingredients = stepIngredients(step, t, schedule)}
 					<tr class:printpage-ready={isReady}>
 						<td class="printpage-when">{formatDateTime(step.at, locale)}</td>
 						<td>
 							<div class="printpage-step-title">{stepTitle(step, t)}</div>
+							{#if ingredients.length > 0}
+								<div class="printpage-step-ingredients">
+									{#each ingredients as ing (ing.name)}
+										<span class="printpage-ing"><strong>{ing.amount}</strong> {ing.name}</span>
+									{/each}
+								</div>
+							{/if}
 							<div class="printpage-step-desc">{stepDescription(step, t, schedule)}</div>
 						</td>
 						<td class="printpage-duration">
