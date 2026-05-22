@@ -20,7 +20,7 @@
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
 	import { FormState } from '$lib/state.svelte';
-	import { stepDescription, stepTitle } from '$lib/stepCopy';
+	import { stepDetailText, stepTitle } from '$lib/stepCopy';
 
 	const currentYear = new Date().getFullYear();
 	const appVersion = __APP_VERSION__;
@@ -62,7 +62,7 @@
 	function downloadIcs() {
 		const ics = buildIcs(form.schedule.steps, (step) => ({
 			summary: stepTitle(step, t),
-			description: stepDescription(step, t, form.schedule)
+			description: stepDetailText(step, t, form.schedule)
 		}));
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
@@ -111,7 +111,7 @@
 	<title>{t.app.title} — {t.app.tagline}</title>
 </svelte:head>
 
-<main class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
 	<header class="mb-8 flex flex-wrap items-start justify-between gap-4">
 		<div>
 			<h1 class="font-display text-accent text-4xl sm:text-5xl">{t.app.title}</h1>
@@ -123,113 +123,113 @@
 		</div>
 	</header>
 
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-5">
-		<section class="card lg:col-span-2 lg:min-w-0">
+	<!-- lg+: When + Ingredients stack in the left column, Schedule spans the
+	     right; below lg everything collapses to one column in DOM order. -->
+	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
+		<section class="card lg:col-start-1 lg:row-start-1">
 			<InputForm state={form} />
 		</section>
 
-		<section class="space-y-6 lg:col-span-3">
-			<div class="card">
-				<div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-					<div>
-						<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-							{t.schedule.heading}
-						</h2>
-						<div class="mt-2 flex flex-wrap items-center gap-3">
-							<ModeBadge mode={form.schedule.mode} />
-							<FitScore schedule={form.schedule} inputs={form.serializable()} />
-						</div>
-					</div>
-					<div class="relative">
-						<details bind:this={actionsRef} bind:open={actionsOpen}>
-							<summary
-								class="btn-tomato flex cursor-pointer list-none items-center gap-2 select-none"
-								aria-haspopup="menu"
-								aria-label={t.actions.menu}
-							>
-								<svg
-									width="14"
-									height="14"
-									viewBox="0 0 16 16"
-									fill="currentColor"
-									aria-hidden="true"
-								>
-									<rect y="3" width="16" height="2" rx="1" />
-									<rect y="7" width="16" height="2" rx="1" />
-									<rect y="11" width="16" height="2" rx="1" />
-								</svg>
-								<span>{t.actions.menu}</span>
-							</summary>
-							<div
-								role="menu"
-								class="border-dough-200 absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
-							>
-								<button
-									type="button"
-									role="menuitem"
-									class="menu-item"
-									onclick={downloadIcs}
-									disabled={!form.schedule.feasible}
-								>
-									{t.actions.download_ics}
-								</button>
-								<button
-									type="button"
-									role="menuitem"
-									class="menu-item"
-									onclick={printPage}
-									disabled={!form.schedule.feasible}
-								>
-									{t.actions.print}
-								</button>
-								<button
-									type="button"
-									role="menuitem"
-									class="menu-item"
-									onclick={() => copy(window.location.href)}
-								>
-									{copied === 'share' ? t.actions.copied : t.actions.share}
-								</button>
-								<TrmnlPush
-									inputs={form.serializable()}
-									schedule={form.schedule}
-									{locale}
-									triggerClass="menu-item"
-								/>
-							</div>
-						</details>
-					</div>
-				</div>
-
-				<Warnings warnings={form.schedule.warnings} />
-				<div class="mt-4">
-					<ScheduleTable schedule={form.schedule} sourceTiming={activePizzeria?.timing} />
-				</div>
-			</div>
-
-			<div class="card">
-				<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
+			<div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+				<div>
 					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-						{t.ingredients.heading}
+						{t.schedule.heading}
 					</h2>
-					<button
-						type="button"
-						class="btn-tomato-sm inline-flex items-center gap-1"
-						onclick={() => form.roundBallWeight()}
-						title={t.form.ballWeight_round_help}
-						aria-label={t.form.ballWeight_round_help}
-					>
-						<span aria-hidden="true">↻</span>
-						{t.form.ballWeight_round}
-					</button>
+					<div class="mt-2 flex flex-wrap items-center gap-3">
+						<ModeBadge mode={form.schedule.mode} />
+						<FitScore schedule={form.schedule} inputs={form.serializable()} />
+					</div>
 				</div>
-				<Ingredients
-					ingredients={form.schedule.ingredients}
-					yeastType={form.yeastType}
-					yeastPercent={form.schedule.yeastPercent}
-				/>
+				<div class="relative">
+					<details bind:this={actionsRef} bind:open={actionsOpen}>
+						<summary
+							class="btn-tomato flex cursor-pointer list-none items-center gap-2 select-none"
+							aria-haspopup="menu"
+							aria-label={t.actions.menu}
+						>
+							<svg
+								width="14"
+								height="14"
+								viewBox="0 0 16 16"
+								fill="currentColor"
+								aria-hidden="true"
+							>
+								<rect y="3" width="16" height="2" rx="1" />
+								<rect y="7" width="16" height="2" rx="1" />
+								<rect y="11" width="16" height="2" rx="1" />
+							</svg>
+							<span>{t.actions.menu}</span>
+						</summary>
+						<div
+							role="menu"
+							class="border-dough-200 absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
+						>
+							<button
+								type="button"
+								role="menuitem"
+								class="menu-item"
+								onclick={downloadIcs}
+								disabled={!form.schedule.feasible}
+							>
+								{t.actions.download_ics}
+							</button>
+							<button
+								type="button"
+								role="menuitem"
+								class="menu-item"
+								onclick={printPage}
+								disabled={!form.schedule.feasible}
+							>
+								{t.actions.print}
+							</button>
+							<button
+								type="button"
+								role="menuitem"
+								class="menu-item"
+								onclick={() => copy(window.location.href)}
+							>
+								{copied === 'share' ? t.actions.copied : t.actions.share}
+							</button>
+							<TrmnlPush
+								inputs={form.serializable()}
+								schedule={form.schedule}
+								{locale}
+								triggerClass="menu-item"
+							/>
+						</div>
+					</details>
+				</div>
 			</div>
-		</section>
+
+			<Warnings warnings={form.schedule.warnings} />
+			<div class="mt-4">
+				<ScheduleTable schedule={form.schedule} sourceTiming={activePizzeria?.timing} />
+			</div>
+		</div>
+
+		<div class="card lg:col-start-1 lg:row-start-2">
+			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+					{t.ingredients.heading}
+				</h2>
+				<button
+					type="button"
+					class="btn-tomato-sm inline-flex items-center gap-1"
+					onclick={() => form.roundBallWeight()}
+					title={t.form.ballWeight_round_help}
+					aria-label={t.form.ballWeight_round_help}
+				>
+					<span aria-hidden="true">↻</span>
+					{t.form.ballWeight_round}
+				</button>
+			</div>
+			<Ingredients
+				ingredients={form.schedule.ingredients}
+				yeastType={form.yeastType}
+				yeastPercent={form.schedule.yeastPercent}
+			/>
+		</div>
 	</div>
 
 	<section class="card mt-8">

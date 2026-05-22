@@ -1,5 +1,5 @@
 import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from './dough/types';
-import { formatBallWeight, formatGramsValue } from './format';
+import { formatBallWeight, formatGrams } from './format';
 import { interpolate } from './i18n/interpolate';
 import type { Messages } from './i18n/messages';
 
@@ -25,10 +25,74 @@ const DESC: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	ready: 'ready_desc'
 };
 
+// One weighed ingredient for a step, split into amount and name so the UI can
+// render it as a scannable table row instead of burying it in prose.
+export interface StepIngredient {
+	amount: string;
+	name: string;
+}
+
 export function stepTitle(step: ScheduleStep, msgs: Messages): string {
 	return msgs.steps[TITLE[step.kind]];
 }
 
+// The ingredients a step puts on the scale. Empty for steps that only wait or
+// shape (bulk, divide, proof, ready). The amounts are pulled straight from the
+// computed schedule so they always match the Ingredients table; oil and sugar
+// only appear when the recipe actually calls for them.
+export function stepIngredients(
+	step: ScheduleStep,
+	msgs: Messages,
+	schedule: ComputedSchedule
+): StepIngredient[] {
+	const { ingredients } = schedule;
+	const i = msgs.ingredients;
+	const yeastName = schedule.yeastType === 'fresh' ? i.fresh_yeast : i.sourdough_starter;
+
+	// Oil/sugar are weighed for the main dough; they never enter the pre-ferment.
+	const extras: StepIngredient[] = [];
+	if (ingredients.oil > 0) extras.push({ amount: formatGrams(ingredients.oil), name: i.oil });
+	if (ingredients.sugar > 0) extras.push({ amount: formatGrams(ingredients.sugar), name: i.sugar });
+
+	switch (step.kind) {
+		case 'preferment-mix': {
+			const pf = ingredients.preFerment!;
+			return [
+				{ amount: formatGrams(pf.flour), name: i.flour },
+				{ amount: formatGrams(pf.water), name: i.water },
+				{ amount: formatGrams(pf.yeast), name: i.fresh_yeast }
+			];
+		}
+		case 'prep': {
+			const base: StepIngredient[] = [
+				{ amount: formatGrams(ingredients.flour), name: i.flour },
+				{ amount: formatGrams(ingredients.water), name: i.water },
+				{ amount: formatGrams(ingredients.salt), name: i.salt }
+			];
+			// With a pre-ferment the yeast is already in the pre-dough, and oil/sugar
+			// are weighed at the mix step — so day-two prep only weighs the basics.
+			if (schedule.preFerment) return base;
+			return [...base, { amount: formatGrams(ingredients.yeast), name: yeastName }, ...extras];
+		}
+		case 'mix': {
+			const base: StepIngredient[] = [
+				{ amount: formatGrams(ingredients.flour), name: i.flour },
+				{ amount: formatGrams(ingredients.water), name: i.water },
+				{ amount: formatGrams(ingredients.salt), name: i.salt }
+			];
+			if (!schedule.preFerment) {
+				base.push({ amount: formatGrams(ingredients.yeast), name: yeastName });
+			}
+			return [...base, ...extras];
+		}
+		default:
+			return [];
+	}
+}
+
+// The method copy for a step — what the baker actually does, with the
+// ingredient amounts factored out into stepIngredients(). Returns the raw
+// template (placeholders intact) when no schedule context is supplied.
 export function stepDescription(
 	step: ScheduleStep,
 	msgs: Messages,
@@ -38,11 +102,6 @@ export function stepDescription(
 
 	if (!schedule) return template;
 
-	const { ingredients } = schedule;
-	const yeastLabel =
-		schedule.yeastType === 'fresh'
-			? msgs.ingredients.fresh_yeast_inline
-			: msgs.ingredients.sourdough_starter_inline;
 	const prefermentType = schedule.preFerment?.type ?? null;
 
 	switch (step.kind) {
@@ -51,74 +110,32 @@ export function stepDescription(
 				n: schedule.pizzaCount,
 				weight: formatBallWeight(schedule.ballWeight)
 			});
-		case 'preferment-mix': {
-			const pfTemplate =
-				prefermentType === 'biga'
-					? msgs.steps.preferment_mix_desc_biga
-					: msgs.steps.preferment_mix_desc_poolish;
-			return interpolate(pfTemplate, {
-				flour: formatGramsValue(ingredients.preFerment!.flour),
-				water: formatGramsValue(ingredients.preFerment!.water),
-				yeast: formatGramsValue(ingredients.preFerment!.yeast)
-			});
-		}
+		case 'preferment-mix':
+			return prefermentType === 'biga'
+				? msgs.steps.preferment_mix_desc_biga
+				: msgs.steps.preferment_mix_desc_poolish;
 		case 'prep':
-			if (prefermentType) {
-				return interpolate(msgs.steps.prep_desc_with_preferment, {
-					flour: formatGramsValue(ingredients.flour),
-					water: formatGramsValue(ingredients.water),
-					salt: formatGramsValue(ingredients.salt)
-				});
-			}
-			return appendExtras(
-				interpolate(template, {
-					flour: formatGramsValue(ingredients.flour),
-					water: formatGramsValue(ingredients.water),
-					salt: formatGramsValue(ingredients.salt),
-					yeast: formatGramsValue(ingredients.yeast),
-					yeast_label: yeastLabel
-				}),
-				ingredients.oil,
-				ingredients.sugar,
-				msgs
-			);
+			return prefermentType ? msgs.steps.prep_desc_with_preferment : template;
 		case 'mix': {
-			const waterTemp = schedule.idealWaterTempC;
-			const base = {
-				flour: formatGramsValue(ingredients.flour),
-				water: formatGramsValue(ingredients.water),
-				salt: formatGramsValue(ingredients.salt),
-				water_temp: waterTemp
-			};
-			let body: string;
-			if (prefermentType === 'biga') {
-				body = interpolate(msgs.steps.mix_desc_with_biga, base);
-			} else if (prefermentType === 'poolish') {
-				body = interpolate(msgs.steps.mix_desc_with_poolish, base);
-			} else {
-				body = interpolate(template, {
-					...base,
-					yeast: formatGramsValue(ingredients.yeast),
-					yeast_label: yeastLabel
-				});
-			}
-			return appendExtras(body, ingredients.oil, ingredients.sugar, msgs);
+			const waterTemp = { water_temp: schedule.idealWaterTempC };
+			if (prefermentType === 'biga') return interpolate(msgs.steps.mix_desc_with_biga, waterTemp);
+			if (prefermentType === 'poolish')
+				return interpolate(msgs.steps.mix_desc_with_poolish, waterTemp);
+			return interpolate(template, waterTemp);
 		}
 		default:
 			return template;
 	}
 }
 
-// Appends a localized "plus N g oil / M g sugar" trailer when either is present.
-// The combined-key wording reads more naturally than two separate clauses, so we
-// pick the matching variant rather than concatenating.
-function appendExtras(base: string, oil: number, sugar: number, msgs: Messages): string {
-	const oilStr = formatGramsValue(oil);
-	const sugarStr = formatGramsValue(sugar);
-	if (oil > 0 && sugar > 0) {
-		return base + ' ' + interpolate(msgs.steps.extras_oil_sugar, { oil: oilStr, sugar: sugarStr });
-	}
-	if (oil > 0) return base + ' ' + interpolate(msgs.steps.extras_oil, { oil: oilStr });
-	if (sugar > 0) return base + ' ' + interpolate(msgs.steps.extras_sugar, { sugar: sugarStr });
-	return base;
+// Flat text form (ingredient lines + method) for the .ics export, so a
+// calendar event carries the same detail the on-page step shows.
+export function stepDetailText(
+	step: ScheduleStep,
+	msgs: Messages,
+	schedule: ComputedSchedule
+): string {
+	const lines = stepIngredients(step, msgs, schedule).map((ing) => `${ing.amount} ${ing.name}`);
+	lines.push(stepDescription(step, msgs, schedule));
+	return lines.join('\n');
 }
