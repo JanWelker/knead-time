@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/knead-time/pr-preview/pr-115/favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#c8401a" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+		<script>
+			(function () {
+				try {
+					var stored = localStorage.getItem('theme');
+					var dark =
+						stored === 'dark' ||
+						((stored === null || stored === 'system') &&
+							window.matchMedia('(prefers-color-scheme: dark)').matches);
+					if (dark) document.documentElement.classList.add('dark');
+				} catch (e) {}
+			})();
+		</script>
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/entry/start.HAF1UZjo.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/chunks/BuTinil9.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/chunks/B5Snnzww.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/entry/app.eRpEhsxc.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/nodes/0.bZb7ck6F.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/chunks/CTn5BPBw.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/chunks/BGD0Rv4p.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/chunks/Ds7tO39v.js" rel="modulepreload">
+		
+		<link href="/knead-time/pr-preview/pr-115/_app/immutable/assets/0.CFydyBnY.css" rel="stylesheet">
+	</head>
+	<body
+		data-sveltekit-preload-data="hover"
+		class="bg-dough-50 min-h-screen text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100"
+	>
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_1ko7pfa = {
+						base: "/knead-time/pr-preview/pr-115",
+						assets: "/knead-time/pr-preview/pr-115"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/knead-time/pr-preview/pr-115/_app/immutable/entry/start.HAF1UZjo.js"),
+						import("/knead-time/pr-preview/pr-115/_app/immutable/entry/app.eRpEhsxc.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
