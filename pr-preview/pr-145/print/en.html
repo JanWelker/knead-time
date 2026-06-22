@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="../favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#c8401a" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+		<script>
+			(function () {
+				try {
+					var stored = localStorage.getItem('theme');
+					var dark =
+						stored === 'dark' ||
+						((stored === null || stored === 'system') &&
+							window.matchMedia('(prefers-color-scheme: dark)').matches);
+					if (dark) document.documentElement.classList.add('dark');
+				} catch (e) {}
+			})();
+		</script>
+		<link href="../_app/immutable/entry/start.DLJElKjx.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/D-mLcCLD.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/BtFgJPuP.js" rel="modulepreload">
+		<link href="../_app/immutable/entry/app.C0L6Zlpc.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="../_app/immutable/nodes/0.CrkjAa1b.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/D-Ci-mgI.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/3cjIYQwI.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/CiRAFghE.js" rel="modulepreload">
+		<link href="../_app/immutable/nodes/3.C1uxdhWc.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/BhY1J-t1.js" rel="modulepreload">
+		<!--1hugt37--><style>
+		html,
+		body {
+			background: #ffffff !important;
+			color: #000000 !important;
+			margin: 0;
+		}
+		@page {
+			size: auto;
+			margin: 9mm 10mm;
+		}
+		.printpage {
+			font-family:
+				'Inter',
+				ui-sans-serif,
+				system-ui,
+				-apple-system,
+				sans-serif;
+			color: #000;
+			background: #fff;
+			max-width: 190mm;
+			margin: 0 auto;
+			padding: 6mm 4mm;
+			font-size: 9pt;
+			line-height: 1.4;
+		}
+		.printpage h1,
+		.printpage h2,
+		.printpage h3 {
+			margin: 0;
+			font-weight: 700;
+			letter-spacing: -0.01em;
+		}
+		.printpage h1 {
+			font-size: 18pt;
+		}
+		.printpage h2 {
+			font-size: 12pt;
+			margin-bottom: 2mm;
+		}
+		.printpage h3 {
+			font-size: 9.5pt;
+			margin-bottom: 1mm;
+		}
+		.printpage-header {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 8mm;
+			margin-bottom: 4mm;
+			padding-bottom: 3mm;
+			border-bottom: 1px solid #000;
+		}
+		.printpage-summary,
+		.printpage-ingredients {
+			width: 100%;
+			border-collapse: collapse;
+			font-variant-numeric: tabular-nums;
+		}
+		.printpage-summary th {
+			text-align: left;
+			font-weight: 400;
+			padding: 0.8mm 0;
+			color: #333;
+		}
+		.printpage-summary td {
+			text-align: right;
+			font-weight: 500;
+			padding: 0.8mm 0;
+		}
+		.printpage-ingredients th {
+			text-align: left;
+			padding: 0.8mm 0;
+			font-weight: 500;
+		}
+		.printpage-ingredients td {
+			text-align: right;
+			padding: 0.8mm 0;
+		}
+		.printpage-ingredients tr.printpage-total th,
+		.printpage-ingredients tr.printpage-total td {
+			font-weight: 700;
+			border-top: 1px solid #000;
+			padding-top: 1.2mm;
+		}
+		.printpage-ingredients-section {
+			margin-bottom: 3mm;
+		}
+		.printpage-schedule {
+			width: 100%;
+			border-collapse: collapse;
+			font-variant-numeric: tabular-nums;
+		}
+		.printpage-schedule thead th {
+			font-size: 8pt;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			font-weight: 600;
+			text-align: left;
+			border-bottom: 1px solid #000;
+			padding: 1mm 3mm 1mm 0;
+		}
+		.printpage-schedule tbody td {
+			padding: 1.2mm 3mm 1.2mm 0;
+			vertical-align: top;
+			border-bottom: 1px solid #ccc;
+		}
+		.printpage-schedule tbody tr:last-child td {
+			border-bottom: none;
+		}
+		.printpage-when {
+			white-space: nowrap;
+			font-weight: 500;
+		}
+		.printpage-duration {
+			white-space: nowrap;
+			text-align: right;
+		}
+		.printpage-step-title {
+			font-weight: 600;
+		}
+		.printpage-step-ingredients {
+			font-size: 8pt;
+			margin-top: 0.5mm;
+		}
+		.printpage-ing:not(:last-child)::after {
+			content: ' · ';
+			color: #888;
+		}
+		.printpage-step-desc {
+			font-size: 8pt;
+			color: #444;
+			margin-top: 0.5mm;
+		}
+		.printpage-schedule tr.printpage-ready .printpage-step-title {
+			font-weight: 700;
+		}
+		.printpage-footer {
+			margin-top: 4mm;
+			padding-top: 2mm;
+			border-top: 1px solid #000;
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+			gap: 8mm;
+			font-size: 7.5pt;
+			color: #333;
+		}
+		.printpage-footer p {
+			margin: 0 0 0.5mm 0;
+		}
+		.printpage-qr {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1mm;
+			flex-shrink: 0;
+		}
+		.printpage-qr svg {
+			width: 22mm;
+			height: 22mm;
+		}
+		.printpage-qr-caption {
+			font-size: 7pt;
+		}
+	</style><!----><title>Knead Time — Recipe</title>
+		<link href="../_app/immutable/assets/0.CJKuVSMf.css" rel="stylesheet">
+	</head>
+	<body
+		data-sveltekit-preload-data="hover"
+		class="bg-dough-50 min-h-screen text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100"
+	>
+		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><div class="printpage"><header class="printpage-header"><div><h1>Knead Time</h1> <h2 style="margin-top: 3mm;">Recipe</h2> <table class="printpage-summary"><tbody><tr><th>Ready to bake</th><td>Tue, Jun 23, 11:03 PM</td></tr><tr><th>Pizzas</th><td>6 × 280 g</td></tr><tr><th>Hydration (%)</th><td>70%</td></tr><tr><th>Salt (% of flour)</th><td>3%</td></tr><tr><th>Yeast</th><td>Fresh yeast (cube)</td></tr><tr><th>Room temperature (°C)</th><td>22 °C</td></tr><!--[0--><tr><th>Fridge temperature (°C)</th><td>4 °C</td></tr><!--]--><!--[-1--><!--]--></tbody></table></div> <div><h2>Ingredients</h2> <!--[-1--><table class="printpage-ingredients"><tbody><tr><th>Flour</th><td>970 g</td></tr><tr><th>Water</th><td>679 g</td></tr><tr><th>Salt</th><td>29 g</td></tr><tr><th>Fresh yeast (0.209%)</th><td>2.0 g</td></tr><tr class="printpage-total"><th>Total dough</th><td>1680 g</td></tr></tbody></table><!--]--></div></header> <section><h2>Schedule</h2> <table class="printpage-schedule"><thead><tr><th>When</th><th>Step</th><th class="printpage-duration">Duration</th></tr></thead><tbody><!--[--><tr><td class="printpage-when">Tue, Jun 23, 08:00 AM</td><td><div class="printpage-step-title">Weigh &amp; prep</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>970 g</strong> Flour</span><span class="printpage-ing"><strong>679 g</strong> Water</span><span class="printpage-ing"><strong>29 g</strong> Salt</span><span class="printpage-ing"><strong>2.0 g</strong> Fresh yeast</span><!--]--></div><!--]--> <div class="printpage-step-desc">Take the dough ingredients out of the fridge and weigh out each amount.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Tue, Jun 23, 08:15 AM</td><td><div class="printpage-step-title">Mix dough</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>970 g</strong> Flour</span><span class="printpage-ing"><strong>679 g</strong> Water</span><span class="printpage-ing"><strong>29 g</strong> Salt</span><span class="printpage-ing"><strong>2.0 g</strong> Fresh yeast</span><!--]--></div><!--]--> <div class="printpage-step-desc">Load the weighed ingredients into the spiral mixer with the water at about 4 °C — chill it with ice cubes if your kitchen is warm. Knead about 10 minutes until smooth, keeping the dough below 24 °C.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Tue, Jun 23, 08:30 AM</td><td><div class="printpage-step-title">Bulk ferment (room)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cover the dough and let it rise at room temperature.</div></td><td class="printpage-duration">1 h</td></tr><tr><td class="printpage-when">Tue, Jun 23, 09:30 AM</td><td><div class="printpage-step-title">Bulk ferment (fridge)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Move the covered dough to the fridge. Long, slow fermentation.</div></td><td class="printpage-duration">9 h 18 min</td></tr><tr><td class="printpage-when">Tue, Jun 23, 06:48 PM</td><td><div class="printpage-step-title">Divide &amp; ball</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cut the dough into 6 equal balls of 280 g each and shape them tight.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Tue, Jun 23, 07:03 PM</td><td><div class="printpage-step-title">Final proof</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Let the balls rest at room temperature until they look puffy and relaxed.</div></td><td class="printpage-duration">4 h</td></tr><tr class="printpage-ready"><td class="printpage-when">Tue, Jun 23, 11:03 PM</td><td><div class="printpage-step-title">Shape &amp; bake</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Open each ball, top, and into the oven.</div></td><td class="printpage-duration">—</td></tr><!--]--></tbody></table></section> <footer class="printpage-footer"><div><p>Time-anchored Neapolitan pizza dough calculator.</p> <p>© 2026 Jan Welker · Licensed under Apache 2.0 · v3.7.0</p></div> <!--[-1--><!--]--></footer></div><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_z8zfz1 = {
+						base: new URL("..", location).pathname.slice(0, -1),
+						assets: "/knead-time/pr-preview/pr-145"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("../_app/immutable/entry/start.DLJElKjx.js"),
+						import("../_app/immutable/entry/app.C0L6Zlpc.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 3],
+							data: [null,null],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
