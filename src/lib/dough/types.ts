@@ -85,9 +85,4 @@ export interface ComputedSchedule {
 }
 
 export type ScheduleWarning =
-	| 'too-short'
-	| 'too-cold'
-	| 'too-warm'
-	| 'yeast-tiny'
-	| 'yeast-large'
-	| 'night-step';
+	'too-short' | 'too-cold' | 'too-warm' | 'yeast-tiny' | 'yeast-large' | 'night-step';
