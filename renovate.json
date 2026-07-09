@@ -10,7 +10,7 @@
 	"labels": ["dependencies"],
 	"constraints": {
 		"node": "24",
-		"npm": "11"
+		"npm": "12"
 	},
 	"automerge": true,
 	"platformAutomerge": true,
