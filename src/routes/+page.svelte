@@ -131,7 +131,7 @@
 		</section>
 
 		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
-			<div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+			<div class="relative mb-4 flex flex-wrap items-end justify-between gap-3">
 				<div>
 					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
 						{t.schedule.heading}
@@ -141,7 +141,7 @@
 						<FitScore schedule={form.schedule} inputs={form.serializable()} />
 					</div>
 				</div>
-				<div class="relative">
+				<div>
 					<details bind:this={actionsRef} bind:open={actionsOpen}>
 						<summary
 							class="btn-tomato flex cursor-pointer list-none items-center gap-2 select-none"
