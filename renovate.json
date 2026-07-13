@@ -49,6 +49,11 @@
 		{
 			"matchPackageNames": ["@types/node"],
 			"allowedVersions": "<23"
+		},
+		{
+			"description": "TS 7 (native compiler) is out of peer range for typescript-eslint (>=4.8.4 <6.1.0, crashes at runtime) and @sveltejs/kit (^5.3.3 || ^6.0.0). Drop this rule once both support it.",
+			"matchPackageNames": ["typescript"],
+			"allowedVersions": "^6.0.0"
 		}
 	]
 }
