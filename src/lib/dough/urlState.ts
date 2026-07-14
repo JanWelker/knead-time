@@ -79,8 +79,9 @@ export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }):
 	if (inputs.preFermentTempC !== null) {
 		params.set(KEYS_V4.preFermentTempC, String(inputs.preFermentTempC));
 	}
-	// Omitted for machine — the pre-v4 default every older link implies.
+	// Omitted for spiral — the calibration every older ("machine") link implies.
 	if (inputs.mixingMethod === 'hand') params.set(KEYS_V4.mixingMethod, 'h');
+	if (inputs.mixingMethod === 'stand') params.set(KEYS_V4.mixingMethod, 'st');
 	// Omitted for the classic room-temperature ball proof.
 	if (inputs.ballProof === 'cold') params.set(KEYS_V4.ballProof, 'c');
 	if (inputs.preFerments.length > 0) {
@@ -195,7 +196,10 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 
 	const mm = params.get(KEYS_V4.mixingMethod);
 	if (mm === 'h') out.mixingMethod = 'hand';
-	if (mm === 'm') out.mixingMethod = 'machine';
+	if (mm === 'st') out.mixingMethod = 'stand';
+	// 'm' is the v4.0 "machine" — its 15-min mix and 24 °C friction were the
+	// spiral calibration, so legacy links resolve there.
+	if (mm === 'm' || mm === 'sp') out.mixingMethod = 'spiral';
 
 	const bp = params.get(KEYS_V4.ballProof);
 	if (bp === 'c') out.ballProof = 'cold';

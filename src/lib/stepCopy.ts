@@ -175,7 +175,9 @@ export function stepDescription(
 			const technique =
 				schedule.mixingMethod === 'hand'
 					? msgs.steps.mix_technique_hand
-					: msgs.steps.mix_technique_machine;
+					: schedule.mixingMethod === 'stand'
+						? msgs.steps.mix_technique_stand
+						: msgs.steps.mix_technique_spiral;
 			let base = template;
 			if (prefermentTypes.length > 1) base = msgs.steps.mix_desc_with_both;
 			else if (prefermentTypes[0] === 'biga') base = msgs.steps.mix_desc_with_biga;

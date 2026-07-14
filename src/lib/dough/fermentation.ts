@@ -54,12 +54,15 @@ export function temperatureFactor(tempC: number): number {
 // Target final dough temperature for contemporary Neapolitan dough — 1 °C below
 // the 24 °C cap commonly cited as the safe upper bound during long room ferments.
 const TARGET_FDT_C = 23;
-// Heat the dough picks up during mixing. Machine: calibrated against an
+// Heat the dough picks up during mixing. Spiral: calibrated against an
 // observed run — 10 min on a spiral with 4 °C water in a 22 °C kitchen lands
 // the dough at 24 °C; back-solving the desired-temp formula gives friction
-// ≈ 24 °C. Hand kneading transfers far less energy into the dough; the
-// commonly cited desired-dough-temperature friction for hand mixing is ~5 °C.
-const KNEAD_FRICTION_MACHINE_C = 24;
+// ≈ 24 °C. A stand mixer's planetary hook works the dough less efficiently:
+// it kneads longer for the same development yet puts less total energy into
+// the dough — commonly cited desired-dough-temperature friction ≈ 18 °C.
+// Hand kneading transfers the least by far, ~5 °C.
+const KNEAD_FRICTION_SPIRAL_C = 24;
+const KNEAD_FRICTION_STAND_C = 18;
 const KNEAD_FRICTION_HAND_C = 5;
 // Below ~4 °C the recipe is asking for an ice bath; above ~35 °C the water
 // itself starts to stress fresh yeast. Clamp the recommendation to that band.
@@ -70,7 +73,12 @@ const MIX_WATER_MAX_C = 35;
 // Hamelman-style desired-temperature formula, assuming flour ≈ room temperature:
 //   FDT = (flour + room + water + friction) / 3  →  water = 3·FDT − 2·room − friction
 export function idealMixWaterTempC(roomTempC: number, method: MixingMethod): number {
-	const friction = method === 'hand' ? KNEAD_FRICTION_HAND_C : KNEAD_FRICTION_MACHINE_C;
+	const friction =
+		method === 'spiral'
+			? KNEAD_FRICTION_SPIRAL_C
+			: method === 'stand'
+				? KNEAD_FRICTION_STAND_C
+				: KNEAD_FRICTION_HAND_C;
 	const raw = 3 * TARGET_FDT_C - 2 * roomTempC - friction;
 	return Math.round(Math.min(MIX_WATER_MAX_C, Math.max(MIX_WATER_MIN_C, raw)));
 }

@@ -20,15 +20,24 @@ import type {
 } from './types';
 
 export const PREP_MIN = 15;
-// Machine mixing matches the pre-v4 fixed 15 min, so old share links keep
-// their exact step times. Hand kneading needs the extra time for the
-// knead-rest-knead cycles that replace the mixer's gluten development.
-export const MIX_MIN_MACHINE = 15;
+// Spiral matches the pre-v4.1 fixed 15 min ("machine"), so old share links
+// keep their exact step times. A stand mixer's planetary hook develops gluten
+// less efficiently and needs roughly a third longer; hand kneading needs the
+// knead-rest-knead cycles that replace a mixer's work entirely.
+export const MIX_MIN_SPIRAL = 15;
+export const MIX_MIN_STAND = 20;
 export const MIX_MIN_HAND = 25;
 export const DIVIDE_MIN = 15;
 
 export function mixMin(method: MixingMethod): number {
-	return method === 'hand' ? MIX_MIN_HAND : MIX_MIN_MACHINE;
+	switch (method) {
+		case 'spiral':
+			return MIX_MIN_SPIRAL;
+		case 'stand':
+			return MIX_MIN_STAND;
+		case 'hand':
+			return MIX_MIN_HAND;
+	}
 }
 export const COLD_INITIAL_BULK_MIN = 60;
 // In cold mode the balls come out of the fridge and sit on the counter through

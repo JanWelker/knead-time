@@ -16,7 +16,7 @@ const base: SerializableInputs = {
 	fridgeTempC: 4,
 	preFermentTempC: null,
 	ballProof: 'room',
-	mixingMethod: 'machine',
+	mixingMethod: 'spiral',
 	preFerments: []
 };
 
@@ -219,9 +219,9 @@ describe('urlState versioning', () => {
 		expect(out.sugarPercent).toBe(2);
 	});
 
-	it('v=3 links omit the mixing method so FormState defaults (machine) fill in', () => {
+	it('v=3 links omit the mixing method so FormState defaults (spiral) fill in', () => {
 		// Every share-link issued before v=4 was computed against the fixed
-		// 15-min machine mix. The decoder must leave mixingMethod undefined so
+		// 15-min spiral mix. The decoder must leave mixingMethod undefined so
 		// state.apply preserves the form default.
 		const out = decodeInputs('?v=3&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22&ft=4');
 		expect(out.mixingMethod).toBeUndefined();
@@ -232,14 +232,20 @@ describe('urlState versioning', () => {
 		expect(out.mixingMethod).toBe('hand');
 	});
 
-	it('omits the mixing method from the encoded URL when machine', () => {
+	it('omits the mixing method from the encoded URL when spiral', () => {
 		expect(encodeInputs(base)).not.toContain('mm=');
 	});
 
-	it('accepts an explicit mm=m as machine', () => {
-		// encode never emits it, but hand-crafted URLs should still resolve.
+	it('resolves the v4.0 mm=m ("machine") to spiral — the calibration it was', () => {
 		const out = decodeInputs('?v=4&n=4&b=280&h=70&y=f&t=22&mm=m');
-		expect(out.mixingMethod).toBe('machine');
+		expect(out.mixingMethod).toBe('spiral');
+	});
+
+	it('round-trips the stand mixer and accepts a hand-written mm=sp', () => {
+		expect(decodeInputs(encodeInputs({ ...base, mixingMethod: 'stand' })).mixingMethod).toBe(
+			'stand'
+		);
+		expect(decodeInputs('?v=4&n=4&mm=sp').mixingMethod).toBe('spiral');
 	});
 
 	it('omits oil & sugar from the encoded URL when both are 0', () => {

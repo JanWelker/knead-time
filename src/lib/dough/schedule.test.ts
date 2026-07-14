@@ -104,8 +104,11 @@ describe('computeSchedule — backwards anchoring', () => {
 });
 
 describe('computeSchedule — mixing method', () => {
-	it('gives the mix step 15 min on the machine and 25 min by hand', () => {
+	it('gives the mix step 15 min on the spiral, 20 in the stand mixer, 25 by hand', () => {
 		expect(findStep(computeSchedule(baseInputs()), 'mix').durationMinutes).toBe(15);
+		expect(
+			findStep(computeSchedule(baseInputs({ mixingMethod: 'stand' })), 'mix').durationMinutes
+		).toBe(20);
 		expect(
 			findStep(computeSchedule(baseInputs({ mixingMethod: 'hand' })), 'mix').durationMinutes
 		).toBe(25);
@@ -120,12 +123,15 @@ describe('computeSchedule — mixing method', () => {
 		expect(hand.yeastPercent).toBeGreaterThan(machine.yeastPercent);
 	});
 
-	it('recommends warmer water for hand kneading', () => {
-		const machine = computeSchedule(baseInputs());
-		const hand = computeSchedule(baseInputs({ mixingMethod: 'hand' }));
-		expect(hand.idealWaterTempC).toBeGreaterThan(machine.idealWaterTempC);
+	it('recommends warmer water the less efficient the mixing: spiral < stand < hand', () => {
+		const spiral = computeSchedule(baseInputs({ roomTempC: 18 }));
+		const stand = computeSchedule(baseInputs({ roomTempC: 18, mixingMethod: 'stand' }));
+		const hand = computeSchedule(baseInputs({ roomTempC: 18, mixingMethod: 'hand' }));
+		expect(stand.idealWaterTempC).toBeGreaterThan(spiral.idealWaterTempC);
+		expect(hand.idealWaterTempC).toBeGreaterThan(stand.idealWaterTempC);
+		expect(spiral.mixingMethod).toBe('spiral');
+		expect(stand.mixingMethod).toBe('stand');
 		expect(hand.mixingMethod).toBe('hand');
-		expect(machine.mixingMethod).toBe('machine');
 	});
 });
 

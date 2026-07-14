@@ -44,7 +44,7 @@
 		fridgeTempC: 4,
 		preFermentTempC: null,
 		ballProof: 'room',
-		mixingMethod: 'machine',
+		mixingMethod: 'spiral',
 		preFerments: []
 	};
 
