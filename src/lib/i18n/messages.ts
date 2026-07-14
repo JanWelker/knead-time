@@ -66,6 +66,7 @@ export interface Messages {
 		yeast_fresh: string;
 		yeast_instant: string;
 		yeast_active_dry: string;
+		yeast_active_dry_help: string;
 		yeast_sourdough: string;
 		starterHydration: string;
 		starterHydration_help: string;
@@ -402,7 +403,9 @@ const en: Messages = {
 		yeastType: 'Yeast',
 		yeast_fresh: 'Fresh yeast (cube)',
 		yeast_instant: 'Instant dry yeast',
-		yeast_active_dry: 'Active dry yeast (bloom in water first)',
+		yeast_active_dry: 'Active dry yeast',
+		yeast_active_dry_help:
+			"Dissolve active dry yeast in a little of the recipe's water for 5–10 minutes before mixing.",
 		yeast_sourdough: 'Sourdough starter',
 		starterHydration: 'Starter hydration (%)',
 		starterHydration_help: '100% means equal flour and water.',
@@ -414,7 +417,7 @@ const en: Messages = {
 		mixingMethod_help:
 			'A spiral mixer kneads most efficiently; a stand mixer needs longer; hand kneading takes the longest and warms the dough the least — the mix step and the recommended water temperature adapt.',
 		mixing_spiral: 'Spiral mixer',
-		mixing_stand: 'Stand mixer (dough hook)',
+		mixing_stand: 'Stand mixer',
 		mixing_hand: 'By hand',
 		preFerment: 'Pre-ferment',
 		preFerment_biga: 'Biga (stiff, ~50% hydration)',
@@ -774,7 +777,9 @@ const de: Messages = {
 		yeastType: 'Hefe',
 		yeast_fresh: 'Frischhefe (Würfel)',
 		yeast_instant: 'Trockenhefe (instant)',
-		yeast_active_dry: 'Aktive Trockenhefe (zuerst in Wasser auflösen)',
+		yeast_active_dry: 'Aktive Trockenhefe',
+		yeast_active_dry_help:
+			'Aktive Trockenhefe vor dem Mischen 5–10 Minuten in etwas Wasser aus dem Rezept auflösen.',
 		yeast_sourdough: 'Sauerteig-Anstellgut',
 		starterHydration: 'Hydration Anstellgut (%)',
 		starterHydration_help: '100% heißt gleich viel Mehl wie Wasser.',
@@ -786,7 +791,7 @@ const de: Messages = {
 		mixingMethod_help:
 			'Ein Spiralkneter knetet am effizientesten; eine Küchenmaschine braucht länger; Handkneten dauert am längsten und erwärmt den Teig am wenigsten — der Misch-Schritt und die empfohlene Wassertemperatur passen sich an.',
 		mixing_spiral: 'Spiralkneter',
-		mixing_stand: 'Küchenmaschine (Knethaken)',
+		mixing_stand: 'Küchenmaschine',
 		mixing_hand: 'Von Hand',
 		preFerment: 'Vorteig',
 		preFerment_biga: 'Biga (fest, ~50% Hydration)',
@@ -1154,7 +1159,9 @@ const it: Messages = {
 		yeastType: 'Lievito',
 		yeast_fresh: 'Lievito di birra fresco',
 		yeast_instant: 'Lievito secco istantaneo',
-		yeast_active_dry: 'Lievito secco attivo (sciogliere prima in acqua)',
+		yeast_active_dry: 'Lievito secco attivo',
+		yeast_active_dry_help:
+			"Sciogliere il lievito secco attivo in un po' dell'acqua della ricetta per 5–10 minuti prima di impastare.",
 		yeast_sourdough: 'Lievito madre',
 		starterHydration: 'Idratazione lievito madre (%)',
 		starterHydration_help: '100% significa stessa quantità di farina e acqua.',
@@ -1166,7 +1173,7 @@ const it: Messages = {
 		mixingMethod_help:
 			"Un'impastatrice a spirale impasta nel modo più efficiente; una planetaria richiede più tempo; a mano serve ancora di più e l'impasto si scalda meno — il passaggio di impasto e la temperatura dell'acqua consigliata si adattano.",
 		mixing_spiral: 'Impastatrice a spirale',
-		mixing_stand: 'Planetaria (gancio)',
+		mixing_stand: 'Planetaria',
 		mixing_hand: 'A mano',
 		preFerment: 'Preimpasto',
 		preFerment_biga: 'Biga (asciutta, ~50% idratazione)',
@@ -1535,7 +1542,9 @@ const fr: Messages = {
 		yeastType: 'Levure',
 		yeast_fresh: 'Levure fraîche (cube)',
 		yeast_instant: 'Levure sèche instantanée',
-		yeast_active_dry: "Levure sèche active (délayer d'abord dans l'eau)",
+		yeast_active_dry: 'Levure sèche active',
+		yeast_active_dry_help:
+			"Délayez la levure sèche active dans un peu de l'eau de la recette pendant 5 à 10 minutes avant de pétrir.",
 		yeast_sourdough: 'Levain',
 		starterHydration: 'Hydratation du levain (%)',
 		starterHydration_help: "100% signifie autant de farine que d'eau.",
@@ -1549,7 +1558,7 @@ const fr: Messages = {
 		mixingMethod_help:
 			"Un pétrin à spirale pétrit le plus efficacement ; un robot pâtissier demande plus de temps ; le pétrissage à la main est le plus long et réchauffe le moins la pâte — l'étape de pétrissage et la température d'eau recommandée s'adaptent.",
 		mixing_spiral: 'Pétrin à spirale',
-		mixing_stand: 'Robot pâtissier (crochet)',
+		mixing_stand: 'Robot pâtissier',
 		mixing_hand: 'À la main',
 		preFerment: 'Pré-ferment',
 		preFerment_biga: "Biga (ferme, ~50% d'hydratation)",
@@ -1918,7 +1927,9 @@ const nl: Messages = {
 		yeastType: 'Gist',
 		yeast_fresh: 'Verse gist (blokje)',
 		yeast_instant: 'Instant gedroogde gist',
-		yeast_active_dry: 'Actieve gedroogde gist (eerst in water oplossen)',
+		yeast_active_dry: 'Actieve gedroogde gist',
+		yeast_active_dry_help:
+			'Los actieve gedroogde gist vóór het mengen 5–10 minuten op in een beetje water uit het recept.',
 		yeast_sourdough: 'Zuurdesem',
 		starterHydration: 'Desem-hydratatie (%)',
 		starterHydration_help: '100% betekent evenveel bloem als water.',
@@ -1931,7 +1942,7 @@ const nl: Messages = {
 		mixingMethod_help:
 			'Een spiraalkneder kneedt het efficiëntst; een keukenmachine heeft langer nodig; met de hand kneden duurt het langst en verwarmt het deeg het minst — de kneedstap en de aanbevolen watertemperatuur passen zich aan.',
 		mixing_spiral: 'Spiraalkneder',
-		mixing_stand: 'Keukenmachine (deeghaak)',
+		mixing_stand: 'Keukenmachine',
 		mixing_hand: 'Met de hand',
 		preFerment: 'Voordeeg',
 		preFerment_biga: 'Biga (stevig, ~50% hydratatie)',

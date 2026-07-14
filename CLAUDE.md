@@ -98,7 +98,7 @@ Per-hour rates and per-factor deduction caps are named constants at the top of `
 - **Notes** is free-form caveat text — flour blends, dropped ingredients ("source uses fresh yeast + 1.9 % sourdough starter; Knead Time can't combine them"), "approximation" markers, etc. Empty when the recipe maps cleanly.
 - Only add a row when there's a **verifiable primary source** for the dough numbers (chef interview, cookbook, official video). The **Source** column is mandatory; the parser drops rows without one.
 - Recipes are encoded with the Knead Time Share URL; `decodeInputs` reads them. When a chef's restaurant method combines mechanisms Knead Time can't represent (e.g. fresh yeast + sourdough starter together), encode the **published home recipe**, document the gap in **Notes**, and link the Source so readers can dig deeper.
-- `Pizzerias.svelte` mirrors `Community.svelte` (mobile cards, desktop table) with extra columns for ranking-history chips, Source link, and an italic Notes caption under the name. Mounted below the Community section on the main page. Hidden in print.
+- `Pizzerias.svelte` mirrors `Community.svelte` (cards below `lg`, desktop table above — the table's 840 px minimum doesn't fit iPad-portrait widths; Community's narrower table switches at `md`) with extra columns for ranking-history chips, Source link, and an italic Notes caption under the name. Mounted below the Community section on the main page. Hidden in print.
 
 ## TRMNL push
 
