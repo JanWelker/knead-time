@@ -384,7 +384,7 @@ const en: Messages = {
 			'The rounding button nudges the ball weight in 0.1 g steps until the flour lands on a multiple of 100 g — 50 g for batches under 400 g flour, so small doughs keep a sensible ball weight.',
 		info_fit_title: 'The star rating',
 		info_fit_body:
-			'Starts at 100 points; one star per 20. Points come off when the schedule had to bend (shortened cold leg or pre-ferment, a step stuck in the night window, an infeasible window) and when inputs leave the contemporary Neapolitan bands: 60-80% hydration, 2-3.5% salt, 200-320 g balls, 14-30 °C room, 2-8 °C fridge, solved yeast 0.05-1.5% in fresh-yeast terms (dry yeast and starter convert first). Every deduction is capped, so one wild input cannot zero the rating.',
+			'Starts at 100 points; one star per 20. Points come off when the schedule had to bend (a cold leg or pre-ferment forced off its natural length, a step stuck in the night window, an infeasible window) and when inputs leave the contemporary Neapolitan bands: 60-80% hydration, 2-3.5% salt, 200-320 g balls, 14-30 °C room, 2-8 °C fridge, solved yeast 0.05-1.5% in fresh-yeast terms (dry yeast and starter convert first). Every deduction is capped, so one wild input cannot zero the rating.',
 		info_night_title: 'Night-window guard',
 		info_night_body:
 			'No active step is allowed between 22:00 and 08:00. The cold-bulk leg only ever shrinks (never grows — the first step must stay at or after your start time) until mixing and shaping land in waking hours; if no length works, the schedule keeps the natural timing and warns instead.',
@@ -537,7 +537,7 @@ const en: Messages = {
 		factor_cold_bulk_clamped_long:
 			'Window asks for {delta} h more cold bulk than the 48 h ceiling allows.',
 		factor_preferment_clamped_short:
-			'Pre-ferment clamped to 8 h — {delta} h shorter than the kitchen wants.',
+			'Pre-ferment {delta} h below the 8 h floor — the warm kitchen would finish it sooner, or the window forced it shorter.',
 		factor_preferment_clamped_long:
 			'Pre-ferment clamped to 24 h — {delta} h shorter than the kitchen wants.',
 		factor_night_step: 'A baker step still lands at night even after shifting.',
@@ -722,7 +722,7 @@ const de: Messages = {
 		info_q10_caption: 'Temperaturfaktor (Referenz 22 °C):',
 		info_units_title: 'Gärungseinheiten',
 		info_units_body:
-			'Jede Phase liefert Stunden × f(T) „Äquivalentstunden bei 22 °C". Die Summe muss ein Ziel erreichen:',
+			'Jede Phase liefert Stunden × f(T) „Äquivalentstunden bei 22 °C“. Die Summe muss ein Ziel erreichen:',
 		info_units_fresh: 'Frischhefe: 1,6 Einheiten (≈ 0,2% × 8 h bei 22 °C)',
 		info_units_sourdough: 'Sauerteig-Anstellgut: 160 Einheiten (~100× weniger aktiv pro Gramm)',
 		info_units_solve:
@@ -757,7 +757,7 @@ const de: Messages = {
 			'Der Rundungs-Button verschiebt den Teigling in Schritten von 0,1 g, bis das Mehl auf einem Vielfachen von 100 g landet — 50 g bei Mengen unter 400 g Mehl, damit kleine Teige einen sinnvollen Teigling behalten.',
 		info_fit_title: 'Die Sterne-Bewertung',
 		info_fit_body:
-			'Startet bei 100 Punkten; ein Stern pro 20. Punkte gehen ab, wenn der Zeitplan sich biegen musste (verkürzte Kühlphase oder Vorteig, ein Schritt im Nachtfenster, ein nicht machbares Fenster) und wenn Eingaben die zeitgenössischen neapolitanischen Bänder verlassen: 60–80% Hydration, 2–3,5% Salz, 200–320 g Teiglinge, 14–30 °C Raum, 2–8 °C Kühlschrank, gelöste Hefe 0,05–1,5% in Frischhefe-Einheiten (Trockenhefe und Anstellgut werden zuerst umgerechnet). Jeder Abzug ist gedeckelt, sodass eine einzelne wilde Eingabe die Bewertung nicht auf null bringen kann.',
+			'Startet bei 100 Punkten; ein Stern pro 20. Punkte gehen ab, wenn der Zeitplan sich biegen musste (Kühlphase oder Vorteig abseits der natürlichen Dauer, ein Schritt im Nachtfenster, ein nicht machbares Fenster) und wenn Eingaben die zeitgenössischen neapolitanischen Bänder verlassen: 60–80% Hydration, 2–3,5% Salz, 200–320 g Teiglinge, 14–30 °C Raum, 2–8 °C Kühlschrank, gelöste Hefe 0,05–1,5% in Frischhefe-Einheiten (Trockenhefe und Anstellgut werden zuerst umgerechnet). Jeder Abzug ist gedeckelt, sodass eine einzelne wilde Eingabe die Bewertung nicht auf null bringen kann.',
 		info_night_title: 'Nachtfenster-Schutz',
 		info_night_body:
 			'Kein aktiver Schritt zwischen 22:00 und 08:00. Die Kühlgare schrumpft nur (sie wächst nie — der erste Schritt muss auf oder nach deiner Startzeit bleiben), bis Kneten und Formen in der Wachzeit liegen; hilft keine Länge, behält der Zeitplan die natürlichen Zeiten bei und warnt stattdessen.',
@@ -917,7 +917,7 @@ const de: Messages = {
 		factor_cold_bulk_clamped_long:
 			'Zeitfenster verlangt {delta} h mehr Kühl-Reifezeit als die 48-Stunden-Grenze erlaubt.',
 		factor_preferment_clamped_short:
-			'Vorteig auf 8 h begrenzt — {delta} h kürzer als die Küche möchte.',
+			'Vorteig {delta} h unter dem 8-Stunden-Limit — in der warmen Küche wäre er früher reif, oder das Zeitfenster hat ihn gekürzt.',
 		factor_preferment_clamped_long:
 			'Vorteig auf 24 h begrenzt — {delta} h kürzer als die Küche möchte.',
 		factor_night_step: 'Ein aktiver Schritt fällt trotz Verschieben in die Nacht.',
@@ -958,7 +958,7 @@ const de: Messages = {
 	myRecipes: {
 		heading: 'Meine Rezepte',
 		intro: 'Auf diesem Gerät gespeichert — nichts verlässt deinen Browser.',
-		empty: 'Noch nichts gespeichert — nutze „Rezept speichern" im Zeitplan-Menü.',
+		empty: 'Noch nichts gespeichert — nutze „Rezept speichern“ im Zeitplan-Menü.',
 		open_link: 'Öffnen',
 		delete_label: 'Löschen'
 	},
@@ -1140,7 +1140,7 @@ const it: Messages = {
 			'Il pulsante di arrotondamento sposta il peso del panetto a passi di 0,1 g finché la farina non cade su un multiplo di 100 g — 50 g per quantità sotto i 400 g di farina, così gli impasti piccoli mantengono un panetto sensato.',
 		info_fit_title: 'La valutazione a stelle',
 		info_fit_body:
-			'Parte da 100 punti; una stella ogni 20. I punti calano quando il programma si è dovuto piegare (fase in frigo o preimpasto accorciati, un passo bloccato nella fascia notturna, una finestra non fattibile) e quando gli input escono dalle bande napoletane contemporanee: idratazione 60–80%, sale 2–3,5%, panetti 200–320 g, ambiente 14–30 °C, frigo 2–8 °C, lievito risolto 0,05–1,5% in termini di lievito fresco (secco e lievito madre vengono prima convertiti). Ogni detrazione ha un tetto, quindi un singolo input estremo non può azzerare la valutazione.',
+			'Parte da 100 punti; una stella ogni 20. I punti calano quando il programma si è dovuto piegare (fase in frigo o preimpasto fuori dalla durata naturale, un passo bloccato nella fascia notturna, una finestra non fattibile) e quando gli input escono dalle bande napoletane contemporanee: idratazione 60–80%, sale 2–3,5%, panetti 200–320 g, ambiente 14–30 °C, frigo 2–8 °C, lievito risolto 0,05–1,5% in termini di lievito fresco (secco e lievito madre vengono prima convertiti). Ogni detrazione ha un tetto, quindi un singolo input estremo non può azzerare la valutazione.',
 		info_night_title: 'Protezione fascia notturna',
 		info_night_body:
 			'Nessun passo attivo tra le 22:00 e le 08:00. La puntata in frigo può solo accorciarsi (mai allungarsi — il primo passo deve restare all’ora di inizio o dopo) finché impasto e staglio non cadono nelle ore di veglia; se nessuna durata funziona, il programma mantiene i tempi naturali e avvisa invece.',
@@ -1299,7 +1299,7 @@ const it: Messages = {
 		factor_cold_bulk_clamped_long:
 			'La finestra richiede {delta} h in più di maturazione in frigo rispetto al tetto di 48 h.',
 		factor_preferment_clamped_short:
-			'Preimpasto limitato a 8 h — {delta} h più breve di quanto vorrebbe la cucina.',
+			'Preimpasto {delta} h sotto il limite di 8 h — nella cucina calda maturerebbe prima, o la finestra lo ha accorciato.',
 		factor_preferment_clamped_long:
 			'Preimpasto limitato a 24 h — {delta} h più breve di quanto vorrebbe la cucina.',
 		factor_night_step: 'Un passo attivo cade comunque di notte dopo lo spostamento.',
@@ -1522,7 +1522,7 @@ const fr: Messages = {
 			"Le bouton d'arrondi ajuste le pâton par pas de 0,1 g jusqu'à ce que la farine tombe sur un multiple de 100 g — 50 g pour les quantités sous 400 g de farine, afin que les petites pâtes gardent un pâton sensé.",
 		info_fit_title: 'La note en étoiles',
 		info_fit_body:
-			'Part de 100 points ; une étoile par tranche de 20. Des points sont retirés quand le programme a dû se plier (phase au frigo ou pré-ferment raccourcis, une étape coincée dans la fenêtre nocturne, une fenêtre infaisable) et quand les entrées sortent des bandes napolitaines contemporaines : hydratation 60–80%, sel 2–3,5%, pâtons 200–320 g, ambiante 14–30 °C, frigo 2–8 °C, levure résolue 0,05–1,5% en équivalent levure fraîche (levure sèche et levain sont convertis au préalable). Chaque déduction est plafonnée, donc une seule entrée extrême ne peut pas mettre la note à zéro.',
+			'Part de 100 points ; une étoile par tranche de 20. Des points sont retirés quand le programme a dû se plier (phase au frigo ou pré-ferment écartés de leur durée naturelle, une étape coincée dans la fenêtre nocturne, une fenêtre infaisable) et quand les entrées sortent des bandes napolitaines contemporaines : hydratation 60–80%, sel 2–3,5%, pâtons 200–320 g, ambiante 14–30 °C, frigo 2–8 °C, levure résolue 0,05–1,5% en équivalent levure fraîche (levure sèche et levain sont convertis au préalable). Chaque déduction est plafonnée, donc une seule entrée extrême ne peut pas mettre la note à zéro.',
 		info_night_title: 'Garde-fou fenêtre nocturne',
 		info_night_body:
 			"Aucune étape active n'est autorisée entre 22:00 et 08:00. La phase au frigo ne fait que raccourcir (jamais s'allonger — la première étape doit rester à votre heure de départ ou après) jusqu'à ce que pétrissage et façonnage tombent aux heures d'éveil ; si aucune durée ne convient, le programme garde les temps naturels et avertit à la place.",
@@ -1685,7 +1685,7 @@ const fr: Messages = {
 		factor_cold_bulk_clamped_long:
 			'La fenêtre demande {delta} h de pointage au frigo en plus du plafond de 48 h.',
 		factor_preferment_clamped_short:
-			'Pré-ferment limité à 8 h — {delta} h plus court que ce que veut la cuisine.',
+			'Pré-ferment {delta} h sous le plancher de 8 h — la cuisine chaude le ferait mûrir plus tôt, ou la fenêtre l’a raccourci.',
 		factor_preferment_clamped_long:
 			'Pré-ferment limité à 24 h — {delta} h plus court que ce que veut la cuisine.',
 		factor_night_step: 'Une étape active tombe quand même la nuit après ajustement.',
@@ -1908,7 +1908,7 @@ const nl: Messages = {
 			'De afrondknop verschuift het bolletjesgewicht in stappen van 0,1 g tot de bloem op een veelvoud van 100 g uitkomt — 50 g bij hoeveelheden onder 400 g bloem, zodat kleine degen een zinnig bolletjesgewicht houden.',
 		info_fit_title: 'De sterrenwaardering',
 		info_fit_body:
-			'Begint op 100 punten; één ster per 20. Er gaan punten af wanneer het schema moest buigen (ingekorte koelfase of voordeeg, een stap vast in het nachtvenster, een onhaalbaar venster) en wanneer invoer buiten de hedendaagse Napolitaanse banden valt: 60–80% hydratatie, 2–3,5% zout, bolletjes van 200–320 g, kamer 14–30 °C, koelkast 2–8 °C, opgeloste gist 0,05–1,5% in verse-gist-termen (gedroogde gist en desem worden eerst omgerekend). Elke aftrek is gemaximeerd, dus één wilde invoerwaarde kan de waardering niet op nul zetten.',
+			'Begint op 100 punten; één ster per 20. Er gaan punten af wanneer het schema moest buigen (koelfase of voordeeg buiten de natuurlijke duur, een stap vast in het nachtvenster, een onhaalbaar venster) en wanneer invoer buiten de hedendaagse Napolitaanse banden valt: 60–80% hydratatie, 2–3,5% zout, bolletjes van 200–320 g, kamer 14–30 °C, koelkast 2–8 °C, opgeloste gist 0,05–1,5% in verse-gist-termen (gedroogde gist en desem worden eerst omgerekend). Elke aftrek is gemaximeerd, dus één wilde invoerwaarde kan de waardering niet op nul zetten.',
 		info_night_title: 'Nachtvenster-bescherming',
 		info_night_body:
 			'Geen actieve stap toegestaan tussen 22:00 en 08:00. De koelfase krimpt alleen (groeit nooit — de eerste stap moet op of na je starttijd blijven) tot kneden en vormen in de wakkere uren vallen; werkt geen enkele lengte, dan houdt het schema de natuurlijke timing aan en waarschuwt in plaats daarvan.',
@@ -2067,7 +2067,7 @@ const nl: Messages = {
 		factor_cold_bulk_clamped_long:
 			'Het venster vraagt {delta} u meer koelrijs dan het 48-uursplafond toelaat.',
 		factor_preferment_clamped_short:
-			'Voordeeg beperkt tot 8 u — {delta} u korter dan de keuken wil.',
+			'Voordeeg {delta} u onder de 8-uursondergrens — in de warme keuken zou het eerder rijp zijn, of het venster heeft het ingekort.',
 		factor_preferment_clamped_long:
 			'Voordeeg beperkt tot 24 u — {delta} u korter dan de keuken wil.',
 		factor_night_step: 'Een actieve stap valt zelfs na verschuiving in de nacht.',
