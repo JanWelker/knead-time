@@ -1,5 +1,5 @@
 import { interpolate } from './i18n/interpolate';
-import { intlLocaleTag, MESSAGES, type Locale } from './i18n/messages';
+import { MESSAGES, type Locale } from './i18n/messages';
 
 export function padZero(n: number): string {
 	return String(n).padStart(2, '0');
@@ -13,7 +13,7 @@ const percentFormatters = new Map<Locale, Intl.NumberFormat>();
 function percentFormatter(locale: Locale): Intl.NumberFormat {
 	let f = percentFormatters.get(locale);
 	if (!f) {
-		f = new Intl.NumberFormat(intlLocaleTag(locale), {
+		f = new Intl.NumberFormat(locale, {
 			style: 'percent',
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 3
@@ -26,7 +26,7 @@ function percentFormatter(locale: Locale): Intl.NumberFormat {
 export function formatDateTime(date: Date, locale: Locale): string {
 	let f = dayFormatters.get(locale);
 	if (!f) {
-		f = new Intl.DateTimeFormat(intlLocaleTag(locale), {
+		f = new Intl.DateTimeFormat(locale, {
 			weekday: 'short',
 			day: 'numeric',
 			month: 'short',
@@ -44,7 +44,7 @@ export function formatDateTime(date: Date, locale: Locale): string {
 export function formatShortDate(date: Date, locale: Locale): string {
 	let f = shortDateFormatters.get(locale);
 	if (!f) {
-		f = new Intl.DateTimeFormat(intlLocaleTag(locale), {
+		f = new Intl.DateTimeFormat(locale, {
 			weekday: 'short',
 			day: 'numeric',
 			month: 'short'
@@ -57,7 +57,7 @@ export function formatShortDate(date: Date, locale: Locale): string {
 export function formatTime(date: Date, locale: Locale): string {
 	let f = timeFormatters.get(locale);
 	if (!f) {
-		f = new Intl.DateTimeFormat(intlLocaleTag(locale), { hour: '2-digit', minute: '2-digit' });
+		f = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
 		timeFormatters.set(locale, f);
 	}
 	return f.format(date);

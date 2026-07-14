@@ -7,8 +7,7 @@
 		de: 'DE',
 		it: 'IT',
 		fr: 'FR',
-		nl: 'NL',
-		jam: 'JAM'
+		nl: 'NL'
 	};
 </script>
 

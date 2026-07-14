@@ -3,7 +3,6 @@
 	import { communityEntries } from '$lib/community/community';
 	import type { CommunityEntry } from '$lib/community/community';
 	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { intlLocaleTag } from '$lib/i18n/messages';
 	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 
 	const t = $derived(i18n.t);
@@ -12,7 +11,7 @@
 	const entries: CommunityEntry[] = communityEntries;
 
 	const dateFormatter = $derived(
-		new Intl.DateTimeFormat(intlLocaleTag(locale), {
+		new Intl.DateTimeFormat(locale, {
 			day: 'numeric',
 			month: 'short',
 			year: 'numeric'

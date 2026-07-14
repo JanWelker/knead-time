@@ -8,17 +8,19 @@ import {
 } from './schedule';
 import type { ComputedSchedule, DoughInputs, ScheduleStep } from './types';
 
-// Schedule-imperfection penalties (0–100 scale). Tuned so a 2 h cold-bulk
-// night-shift takes the score from 100 to ~88 — visibly off, but still
-// "good". A residual night-step warning is a much bigger ding because
-// nothing the math did managed to dodge it. Infeasibility is the largest
-// penalty: the dough literally can't ferment in the window.
-const SHIFT_PCT_PER_HOUR = 6;
-const CLAMP_PCT_PER_HOUR = 8;
-const NIGHT_STEP_PENALTY = 30;
+// Schedule-imperfection penalties (0–100 scale). The UI renders the score as
+// 0–5 stars (one star per 20 points), so rates are tuned generously — a 2 h
+// cold-bulk night-shift costs ~6 points and still reads as 5 stars; only real
+// stacking of problems pulls a recipe below 4. A residual night-step warning
+// is a bigger ding because nothing the math did managed to dodge it.
+// Infeasibility is the largest penalty: the dough literally can't ferment in
+// the window.
+const SHIFT_PCT_PER_HOUR = 3;
+const CLAMP_PCT_PER_HOUR = 4;
+const NIGHT_STEP_PENALTY = 20;
 const INFEASIBLE_PENALTY = 60;
-const MAX_SHIFT_DEDUCT = 30;
-const MAX_CLAMP_DEDUCT = 30;
+const MAX_SHIFT_DEDUCT = 20;
+const MAX_CLAMP_DEDUCT = 20;
 
 // Contemporary Neapolitan KPI bands. Inputs inside the band score 100; each
 // unit outside subtracts the per-unit rate, capped at the factor's max
@@ -27,32 +29,32 @@ const MAX_CLAMP_DEDUCT = 30;
 // the middle of every band — a defaults-only recipe scores 100.
 const HYDRATION_LOW = 60;
 const HYDRATION_HIGH = 80;
-const HYDRATION_PCT_PER_POINT = 2;
-const HYDRATION_MAX_DEDUCT = 15;
+const HYDRATION_PCT_PER_POINT = 1;
+const HYDRATION_MAX_DEDUCT = 10;
 
 const SALT_LOW = 2;
 const SALT_HIGH = 3.5;
-const SALT_PCT_PER_POINT = 8;
-const SALT_MAX_DEDUCT = 15;
+const SALT_PCT_PER_POINT = 4;
+const SALT_MAX_DEDUCT = 10;
 
 const BALL_LOW = 200;
 const BALL_HIGH = 320;
-const BALL_PCT_PER_GRAM = 0.2;
-const BALL_MAX_DEDUCT = 10;
+const BALL_PCT_PER_GRAM = 0.1;
+const BALL_MAX_DEDUCT = 8;
 
 const ROOM_TEMP_LOW = 14;
 const ROOM_TEMP_HIGH = 30;
-const ROOM_TEMP_PCT_PER_DEGREE = 3;
-const ROOM_TEMP_MAX_DEDUCT = 12;
+const ROOM_TEMP_PCT_PER_DEGREE = 1.5;
+const ROOM_TEMP_MAX_DEDUCT = 8;
 
 const FRIDGE_TEMP_LOW = 2;
 const FRIDGE_TEMP_HIGH = 8;
-const FRIDGE_TEMP_PCT_PER_DEGREE = 3;
-const FRIDGE_TEMP_MAX_DEDUCT = 10;
+const FRIDGE_TEMP_PCT_PER_DEGREE = 1.5;
+const FRIDGE_TEMP_MAX_DEDUCT = 8;
 
 const YEAST_PCT_LOW = 0.05;
 const YEAST_PCT_HIGH = 1.5;
-const YEAST_EXTREME_PENALTY = 12;
+const YEAST_EXTREME_PENALTY = 8;
 
 // Sub-minute drift between natural and actual is rounding noise, not a real
 // deviation; below this we don't flag or deduct.
@@ -279,4 +281,10 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 
 	const score = Math.max(0, Math.min(100, Math.round(100 - deduction)));
 	return { score, factors };
+}
+
+// The UI shows the fit as 0–5 stars, one per 20 points. Half measures read
+// as noise on a star scale, so plain rounding it is.
+export function fitStars(score: number): number {
+	return Math.round(score / 20);
 }

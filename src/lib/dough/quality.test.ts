@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { recipeFitScore, stepQualityFlags, type FitFactor } from './quality';
+import { fitStars, recipeFitScore, stepQualityFlags, type FitFactor } from './quality';
 import { computeSchedule } from './schedule';
 import { defaultInputs as inputs } from './testFixtures';
 import type { ComputedSchedule, DoughInputs, ScheduleStep, ScheduleWarning } from './types';
@@ -251,8 +251,8 @@ describe('recipeFitScore — schedule imperfection', () => {
 		const s = computeSchedule(i);
 		const fit = recipeFitScore(withWarnings(s, ['night-step']), i);
 		expect(factorKinds(fit.factors)).toContain('night-step');
-		// Night-step alone deducts 30 → score = 70.
-		expect(fit.score).toBe(70);
+		// Night-step alone deducts 20 → score = 80 (4 stars).
+		expect(fit.score).toBe(80);
 	});
 
 	it('deducts the infeasibility penalty when the schedule is too short to ferment', () => {
@@ -308,13 +308,13 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 	});
 
 	it('caps each factor at its per-factor max so one extreme value cannot pin the score to 0', () => {
-		// 1 kg dough balls (huge): grams-out-of-band = 680. At 0.2 pts/g
-		// uncapped that would be -136; the cap clamps to -10.
+		// 1 kg dough balls (huge): grams-out-of-band = 680. At 0.1 pts/g
+		// uncapped that would be -68; the cap clamps to -8.
 		const i = inputs({ ballWeight: 1000 });
 		const fit = recipeFitScore(computeSchedule(i), i);
-		// At least 100 - 10 (the cap). Other factors may apply on top.
-		expect(fit.score).toBeGreaterThanOrEqual(90 - 50);
-		expect(fit.score).toBeLessThanOrEqual(90);
+		// At least 100 - 8 (the cap). Other factors may apply on top.
+		expect(fit.score).toBeGreaterThanOrEqual(92 - 50);
+		expect(fit.score).toBeLessThanOrEqual(92);
 	});
 
 	it('floors the score at 0 when every penalty stacks', () => {
@@ -330,5 +330,18 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 		const fit = recipeFitScore(computeSchedule(i), i);
 		expect(fit.score).toBeGreaterThanOrEqual(0);
 		expect(fit.score).toBeLessThanOrEqual(50);
+	});
+});
+
+describe('fitStars', () => {
+	it.each([
+		{ score: 100, stars: 5 },
+		{ score: 90, stars: 5 },
+		{ score: 80, stars: 4 },
+		{ score: 55, stars: 3 },
+		{ score: 20, stars: 1 },
+		{ score: 0, stars: 0 }
+	])('maps a score of $score to $stars stars', ({ score, stars }) => {
+		expect(fitStars(score)).toBe(stars);
 	});
 });

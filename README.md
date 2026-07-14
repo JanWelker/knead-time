@@ -5,9 +5,9 @@
 
 A time-anchored Neapolitan pizza dough calculator — [try it live](https://janwelker.github.io/knead-time/). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
-New in v4: a **beginner view** (just "how many, how big, when" — every step explained; experts switch to the full form), a **hand vs machine mixing** choice that adapts the kneading step and water temperature, and **combined pre-ferments** — biga and poolish can now mature in parallel in one recipe, each with its own flour share.
+New in v4: a **beginner view** (just "how many, when, and how you knead" — every step explained; experts switch to the full form), a **hand vs machine mixing** choice that adapts the kneading step and water temperature, and **combined pre-ferments** — biga and poolish can now mature in parallel in one recipe, each with its own flour share.
 
-Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, six languages (EN / DE / IT / FR / NL / JAM), shareable recipes via URL.
+Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, five languages (EN / DE / IT / FR / NL), shareable recipes via URL.
 
 ---
 
@@ -53,7 +53,7 @@ src/
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
-│   ├── i18n/             ← messages (en/de/it/fr/nl/jam), locale detection, runtime interpolation
+│   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── state.svelte.ts   ← form state as a $state class
@@ -98,7 +98,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 1. **Math/logic first.** Add or extend a module in `src/lib/dough/`. Keep it pure (no Svelte imports). Add a `*.test.ts` next to it. Run `npm test` until green.
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
 3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
-4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all six locales. The parity test will fail loudly if a key is missing.
+4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
 5. **Verify.** `npm test && npm run check && npm run build`. The CI workflow runs the same commands plus `npm run lint`.
 
 ### Print / PDF export

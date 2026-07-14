@@ -290,17 +290,23 @@ describe('roundBallWeight', () => {
 		expect(newBw * 10).toBeCloseTo(Math.round(newBw * 10), 6);
 	});
 
-	it('prefers the closer 50-multiple when 100 would drift too far', () => {
-		// 4 × 329 → ~770 g flour. Closest 50-multiple is 750 (delta ~20),
-		// closest 100-multiple is 800 (delta ~30). 100-rule loses → snaps to 750.
+	it('snaps to the nearest 100 even when a 50-multiple is closer (aggressive rounding)', () => {
+		// 4 × 329 → ~760 g flour. 750 is closer, but round numbers means a
+		// round bag-of-flour number — 800 wins for any batch ≥ 400 g flour.
 		const a = { ...args, pizzaCount: 4, ballWeight: 329 };
-		const flourBefore = flourFor(4, 329, a);
-		expect(flourBefore).toBeGreaterThan(750);
-		expect(flourBefore).toBeLessThan(800);
 		const newBw = roundBallWeight(a);
 		const newFlour = flourFor(4, newBw, a);
+		expect(distToMultiple(newFlour, 100)).toBeLessThan(0.5);
+		expect(Math.round(newFlour / 100) * 100).toBe(800);
+	});
+
+	it('snaps small batches (< 400 g flour) to 50 g so the ball weight stays close', () => {
+		// 1 × 280 → ~162 g flour → 150, not 200.
+		const a = { ...args, pizzaCount: 1, ballWeight: 280 };
+		const newBw = roundBallWeight(a);
+		const newFlour = flourFor(1, newBw, a);
 		expect(distToMultiple(newFlour, 50)).toBeLessThan(0.5);
-		expect(Math.round(newFlour / 50) * 50).toBe(750);
+		expect(Math.round(newFlour / 50) * 50).toBe(150);
 	});
 
 	it('works for sourdough (yeast % is not part of pctSum)', () => {

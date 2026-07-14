@@ -1,4 +1,4 @@
-export const LOCALES = ['en', 'de', 'it', 'fr', 'nl', 'jam'] as const;
+export const LOCALES = ['en', 'de', 'it', 'fr', 'nl'] as const;
 export type Locale = (typeof LOCALES)[number];
 
 export interface Messages {
@@ -370,7 +370,7 @@ const en: Messages = {
 		mode_beginner: 'Back to the simple view',
 		mode_expert: 'Show all options (expert)',
 		mode_help:
-			'The simple view uses proven defaults for everything else: 70% hydration, 3% salt, fresh yeast, mixing by machine.'
+			'The simple view makes 280 g dough balls and uses proven defaults for everything else: 70% hydration, 3% salt, fresh yeast.'
 	},
 	mode: {
 		cold: 'Cold ferment',
@@ -455,7 +455,7 @@ const en: Messages = {
 			'Pre-ferment held at the 24 h ceiling; the kitchen is colder than the recipe assumes.',
 		fit_heading: 'fit',
 		fit_perfect: 'Schedule and recipe match the contemporary Neapolitan ideal.',
-		fit_aria: 'Recipe fit {score}%',
+		fit_aria: 'Recipe fit {stars} of 5 stars',
 		factor_cold_bulk_shifted: 'Cold bulk extended by {delta} h to dodge a baker step at night.',
 		factor_cold_bulk_clamped_short: 'Window forces cold bulk {delta} h above the natural duration.',
 		factor_cold_bulk_clamped_long:
@@ -694,7 +694,7 @@ const de: Messages = {
 		mode_beginner: 'Zurück zur einfachen Ansicht',
 		mode_expert: 'Alle Optionen anzeigen (Experten)',
 		mode_help:
-			'Die einfache Ansicht nutzt bewährte Standardwerte für alles Übrige: 70% Hydration, 3% Salz, Frischhefe, Kneten mit der Maschine.'
+			'Die einfache Ansicht macht Teiglinge von 280 g und nutzt bewährte Standardwerte für alles Übrige: 70% Hydration, 3% Salz, Frischhefe.'
 	},
 	mode: {
 		cold: 'Kühlschrank-Gare',
@@ -783,7 +783,7 @@ const de: Messages = {
 			'Vorteig am 24-Stunden-Limit; die Küche ist kälter als angenommen.',
 		fit_heading: 'Bewertung',
 		fit_perfect: 'Zeitplan und Rezept entsprechen dem zeitgemäßen neapolitanischen Ideal.',
-		fit_aria: 'Rezeptbewertung {score}%',
+		fit_aria: 'Rezeptbewertung {stars} von 5 Sternen',
 		factor_cold_bulk_shifted: 'Kühl-Reifezeit um {delta} h verlängert, um die Nacht zu meiden.',
 		factor_cold_bulk_clamped_short:
 			'Zeitfenster zwingt die Kühl-Reifezeit {delta} h über die natürliche Dauer.',
@@ -1024,7 +1024,7 @@ const it: Messages = {
 		mode_beginner: 'Torna alla vista semplice',
 		mode_expert: 'Mostra tutte le opzioni (esperto)',
 		mode_help:
-			"La vista semplice usa valori predefiniti collaudati per tutto il resto: 70% di idratazione, 3% di sale, lievito di birra fresco, impasto con l'impastatrice."
+			'La vista semplice prepara panetti da 280 g e usa valori predefiniti collaudati per tutto il resto: 70% di idratazione, 3% di sale, lievito di birra fresco.'
 	},
 	mode: {
 		cold: 'Maturazione in frigo',
@@ -1111,7 +1111,7 @@ const it: Messages = {
 			'Preimpasto al limite di 24 h; la cucina è più fredda del previsto.',
 		fit_heading: 'valutazione',
 		fit_perfect: 'Programma e ricetta corrispondono al canone napoletano contemporaneo.',
-		fit_aria: 'Valutazione ricetta {score}%',
+		fit_aria: 'Valutazione ricetta {stars} stelle su 5',
 		factor_cold_bulk_shifted:
 			'Maturazione in frigo prolungata di {delta} h per evitare un passo notturno.',
 		factor_cold_bulk_clamped_short:
@@ -1357,7 +1357,7 @@ const fr: Messages = {
 		mode_beginner: 'Revenir à la vue simple',
 		mode_expert: 'Afficher toutes les options (expert)',
 		mode_help:
-			"La vue simple utilise des valeurs par défaut éprouvées pour tout le reste : 70% d'hydratation, 3% de sel, levure fraîche, pétrissage à la machine."
+			"La vue simple prépare des pâtons de 280 g et utilise des valeurs par défaut éprouvées pour tout le reste : 70% d'hydratation, 3% de sel, levure fraîche."
 	},
 	mode: {
 		cold: 'Maturation au froid',
@@ -1444,7 +1444,7 @@ const fr: Messages = {
 			'Pré-ferment au plafond de 24 h ; la cuisine est plus froide que prévu.',
 		fit_heading: 'note',
 		fit_perfect: 'Le programme et la recette correspondent au canon napolitain contemporain.',
-		fit_aria: 'Note de la recette {score}%',
+		fit_aria: 'Note de la recette {stars} étoiles sur 5',
 		factor_cold_bulk_shifted:
 			'Pointage au frigo allongé de {delta} h pour éviter une étape la nuit.',
 		factor_cold_bulk_clamped_short:
@@ -1686,7 +1686,7 @@ const nl: Messages = {
 		mode_beginner: 'Terug naar de eenvoudige weergave',
 		mode_expert: 'Alle opties tonen (expert)',
 		mode_help:
-			'De eenvoudige weergave gebruikt beproefde standaardwaarden voor al het andere: 70% hydratatie, 3% zout, verse gist, kneden met de machine.'
+			'De eenvoudige weergave maakt deegbollen van 280 g en gebruikt beproefde standaardwaarden voor al het andere: 70% hydratatie, 3% zout, verse gist.'
 	},
 	mode: {
 		cold: 'Koelkast-rijs',
@@ -1772,7 +1772,7 @@ const nl: Messages = {
 			'Voordeeg op het 24-uursplafond; de keuken is kouder dan verwacht.',
 		fit_heading: 'beoordeling',
 		fit_perfect: 'Schema en recept voldoen aan het hedendaagse Napolitaanse ideaal.',
-		fit_aria: 'Receptbeoordeling {score}%',
+		fit_aria: 'Receptbeoordeling {stars} van 5 sterren',
 		factor_cold_bulk_shifted:
 			'Koelrijs met {delta} u verlengd om een nachtelijke stap te vermijden.',
 		factor_cold_bulk_clamped_short:
@@ -1928,342 +1928,12 @@ const nl: Messages = {
 	}
 };
 
-const jam: Messages = {
-	app: {
-		title: 'Knead Time',
-		tagline: 'Wen yu waan bake? Everyting work backward fram dat time deh.',
-		langLabel: 'Language',
-		themeLabel: 'Look',
-		theme_auto: 'Same as di system',
-		theme_light: 'Bright look',
-		theme_dark: 'Dark look'
-	},
-	form: {
-		section_when: 'Wen',
-		section_recipe: 'Recipe',
-		startAt: 'Start time',
-		startAt_help:
-			'Di earliest yu free fi start. Di steps sketch out between dis moment an wen yu bake.',
-		startAt_now: 'Right now',
-		readyBy: 'Ready fi bake',
-		readyBy_help: 'Di moment di fus pizza go inna di oven.',
-		info_heading: 'Geek out: di maths behind di schedule',
-		info_intro:
-			'Wi treat fermentation like a kinetic ting; di schedule run backwood fram di bake time.',
-		info_q10_title: 'Q10 = 2 — speed double every +10 °C',
-		info_q10_caption: 'Temperature factor (reference 22 °C):',
-		info_units_title: 'Fermentation units',
-		info_units_body:
-			'Every phase contribute hours × f(T) "equivalent-hours-at-22 °C". Di sum haffi reach a target:',
-		info_units_fresh: 'Fresh ris-ting: 1.6 units (≈ 0.2% × 8 h at 22 °C)',
-		info_units_sourdough: 'Sour starta: 160 units (~100× less active per gram)',
-		info_units_solve: 'Di ris-ting percent solve di target:',
-		info_preferment_title: 'Befo-dough as a fermentation phase',
-		info_preferment_body:
-			'Biga an poolish nuh deh fi looks — each one add him own phase to di equivalent-hours sum, so di ris-ting percent drop fi balance it out. Reference loads at 22 °C:',
-		info_preferment_biga: 'Biga: 14 h-equivalent at 22 °C',
-		info_preferment_poolish: 'Poolish: 12 h-equivalent at 22 °C',
-		info_preferment_wall:
-			'Di real wall-clock time work back fram di reference load an get clamp inna [8 h, 24 h]:',
-		info_preferment_yeast:
-			'Fi fresh ris-ting recipe dem, all a di ris-ting go inna di befo-dough — none lef pon baking day. Sour starta ignore biga/poolish (di starta a di befo-dough already).',
-		info_switch_title: 'Cold ↔ room switch',
-		info_switch_body:
-			'Window ≥ 16 h kick in a cold-bulk phase at yu chosen fridge temperature, way slowa dan di room phase dem (4 °C ≈ 16× slowa dan 22 °C). Shorta window stay at room temperature.',
-		info_mass_title: 'Mass balance',
-		info_mass_body:
-			'Baker percentage wid flour = 100%. Wi solve fi flour fram di total dough mass:',
-		info_mass_caption_fresh: 'Fresh ris-ting — new mass added pon di budget:',
-		info_mass_caption_sourdough: 'Sour starta — starta a jus flour + wata fram di existing budget:',
-		info_night_title: 'Night-time guard',
-		info_night_body:
-			'No active step nah allow between 22:00 an 08:00. Di cold-bulk leg shift inside [12 h, 48 h] fi keep mix an shape inna wakey hours.',
-		pizzaCount: 'Pizza dem',
-		ballWeight: 'Ball weight (g)',
-		ballWeight_round: 'Round it off',
-		ballWeight_round_help: 'Nudge di ball weight so flour an wata land pon nice round figga.',
-		hydration: 'Wata percent (%)',
-		hydration_help: 'Wata as a percent a di flour weight.',
-		salt: 'Salt (% a flour)',
-		oil: 'Oil (% a flour)',
-		oil_help: 'Olive oil or similar. 0 % fi Neapolitan; 2–5 % fi enrich dough.',
-		sugar: 'Sugar (% a flour)',
-		sugar_help: 'Sugar or malt. 0 % fi Neapolitan; ~1–2 % help di crust brown inna cooler oven.',
-		yeastType: 'Ris-ting',
-		yeast_fresh: 'Fresh ris-ting (cube)',
-		yeast_sourdough: 'Sour starta',
-		starterHydration: 'Starta wata percent (%)',
-		starterHydration_help: '100% mean same amount a flour an wata.',
-		roomTemp: 'Room temperature (°C)',
-		roomTemp_help: 'Hotta kitchen rise fasta — dat ya wat drive di figga dem.',
-		fridgeTemp: 'Fridge temperature (°C)',
-		fridgeTemp_help: 'Only count inna di cold-bulk phase. Home fridge dem run 2–7 °C.',
-		mixingMethod: 'Kneadin',
-		mixingMethod_help:
-			'Hand kneadin tek longa an warm up di dough way less dan a mixer — di mix step an di wata temperature weh wi recommend adjust demself.',
-		mixing_machine: 'Stand or spiral mixer',
-		mixing_hand: 'By hand',
-		preFerment: 'Befo-dough',
-		preFerment_biga: 'Biga (stiff, ~50% wata)',
-		preFerment_poolish: 'Poolish (loose, 100% wata)',
-		preFermentFlour_biga: 'Biga flour (% a di total)',
-		preFermentFlour_poolish: 'Poolish flour (% a di total)',
-		preFerment_sum_help: 'Togedda di two befo-dough dem can carry 80% a di flour at di most.',
-		mode_beginner: 'Go back to di simple view',
-		mode_expert: 'Show all a di option dem (expert)',
-		mode_help:
-			'Di simple view use tried-an-true settings fi everyting else: 70% wata, 3% salt, fresh ris-ting, knead wid di machine.'
-	},
-	mode: {
-		cold: 'Cold rise',
-		room: 'Room rise',
-		cold_blurb: 'Long fridge time — di flavour come up while yu a sleep.',
-		room_blurb: 'Everyting a sit a room temperature.'
-	},
-	steps: {
-		preferment_mix_biga: 'Mek di biga',
-		preferment_mix_poolish: 'Mek di poolish',
-		preferment_mix_desc_biga:
-			'Mix up flour, wata an fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature.',
-		preferment_mix_desc_poolish:
-			'Whisk flour, wata an fresh ris-ting inna bowl til it smood. Cova it an mek it sit a room temperature.',
-		prep: 'Weigh an set up',
-		prep_desc: 'Tek di tings dem outta di fridge an weigh out each amount.',
-		prep_desc_with_preferment:
-			'Weigh out di flour, wata an salt weh lef — di whole a di ris-ting deh inna di befo-dough already.',
-		mix: 'Knead di dough',
-		mix_desc:
-			'Mix di weigh-out tings dem wid di wata a bout {water_temp} °C — chill it wid ice cube if yu kitchen hot.',
-		mix_desc_with_biga:
-			'Tear up di ripe biga inna likkle piece, add di flour an wata (bout {water_temp} °C — chill it wid ice cube if yu need to) an bring everyting togedda til it hol as one, den work in di salt.',
-		mix_desc_with_poolish:
-			'Pour di ripe poolish ova di flour, add di wata (bout {water_temp} °C — chill it wid ice cube if yu need to) an di salt, an bring everyting togedda.',
-		mix_desc_with_both:
-			'Tear up di ripe biga inna likkle piece an pour di poolish ova di flour, add di wata (bout {water_temp} °C — chill it wid ice cube if yu need to) an di salt, an bring everyting togedda.',
-		mix_technique_machine:
-			'Run di mixer bout 10 minit til di dough smood an stretchy, an keep it unda 24 °C.',
-		mix_technique_hand:
-			'Knead it by hand bout 10 minit, res it 5 minit, den knead anodda 5–10 minit til it smood an stretchy, an keep di dough unda 24 °C.',
-		bulk_room: 'Big rise (room)',
-		bulk_room_desc: 'Cova di dough an mek it rise a room temperature.',
-		bulk_cold: 'Big rise (fridge)',
-		bulk_cold_desc: 'Carry di cova dough go a fridge — long, slow rise.',
-		divide: 'Split an roll up',
-		divide_desc: 'Cut up di dough inna {n} same-size ball, {weight} g each, an roll dem up tight.',
-		preferment_mix_detail:
-			'A befo-dough a one likkle starter dough weh ferment before di main dough. It build up flavour an strength weh a same-day dough nuh able fi reach — if di top look flat or full a bubble afta di res, dat a exactly how ripe look.',
-		prep_detail:
-			'Wen yu weigh out everyting before yu start, di recipe stay exact — dough a chemistry, an a scale beat guessing every time. Keep di salt away from di ris-ting till dem meet up inna di mixing bowl.',
-		mix_detail:
-			'Yu a aim fi one smood, stretchy dough wid no dry spot. If it feel sticky at first, nuh dash in more flour — it wi come togedda as di gluten build up. Di wata temperature matta: it set di dough temperature fi di whole rise.',
-		bulk_room_detail:
-			'Dis a di main rise: di ris-ting a mek gas an di dough grow an build flavour. Keep it cova so di top nuh dry out. Hot kitchen mek it go fasta — di schedule already count in yu room temperature.',
-		bulk_cold_detail:
-			'Di fridge slow down di rise plenty, so di flavour build fi hours widout di dough rise too far. It wi keep rise slow-slow inna di cold — dat normal, an yu nuh haffi check pon it.',
-		divide_detail:
-			'Cut di dough wid a scraper an shape each piece inna one tight, smood ball — tuck di edge dem unda it. Tight ball dem hold dem shape an rise even. Set dem down wid di seam unda, wid room fi grow, an cova dem.',
-		final_proof_detail:
-			'Di ball dem relax an puff up one las time so dem wi stretch widout tear up. Dem ready wen dem look soft like pillow an a gentle poke spring back slow.',
-		ready_detail:
-			'Stretch each ball from di middle go out, an lef di edge alone so it keep it air. Heat up di oven wid di stone or steel long before time — a home oven need 45 to 60 minit fi reach full heat.',
-		final_proof: 'Las rise',
-		final_proof_desc: 'Mek di ball dem res a room temperature till dem puff up an relax.',
-		ready: 'Stretch an bake',
-		ready_desc: 'Open up each ball, dash on di topping dem, inna di oven.'
-	},
-	schedule: {
-		heading: 'Schedule',
-		col_when: 'Wen',
-		col_step: 'Step',
-		col_duration: 'How long',
-		duration_minutes: '{n} min',
-		duration_hours: '{n} hr',
-		duration_hours_minutes: '{h} hr {m} min',
-		duration_range: '{low}–{high}',
-		source_timing_label: 'Original: {duration}',
-		icon_active: 'Active step',
-		icon_passive: 'Waiting step',
-		now: 'Now'
-	},
-	quality: {
-		step_imperfect: 'Dis step drift from di natural schedule.',
-		flag_night: 'Run between 22:00 an 08:00.',
-		flag_cold_bulk_shifted: 'Stretch out fi keep baker step dem outta di night.',
-		flag_cold_bulk_clamped_short: 'Window force di fridge bulk pas di natural time.',
-		flag_cold_bulk_clamped_long: 'Window pass di 48 hr fridge bulk top.',
-		flag_preferment_clamped_short:
-			'Befo-dough lock pon 8 hr; di kitchen hotta dan di recipe figga.',
-		flag_preferment_clamped_long:
-			'Befo-dough lock pon 24 hr; di kitchen cooler dan di recipe figga.',
-		fit_heading: 'fit',
-		fit_perfect: 'Di schedule an di recipe match di contemporary Neapolitan style.',
-		fit_aria: 'Recipe fit {score}%',
-		factor_cold_bulk_shifted:
-			'Fridge bulk stretch by {delta} hr fi dodge a baker step inna di night.',
-		factor_cold_bulk_clamped_short: 'Window force fridge bulk {delta} hr pas di natural time.',
-		factor_cold_bulk_clamped_long:
-			'Window want {delta} hr more fridge bulk dan di 48 hr top allow.',
-		factor_preferment_clamped_short:
-			'Befo-dough lock pon 8 hr — {delta} hr shorter dan di kitchen want.',
-		factor_preferment_clamped_long:
-			'Befo-dough lock pon 24 hr — {delta} hr shorter dan di kitchen want.',
-		factor_night_step: 'A baker step still fall inna di night afta shifting.',
-		factor_infeasible: 'Di window too short fi rise di dough.',
-		factor_hydration_off: 'Hydration {delta}% outside di contemporary 60–80% range.',
-		factor_salt_off: 'Salt {delta}% outside di contemporary 2–3.5% range.',
-		factor_ball_weight_off: 'Ball weight {delta} g outside di contemporary 200–320 g range.',
-		factor_room_temp_off: 'Kitchen temperature {delta} °C outside di easy 14–30 °C range.',
-		factor_fridge_temp_off: 'Fridge temperature {delta} °C outside di 2–8 °C range fi fridge bulk.',
-		factor_yeast_extreme: 'Calculated ris-ting outside di usual 0.05–1.5% range.'
-	},
-	ingredients: {
-		heading: 'Tings dem',
-		flour: 'Flour',
-		water: 'Wata',
-		salt: 'Salt',
-		oil: 'Oil',
-		sugar: 'Sugar',
-		fresh_yeast: 'Fresh ris-ting',
-		sourdough_starter: 'Sour starta',
-		fresh_yeast_inline: 'fresh ris-ting',
-		sourdough_starter_inline: 'sour starta',
-		total: 'Whole dough',
-		preFerment_heading_biga: 'Biga (befo-dough)',
-		preFerment_heading_poolish: 'Poolish (befo-dough)',
-		preFerment_help: 'Mek it di day before, lef it a room temperature ova di night.',
-		mainDough_heading: 'Main dough',
-		mainDough_help: 'Mek it pon baking day, wid di ripe befo-dough.',
-		totals_heading: 'All add up'
-	},
-	actions: {
-		menu: 'Actions',
-		download_ics: 'Download .ics',
-		print: 'Print / Save as PDF',
-		share: 'Copy share link',
-		copied: 'Copy!',
-		share_help: 'Di recipe live inna di URL — anybody wid di link get di same dough.'
-	},
-	print: {
-		recipe_heading: 'Recipe',
-		scan_to_open: 'Scan fi open di recipe'
-	},
-	trmnl: {
-		now: 'Now',
-		next: 'Next up',
-		done: 'Pizza time!',
-		since: 'since',
-		left: 'lef',
-		unit_h: 'hr',
-		unit_min: 'min'
-	},
-	trmnl_push: {
-		menu_item: 'Send to TRMNL…',
-		dialog_heading: 'Send di recipe to yu TRMNL',
-		dialog_intro:
-			'Push dis recipe to a TRMNL Private Plugin. Set up di plugin one time pon trmnl.com, den paste di UUID yah.',
-		uuid_label: 'Plugin UUID',
-		send: 'Send to TRMNL',
-		sending: 'Sending…',
-		sent: 'Recipe gone through. Di device update pon di next refresh.',
-		disconnect: 'Forget it',
-		close: 'Close',
-		error: 'Couldn’t send',
-		error_invalid_uuid: 'Dat nuh look like a plugin UUID.',
-		setup_hint: 'First time?',
-		setup_link: 'Check di TRMNL setup guide'
-	},
-	warnings: {
-		too_short:
-			'Nuff time nuh deh deh. Pick a later time or accept seh di dough a go come out underdone.',
-		too_cold: 'Kitchen look chilly — di rise a go drag at dis temperature.',
-		too_warm: 'Kitchen look hot — di dough might rise too much. Watch it good.',
-		yeast_tiny: 'Ris-ting tiny tiny — measure it careful (a scale weh read 0.1 g help out).',
-		yeast_large: 'Plenty plenty ris-ting — chek di figga dem again.',
-		night_step:
-			'A step still a fall between 22:00 an 08:00. Shift di bake time so every task fall inna waking time.'
-	},
-	footer: {
-		about: 'Time-anchor Neapolitan pizza dough calculator.',
-		source: 'Source code',
-		docs: 'Docs',
-		support: 'Support',
-		license: '© {year} Jan Welker · Licensed under Apache 2.0'
-	},
-	community: {
-		heading: 'Community recipe dem',
-		intro: 'Share-URL weh odda baker dem drop. Click pon a row fi load di recipe.',
-		empty: 'No recipe yet — be di first fi drop one.',
-		contribute: {
-			before_md: 'Drop yours by edit ',
-			md: 'community.md',
-			between: ' an open up a ',
-			pr: 'pull request',
-			after: '.'
-		},
-		col_name: 'Baker',
-		col_date: 'Add up',
-		col_pizzas: 'Pizza dem',
-		col_ball: 'Ball',
-		col_hydration: 'Hydration',
-		col_salt: 'Salt',
-		col_yeast: 'Ris-ting',
-		col_temp: 'Room',
-		col_fridge: 'Fridge',
-		col_preFerment: 'Befo-dough',
-		col_open: 'Recipe',
-		open_link: 'Open',
-		details_label: 'Details'
-	},
-	pizzerias: {
-		heading: '50 Top Pizza recipe dem',
-		intro:
-			'Dough recipe dem from di 50 Top Pizza guide, encode fi Knead Time. Open one an adjust di bake time fi yuh day.',
-		empty: 'No pizzeria nuh deh pon di list yet.',
-		contribute: {
-			before_md: 'Yuh know a pizzaiolo published recipe? Add it to ',
-			md: 'pizzerias.md',
-			between: ' an open a ',
-			pr: 'pull request',
-			after: '.'
-		},
-		col_pizzeria: 'Pizzeria',
-		col_location: 'Place',
-		col_rankings: 'Ranking dem',
-		col_pizzas: 'Pizza dem',
-		col_ball: 'Ball',
-		col_hydration: 'Hydration',
-		col_salt: 'Salt',
-		col_oil: 'Oil',
-		col_sugar: 'Sugar',
-		col_yeast: 'Ris-ting',
-		col_temp: 'Room',
-		col_fridge: 'Fridge',
-		col_preFerment: 'Befo-dough',
-		col_open: 'Recipe',
-		col_source: 'Source',
-		open_link: 'Open',
-		source_link: 'Source',
-		details_label: 'Details',
-		list_italy: 'IT',
-		list_world: 'Worl'
-	}
-};
-
-export const MESSAGES: Record<Locale, Messages> = { en, de, it, fr, nl, jam };
-
-// Map our internal locale codes to BCP-47 tags Intl actually knows. CLDR has no
-// data for `jam`, so we route Patois through en-JM (12-h time, Latin numerals).
-export function intlLocaleTag(locale: Locale): string {
-	return locale === 'jam' ? 'en-JM' : locale;
-}
+export const MESSAGES: Record<Locale, Messages> = { en, de, it, fr, nl };
 
 export function detectLocale(navigatorLanguages: readonly string[] | undefined): Locale {
 	if (!navigatorLanguages) return 'en';
 	for (const raw of navigatorLanguages) {
-		const lower = raw.toLowerCase();
-		const three = lower.slice(0, 3);
-		if ((LOCALES as readonly string[]).includes(three)) return three as Locale;
-		const two = lower.slice(0, 2);
+		const two = raw.toLowerCase().slice(0, 2);
 		if ((LOCALES as readonly string[]).includes(two)) return two as Locale;
 	}
 	return 'en';

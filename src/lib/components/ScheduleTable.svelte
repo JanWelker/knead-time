@@ -125,7 +125,7 @@
 				{@const ingredients = stepIngredients(step, t, schedule)}
 				<li
 					class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3 {past
-						? 'opacity-55'
+						? 'opacity-70'
 						: ''}"
 				>
 					<!-- Rail: a vertical line threading every node within the day. -->
@@ -163,7 +163,7 @@
 					<div
 						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
 							? 'text-accent'
-							: 'text-stone-500 dark:text-stone-400'}"
+							: 'text-stone-600 dark:text-stone-300'}"
 					>
 						{formatTime(step.at, locale)}
 					</div>
@@ -226,19 +226,19 @@
 										>
 											{ing.amount}
 										</span>
-										<span class="text-xs text-stone-500 dark:text-stone-400">{ing.name}</span>
+										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-500 dark:text-stone-400">
+						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
 							{stepDescription(step, t, schedule)}
 						</p>
 
 						{#if mode === 'beginner'}
 							<p
-								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-500 italic dark:border-stone-600 dark:text-stone-400"
+								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
 							>
 								{stepDetail(step, t)}
 							</p>

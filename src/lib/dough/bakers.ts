@@ -117,17 +117,21 @@ export interface RoundBallWeightArgs {
 }
 
 // Picks a "nice" flour target near the current flour and returns the ball weight
-// that produces it exactly. Prefers a multiple of 100 g when it's not much worse
-// than the nearest multiple of 50 g; otherwise rounds to 50 g.
+// that produces it exactly. Always snaps to the nearest 100 g — the whole point
+// of the button is a round bag-of-flour number — except for small batches
+// (< 400 g flour) where a 100 g jump would shift the ball weight noticeably;
+// those snap to 50 g instead.
+const ROUND_FLOUR_COARSE_MIN_G = 400;
+
 export function roundBallWeight(args: RoundBallWeightArgs): number {
 	const pctSum = computePctSum(args);
 	const currentTotal = args.pizzaCount * args.ballWeight;
 	const currentFlour = (currentTotal * 100) / pctSum;
 
-	const t50 = Math.max(50, Math.round(currentFlour / 50) * 50);
-	const t100 = Math.max(100, Math.round(currentFlour / 100) * 100);
 	const targetFlour =
-		Math.abs(t100 - currentFlour) - Math.abs(t50 - currentFlour) <= 25 ? t100 : t50;
+		currentFlour >= ROUND_FLOUR_COARSE_MIN_G
+			? Math.max(100, Math.round(currentFlour / 100) * 100)
+			: Math.max(50, Math.round(currentFlour / 50) * 50);
 
 	const newTotal = (targetFlour * pctSum) / 100;
 	return Math.round((newTotal / args.pizzaCount) * 10) / 10;

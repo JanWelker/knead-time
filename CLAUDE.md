@@ -33,12 +33,12 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 ### Beginner / expert view mode
 
 - `UiMode = 'beginner' | 'expert'` (`src/lib/storedMode.ts` pure helpers + `src/lib/mode.svelte.ts` runtime singleton). **UI-level only — never enters `DoughInputs` or the math.**
-- Beginner shows startAt/readyBy/pizzaCount/ballWeight plus a switch to expert; every other input keeps its default. Each schedule step gains a `steps.<kind>_detail` explanation paragraph (`stepDetail` in `stepCopy.ts`), also appended to `.ics` events via `stepDetailText(..., { includeDetail: true })`. Print and TRMNL never carry the detail copy.
+- Beginner shows startAt/readyBy/pizzaCount/mixingMethod plus a switch to expert; ball weight is fixed at the 280 g default and every other input keeps its default too. Each schedule step gains a `steps.<kind>_detail` explanation paragraph (`stepDetail` in `stepCopy.ts`), also appended to `.ics` events via `stepDetailText(..., { includeDetail: true })`. Print and TRMNL never carry the detail copy.
 - **Resolution order on mount**: URL `md` param (`md=b` = beginner; encode stamps it only for beginner) → any other non-empty query = expert (all pre-v4 links were made in the full view) → `localStorage` `kneadtime:mode` → **beginner** (the fresh-visit default that justified the v4 major bump). Only explicit toggles persist to localStorage — opening someone's beginner link never overwrites the local preference.
 
 ### "Round numbers" action
 
-Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100 drifts too far). **Idempotent** (second click = no-op). **Works for fresh and sourdough** — `pctSum` branches differ.
+Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g — always, for any batch with ≥ 400 g flour; smaller batches snap to 50 g so the ball weight doesn't shift noticeably. **Idempotent** (second click = no-op). **Works for fresh and sourdough** — `pctSum` branches differ.
 
 ## Outputs
 
@@ -64,7 +64,7 @@ Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g (or 50 g if 100
 
 ### Recipe fit score
 
-`src/lib/dough/quality.ts` exposes `stepQualityFlags(step, schedule)` and `recipeFitScore(schedule, inputs)`. Score is **0–100**, deviation-based — 100 = the math's natural schedule with every input in the contemporary Neapolitan band. Two factor families:
+`src/lib/dough/quality.ts` exposes `stepQualityFlags(step, schedule)` and `recipeFitScore(schedule, inputs)`. Score is **0–100** internally, deviation-based — 100 = the math's natural schedule with every input in the contemporary Neapolitan band. The UI renders it as **0–5 stars** (`fitStars`, one star per 20 points); rates are tuned generously so a single moderate deviation stays at 5 stars and only stacked problems drop below 4. Two factor families:
 
 - **Schedule imperfection** (math couldn't deliver natural timing): `cold-bulk-shifted` (night-shift extended the cold leg), `cold-bulk-clamped-{short,long}`, `preferment-clamped-{short,long}`, `night-step` (residual warning), `infeasible`.
 - **Recipe-input KPIs** (deviation from contemporary Neapolitan): `hydration-off` (60–80 %), `salt-off` (2–3.5 %), `ball-weight-off` (200–320 g), `room-temp-off` (14–30 °C), `fridge-temp-off` (2–8 °C), `yeast-extreme` (solved < 0.05 % or > 1.5 %).
@@ -121,9 +121,9 @@ The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private P
 
 ## i18n
 
-- Locales: `en, de, it, fr, nl, jam` (Jamaican Patois, ISO 639-3). Metric only — grams, °C.
-- `detectLocale` matches 2- and 3-letter prefixes. `intlLocaleTag('jam') === 'en-JM'` (no CLDR data for `jam`).
-- All user-facing strings live in `src/lib/i18n/messages.ts`. **No hardcoded copy in components.** Parity test fails loudly on missing keys — add to all six in the same change.
+- Locales: `en, de, it, fr, nl` (Jamaican Patois was dropped in v4). Metric only — grams, °C.
+- `detectLocale` matches 2-letter prefixes; locale codes are passed to `Intl` as-is.
+- All user-facing strings live in `src/lib/i18n/messages.ts`. **No hardcoded copy in components.** Parity test fails loudly on missing keys — add to all five in the same change.
 - **User-selected locale is persisted to `localStorage`** (`kneadtime:locale`) and preferred over `detectLocale(navigator.languages)` on mount — `src/lib/i18n/storedLocale.ts`. A full reload (e.g. a community Open link with `rel="external"`) keeps the user's chosen language. `/print/*` owns its own locale via the URL path and opts out of both auto-detect and the stored value. A load-time shim migrates any legacy `doughcalc:locale` value once and clears it.
 
 ## Design
@@ -150,7 +150,7 @@ Math/schedule bugs are silent until a dough overproofs. **Coverage is a hard gat
 - Comments explain **why** when non-obvious (e.g. citing a fermentation magic number). Otherwise none.
 - Minimal dependencies. Prefer hand-rolled utilities (`.ics` generator is hand-written) over large libs.
 - **Keep `README.md` in sync** with npm scripts, CI/deploy, structure — anything a contributor hits in their first hour.
-- **Parallelize independent work.** When a task decomposes into independent subtasks (e.g. update all six locales, edit unrelated files, run separate investigations), spawn agents in parallel — single message, multiple `Agent` tool calls — instead of doing them serially.
+- **Parallelize independent work.** When a task decomposes into independent subtasks (e.g. update all five locales, edit unrelated files, run separate investigations), spawn agents in parallel — single message, multiple `Agent` tool calls — instead of doing them serially.
 
 ## Out of scope
 

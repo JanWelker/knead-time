@@ -13,11 +13,6 @@ describe('detectLocale', () => {
 		expect(detectLocale(['it-IT'])).toBe('it');
 	});
 
-	it('matches 3-letter language codes (Patois)', () => {
-		expect(detectLocale(['jam-JM'])).toBe('jam');
-		expect(detectLocale(['jam'])).toBe('jam');
-	});
-
 	it('falls back to en when nothing matches', () => {
 		expect(detectLocale(['es', 'pt', 'ja'])).toBe('en');
 	});

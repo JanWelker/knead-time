@@ -100,15 +100,28 @@
 
 		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={state.pizzaCount} />
 
-		<FormField
-			label={t.form.ballWeight}
-			min={100}
-			max={600}
-			step={1}
-			bind:value={state.ballWeight}
-		/>
+		<label class="block">
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.mixingMethod}
+			</span>
+			<select class={selectClass} bind:value={state.mixingMethod}>
+				<option value="machine">{t.form.mixing_machine}</option>
+				<option value="hand">{t.form.mixing_hand}</option>
+			</select>
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.mixingMethod_help}
+			</span>
+		</label>
 
 		{#if uiMode.current === 'expert'}
+			<FormField
+				label={t.form.ballWeight}
+				min={100}
+				max={600}
+				step={1}
+				bind:value={state.ballWeight}
+			/>
+
 			<FormField
 				label={t.form.hydration}
 				min={50}
@@ -155,19 +168,6 @@
 				help={t.form.fridgeTemp_help}
 				bind:value={state.fridgeTempC}
 			/>
-
-			<label class="block">
-				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-					{t.form.mixingMethod}
-				</span>
-				<select class={selectClass} bind:value={state.mixingMethod}>
-					<option value="machine">{t.form.mixing_machine}</option>
-					<option value="hand">{t.form.mixing_hand}</option>
-				</select>
-				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-					{t.form.mixingMethod_help}
-				</span>
-			</label>
 
 			<label class="block">
 				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
