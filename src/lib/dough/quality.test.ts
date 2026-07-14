@@ -48,9 +48,10 @@ describe('stepQualityFlags — night', () => {
 
 describe('stepQualityFlags — cold-bulk and preferment', () => {
 	it('flags a bulk-cold row when it was shifted to dodge night', () => {
-		// 18 h window with readyBy at 19:00 → natural prepAt at 01:15 (night).
-		// The adjuster moves coldMin up to push prepAt into the previous
-		// evening. The actual cold-bulk duration > natural.
+		// 18 h window with readyBy at 19:00 → natural prepAt at 01:00 (night).
+		// Since issue #78 the adjuster can only shrink coldMin (extending would
+		// pull the first step before startAt), lifting prep into the morning —
+		// the actual cold-bulk duration < natural.
 		const i = inputs({
 			startAt: new Date('2026-05-12T01:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z')
