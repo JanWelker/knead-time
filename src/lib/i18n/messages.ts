@@ -313,16 +313,17 @@ const en: Messages = {
 			'Each phase contributes hours × f(T) "equivalent-hours-at-22 °C". The sum must reach a target:',
 		info_units_fresh: 'Fresh yeast: 1.6 units (≈ 0.2% × 8 h at 22 °C)',
 		info_units_sourdough: 'Sourdough starter: 160 units (~100× less active per gram)',
-		info_units_solve: 'Yeast percent solves the target:',
+		info_units_solve:
+			'Yeast percent solves the target. Shared phases (bulk, proof) have w = 1; a pre-ferment leg counts only for the yeast fraction it carries — its share of the pre-fermented flour:',
 		info_preferment_title: 'Pre-ferment as a fermentation phase',
 		info_preferment_body:
-			"Biga and poolish aren't decorative — each adds its own phase to the equivalent-hours sum, so yeast % drops to compensate. Reference loads at 22 °C:",
+			"Biga and poolish aren't decorative — each adds its own phase to the equivalent-hours sum, so yeast % drops to compensate. Enabled together they mature in parallel, both ending at prep, and each leg is weighted by its flour share. Reference loads at 22 °C:",
 		info_preferment_biga: 'Biga: 14 h-equivalent at 22 °C',
 		info_preferment_poolish: 'Poolish: 12 h-equivalent at 22 °C',
 		info_preferment_wall:
 			'Wall-clock duration solves back from the reference load and is clamped to [8 h, 24 h]:',
 		info_preferment_yeast:
-			"For fresh-yeast recipes, all of the recipe's yeast goes into the pre-ferment — none on baking day. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
+			"For fresh-yeast recipes, all of the recipe's yeast goes into the pre-ferments — split proportional to their flour shares, none on baking day. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
 		info_switch_title: 'Cold ↔ room switch',
 		info_switch_body:
 			'Window ≥ 16 h activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
@@ -637,16 +638,17 @@ const de: Messages = {
 			'Jede Phase liefert Stunden × f(T) „Äquivalentstunden bei 22 °C". Die Summe muss ein Ziel erreichen:',
 		info_units_fresh: 'Frischhefe: 1,6 Einheiten (≈ 0,2% × 8 h bei 22 °C)',
 		info_units_sourdough: 'Sauerteig-Anstellgut: 160 Einheiten (~100× weniger aktiv pro Gramm)',
-		info_units_solve: 'Hefe-Anteil löst die Zielgleichung:',
+		info_units_solve:
+			'Der Hefe-Anteil löst die Zielgleichung. Gemeinsame Phasen (Stockgare, Stückgare) haben w = 1; eine Vorteig-Phase zählt nur für den Hefe-Anteil, den sie trägt — ihren Anteil am Vorteig-Mehl:',
 		info_preferment_title: 'Vorteig als eigene Gärphase',
 		info_preferment_body:
-			'Biga und Poolish sind keine Deko — jeder bringt seine eigene Phase in die Äquivalentstundensumme ein, sodass der Hefe-Anteil entsprechend sinkt. Referenzwerte bei 22 °C:',
+			'Biga und Poolish sind keine Deko — jeder bringt seine eigene Phase in die Äquivalentstundensumme ein, sodass der Hefe-Anteil entsprechend sinkt. Gemeinsam aktiviert reifen sie parallel und enden beide beim Vorbereiten; jede Phase wird mit ihrem Mehlanteil gewichtet. Referenzwerte bei 22 °C:',
 		info_preferment_biga: 'Biga: 14 h-Äquivalent bei 22 °C',
 		info_preferment_poolish: 'Poolish: 12 h-Äquivalent bei 22 °C',
 		info_preferment_wall:
 			'Die Wanduhrzeit ergibt sich aus dem Referenzwert und wird auf [8 h, 24 h] begrenzt:',
 		info_preferment_yeast:
-			'Bei Frischhefe-Rezepten landet die gesamte Hefe im Vorteig — am Backtag kommt keine mehr dazu. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
+			'Bei Frischhefe-Rezepten landet die gesamte Hefe in den Vorteigen — aufgeteilt nach ihren Mehlanteilen, am Backtag kommt keine mehr dazu. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
 		info_switch_title: 'Wechsel Kühlschrank ↔ Raum',
 		info_switch_body:
 			'Fenster ≥ 16 h aktiviert eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
@@ -967,16 +969,17 @@ const it: Messages = {
 			'Ogni fase apporta ore × f(T) "ore-equivalenti a 22 °C". La somma deve raggiungere un obiettivo:',
 		info_units_fresh: 'Lievito di birra fresco: 1,6 unità (≈ 0,2% × 8 h a 22 °C)',
 		info_units_sourdough: 'Lievito madre: 160 unità (~100× meno attivo per grammo)',
-		info_units_solve: 'La percentuale di lievito risolve il target:',
+		info_units_solve:
+			'La percentuale di lievito risolve il target. Le fasi condivise (puntata, appretto) hanno w = 1; la fase di un preimpasto conta solo per la frazione di lievito che trasporta — la sua quota di farina prefermentata:',
 		info_preferment_title: 'Preimpasto come fase di lievitazione',
 		info_preferment_body:
-			'Biga e poolish non sono decorativi — ognuno aggiunge la propria fase alla somma di ore-equivalenti, quindi la percentuale di lievito scende di conseguenza. Carichi di riferimento a 22 °C:',
+			'Biga e poolish non sono decorativi — ognuno aggiunge la propria fase alla somma di ore-equivalenti, quindi la percentuale di lievito scende di conseguenza. Attivati insieme maturano in parallelo, terminando entrambi alla preparazione; ogni fase è pesata per la sua quota di farina. Carichi di riferimento a 22 °C:',
 		info_preferment_biga: 'Biga: 14 h-equivalenti a 22 °C',
 		info_preferment_poolish: 'Poolish: 12 h-equivalenti a 22 °C',
 		info_preferment_wall:
 			'La durata reale si ricava dal carico di riferimento ed è limitata a [8 h, 24 h]:',
 		info_preferment_yeast:
-			'Per le ricette con lievito di birra, tutto il lievito va nel preimpasto — niente lievito il giorno della cottura. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
+			'Per le ricette con lievito di birra, tutto il lievito va nei preimpasti — suddiviso in proporzione alle loro quote di farina, niente lievito il giorno della cottura. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
 		info_switch_title: 'Passaggio frigo ↔ ambiente',
 		info_switch_body:
 			'Finestra ≥ 16 h attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 16× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
@@ -1296,16 +1299,17 @@ const fr: Messages = {
 			'Chaque phase apporte heures × f(T) « heures-équivalentes à 22 °C ». La somme doit atteindre une cible :',
 		info_units_fresh: 'Levure fraîche : 1,6 unités (≈ 0,2% × 8 h à 22 °C)',
 		info_units_sourdough: 'Levain : 160 unités (~100× moins actif par gramme)',
-		info_units_solve: 'Le pourcentage de levure résout la cible :',
+		info_units_solve:
+			"Le pourcentage de levure résout la cible. Les phases communes (pointage, apprêt) ont w = 1 ; la phase d'un pré-ferment ne compte que pour la fraction de levure qu'elle porte — sa part de la farine préfermentée :",
 		info_preferment_title: 'Pré-ferment comme phase de fermentation',
 		info_preferment_body:
-			"La biga et le poolish ne sont pas décoratifs — chacun ajoute sa propre phase à la somme d'heures-équivalentes, donc le pourcentage de levure baisse en conséquence. Charges de référence à 22 °C :",
+			"La biga et le poolish ne sont pas décoratifs — chacun ajoute sa propre phase à la somme d'heures-équivalentes, donc le pourcentage de levure baisse en conséquence. Activés ensemble, ils mûrissent en parallèle et se terminent tous deux à la préparation ; chaque phase est pondérée par sa part de farine. Charges de référence à 22 °C :",
 		info_preferment_biga: 'Biga : 14 h-équivalent à 22 °C',
 		info_preferment_poolish: 'Poolish : 12 h-équivalent à 22 °C',
 		info_preferment_wall:
 			'La durée réelle se déduit de la charge de référence et est bornée à [8 h, 24 h] :',
 		info_preferment_yeast:
-			'Pour les recettes avec levure fraîche, toute la levure va dans le pré-ferment — aucune le jour de la cuisson. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).',
+			'Pour les recettes avec levure fraîche, toute la levure va dans les pré-ferments — répartie au prorata de leur part de farine, aucune le jour de la cuisson. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).',
 		info_switch_title: 'Bascule frigo ↔ ambiante',
 		info_switch_body:
 			"Fenêtre ≥ 16 h active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 16× plus lent qu'à 22 °C). Sinon : température ambiante uniquement.",
@@ -1628,16 +1632,17 @@ const nl: Messages = {
 			'Elke fase levert uren × f(T) "equivalente uren bij 22 °C". De som moet een doel bereiken:',
 		info_units_fresh: 'Verse gist: 1,6 eenheden (≈ 0,2% × 8 u bij 22 °C)',
 		info_units_sourdough: 'Zuurdesem: 160 eenheden (~100× minder actief per gram)',
-		info_units_solve: 'Het gistpercentage lost het doel op:',
+		info_units_solve:
+			'Het gistpercentage lost het doel op. Gedeelde fasen (bulkrijs, narijs) hebben w = 1; de fase van een voordeeg telt alleen voor de gistfractie die het draagt — zijn aandeel in de voordeegbloem:',
 		info_preferment_title: 'Voordeeg als fermentatiefase',
 		info_preferment_body:
-			'Biga en poolish zijn niet decoratief — elk voegt zijn eigen fase toe aan de som van equivalente uren, waardoor het gistpercentage navenant daalt. Referentiebelasting bij 22 °C:',
+			'Biga en poolish zijn niet decoratief — elk voegt zijn eigen fase toe aan de som van equivalente uren, waardoor het gistpercentage navenant daalt. Samen ingeschakeld rijpen ze parallel en eindigen beide bij het voorbereiden; elke fase wordt gewogen naar zijn bloemaandeel. Referentiebelasting bij 22 °C:',
 		info_preferment_biga: 'Biga: 14 u-equivalent bij 22 °C',
 		info_preferment_poolish: 'Poolish: 12 u-equivalent bij 22 °C',
 		info_preferment_wall:
 			'De werkelijke duur wordt afgeleid van de referentiebelasting en wordt begrensd op [8 u, 24 u]:',
 		info_preferment_yeast:
-			'Bij recepten met verse gist zit alle gist in het voordeeg — niets op de bakdag. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
+			'Bij recepten met verse gist zit alle gist in de voordegen — verdeeld naar hun bloemaandeel, niets op de bakdag. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
 		info_switch_title: 'Wissel koelkast ↔ kamer',
 		info_switch_body:
 			'Venster ≥ 16 u activeert een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 16× trager dan 22 °C). Anders: alleen kamertemperatuur.',
