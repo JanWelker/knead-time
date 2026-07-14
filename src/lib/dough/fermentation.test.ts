@@ -9,9 +9,36 @@ import {
 	PREFERMENT_REF_HOURS_POOLISH,
 	prefermentDurationHours,
 	prefermentEquivHours,
+	TARGET_UNITS_FRESH,
+	TARGET_UNITS_SOURDOUGH,
 	temperatureFactor,
+	yeastMassFactor,
 	yeastPercentForPhases
 } from './fermentation';
+
+describe('yeastMassFactor', () => {
+	it.each([
+		{ type: 'fresh', factor: 1 },
+		{ type: 'instant', factor: 1 / 3 },
+		{ type: 'active-dry', factor: 0.4 }
+	] as const)('$type → $factor of the fresh mass', ({ type, factor }) => {
+		expect(yeastMassFactor(type)).toBeCloseTo(factor, 12);
+	});
+
+	it('expresses the sourdough target as the same factor (starter ≈ 100× fresh)', () => {
+		expect(yeastMassFactor('sourdough')).toBeCloseTo(
+			TARGET_UNITS_SOURDOUGH / TARGET_UNITS_FRESH,
+			12
+		);
+	});
+
+	it('keeps yeastPercentForPhases consistent across carriers', () => {
+		const phases = [{ hours: 8, tempC: 22 }];
+		const fresh = yeastPercentForPhases('fresh', phases);
+		expect(yeastPercentForPhases('instant', phases)).toBeCloseTo(fresh / 3, 12);
+		expect(yeastPercentForPhases('sourdough', phases)).toBeCloseTo(fresh * 100, 12);
+	});
+});
 
 describe('temperatureFactor', () => {
 	it('is 1 at reference (22 °C)', () => {
@@ -128,27 +155,35 @@ describe('prefermentEquivHours', () => {
 describe('idealMixWaterTempC', () => {
 	it('clamps to the ice-water floor for a typical 22 °C kitchen — spiral friction is high', () => {
 		// 3·23 − 2·22 − 24 = 1 → clamped to 4 °C
-		expect(idealMixWaterTempC(22)).toBe(4);
+		expect(idealMixWaterTempC(22, 'machine')).toBe(4);
 	});
 	it('drops to fridge-cold water for a cool kitchen', () => {
 		// 3·23 − 2·18 − 24 = 9 °C
-		expect(idealMixWaterTempC(18)).toBe(9);
+		expect(idealMixWaterTempC(18, 'machine')).toBe(9);
 	});
 	it('rises to room-temp water for a chilly kitchen', () => {
 		// 3·23 − 2·12 − 24 = 21 °C
-		expect(idealMixWaterTempC(12)).toBe(21);
+		expect(idealMixWaterTempC(12, 'machine')).toBe(21);
 	});
 	it('stays clamped at the floor in a hot kitchen', () => {
 		// 3·23 − 2·28 − 24 = −11 → clamped to 4 °C (use ice cubes)
-		expect(idealMixWaterTempC(28)).toBe(4);
+		expect(idealMixWaterTempC(28, 'machine')).toBe(4);
 	});
 	it('clamps to the warm-water ceiling in a frigid kitchen', () => {
 		// 3·23 − 2·4 − 24 = 37 → clamped to 35
-		expect(idealMixWaterTempC(4)).toBe(35);
+		expect(idealMixWaterTempC(4, 'machine')).toBe(35);
 	});
 	it('decreases monotonically as the kitchen warms', () => {
-		expect(idealMixWaterTempC(12)).toBeGreaterThan(idealMixWaterTempC(18));
-		expect(idealMixWaterTempC(18)).toBeGreaterThan(idealMixWaterTempC(22));
+		expect(idealMixWaterTempC(12, 'machine')).toBeGreaterThan(idealMixWaterTempC(18, 'machine'));
+		expect(idealMixWaterTempC(18, 'machine')).toBeGreaterThan(idealMixWaterTempC(22, 'machine'));
+	});
+	it('recommends warmer water for hand kneading — friction is ~5 °C, not 24 °C', () => {
+		// 3·23 − 2·22 − 5 = 20 °C
+		expect(idealMixWaterTempC(22, 'hand')).toBe(20);
+	});
+	it('still clamps hand-kneaded water to the warm ceiling in a frigid kitchen', () => {
+		// 3·23 − 2·4 − 5 = 56 → clamped to 35
+		expect(idealMixWaterTempC(4, 'hand')).toBe(35);
 	});
 });
 

@@ -4,7 +4,20 @@
 	import { onMount } from 'svelte';
 
 	import { buildIcs } from '$lib/dough/ics';
-	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
+	import { decodeInputs, decodeUiMode, encodeInputs } from '$lib/dough/urlState';
+	import { uiMode } from '$lib/mode.svelte';
+	import { loadStoredMode } from '$lib/storedMode';
+	import { scheduleVerbosity } from '$lib/verbosity.svelte';
+	import { loadStoredVerbosity } from '$lib/storedVerbosity';
+	import {
+		deleteRecipe,
+		loadLastRecipe,
+		loadRecipes,
+		saveLastRecipe,
+		saveRecipe,
+		type SavedRecipe
+	} from '$lib/storedRecipes';
+	import MyRecipes from '$lib/components/MyRecipes.svelte';
 	import Community from '$lib/components/Community.svelte';
 	import Pizzerias from '$lib/components/Pizzerias.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
@@ -34,20 +47,55 @@
 	let actionsRef: HTMLDetailsElement | null = $state(null);
 	let actionsOpen = $state(false);
 
+	let savedRecipes = $state<SavedRecipe[]>([]);
+
 	onMount(() => {
-		const parsed = decodeInputs(window.location.search);
-		form.apply(parsed);
+		if (window.location.search && window.location.search !== '?') {
+			form.apply(decodeInputs(window.location.search));
+		} else {
+			// Fresh visit: restore the last recipe this device worked on. Its
+			// bake window is stale by definition, so the date fields keep
+			// today's defaults — only the recipe parameters come back.
+			const last = loadLastRecipe(localStorage);
+			if (last) {
+				const recipeOnly = { ...decodeInputs(last) };
+				delete recipeOnly.readyBy;
+				delete recipeOnly.startAt;
+				form.apply(recipeOnly);
+			}
+		}
+		savedRecipes = loadRecipes(localStorage);
+		// View mode: the URL's word wins (a shared link opens the way its
+		// sender saw it), then the visitor's stored preference, and a truly
+		// fresh visit starts in the beginner view. Set directly (not via
+		// uiMode.set) so a link never overwrites the stored preference.
+		uiMode.current =
+			decodeUiMode(window.location.search) ?? loadStoredMode(localStorage) ?? 'beginner';
+		scheduleVerbosity.current = loadStoredVerbosity(localStorage) ?? 'descriptive';
 		hydrated = true;
 	});
 
 	$effect(() => {
 		if (!browser || !hydrated) return;
-		const qs = encodeInputs(form.serializable());
+		const qs = encodeInputs(form.serializable(), { mode: uiMode.current });
 		const next = `${window.location.pathname}?${qs}`;
 		if (next !== window.location.pathname + window.location.search) {
 			history.replaceState({}, '', next);
 		}
+		// Remember the working recipe so a fresh visit picks up where the
+		// baker left off.
+		saveLastRecipe(localStorage, qs);
 	});
+
+	function saveCurrentRecipe() {
+		const name = window.prompt(t.actions.save_recipe_prompt)?.trim();
+		if (!name) return;
+		savedRecipes = saveRecipe(localStorage, {
+			name,
+			search: encodeInputs(form.serializable()),
+			savedAt: new Date().toISOString()
+		});
+	}
 
 	// Surfaces source-recipe context (timings, name) when the form params
 	// match a known pizzeria. Adjusting only the bake time keeps the match.
@@ -62,7 +110,9 @@
 	function downloadIcs() {
 		const ics = buildIcs(form.schedule.steps, (step) => ({
 			summary: stepTitle(step, t),
-			description: stepDetailText(step, t, form.schedule)
+			description: stepDetailText(step, t, form.schedule, {
+				includeDetail: scheduleVerbosity.current === 'descriptive'
+			})
 		}));
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
@@ -130,6 +180,29 @@
 			<InputForm state={form} />
 		</section>
 
+		<div class="card lg:col-start-1 lg:row-start-2">
+			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+					{t.ingredients.heading}
+				</h2>
+				<button
+					type="button"
+					class="btn-tomato-sm inline-flex items-center gap-1"
+					onclick={() => form.roundBallWeight()}
+					title={t.form.ballWeight_round_help}
+					aria-label={t.form.ballWeight_round_help}
+				>
+					<span aria-hidden="true">↻</span>
+					{t.form.ballWeight_round}
+				</button>
+			</div>
+			<Ingredients
+				ingredients={form.schedule.ingredients}
+				yeastType={form.yeastType}
+				yeastPercent={form.schedule.yeastPercent}
+			/>
+		</div>
+
 		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
 			<div class="relative mb-4 flex flex-wrap items-end justify-between gap-3">
 				<div>
@@ -139,6 +212,24 @@
 					<div class="mt-2 flex flex-wrap items-center gap-3">
 						<ModeBadge mode={form.schedule.mode} />
 						<FitScore schedule={form.schedule} inputs={form.serializable()} />
+						<fieldset
+							class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold dark:border-stone-700 dark:bg-stone-800/70"
+						>
+							<legend class="sr-only">{t.schedule.verbosity_label}</legend>
+							{#each ['short', 'descriptive'] as const as v (v)}
+								{@const active = scheduleVerbosity.current === v}
+								<button
+									type="button"
+									class="px-3 py-1 transition-colors {active
+										? 'bg-tomato-500 text-white'
+										: 'hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700'}"
+									aria-pressed={active}
+									onclick={() => scheduleVerbosity.set(v)}
+								>
+									{v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
+								</button>
+							{/each}
+						</fieldset>
 					</div>
 				</div>
 				<div>
@@ -191,6 +282,9 @@
 							>
 								{copied === 'share' ? t.actions.copied : t.actions.share}
 							</button>
+							<button type="button" role="menuitem" class="menu-item" onclick={saveCurrentRecipe}>
+								{t.actions.save_recipe}
+							</button>
 							<TrmnlPush
 								inputs={form.serializable()}
 								schedule={form.schedule}
@@ -204,33 +298,21 @@
 
 			<Warnings warnings={form.schedule.warnings} />
 			<div class="mt-4">
-				<ScheduleTable schedule={form.schedule} sourceTiming={activePizzeria?.timing} />
+				<ScheduleTable
+					schedule={form.schedule}
+					sourceTiming={activePizzeria?.timing}
+					verbosity={scheduleVerbosity.current}
+				/>
 			</div>
-		</div>
-
-		<div class="card lg:col-start-1 lg:row-start-2">
-			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-					{t.ingredients.heading}
-				</h2>
-				<button
-					type="button"
-					class="btn-tomato-sm inline-flex items-center gap-1"
-					onclick={() => form.roundBallWeight()}
-					title={t.form.ballWeight_round_help}
-					aria-label={t.form.ballWeight_round_help}
-				>
-					<span aria-hidden="true">↻</span>
-					{t.form.ballWeight_round}
-				</button>
-			</div>
-			<Ingredients
-				ingredients={form.schedule.ingredients}
-				yeastType={form.yeastType}
-				yeastPercent={form.schedule.yeastPercent}
-			/>
 		</div>
 	</div>
+
+	<section class="card mt-8">
+		<MyRecipes
+			recipes={savedRecipes}
+			onDelete={(name) => (savedRecipes = deleteRecipe(localStorage, name))}
+		/>
+	</section>
 
 	<section class="card mt-8">
 		<Community />

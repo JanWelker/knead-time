@@ -21,7 +21,7 @@ describe('loadStoredLocale', () => {
 
 	it('returns the stored locale when supported', () => {
 		expect(loadStoredLocale(makeStorage({ [LOCALE_STORAGE_KEY]: 'de' }))).toBe('de');
-		expect(loadStoredLocale(makeStorage({ [LOCALE_STORAGE_KEY]: 'jam' }))).toBe('jam');
+		expect(loadStoredLocale(makeStorage({ [LOCALE_STORAGE_KEY]: 'nl' }))).toBe('nl');
 	});
 });
 

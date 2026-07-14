@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeInputs, encodeInputs, type SerializableInputs } from './urlState';
+import { decodeInputs, decodeUiMode, encodeInputs, type SerializableInputs } from './urlState';
 
 const base: SerializableInputs = {
 	readyBy: new Date('2026-05-12T19:00:00Z'),
@@ -14,7 +14,10 @@ const base: SerializableInputs = {
 	starterHydration: 100,
 	roomTempC: 22,
 	fridgeTempC: 4,
-	preFerment: null
+	preFermentTempC: null,
+	ballProof: 'room',
+	mixingMethod: 'machine',
+	preFerments: []
 };
 
 describe('urlState round-trip', () => {
@@ -29,12 +32,33 @@ describe('urlState round-trip', () => {
 		expect(out.yeastType).toBe('fresh');
 		expect(out.roomTempC).toBe(22);
 		expect(out.fridgeTempC).toBe(4);
-		expect(out.preFerment).toBeUndefined();
+		expect(out.preFerments).toBeUndefined();
 	});
 
 	it('round-trips a non-default fridge temperature', () => {
 		const out = decodeInputs(encodeInputs({ ...base, fridgeTempC: 7 }));
 		expect(out.fridgeTempC).toBe(7);
+	});
+
+	it('round-trips the pre-ferment temperature and omits it when following the room', () => {
+		expect(encodeInputs(base)).not.toContain('pt=');
+		const out = decodeInputs(encodeInputs({ ...base, preFermentTempC: 17 }));
+		expect(out.preFermentTempC).toBe(17);
+		expect(decodeInputs(encodeInputs(base)).preFermentTempC).toBeUndefined();
+	});
+
+	it('round-trips the cold ball proof and omits the classic default', () => {
+		expect(encodeInputs(base)).not.toContain('bp=');
+		expect(decodeInputs(encodeInputs({ ...base, ballProof: 'cold' })).ballProof).toBe('cold');
+		// encode never emits it, but hand-crafted URLs should still resolve.
+		expect(decodeInputs('?v=4&n=4&bp=r').ballProof).toBe('room');
+	});
+
+	it('round-trips the dry yeast types', () => {
+		expect(decodeInputs(encodeInputs({ ...base, yeastType: 'instant' })).yeastType).toBe('instant');
+		expect(decodeInputs(encodeInputs({ ...base, yeastType: 'active-dry' })).yeastType).toBe(
+			'active-dry'
+		);
 	});
 
 	it('round-trips sourdough with starter hydration', () => {
@@ -51,19 +75,19 @@ describe('urlState round-trip', () => {
 	it('round-trips a biga pre-ferment', () => {
 		const inp: SerializableInputs = {
 			...base,
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		};
 		const out = decodeInputs(encodeInputs(inp));
-		expect(out.preFerment).toEqual({ type: 'biga', flourPercent: 30 });
+		expect(out.preFerments).toEqual([{ type: 'biga', flourPercent: 30 }]);
 	});
 
 	it('round-trips a poolish pre-ferment', () => {
 		const inp: SerializableInputs = {
 			...base,
-			preFerment: { type: 'poolish', flourPercent: 20 }
+			preFerments: [{ type: 'poolish', flourPercent: 20 }]
 		};
 		const out = decodeInputs(encodeInputs(inp));
-		expect(out.preFerment).toEqual({ type: 'poolish', flourPercent: 20 });
+		expect(out.preFerments).toEqual([{ type: 'poolish', flourPercent: 20 }]);
 	});
 
 	it('keeps query parameter keys short', () => {
@@ -86,25 +110,71 @@ describe('urlState round-trip', () => {
 		expect(out.startAt).toBeUndefined();
 	});
 
-	it('clears the pre-ferment when its value is malformed', () => {
+	it('clears the pre-ferments when the value is malformed', () => {
 		// Unknown type prefix
-		expect(decodeInputs('?p=xyz').preFerment).toBeNull();
+		expect(decodeInputs('?p=xyz').preFerments).toEqual([]);
 		// Known prefix but non-positive flour percentage
-		expect(decodeInputs('?p=b0').preFerment).toBeNull();
-		expect(decodeInputs('?p=p-5').preFerment).toBeNull();
+		expect(decodeInputs('?p=b0').preFerments).toEqual([]);
+		expect(decodeInputs('?p=p-5').preFerments).toEqual([]);
 		// Non-numeric flour percentage
-		expect(decodeInputs('?p=bxx').preFerment).toBeNull();
+		expect(decodeInputs('?p=bxx').preFerments).toEqual([]);
 	});
 
 	it('round-trips a poolish pre-ferment in the encoded URL', () => {
-		const encoded = encodeInputs({ ...base, preFerment: { type: 'poolish', flourPercent: 20 } });
+		const encoded = encodeInputs({ ...base, preFerments: [{ type: 'poolish', flourPercent: 20 }] });
 		expect(encoded).toContain('p=p20');
+	});
+
+	it('round-trips combined biga + poolish as an underscore-separated token list', () => {
+		const combined: SerializableInputs = {
+			...base,
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		};
+		const encoded = encodeInputs(combined);
+		// '_' survives URLSearchParams unescaped, keeping the link readable.
+		expect(encoded).toContain('p=b30_p20');
+		expect(decodeInputs(encoded).preFerments).toEqual(combined.preFerments);
+	});
+
+	it('accepts a comma separator in hand-written links', () => {
+		expect(decodeInputs('?p=b30,p20').preFerments).toEqual([
+			{ type: 'biga', flourPercent: 30 },
+			{ type: 'poolish', flourPercent: 20 }
+		]);
+	});
+
+	it('canonicalises token order to biga-first', () => {
+		expect(decodeInputs('?p=p20_b30').preFerments).toEqual([
+			{ type: 'biga', flourPercent: 30 },
+			{ type: 'poolish', flourPercent: 20 }
+		]);
+	});
+
+	it('keeps the first token when a type is duplicated', () => {
+		expect(decodeInputs('?p=b30_b50').preFerments).toEqual([{ type: 'biga', flourPercent: 30 }]);
+	});
+
+	it('clamps each flour percent to the [5, 80] form band', () => {
+		expect(decodeInputs('?p=b90').preFerments).toEqual([{ type: 'biga', flourPercent: 80 }]);
+		expect(decodeInputs('?p=b2').preFerments).toEqual([{ type: 'biga', flourPercent: 5 }]);
+	});
+
+	it('caps the combined flour share at 80% — the second token yields', () => {
+		expect(decodeInputs('?p=b70_p40').preFerments).toEqual([
+			{ type: 'biga', flourPercent: 70 },
+			{ type: 'poolish', flourPercent: 10 }
+		]);
+		// The remainder falls below the 5% minimum — drop the second entirely.
+		expect(decodeInputs('?p=b78_p40').preFerments).toEqual([{ type: 'biga', flourPercent: 78 }]);
 	});
 });
 
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=3');
+		expect(encodeInputs(base)).toContain('v=4');
 	});
 
 	it('decodes legacy links that predate the v parameter as v1', () => {
@@ -149,6 +219,29 @@ describe('urlState versioning', () => {
 		expect(out.sugarPercent).toBe(2);
 	});
 
+	it('v=3 links omit the mixing method so FormState defaults (machine) fill in', () => {
+		// Every share-link issued before v=4 was computed against the fixed
+		// 15-min machine mix. The decoder must leave mixingMethod undefined so
+		// state.apply preserves the form default.
+		const out = decodeInputs('?v=3&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22&ft=4');
+		expect(out.mixingMethod).toBeUndefined();
+	});
+
+	it('round-trips hand mixing on v=4', () => {
+		const out = decodeInputs(encodeInputs({ ...base, mixingMethod: 'hand' }));
+		expect(out.mixingMethod).toBe('hand');
+	});
+
+	it('omits the mixing method from the encoded URL when machine', () => {
+		expect(encodeInputs(base)).not.toContain('mm=');
+	});
+
+	it('accepts an explicit mm=m as machine', () => {
+		// encode never emits it, but hand-crafted URLs should still resolve.
+		const out = decodeInputs('?v=4&n=4&b=280&h=70&y=f&t=22&mm=m');
+		expect(out.mixingMethod).toBe('machine');
+	});
+
 	it('omits oil & sugar from the encoded URL when both are 0', () => {
 		const encoded = encodeInputs(base);
 		// Compact URLs: don't carry zero defaults — saves bytes and matches the
@@ -168,5 +261,33 @@ describe('urlState versioning', () => {
 	it('treats a non-numeric v as the current version', () => {
 		const out = decodeInputs('?v=garbage&n=4');
 		expect(out.pizzaCount).toBe(4);
+	});
+});
+
+describe('view mode in the URL', () => {
+	it('stamps md=b when encoding in beginner mode and omits it in expert mode', () => {
+		expect(encodeInputs(base, { mode: 'beginner' })).toContain('md=b');
+		expect(encodeInputs(base, { mode: 'expert' })).not.toContain('md=');
+		expect(encodeInputs(base)).not.toContain('md=');
+	});
+
+	it('resolves an explicit md param in either direction', () => {
+		expect(decodeUiMode('?md=b&n=4')).toBe('beginner');
+		expect(decodeUiMode('?md=e&n=4')).toBe('expert');
+	});
+
+	it('resolves any recipe link without md as expert — pre-v4 links were made in the full view', () => {
+		expect(decodeUiMode('?v=3&n=4&b=280&h=70&y=f&t=22')).toBe('expert');
+		// Legacy links predate the v param but still carry recipe keys.
+		expect(decodeUiMode('?r=2026-05-12T19:00:00.000Z&n=4')).toBe('expert');
+	});
+
+	it('returns null for a fresh visit so the caller can fall back to the stored preference', () => {
+		expect(decodeUiMode('')).toBeNull();
+		expect(decodeUiMode('?')).toBeNull();
+	});
+
+	it('round-trips beginner mode through encode and decode', () => {
+		expect(decodeUiMode(`?${encodeInputs(base, { mode: 'beginner' })}`)).toBe('beginner');
 	});
 });

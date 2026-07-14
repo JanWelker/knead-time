@@ -74,14 +74,25 @@ export function buildMergeVariables(
 	msgs: Messages,
 	locale: Locale
 ): TrmnlMergeVariables {
-	const yeastLabel =
-		inputs.yeastType === 'fresh' ? msgs.form.yeast_fresh : msgs.form.yeast_sourdough;
+	const YEAST_LABEL_KEYS = {
+		fresh: 'yeast_fresh',
+		instant: 'yeast_instant',
+		'active-dry': 'yeast_active_dry',
+		sourdough: 'yeast_sourdough'
+	} as const;
+	const yeastLabel = msgs.form[YEAST_LABEL_KEYS[inputs.yeastType]];
 	const preFermentLabel =
-		inputs.preFerment?.type === 'biga'
-			? msgs.form.preFerment_biga
-			: inputs.preFerment?.type === 'poolish'
-				? msgs.form.preFerment_poolish
-				: null;
+		inputs.preFerments.length > 0
+			? inputs.preFerments
+					.map((pf) =>
+						// "Biga (stiff, ~50% hydration)" → "Biga"; the parenthetical
+						// blows the 2 KB payload budget for no e-ink value.
+						(pf.type === 'biga' ? msgs.form.preFerment_biga : msgs.form.preFerment_poolish)
+							.split('(')[0]
+							.trim()
+					)
+					.join(' + ')
+			: null;
 	const modeLabel = schedule.mode === 'cold' ? msgs.mode.cold : msgs.mode.room;
 
 	const summary =

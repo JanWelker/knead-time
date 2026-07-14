@@ -19,218 +19,230 @@
 	}
 </script>
 
-<header class="mb-4">
-	<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-		{t.pizzerias.heading}
-	</h2>
-	<p class="mt-1 text-sm text-stone-500 dark:text-stone-400">{t.pizzerias.intro}</p>
-</header>
+<!-- Collapsed by default — the reference recipes are a rabbit hole, not part
+     of the primary calculate-my-dough flow. -->
+<details class="group">
+	<summary class="flex cursor-pointer list-none items-start gap-2 select-none">
+		<span
+			class="text-accent mt-2 font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
+			aria-hidden="true">▶</span
+		>
+		<header>
+			<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+				{t.pizzerias.heading}
+			</h2>
+			<p class="mt-1 text-sm text-stone-500 dark:text-stone-400">{t.pizzerias.intro}</p>
+		</header>
+	</summary>
 
-{#if entries.length === 0}
-	<p class="text-sm text-stone-500 dark:text-stone-400">{t.pizzerias.empty}</p>
-{:else}
-	<!-- Mobile: card list. The desktop table is wider than the viewport on phones
+	<div class="mt-4">
+		{#if entries.length === 0}
+			<p class="text-sm text-stone-500 dark:text-stone-400">{t.pizzerias.empty}</p>
+		{:else}
+			<!-- Mobile: card list. The desktop table is wider than the viewport on phones
 	     and the secondary actions land behind a hidden horizontal scrollbar —
 	     cards put Open up front and tuck the rest under a disclosure. -->
-	<ul class="flex flex-col gap-3 md:hidden">
-		{#each entries as entry (entry.recipeUrl)}
-			<li class="border-dough-200/70 rounded-lg border p-3 dark:border-stone-700/70">
-				<div class="flex items-baseline justify-between gap-3">
-					<span class="font-medium text-stone-800 dark:text-stone-100">
-						{#if entry.profileUrl}
-							<a
-								href={entry.profileUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
-							>
-								{entry.name}
-							</a>
-						{:else}
-							{entry.name}
-						{/if}
-					</span>
-					<span class="text-xs whitespace-nowrap text-stone-500 dark:text-stone-400">
-						{entry.city}, {entry.country}
-					</span>
-				</div>
-				<ul class="mt-2 flex flex-wrap gap-1 text-xs">
-					{#each chronological(entry.rankings) as r (`${r.year}-${r.list}`)}
-						<li
-							class="bg-dough-100 rounded-full px-2 py-0.5 text-stone-700 tabular-nums dark:bg-stone-800 dark:text-stone-200"
-							title="{listLabel(r.list)} · {r.year}"
-						>
-							#{r.rank} <span class="text-stone-500 dark:text-stone-400">{r.year}</span>
-							<span class="text-stone-400 dark:text-stone-500">{listLabel(r.list)}</span>
-						</li>
-					{/each}
-				</ul>
-				<div class="mt-3 flex flex-wrap gap-2">
-					<a
-						href={resolve('/') + entry.recipeSearch}
-						rel="external"
-						class="btn-tomato inline-flex items-center justify-center"
-					>
-						{t.pizzerias.open_link}
-					</a>
-					<a
-						href={entry.sourceUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="btn-tomato inline-flex items-center justify-center"
-					>
-						{t.pizzerias.source_link}
-					</a>
-				</div>
-				<details class="mt-3 text-sm">
-					<summary
-						class="hover:text-tomato-600 dark:hover:text-tomato-300 cursor-pointer text-stone-500 dark:text-stone-400"
-					>
-						{t.pizzerias.details_label}
-					</summary>
-					<dl
-						class="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-stone-600 dark:text-stone-300"
-					>
-						<dt class="font-medium">{t.pizzerias.col_pizzas}</dt>
-						<dd class="tabular-nums">{numLabel(entry.inputs.pizzaCount)}</dd>
-						<dt class="font-medium">{t.pizzerias.col_ball}</dt>
-						<dd class="tabular-nums">{numLabel(entry.inputs.ballWeight, ' g')}</dd>
-						<dt class="font-medium">{t.pizzerias.col_hydration}</dt>
-						<dd class="tabular-nums">{numLabel(entry.inputs.hydration, '%')}</dd>
-						<dt class="font-medium">{t.pizzerias.col_salt}</dt>
-						<dd class="tabular-nums">{numLabel(entry.inputs.saltPercent, '%')}</dd>
-						{#if (entry.inputs.oilPercent ?? 0) > 0}
-							<dt class="font-medium">{t.pizzerias.col_oil}</dt>
-							<dd class="tabular-nums">{numLabel(entry.inputs.oilPercent, '%')}</dd>
-						{/if}
-						{#if (entry.inputs.sugarPercent ?? 0) > 0}
-							<dt class="font-medium">{t.pizzerias.col_sugar}</dt>
-							<dd class="tabular-nums">{numLabel(entry.inputs.sugarPercent, '%')}</dd>
-						{/if}
-						<dt class="font-medium">{t.pizzerias.col_yeast}</dt>
-						<dd>{yeastLabel(entry.inputs, t)}</dd>
-						<dt class="font-medium">{t.pizzerias.col_temp}</dt>
-						<dd class="tabular-nums">{numLabel(entry.inputs.roomTempC, '°C')}</dd>
-						<dt class="font-medium">{t.pizzerias.col_fridge}</dt>
-						<dd class="tabular-nums">{numLabel(entry.inputs.fridgeTempC, '°C')}</dd>
-						<dt class="font-medium">{t.pizzerias.col_preFerment}</dt>
-						<dd>{preFermentLabel(entry.inputs, t)}</dd>
-					</dl>
-					{#if entry.notes}
-						<p class="mt-2 text-xs text-stone-500 italic dark:text-stone-400">
-							{entry.notes}
-						</p>
-					{/if}
-				</details>
-			</li>
-		{/each}
-	</ul>
-
-	<!-- Desktop: full table. -->
-	<div class="hidden overflow-x-auto md:block">
-		<table class="w-full min-w-[840px] border-collapse text-left text-sm tabular-nums">
-			<thead>
-				<tr
-					class="border-dough-300 border-b text-xs tracking-wider text-stone-500 uppercase dark:border-stone-700 dark:text-stone-400"
-				>
-					<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_pizzeria}</th>
-					<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_location}</th>
-					<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_rankings}</th>
-					<th class="py-2 pr-3 text-right font-semibold">{t.pizzerias.col_hydration}</th>
-					<th class="py-2 pr-3 text-right font-semibold">{t.pizzerias.col_salt}</th>
-					<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_yeast}</th>
-					<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_preFerment}</th>
-					<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_open}</th>
-					<th class="py-2 font-semibold">{t.pizzerias.col_source}</th>
-				</tr>
-			</thead>
-			<tbody>
+			<ul class="flex flex-col gap-3 md:hidden">
 				{#each entries as entry (entry.recipeUrl)}
-					<tr class="row-divider align-top">
-						<td class="py-3 pr-3 font-medium text-stone-800 dark:text-stone-100">
-							{#if entry.profileUrl}
-								<a
-									href={entry.profileUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
-								>
-									{entry.name}
-								</a>
-							{:else}
-								{entry.name}
-							{/if}
-							{#if entry.notes}
-								<div
-									class="mt-1 max-w-xs text-xs font-normal text-stone-500 italic dark:text-stone-400"
-									title={entry.notes}
-								>
-									{entry.notes}
-								</div>
-							{/if}
-						</td>
-						<td class="py-3 pr-3 whitespace-nowrap text-stone-500 dark:text-stone-400">
-							{entry.city}, {entry.country}
-						</td>
-						<td class="py-3 pr-3">
-							<ul class="flex flex-wrap gap-1 text-xs">
-								{#each chronological(entry.rankings) as r (`${r.year}-${r.list}`)}
-									<li
-										class="bg-dough-100 rounded-full px-2 py-0.5 text-stone-700 tabular-nums dark:bg-stone-800 dark:text-stone-200"
-										title="{listLabel(r.list)} · {r.year}"
+					<li class="border-dough-200/70 rounded-lg border p-3 dark:border-stone-700/70">
+						<div class="flex items-baseline justify-between gap-3">
+							<span class="font-medium text-stone-800 dark:text-stone-100">
+								{#if entry.profileUrl}
+									<a
+										href={entry.profileUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
 									>
-										#{r.rank}
-										<span class="text-stone-500 dark:text-stone-400">{r.year}</span>
-										<span class="text-stone-400 dark:text-stone-500">{listLabel(r.list)}</span>
-									</li>
-								{/each}
-							</ul>
-						</td>
-						<td class="py-3 pr-3 text-right tabular-nums"
-							>{numLabel(entry.inputs.hydration, '%')}</td
-						>
-						<td class="py-3 pr-3 text-right tabular-nums"
-							>{numLabel(entry.inputs.saltPercent, '%')}</td
-						>
-						<td class="py-3 pr-3">{yeastLabel(entry.inputs, t)}</td>
-						<td class="py-3 pr-3">{preFermentLabel(entry.inputs, t)}</td>
-						<td class="py-3 pr-3">
+										{entry.name}
+									</a>
+								{:else}
+									{entry.name}
+								{/if}
+							</span>
+							<span class="text-xs whitespace-nowrap text-stone-500 dark:text-stone-400">
+								{entry.city}, {entry.country}
+							</span>
+						</div>
+						<ul class="mt-2 flex flex-wrap gap-1 text-xs">
+							{#each chronological(entry.rankings) as r (`${r.year}-${r.list}`)}
+								<li
+									class="bg-dough-100 rounded-full px-2 py-0.5 text-stone-700 tabular-nums dark:bg-stone-800 dark:text-stone-200"
+									title="{listLabel(r.list)} · {r.year}"
+								>
+									#{r.rank} <span class="text-stone-500 dark:text-stone-400">{r.year}</span>
+									<span class="text-stone-400 dark:text-stone-500">{listLabel(r.list)}</span>
+								</li>
+							{/each}
+						</ul>
+						<div class="mt-3 flex flex-wrap gap-2">
 							<a
 								href={resolve('/') + entry.recipeSearch}
 								rel="external"
-								class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+								class="btn-tomato inline-flex items-center justify-center"
 							>
 								{t.pizzerias.open_link}
 							</a>
-						</td>
-						<td class="py-3">
 							<a
 								href={entry.sourceUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+								class="btn-tomato inline-flex items-center justify-center"
 							>
 								{t.pizzerias.source_link}
 							</a>
-						</td>
-					</tr>
+						</div>
+						<details class="mt-3 text-sm">
+							<summary
+								class="hover:text-tomato-600 dark:hover:text-tomato-300 cursor-pointer text-stone-500 dark:text-stone-400"
+							>
+								{t.pizzerias.details_label}
+							</summary>
+							<dl
+								class="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-stone-600 dark:text-stone-300"
+							>
+								<dt class="font-medium">{t.pizzerias.col_pizzas}</dt>
+								<dd class="tabular-nums">{numLabel(entry.inputs.pizzaCount)}</dd>
+								<dt class="font-medium">{t.pizzerias.col_ball}</dt>
+								<dd class="tabular-nums">{numLabel(entry.inputs.ballWeight, ' g')}</dd>
+								<dt class="font-medium">{t.pizzerias.col_hydration}</dt>
+								<dd class="tabular-nums">{numLabel(entry.inputs.hydration, '%')}</dd>
+								<dt class="font-medium">{t.pizzerias.col_salt}</dt>
+								<dd class="tabular-nums">{numLabel(entry.inputs.saltPercent, '%')}</dd>
+								{#if (entry.inputs.oilPercent ?? 0) > 0}
+									<dt class="font-medium">{t.pizzerias.col_oil}</dt>
+									<dd class="tabular-nums">{numLabel(entry.inputs.oilPercent, '%')}</dd>
+								{/if}
+								{#if (entry.inputs.sugarPercent ?? 0) > 0}
+									<dt class="font-medium">{t.pizzerias.col_sugar}</dt>
+									<dd class="tabular-nums">{numLabel(entry.inputs.sugarPercent, '%')}</dd>
+								{/if}
+								<dt class="font-medium">{t.pizzerias.col_yeast}</dt>
+								<dd>{yeastLabel(entry.inputs, t)}</dd>
+								<dt class="font-medium">{t.pizzerias.col_temp}</dt>
+								<dd class="tabular-nums">{numLabel(entry.inputs.roomTempC, '°C')}</dd>
+								<dt class="font-medium">{t.pizzerias.col_fridge}</dt>
+								<dd class="tabular-nums">{numLabel(entry.inputs.fridgeTempC, '°C')}</dd>
+								<dt class="font-medium">{t.pizzerias.col_preFerment}</dt>
+								<dd>{preFermentLabel(entry.inputs, t)}</dd>
+							</dl>
+							{#if entry.notes}
+								<p class="mt-2 text-xs text-stone-500 italic dark:text-stone-400">
+									{entry.notes}
+								</p>
+							{/if}
+						</details>
+					</li>
 				{/each}
-			</tbody>
-		</table>
+			</ul>
+
+			<!-- Desktop: full table. -->
+			<div class="hidden overflow-x-auto md:block">
+				<table class="w-full min-w-[840px] border-collapse text-left text-sm tabular-nums">
+					<thead>
+						<tr
+							class="border-dough-300 border-b text-xs tracking-wider text-stone-500 uppercase dark:border-stone-700 dark:text-stone-400"
+						>
+							<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_pizzeria}</th>
+							<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_location}</th>
+							<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_rankings}</th>
+							<th class="py-2 pr-3 text-right font-semibold">{t.pizzerias.col_hydration}</th>
+							<th class="py-2 pr-3 text-right font-semibold">{t.pizzerias.col_salt}</th>
+							<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_yeast}</th>
+							<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_preFerment}</th>
+							<th class="py-2 pr-3 font-semibold">{t.pizzerias.col_open}</th>
+							<th class="py-2 font-semibold">{t.pizzerias.col_source}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each entries as entry (entry.recipeUrl)}
+							<tr class="row-divider align-top">
+								<td class="py-3 pr-3 font-medium text-stone-800 dark:text-stone-100">
+									{#if entry.profileUrl}
+										<a
+											href={entry.profileUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+											class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+										>
+											{entry.name}
+										</a>
+									{:else}
+										{entry.name}
+									{/if}
+									{#if entry.notes}
+										<div
+											class="mt-1 max-w-xs text-xs font-normal text-stone-500 italic dark:text-stone-400"
+											title={entry.notes}
+										>
+											{entry.notes}
+										</div>
+									{/if}
+								</td>
+								<td class="py-3 pr-3 whitespace-nowrap text-stone-500 dark:text-stone-400">
+									{entry.city}, {entry.country}
+								</td>
+								<td class="py-3 pr-3">
+									<ul class="flex flex-wrap gap-1 text-xs">
+										{#each chronological(entry.rankings) as r (`${r.year}-${r.list}`)}
+											<li
+												class="bg-dough-100 rounded-full px-2 py-0.5 text-stone-700 tabular-nums dark:bg-stone-800 dark:text-stone-200"
+												title="{listLabel(r.list)} · {r.year}"
+											>
+												#{r.rank}
+												<span class="text-stone-500 dark:text-stone-400">{r.year}</span>
+												<span class="text-stone-400 dark:text-stone-500">{listLabel(r.list)}</span>
+											</li>
+										{/each}
+									</ul>
+								</td>
+								<td class="py-3 pr-3 text-right tabular-nums"
+									>{numLabel(entry.inputs.hydration, '%')}</td
+								>
+								<td class="py-3 pr-3 text-right tabular-nums"
+									>{numLabel(entry.inputs.saltPercent, '%')}</td
+								>
+								<td class="py-3 pr-3">{yeastLabel(entry.inputs, t)}</td>
+								<td class="py-3 pr-3">{preFermentLabel(entry.inputs, t)}</td>
+								<td class="py-3 pr-3">
+									<a
+										href={resolve('/') + entry.recipeSearch}
+										rel="external"
+										class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+									>
+										{t.pizzerias.open_link}
+									</a>
+								</td>
+								<td class="py-3">
+									<a
+										href={entry.sourceUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+									>
+										{t.pizzerias.source_link}
+									</a>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+			<p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
+				{t.pizzerias.contribute.before_md}<a
+					href="https://github.com/JanWelker/knead-time/blob/main/src/lib/pizzerias/pizzerias.md"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+					>{t.pizzerias.contribute.md}</a
+				>{t.pizzerias.contribute.between}<a
+					href="https://github.com/JanWelker/knead-time/pulls"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+					>{t.pizzerias.contribute.pr}</a
+				>{t.pizzerias.contribute.after}
+			</p>
+		{/if}
 	</div>
-	<p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
-		{t.pizzerias.contribute.before_md}<a
-			href="https://github.com/JanWelker/knead-time/blob/main/src/lib/pizzerias/pizzerias.md"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
-			>{t.pizzerias.contribute.md}</a
-		>{t.pizzerias.contribute.between}<a
-			href="https://github.com/JanWelker/knead-time/pulls"
-			target="_blank"
-			rel="noopener noreferrer"
-			class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
-			>{t.pizzerias.contribute.pr}</a
-		>{t.pizzerias.contribute.after}
-	</p>
-{/if}
+</details>

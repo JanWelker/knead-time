@@ -35,6 +35,21 @@ describe('buildIcs', () => {
 		expect(events.length).toBe(steps.length);
 	});
 
+	it('keeps UIDs unique for two preferment-mix steps sharing a start time', () => {
+		// Both pre-ferments can shrink to the same wall budget and start at the
+		// same minute — the pre-ferment type must keep their UIDs apart or
+		// calendars silently drop one event on import.
+		const at = new Date('2026-05-12T08:00:00Z');
+		const clashing: ScheduleStep[] = [
+			{ kind: 'preferment-mix', at, durationMinutes: 300, preFermentType: 'biga' },
+			{ kind: 'preferment-mix', at, durationMinutes: 300, preFermentType: 'poolish' }
+		];
+		const out = buildIcs(clashing, describe_);
+		const uids = [...out.matchAll(/UID:([^\r\n]+)/g)].map((m) => m[1]);
+		expect(uids).toHaveLength(2);
+		expect(new Set(uids).size).toBe(2);
+	});
+
 	it('wraps with BEGIN/END:VCALENDAR', () => {
 		const out = buildIcs(steps, describe_);
 		expect(out.startsWith('BEGIN:VCALENDAR\r\n')).toBe(true);

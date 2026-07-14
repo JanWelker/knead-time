@@ -1,4 +1,9 @@
-import type { Ingredients, YeastType } from './types';
+import type { Ingredients, PreFermentSpec, YeastType } from './types';
+
+// Traditional pre-dough consistencies: a biga is stiff, a poolish pours.
+export function prefermentHydration(type: PreFermentSpec['type']): number {
+	return type === 'biga' ? 50 : 100;
+}
 
 export interface BakerArgs {
 	pizzaCount: number;
@@ -10,10 +15,9 @@ export interface BakerArgs {
 	oilPercent: number;
 	sugarPercent: number;
 	yeastPercent: number;
-	yeastType: 'fresh' | 'sourdough';
+	yeastType: YeastType;
 	starterHydration: number;
-	preFermentFlourPercent: number;
-	preFermentHydration: number;
+	preFerments: PreFermentSpec[];
 }
 
 // Mass balance: total = sum of every separately-weighed ingredient.
@@ -42,9 +46,9 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 	const totalDough = args.pizzaCount * args.ballWeight;
 	const isSourdough = args.yeastType === 'sourdough';
 	// Sourdough's "starter" is the pre-ferment — adding a separate biga/poolish
-	// on top would double-stack two cultures. computeSchedule already nulls the
-	// preFerment for sourdough; this guard makes the bakers' module match.
-	const hasPreFerment = !isSourdough && args.preFermentFlourPercent > 0;
+	// on top would double-stack two cultures. computeSchedule already empties
+	// the preFerments for sourdough; this guard makes the bakers' module match.
+	const hasPreFerment = !isSourdough && args.preFerments.length > 0;
 
 	const pctSum = computePctSum(args);
 	const flourTotal = (totalDough * 100) / pctSum;
@@ -54,15 +58,24 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 	const sugar = (flourTotal * args.sugarPercent) / 100;
 	const yeastMass = (flourTotal * args.yeastPercent) / 100;
 
-	let preFerment: Ingredients['preFerment'] = null;
+	let preFerments: Ingredients['preFerments'] = [];
 	if (hasPreFerment) {
-		const pfFlour = (flourTotal * args.preFermentFlourPercent) / 100;
-		const pfWater = (pfFlour * args.preFermentHydration) / 100;
-		// All of the recipe's yeast goes into the pre-ferment — that's how
+		// All of the recipe's yeast goes into the pre-ferments — that's how
 		// biga/poolish technique actually works: the pre-dough is the yeast
-		// carrier, no extra yeast is added on baking day. Oil and sugar stay
-		// in the main dough; they'd inhibit the pre-ferment's culture.
-		preFerment = { flour: pfFlour, water: pfWater, yeast: yeastMass };
+		// carrier, no extra yeast is added on baking day. With two pre-ferments
+		// running in parallel the yeast splits proportional to each one's flour
+		// share, so both cultures ripen at the same per-gram pace. Oil and sugar
+		// stay in the main dough; they'd inhibit the pre-ferments' cultures.
+		const totalShare = args.preFerments.reduce((sum, pf) => sum + pf.flourPercent, 0);
+		preFerments = args.preFerments.map((pf) => {
+			const pfFlour = (flourTotal * pf.flourPercent) / 100;
+			return {
+				type: pf.type,
+				flour: pfFlour,
+				water: (pfFlour * prefermentHydration(pf.type)) / 100,
+				yeast: yeastMass * (pf.flourPercent / totalShare)
+			};
+		});
 	}
 
 	if (isSourdough) {
@@ -76,19 +89,19 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 			oil,
 			sugar,
 			totalDough,
-			preFerment: null
+			preFerments: []
 		};
 	}
 
 	return {
-		flour: flourTotal - (preFerment?.flour ?? 0),
-		water: waterTotal - (preFerment?.water ?? 0),
+		flour: flourTotal - preFerments.reduce((sum, pf) => sum + pf.flour, 0),
+		water: waterTotal - preFerments.reduce((sum, pf) => sum + pf.water, 0),
 		salt,
 		yeast: hasPreFerment ? 0 : yeastMass,
 		oil,
 		sugar,
 		totalDough,
-		preFerment
+		preFerments
 	};
 }
 
@@ -104,17 +117,21 @@ export interface RoundBallWeightArgs {
 }
 
 // Picks a "nice" flour target near the current flour and returns the ball weight
-// that produces it exactly. Prefers a multiple of 100 g when it's not much worse
-// than the nearest multiple of 50 g; otherwise rounds to 50 g.
+// that produces it exactly. Always snaps to the nearest 100 g — the whole point
+// of the button is a round bag-of-flour number — except for small batches
+// (< 400 g flour) where a 100 g jump would shift the ball weight noticeably;
+// those snap to 50 g instead.
+const ROUND_FLOUR_COARSE_MIN_G = 400;
+
 export function roundBallWeight(args: RoundBallWeightArgs): number {
 	const pctSum = computePctSum(args);
 	const currentTotal = args.pizzaCount * args.ballWeight;
 	const currentFlour = (currentTotal * 100) / pctSum;
 
-	const t50 = Math.max(50, Math.round(currentFlour / 50) * 50);
-	const t100 = Math.max(100, Math.round(currentFlour / 100) * 100);
 	const targetFlour =
-		Math.abs(t100 - currentFlour) - Math.abs(t50 - currentFlour) <= 25 ? t100 : t50;
+		currentFlour >= ROUND_FLOUR_COARSE_MIN_G
+			? Math.max(100, Math.round(currentFlour / 100) * 100)
+			: Math.max(50, Math.round(currentFlour / 50) * 50);
 
 	const newTotal = (targetFlour * pctSum) / 100;
 	return Math.round((newTotal / args.pizzaCount) * 10) / 10;

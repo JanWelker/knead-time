@@ -18,7 +18,8 @@
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { qrCode } from '$lib/qr';
-	import { stepDescription, stepIngredients, stepTitle } from '$lib/stepCopy';
+	import { stepDescription, stepIngredients, stepTitle, yeastIngredientName } from '$lib/stepCopy';
+	import { yeastLabel as yeastTypeLabelFor } from '$lib/components/recipeLabels';
 
 	// Locale lives in the URL path so each language can ship its own prerendered
 	// HTML; the root layout skips its navigator-based detection on this route.
@@ -41,7 +42,10 @@
 		starterHydration: 100,
 		roomTempC: 22,
 		fridgeTempC: 4,
-		preFerment: null
+		preFermentTempC: null,
+		ballProof: 'room',
+		mixingMethod: 'machine',
+		preFerments: []
 	};
 
 	// Decode synchronously on the client so the first paint after hydration
@@ -60,26 +64,28 @@
 		browser ? `${window.location.origin}${base}/?${encodeInputs(inputs)}` : ''
 	);
 	const qr = $derived(shareUrl ? qrCode(shareUrl) : null);
-	const yeastLabel = $derived(
-		inputs.yeastType === 'fresh' ? t.ingredients.fresh_yeast : t.ingredients.sourdough_starter
-	);
-	const yeastTypeLabel = $derived(
-		inputs.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
-	);
+	const yeastLabel = $derived(yeastIngredientName(inputs.yeastType, t));
+	const yeastTypeLabel = $derived(yeastTypeLabelFor(inputs, t));
 	const preFermentLabel = $derived(
-		schedule.preFerment?.type === 'biga'
-			? t.form.preFerment_biga
-			: schedule.preFerment?.type === 'poolish'
-				? t.form.preFerment_poolish
-				: null
+		schedule.preFerments.length > 0
+			? schedule.preFerments
+					.map((pf) => (pf.type === 'biga' ? t.form.preFerment_biga : t.form.preFerment_poolish))
+					.join(' + ')
+			: null
 	);
 	const totals = $derived(
-		schedule.ingredients.preFerment
+		schedule.ingredients.preFerments.length > 0
 			? {
-					flour: schedule.ingredients.flour + schedule.ingredients.preFerment.flour,
-					water: schedule.ingredients.water + schedule.ingredients.preFerment.water,
+					flour:
+						schedule.ingredients.flour +
+						schedule.ingredients.preFerments.reduce((sum, pf) => sum + pf.flour, 0),
+					water:
+						schedule.ingredients.water +
+						schedule.ingredients.preFerments.reduce((sum, pf) => sum + pf.water, 0),
 					salt: schedule.ingredients.salt,
-					yeast: schedule.ingredients.yeast + schedule.ingredients.preFerment.yeast
+					yeast:
+						schedule.ingredients.yeast +
+						schedule.ingredients.preFerments.reduce((sum, pf) => sum + pf.yeast, 0)
 				}
 			: null
 	);
@@ -295,29 +301,23 @@
 		</div>
 		<div>
 			<h2>{t.ingredients.heading}</h2>
-			{#if schedule.ingredients.preFerment}
-				<section class="printpage-ingredients-section">
-					<h3>{t.ingredients.preFerment_heading}</h3>
-					<table class="printpage-ingredients">
-						<tbody>
-							<tr
-								><th>{t.ingredients.flour}</th><td
-									>{formatGrams(schedule.ingredients.preFerment.flour)}</td
-								></tr
-							>
-							<tr
-								><th>{t.ingredients.water}</th><td
-									>{formatGrams(schedule.ingredients.preFerment.water)}</td
-								></tr
-							>
-							<tr
-								><th>{t.ingredients.fresh_yeast}</th><td
-									>{formatGrams(schedule.ingredients.preFerment.yeast)}</td
-								></tr
-							>
-						</tbody>
-					</table>
-				</section>
+			{#if schedule.ingredients.preFerments.length > 0}
+				{#each schedule.ingredients.preFerments as pf (pf.type)}
+					<section class="printpage-ingredients-section">
+						<h3>
+							{pf.type === 'biga'
+								? t.ingredients.preFerment_heading_biga
+								: t.ingredients.preFerment_heading_poolish}
+						</h3>
+						<table class="printpage-ingredients">
+							<tbody>
+								<tr><th>{t.ingredients.flour}</th><td>{formatGrams(pf.flour)}</td></tr>
+								<tr><th>{t.ingredients.water}</th><td>{formatGrams(pf.water)}</td></tr>
+								<tr><th>{yeastLabel}</th><td>{formatGrams(pf.yeast)}</td></tr>
+							</tbody>
+						</table>
+					</section>
+				{/each}
 				<section class="printpage-ingredients-section">
 					<h3>{t.ingredients.mainDough_heading}</h3>
 					<table class="printpage-ingredients">

@@ -51,7 +51,7 @@ closing paragraph
 		const entries = parseCommunity(md);
 		expect(entries).toHaveLength(1);
 		expect(entries[0].url).toBe('https://example.com/?n=8&b=290&h=72&y=f&t=20&p=b30');
-		expect(entries[0].inputs.preFerment).toEqual({ type: 'biga', flourPercent: 30 });
+		expect(entries[0].inputs.preFerments).toEqual([{ type: 'biga', flourPercent: 30 }]);
 	});
 
 	it('drops rows whose URL cannot be parsed', () => {

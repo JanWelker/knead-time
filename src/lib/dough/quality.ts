@@ -1,4 +1,4 @@
-import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
+import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS, yeastMassFactor } from './fermentation';
 import {
 	ACTIVE_NIGHT_KINDS,
 	COLD_BULK_CEIL_MIN,
@@ -8,17 +8,19 @@ import {
 } from './schedule';
 import type { ComputedSchedule, DoughInputs, ScheduleStep } from './types';
 
-// Schedule-imperfection penalties (0–100 scale). Tuned so a 2 h cold-bulk
-// night-shift takes the score from 100 to ~88 — visibly off, but still
-// "good". A residual night-step warning is a much bigger ding because
-// nothing the math did managed to dodge it. Infeasibility is the largest
-// penalty: the dough literally can't ferment in the window.
-const SHIFT_PCT_PER_HOUR = 6;
-const CLAMP_PCT_PER_HOUR = 8;
-const NIGHT_STEP_PENALTY = 30;
+// Schedule-imperfection penalties (0–100 scale). The UI renders the score as
+// 0–5 stars (one star per 20 points), so rates are tuned generously — a 2 h
+// cold-bulk night-shift costs ~6 points and still reads as 5 stars; only real
+// stacking of problems pulls a recipe below 4. A residual night-step warning
+// is a bigger ding because nothing the math did managed to dodge it.
+// Infeasibility is the largest penalty: the dough literally can't ferment in
+// the window.
+const SHIFT_PCT_PER_HOUR = 3;
+const CLAMP_PCT_PER_HOUR = 4;
+const NIGHT_STEP_PENALTY = 20;
 const INFEASIBLE_PENALTY = 60;
-const MAX_SHIFT_DEDUCT = 30;
-const MAX_CLAMP_DEDUCT = 30;
+const MAX_SHIFT_DEDUCT = 20;
+const MAX_CLAMP_DEDUCT = 20;
 
 // Contemporary Neapolitan KPI bands. Inputs inside the band score 100; each
 // unit outside subtracts the per-unit rate, capped at the factor's max
@@ -27,32 +29,32 @@ const MAX_CLAMP_DEDUCT = 30;
 // the middle of every band — a defaults-only recipe scores 100.
 const HYDRATION_LOW = 60;
 const HYDRATION_HIGH = 80;
-const HYDRATION_PCT_PER_POINT = 2;
-const HYDRATION_MAX_DEDUCT = 15;
+const HYDRATION_PCT_PER_POINT = 1;
+const HYDRATION_MAX_DEDUCT = 10;
 
 const SALT_LOW = 2;
 const SALT_HIGH = 3.5;
-const SALT_PCT_PER_POINT = 8;
-const SALT_MAX_DEDUCT = 15;
+const SALT_PCT_PER_POINT = 4;
+const SALT_MAX_DEDUCT = 10;
 
 const BALL_LOW = 200;
 const BALL_HIGH = 320;
-const BALL_PCT_PER_GRAM = 0.2;
-const BALL_MAX_DEDUCT = 10;
+const BALL_PCT_PER_GRAM = 0.1;
+const BALL_MAX_DEDUCT = 8;
 
 const ROOM_TEMP_LOW = 14;
 const ROOM_TEMP_HIGH = 30;
-const ROOM_TEMP_PCT_PER_DEGREE = 3;
-const ROOM_TEMP_MAX_DEDUCT = 12;
+const ROOM_TEMP_PCT_PER_DEGREE = 1.5;
+const ROOM_TEMP_MAX_DEDUCT = 8;
 
 const FRIDGE_TEMP_LOW = 2;
 const FRIDGE_TEMP_HIGH = 8;
-const FRIDGE_TEMP_PCT_PER_DEGREE = 3;
-const FRIDGE_TEMP_MAX_DEDUCT = 10;
+const FRIDGE_TEMP_PCT_PER_DEGREE = 1.5;
+const FRIDGE_TEMP_MAX_DEDUCT = 8;
 
 const YEAST_PCT_LOW = 0.05;
 const YEAST_PCT_HIGH = 1.5;
-const YEAST_EXTREME_PENALTY = 12;
+const YEAST_EXTREME_PENALTY = 8;
 
 // Sub-minute drift between natural and actual is rounding noise, not a real
 // deviation; below this we don't flag or deduct.
@@ -110,11 +112,17 @@ function isNightStep(step: ScheduleStep): boolean {
 	return h >= NIGHT_START_HOUR || h < NIGHT_END_HOUR;
 }
 
+// The variable cold leg: bulk-cold classically, proof-cold with a cold ball
+// proof — same length semantics, so the quality factors treat them alike.
+function isColdLeg(kind: ScheduleStep['kind']): boolean {
+	return kind === 'bulk-cold' || kind === 'proof-cold';
+}
+
 function coldBulkShiftMin(schedule: ComputedSchedule): number {
 	if (schedule.mode !== 'cold' || schedule.naturalColdBulkMin === null) return 0;
-	// In cold mode schedule.ts always emits a bulk-cold step, so the find is
-	// guaranteed to succeed — the `!` reflects that invariant.
-	const actual = schedule.steps.find((s) => s.kind === 'bulk-cold')!;
+	// In cold mode schedule.ts always emits exactly one cold-leg step, so the
+	// find is guaranteed to succeed — the `!` reflects that invariant.
+	const actual = schedule.steps.find((s) => isColdLeg(s.kind))!;
 	const delta = actual.durationMinutes - schedule.naturalColdBulkMin;
 	return Math.abs(delta) < SHIFT_NOISE_FLOOR_MIN ? 0 : delta;
 }
@@ -132,19 +140,22 @@ function coldBulkClampMin(schedule: ComputedSchedule): { short: number; long: nu
 	return { short, long };
 }
 
-function prefermentClampHours(schedule: ComputedSchedule): { short: number; long: number } {
-	const natural = schedule.naturalPrefermentHours;
-	if (natural === null) return { short: 0, long: 0 };
+function prefermentClampHours(
+	schedule: ComputedSchedule,
+	entry: ComputedSchedule['naturalPreferments'][number]
+): { short: number; long: number } {
 	// Actual duration on the emitted step — may be < natural when the wall-clock
 	// window was too tight to fit the pre-ferment and we shrank it to honour
-	// startAt. The pre-ferment-mix step is always present when naturalHours is
-	// non-null, so a missing step would be a schedule-shape bug, not an input.
-	const actualHours = schedule.steps.find((s) => s.kind === 'preferment-mix')!.durationMinutes / 60;
+	// startAt. Each naturalPreferments entry has exactly one matching step, so
+	// a missing step would be a schedule-shape bug, not an input.
+	const actualHours =
+		schedule.steps.find((s) => s.kind === 'preferment-mix' && s.preFermentType === entry.type)!
+			.durationMinutes / 60;
 	// 'short' folds two reasons into one penalty: temperature wanted below
 	// MIN, OR time-budget forced actual below MIN. The user reads this as
 	// "the pre-ferment is too short" regardless of cause.
-	const short = Math.max(0, PREFERMENT_MIN_HOURS - Math.min(natural, actualHours));
-	const long = Math.max(0, natural - PREFERMENT_MAX_HOURS);
+	const short = Math.max(0, PREFERMENT_MIN_HOURS - Math.min(entry.naturalHours, actualHours));
+	const long = Math.max(0, entry.naturalHours - PREFERMENT_MAX_HOURS);
 	return { short, long };
 }
 
@@ -161,7 +172,7 @@ export function stepQualityFlags(
 	const flags: StepQualityFlag[] = [];
 	if (isNightStep(step)) flags.push('night');
 
-	if (step.kind === 'bulk-cold') {
+	if (isColdLeg(step.kind)) {
 		if (Math.abs(coldBulkShiftMin(schedule)) >= SHIFT_NOISE_FLOOR_MIN) {
 			flags.push('cold-bulk-shifted');
 		}
@@ -171,7 +182,10 @@ export function stepQualityFlags(
 	}
 
 	if (step.kind === 'preferment-mix') {
-		const { short, long } = prefermentClampHours(schedule);
+		// The step carries its own type, so each parallel pre-ferment is judged
+		// against its own natural duration.
+		const entry = schedule.naturalPreferments.find((n) => n.type === step.preFermentType)!;
+		const { short, long } = prefermentClampHours(schedule, entry);
 		if (short > 0) flags.push('preferment-clamped-short');
 		if (long > 0) flags.push('preferment-clamped-long');
 	}
@@ -197,12 +211,16 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 		factors.push({ factor: 'cold-bulk-clamped-long', delta: coldClamp.long / 60 });
 	}
 
-	const prefClamp = prefermentClampHours(schedule);
-	if (prefClamp.short > 0) {
-		factors.push({ factor: 'preferment-clamped-short', delta: prefClamp.short });
-	}
-	if (prefClamp.long > 0) {
-		factors.push({ factor: 'preferment-clamped-long', delta: prefClamp.long });
+	// One clamp check per pre-ferment — with biga and poolish both clamped the
+	// same factor can appear twice, each with its own delta.
+	for (const entry of schedule.naturalPreferments) {
+		const prefClamp = prefermentClampHours(schedule, entry);
+		if (prefClamp.short > 0) {
+			factors.push({ factor: 'preferment-clamped-short', delta: prefClamp.short });
+		}
+		if (prefClamp.long > 0) {
+			factors.push({ factor: 'preferment-clamped-long', delta: prefClamp.long });
+		}
 	}
 
 	if (schedule.warnings.includes('night-step')) {
@@ -224,7 +242,12 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 	const fridgeT = outsideBand(inputs.fridgeTempC, FRIDGE_TEMP_LOW, FRIDGE_TEMP_HIGH);
 	if (fridgeT > 0) factors.push({ factor: 'fridge-temp-off', delta: fridgeT });
 
-	if (schedule.yeastPercent < YEAST_PCT_LOW || schedule.yeastPercent > YEAST_PCT_HIGH) {
+	// The band is calibrated for fresh yeast; other carriers convert to
+	// fresh-equivalent first (0.5% IDY is a normal 1.5% fresh, and a 20%
+	// sourdough starter is a modest 0.2% — without the conversion every
+	// sourdough recipe would read as extreme).
+	const freshEquivalentPct = schedule.yeastPercent / yeastMassFactor(schedule.yeastType);
+	if (freshEquivalentPct < YEAST_PCT_LOW || freshEquivalentPct > YEAST_PCT_HIGH) {
 		factors.push({ factor: 'yeast-extreme', delta: 0 });
 	}
 
@@ -269,4 +292,10 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 
 	const score = Math.max(0, Math.min(100, Math.round(100 - deduction)));
 	return { score, factors };
+}
+
+// The UI shows the fit as 0–5 stars, one per 20 points. Half measures read
+// as noise on a star scale, so plain rounding it is.
+export function fitStars(score: number): number {
+	return Math.round(score / 20);
 }

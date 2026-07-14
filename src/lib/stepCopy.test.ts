@@ -4,7 +4,14 @@ import { defaultInputs, findStep } from './dough/testFixtures';
 import type { DoughInputs, PreFermentType } from './dough/types';
 import { formatGrams } from './format';
 import { MESSAGES } from './i18n/messages';
-import { stepDescription, stepDetailText, stepIngredients, stepTitle } from './stepCopy';
+import {
+	stepDescription,
+	stepDetail,
+	stepDetailText,
+	stepIngredients,
+	stepTitle,
+	yeastIngredientName
+} from './stepCopy';
 
 // stepCopy tests use the decimal ball weight (288.5 g) by default because
 // formatBallWeight's decimal-rendering is a regression worth covering.
@@ -17,7 +24,7 @@ function prefermentInputs(type: PreFermentType, overrides: Partial<DoughInputs> 
 	return inputs({
 		startAt: new Date('2026-05-11T07:00:00Z'),
 		readyBy: new Date('2026-05-12T19:00:00Z'),
-		preFerment: type === 'none' ? null : { type, flourPercent: 30 },
+		preFerments: type === 'none' ? [] : [{ type, flourPercent: 30 }],
 		...overrides
 	});
 }
@@ -29,6 +36,20 @@ describe('stepTitle', () => {
 		expect(stepTitle(divide, MESSAGES.en)).toBe('Divide & ball');
 		expect(stepTitle(divide, MESSAGES.de)).toBe('Portionieren');
 		expect(stepTitle(divide, MESSAGES.it)).toBe('Staglio');
+	});
+
+	it('titles each preferment-mix step by its own type', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		const [biga, poolish] = r.steps.filter((s) => s.kind === 'preferment-mix');
+		expect(stepTitle(biga, MESSAGES.en)).toBe(MESSAGES.en.steps.preferment_mix_biga);
+		expect(stepTitle(poolish, MESSAGES.en)).toBe(MESSAGES.en.steps.preferment_mix_poolish);
 	});
 });
 
@@ -97,6 +118,24 @@ describe('stepDescription — prep / mix method copy', () => {
 		expect(stepDescription(findStep(r, 'mix'), MESSAGES.en)).toBe(MESSAGES.en.steps.mix_desc);
 	});
 
+	it('appends the machine kneading technique to the mix method by default', () => {
+		const r = computeSchedule(inputs());
+		const desc = stepDescription(findStep(r, 'mix'), MESSAGES.en, r);
+		expect(desc).toContain(MESSAGES.en.steps.mix_technique_machine);
+		expect(desc).not.toContain(MESSAGES.en.steps.mix_technique_hand);
+	});
+
+	it('appends the hand kneading technique when mixing by hand, also under a pre-ferment', () => {
+		const plain = computeSchedule(inputs({ mixingMethod: 'hand' }));
+		expect(stepDescription(findStep(plain, 'mix'), MESSAGES.en, plain)).toContain(
+			MESSAGES.en.steps.mix_technique_hand
+		);
+		const withBiga = computeSchedule(prefermentInputs('biga', { mixingMethod: 'hand' }));
+		const desc = stepDescription(findStep(withBiga, 'mix'), MESSAGES.en, withBiga);
+		expect(desc).toContain(MESSAGES.en.steps.mix_desc_with_biga.split('{')[0]);
+		expect(desc).toContain(MESSAGES.en.steps.mix_technique_hand);
+	});
+
 	it('uses the with-preferment prep copy and notes the yeast lives in the pre-dough', () => {
 		const r = computeSchedule(prefermentInputs('poolish'));
 		const desc = stepDescription(findStep(r, 'prep'), MESSAGES.en, r);
@@ -113,6 +152,41 @@ describe('stepDescription — prep / mix method copy', () => {
 			}
 			expect(stepDescription(mix, MESSAGES.en, r)).toContain(`${r.idealWaterTempC} °C`);
 		}
+	});
+
+	it('uses the combined mix copy when biga and poolish run together', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		const desc = stepDescription(findStep(r, 'mix'), MESSAGES.en, r);
+		expect(desc.toLowerCase()).toContain('biga');
+		expect(desc.toLowerCase()).toContain('poolish');
+		expect(desc).toContain(`${r.idealWaterTempC} °C`);
+		expect(desc).not.toContain('{');
+	});
+
+	it('lists each pre-dough on its own preferment-mix step with its own amounts', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		const [bigaStep, poolishStep] = r.steps.filter((s) => s.kind === 'preferment-mix');
+		const bigaList = stepIngredients(bigaStep, MESSAGES.en, r);
+		const poolishList = stepIngredients(poolishStep, MESSAGES.en, r);
+		const [bigaIng, poolishIng] = r.ingredients.preFerments;
+		expect(bigaList[0].amount).toBe(formatGrams(bigaIng.flour));
+		expect(poolishList[0].amount).toBe(formatGrams(poolishIng.flour));
+		expect(bigaList[2].amount).toBe(formatGrams(bigaIng.yeast));
+		expect(poolishList[2].amount).toBe(formatGrams(poolishIng.yeast));
 	});
 });
 
@@ -219,8 +293,8 @@ describe('stepIngredients — weighed amounts', () => {
 		const r = computeSchedule(prefermentInputs('poolish'));
 		const list = stepIngredients(findStep(r, 'preferment-mix'), MESSAGES.en, r);
 		expect(list.map((i) => i.name)).toEqual(['Flour', 'Water', 'Fresh yeast']);
-		expect(list[0].amount).toBe(formatGrams(r.ingredients.preFerment!.flour));
-		expect(list[2].amount).toBe(formatGrams(r.ingredients.preFerment!.yeast));
+		expect(list[0].amount).toBe(formatGrams(r.ingredients.preFerments[0].flour));
+		expect(list[2].amount).toBe(formatGrams(r.ingredients.preFerments[0].yeast));
 	});
 
 	it('appends an oil row to prep when oilPercent > 0, without repeating it at mix', () => {
@@ -277,5 +351,67 @@ describe('stepDetailText — flat .ics form', () => {
 		const r = computeSchedule(inputs());
 		const ready = findStep(r, 'ready');
 		expect(stepDetailText(ready, MESSAGES.en, r)).toBe(stepDescription(ready, MESSAGES.en, r));
+	});
+
+	it('appends the beginner explanation only when asked to', () => {
+		const r = computeSchedule(inputs());
+		const divide = findStep(r, 'divide');
+		const plain = stepDetailText(divide, MESSAGES.en, r);
+		const withDetail = stepDetailText(divide, MESSAGES.en, r, { includeDetail: true });
+		expect(plain).not.toContain(MESSAGES.en.steps.divide_detail);
+		expect(withDetail).toBe(`${plain}\n${MESSAGES.en.steps.divide_detail}`);
+	});
+});
+
+describe('stepDescription — pre-ferment temperature note', () => {
+	it('appends the maturation-temperature note only when one is set', () => {
+		const plain = computeSchedule(prefermentInputs('biga'));
+		const cellar = computeSchedule(prefermentInputs('biga', { preFermentTempC: 17 }));
+		const step = findStep(cellar, 'preferment-mix');
+		const desc = stepDescription(step, MESSAGES.en, cellar);
+		expect(desc).toContain('17 °C');
+		expect(desc).not.toContain('{temp}');
+		expect(stepDescription(findStep(plain, 'preferment-mix'), MESSAGES.en, plain)).not.toContain(
+			'17 °C'
+		);
+	});
+});
+
+describe('yeastIngredientName', () => {
+	it.each([
+		{ type: 'fresh', key: 'fresh_yeast' },
+		{ type: 'instant', key: 'instant_yeast' },
+		{ type: 'active-dry', key: 'active_dry_yeast' },
+		{ type: 'sourdough', key: 'sourdough_starter' }
+	] as const)('$type → ingredients.$key', ({ type, key }) => {
+		expect(yeastIngredientName(type, MESSAGES.en)).toBe(MESSAGES.en.ingredients[key]);
+	});
+
+	it('names the pre-ferment carrier by the recipe yeast type', () => {
+		const r = computeSchedule(prefermentInputs('poolish', { yeastType: 'instant' }));
+		const list = stepIngredients(findStep(r, 'preferment-mix'), MESSAGES.en, r);
+		expect(list[2].name).toBe(MESSAGES.en.ingredients.instant_yeast);
+	});
+});
+
+describe('stepDetail — beginner explanations', () => {
+	it('returns the per-kind explanation paragraph', () => {
+		const r = computeSchedule(inputs());
+		expect(stepDetail(findStep(r, 'mix'), MESSAGES.en)).toBe(MESSAGES.en.steps.mix_detail);
+		expect(stepDetail(findStep(r, 'ready'), MESSAGES.en)).toBe(MESSAGES.en.steps.ready_detail);
+	});
+
+	it('uses one shared explanation for both pre-ferment types', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		for (const step of r.steps.filter((s) => s.kind === 'preferment-mix')) {
+			expect(stepDetail(step, MESSAGES.en)).toBe(MESSAGES.en.steps.preferment_mix_detail);
+		}
 	});
 });

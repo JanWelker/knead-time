@@ -6,6 +6,8 @@
 //   - Sourdough starter 20% at 22 °C: full ferment in ~8 h
 // Temperature factor follows a Q10 = 2 model (rate doubles every 10 °C).
 
+import type { MixingMethod, YeastType } from './types';
+
 const REF_TEMP_C = 22;
 const Q10 = 2;
 
@@ -14,6 +16,24 @@ const Q10 = 2;
 export const TARGET_UNITS_FRESH = 1.6;
 // Sourdough: 20% starter × ~8 h at 22 °C = 160 units (~100× fresh — starter is far less active per gram).
 export const TARGET_UNITS_SOURDOUGH = 160;
+
+// Grams of each yeast type per gram of fresh yeast for the same leavening
+// power. The whole model solves in fresh-equivalent percent and converts at
+// the end: instant dry (IDY) is the classic 3:1, active dry (ADY) 2.5:1, and
+// sourdough starter ~100× (which is exactly TARGET_UNITS_SOURDOUGH ÷ FRESH —
+// one factor expresses both dry-yeast conversion and the starter's activity).
+export function yeastMassFactor(type: YeastType): number {
+	switch (type) {
+		case 'fresh':
+			return 1;
+		case 'instant':
+			return 1 / 3;
+		case 'active-dry':
+			return 0.4;
+		case 'sourdough':
+			return TARGET_UNITS_SOURDOUGH / TARGET_UNITS_FRESH;
+	}
+}
 
 // Pre-ferment reference fermentation loads (equivalent-hours at 22 °C). A biga
 // is stiffer and traditionally sits cooler/longer, so we credit it slightly
@@ -34,12 +54,13 @@ export function temperatureFactor(tempC: number): number {
 // Target final dough temperature for contemporary Neapolitan dough — 1 °C below
 // the 24 °C cap commonly cited as the safe upper bound during long room ferments.
 const TARGET_FDT_C = 23;
-// Heat the dough picks up from a spiral mixer over a typical Neapolitan mix
-// (~8–12 min). Calibrated against an observed run: 10 min on a spiral with
-// 4 °C water in a 22 °C kitchen lands the dough at 24 °C — back-solving the
-// desired-temp formula gives friction ≈ 24 °C. This is the workflow assumed
-// throughout the app; hand-kneading is not in scope.
-const KNEAD_FRICTION_C = 24;
+// Heat the dough picks up during mixing. Machine: calibrated against an
+// observed run — 10 min on a spiral with 4 °C water in a 22 °C kitchen lands
+// the dough at 24 °C; back-solving the desired-temp formula gives friction
+// ≈ 24 °C. Hand kneading transfers far less energy into the dough; the
+// commonly cited desired-dough-temperature friction for hand mixing is ~5 °C.
+const KNEAD_FRICTION_MACHINE_C = 24;
+const KNEAD_FRICTION_HAND_C = 5;
 // Below ~4 °C the recipe is asking for an ice bath; above ~35 °C the water
 // itself starts to stress fresh yeast. Clamp the recommendation to that band.
 const MIX_WATER_MIN_C = 4;
@@ -48,8 +69,9 @@ const MIX_WATER_MAX_C = 35;
 // Recommended mix-water temperature so the kneaded dough lands at TARGET_FDT_C.
 // Hamelman-style desired-temperature formula, assuming flour ≈ room temperature:
 //   FDT = (flour + room + water + friction) / 3  →  water = 3·FDT − 2·room − friction
-export function idealMixWaterTempC(roomTempC: number): number {
-	const raw = 3 * TARGET_FDT_C - 2 * roomTempC - KNEAD_FRICTION_C;
+export function idealMixWaterTempC(roomTempC: number, method: MixingMethod): number {
+	const friction = method === 'hand' ? KNEAD_FRICTION_HAND_C : KNEAD_FRICTION_MACHINE_C;
+	const raw = 3 * TARGET_FDT_C - 2 * roomTempC - friction;
 	return Math.round(Math.min(MIX_WATER_MAX_C, Math.max(MIX_WATER_MIN_C, raw)));
 }
 
@@ -85,21 +107,16 @@ export function equivalentHoursAtRef(phases: FermentPhase[]): number {
 	return phases.reduce((sum, p) => sum + p.hours * temperatureFactor(p.tempC), 0);
 }
 
-export function yeastPercentForPhases(
-	yeastType: 'fresh' | 'sourdough',
-	phases: FermentPhase[]
-): number {
+export function yeastPercentForPhases(yeastType: YeastType, phases: FermentPhase[]): number {
 	const eq = equivalentHoursAtRef(phases);
 	if (eq <= 0) return 0;
-	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
-	return target / eq;
+	return (TARGET_UNITS_FRESH / eq) * yeastMassFactor(yeastType);
 }
 
 export function fermentHoursForYeast(
-	yeastType: 'fresh' | 'sourdough',
+	yeastType: YeastType,
 	yeastPct: number,
 	tempC: number
 ): number {
-	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
-	return target / (yeastPct * temperatureFactor(tempC));
+	return (TARGET_UNITS_FRESH * yeastMassFactor(yeastType)) / (yeastPct * temperatureFactor(tempC));
 }

@@ -4,22 +4,32 @@ import {
 	prefermentDurationHours,
 	prefermentRefHours,
 	TARGET_UNITS_FRESH,
-	TARGET_UNITS_SOURDOUGH,
-	temperatureFactor
+	temperatureFactor,
+	yeastMassFactor
 } from './fermentation';
 import type {
 	ComputedSchedule,
 	DoughInputs,
 	FermentMode,
+	MixingMethod,
 	PreFermentSpec,
 	ScheduleStep,
 	ScheduleStepKind,
-	ScheduleWarning
+	ScheduleWarning,
+	YeastType
 } from './types';
 
 export const PREP_MIN = 15;
-export const MIX_MIN = 15;
+// Machine mixing matches the pre-v4 fixed 15 min, so old share links keep
+// their exact step times. Hand kneading needs the extra time for the
+// knead-rest-knead cycles that replace the mixer's gluten development.
+export const MIX_MIN_MACHINE = 15;
+export const MIX_MIN_HAND = 25;
 export const DIVIDE_MIN = 15;
+
+export function mixMin(method: MixingMethod): number {
+	return method === 'hand' ? MIX_MIN_HAND : MIX_MIN_MACHINE;
+}
 export const COLD_INITIAL_BULK_MIN = 60;
 // In cold mode the balls come out of the fridge and sit on the counter through
 // warm-up + finish proof — from the baker's perspective one "balls resting"
@@ -43,8 +53,9 @@ export const NIGHT_END_HOUR = 8;
 // (prep + mix + initial bulk-room + divide + final proof). Lets the
 // night-window adjuster map a candidate coldMin back to a prepAt without
 // rebuilding the step list.
-const COLD_PRE_POST_OFFSET_MIN =
-	COLD_FINAL_PROOF_MIN + DIVIDE_MIN + COLD_INITIAL_BULK_MIN + MIX_MIN + PREP_MIN;
+function coldPrePostOffsetMin(mixDurationMin: number): number {
+	return COLD_FINAL_PROOF_MIN + DIVIDE_MIN + COLD_INITIAL_BULK_MIN + mixDurationMin + PREP_MIN;
+}
 
 // Steps that require the baker to be active. 'final-proof' is passive (balls
 // just sit on the counter) and 'ready' is the user-chosen bake moment, so
@@ -57,7 +68,10 @@ export const ACTIVE_NIGHT_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'mix',
 	'bulk-room',
 	'bulk-cold',
-	'divide'
+	'divide',
+	// Loading the divided balls into the fridge is the same wall-clock-bound
+	// action as loading the bulk.
+	'proof-cold'
 ]);
 
 function isAtNight(d: Date): boolean {
@@ -65,9 +79,24 @@ function isAtNight(d: Date): boolean {
 	return h >= NIGHT_START_HOUR || h < NIGHT_END_HOUR;
 }
 
-function clusterClean(prepAt: Date, prefermentOffsetMin: number | null): boolean {
-	const base = [0, PREP_MIN, PREP_MIN + MIX_MIN, PREP_MIN + MIX_MIN + COLD_INITIAL_BULK_MIN];
-	const offsets = prefermentOffsetMin !== null ? [-prefermentOffsetMin, ...base] : base;
+function clusterClean(
+	prepAt: Date,
+	prefermentOffsetsMin: number[],
+	mixDurationMin: number,
+	ballProofCold: boolean
+): boolean {
+	const offsets = [
+		...prefermentOffsetsMin.map((m) => -m),
+		0,
+		PREP_MIN,
+		PREP_MIN + mixDurationMin,
+		PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN
+	];
+	// With a cold ball proof, divide and the fridge-loading moment both sit in
+	// the pre-cold cluster (nothing active remains after the cold leg).
+	if (ballProofCold) {
+		offsets.push(PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN + DIVIDE_MIN);
+	}
 	for (const o of offsets) {
 		if (isAtNight(new Date(prepAt.getTime() + o * 60_000))) return false;
 	}
@@ -82,13 +111,17 @@ function clusterClean(prepAt: Date, prefermentOffsetMin: number | null): boolean
 function adjustColdMinForNight(
 	readyBy: Date,
 	naturalColdMin: number,
-	prefermentOffsetMin: number | null
+	prefermentOffsetsMin: number[],
+	mixDurationMin: number,
+	ballProofCold: boolean
 ): number {
+	// The fixed minutes around the variable cold leg sum identically for both
+	// cold-leg positions — only the order of divide and the leg differs.
 	const prepAtFor = (cm: number) =>
-		new Date(readyBy.getTime() - (COLD_PRE_POST_OFFSET_MIN + cm) * 60_000);
+		new Date(readyBy.getTime() - (coldPrePostOffsetMin(mixDurationMin) + cm) * 60_000);
 
 	for (let cm = naturalColdMin; cm >= 0; cm--) {
-		if (clusterClean(prepAtFor(cm), prefermentOffsetMin)) return cm;
+		if (clusterClean(prepAtFor(cm), prefermentOffsetsMin, mixDurationMin, ballProofCold)) return cm;
 	}
 	return naturalColdMin;
 }
@@ -97,22 +130,45 @@ function adjustColdMinForNight(
 // biga/poolish on top would stack two cultures, which is not what the user
 // wants. Centralising this rule here keeps the bakers' module and UI from
 // having to repeat the same check.
-function effectivePreFerment(inputs: DoughInputs): PreFermentSpec | null {
-	if (inputs.yeastType === 'sourdough') return null;
-	return inputs.preFerment;
+function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
+	if (inputs.yeastType === 'sourdough') return [];
+	return inputs.preFerments;
 }
 
 export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
-	const preFerment = effectivePreFerment(inputs);
+	const preFerments = effectivePreFerments(inputs);
+	const mixDurationMin = mixMin(inputs.mixingMethod);
 	const totalAvailableMin = Math.floor(
 		(inputs.readyBy.getTime() - inputs.startAt.getTime()) / 60_000
 	);
-	// Temperature-driven pre-ferment duration, clamped to the [8, 24] h band
-	// in fermentation.prefermentDurationHours. May still be shrunk below this
-	// natural value if the wall-clock window can't accommodate it (see below).
-	const naturalPrefermentMin = preFerment
-		? Math.round(prefermentDurationHours(preFerment.type, inputs.roomTempC) * 60)
-		: 0;
+	// Temperature-driven wall-clock duration per pre-ferment, clamped to the
+	// [8, 24] h band in fermentation.prefermentDurationHours. All pre-ferments
+	// mature in parallel and end at prep, so the schedule only reserves the
+	// longest one; shorter ones start later inside that window. Durations may
+	// still be shrunk below the natural values if the wall-clock window can't
+	// accommodate them (see the room-mode overflow branch).
+	// Pre-ferments mature wherever the user says they do — a 17 °C cellar
+	// biga runs much longer than a countertop one. null follows the room.
+	const prefermentTempC = inputs.preFermentTempC ?? inputs.roomTempC;
+	let prefermentDurationsMin = preFerments.map((pf) => ({
+		type: pf.type,
+		min: Math.round(prefermentDurationHours(pf.type, prefermentTempC) * 60)
+	}));
+	const naturalPrefermentMin = prefermentDurationsMin.reduce((max, d) => Math.max(max, d.min), 0);
+	// Yeast splits across the pre-ferments proportional to flour share, so
+	// each pre-ferment's equivalent hours count only for the yeast fraction
+	// it carries: eq = Σ wᵢ · hoursᵢ · f(T). With a single pre-ferment w = 1,
+	// which reproduces the pre-v4 solve exactly.
+	const totalShare = preFerments.reduce((sum, pf) => sum + pf.flourPercent, 0);
+	const prefermentEquivalentHours = (durations: typeof prefermentDurationsMin) =>
+		durations.reduce(
+			(sum, d, i) =>
+				sum +
+				(preFerments[i].flourPercent / totalShare) *
+					(d.min / 60) *
+					temperatureFactor(prefermentTempC),
+			0
+		);
 	const warnings: ScheduleWarning[] = [];
 
 	if (inputs.roomTempC < 14) warnings.push('too-cold');
@@ -128,14 +184,14 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const feasible = totalAvailableMin >= ROOM_MIN_TOTAL_MIN;
 	if (!feasible) warnings.push('too-short');
 
-	let prefermentDurationMin = naturalPrefermentMin;
 	let yeastPct: number;
 	let steps: ScheduleStep[];
 	let naturalColdBulkMin: number | null = null;
 	let desiredColdBulkMin: number | null = null;
 
 	if (mode === 'cold') {
-		const fixedMin = PREP_MIN + MIX_MIN + COLD_INITIAL_BULK_MIN + DIVIDE_MIN + COLD_FINAL_PROOF_MIN;
+		const fixedMin =
+			PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN + DIVIDE_MIN + COLD_FINAL_PROOF_MIN;
 		// Cold mode is only entered when totalAvailable − naturalPreferment ≥
 		// 16 h, so this is always ≥ ~10 h — the pre-ferment-overflow branch
 		// can only fire in room mode.
@@ -150,57 +206,69 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		const coldMin = adjustColdMinForNight(
 			inputs.readyBy,
 			naturalColdMin,
-			preFerment ? prefermentDurationMin : null
+			prefermentDurationsMin.map((d) => d.min),
+			mixDurationMin,
+			inputs.ballProof === 'cold'
 		);
 
 		const equivalentHours =
-			(prefermentDurationMin / 60) * temperatureFactor(inputs.roomTempC) +
+			prefermentEquivalentHours(prefermentDurationsMin) +
 			((COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60) * temperatureFactor(inputs.roomTempC) +
 			(coldMin / 60) * temperatureFactor(inputs.fridgeTempC);
 
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
 		steps = buildSteps({
 			readyBy: inputs.readyBy,
-			prefermentDurationMin: preFerment ? prefermentDurationMin : null,
+			prefermentDurationsMin,
+			mixDurationMin,
 			bulkRoomMin: COLD_INITIAL_BULK_MIN,
 			bulkColdMin: coldMin,
+			ballProofCold: inputs.ballProof === 'cold',
 			finalProofMin: COLD_FINAL_PROOF_MIN
 		});
 	} else {
-		const roomFixedMin = PREP_MIN + MIX_MIN + DIVIDE_MIN;
+		const roomFixedMin = PREP_MIN + mixDurationMin + DIVIDE_MIN;
 		const fermentBudget = totalAvailableMin - roomFixedMin - naturalPrefermentMin;
 		let bulkMin: number;
 		let finalProofMin: number;
 		if (fermentBudget >= 0) {
-			// Pre-ferment fits; the rest goes to bulk + final-proof in roughly
+			// Pre-ferments fit; the rest goes to bulk + final-proof in roughly
 			// a 2:1 ratio. Both can shrink to 0 if the window is very tight.
 			finalProofMin = Math.min(90, Math.max(0, Math.floor(fermentBudget / 3)));
 			bulkMin = Math.max(0, fermentBudget - finalProofMin);
 		} else {
-			// Pre-ferment alone overflows. Shrink it so first-step >= startAt
-			// still holds; bulk and final-proof are 0.
-			prefermentDurationMin = Math.max(0, totalAvailableMin - roomFixedMin);
+			// The longest pre-ferment alone overflows. Cap every pre-ferment at
+			// the wall budget so first-step >= startAt still holds — shorter
+			// ones may fit untouched. Bulk and final-proof are 0.
+			const budget = Math.max(0, totalAvailableMin - roomFixedMin);
+			prefermentDurationsMin = prefermentDurationsMin.map((d) => ({
+				...d,
+				min: Math.min(d.min, budget)
+			}));
 			bulkMin = 0;
 			finalProofMin = 0;
 		}
 
 		const equivalentHours =
-			((prefermentDurationMin + bulkMin + finalProofMin) / 60) *
-			temperatureFactor(inputs.roomTempC);
+			prefermentEquivalentHours(prefermentDurationsMin) +
+			((bulkMin + finalProofMin) / 60) * temperatureFactor(inputs.roomTempC);
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
 		steps = buildSteps({
 			readyBy: inputs.readyBy,
-			prefermentDurationMin: preFerment ? prefermentDurationMin : null,
+			prefermentDurationsMin,
+			mixDurationMin,
 			bulkRoomMin: bulkMin,
 			bulkColdMin: null,
+			ballProofCold: false,
 			finalProofMin
 		});
 	}
 
-	if (inputs.yeastType === 'fresh') {
-		if (yeastPct > 0 && yeastPct < 0.02) warnings.push('yeast-tiny');
-		if (yeastPct > 2) warnings.push('yeast-large');
-	}
+	// Sanity bands live in fresh-equivalent terms so every carrier is judged
+	// on leavening power, not on its own gram scale (0.5 g IDY ≈ 1.5 g fresh).
+	const freshEquivalentPct = yeastPct / yeastMassFactor(inputs.yeastType);
+	if (freshEquivalentPct > 0 && freshEquivalentPct < 0.02) warnings.push('yeast-tiny');
+	if (freshEquivalentPct > 2) warnings.push('yeast-large');
 
 	// Cold mode shifts coldMin to avoid the night window for the pre-cold
 	// cluster, but the post-cold divide is anchored to readyBy and room mode
@@ -219,16 +287,16 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		yeastPercent: yeastPct,
 		yeastType: inputs.yeastType,
 		starterHydration: inputs.starterHydration,
-		preFermentFlourPercent: preFerment ? preFerment.flourPercent : 0,
-		preFermentHydration: preFerment?.type === 'biga' ? 50 : 100
+		preFerments
 	});
 
-	// Unclamped pre-ferment duration the math wanted at this temperature — the
-	// "natural" value the [8, 24] h clamp may have pulled in. Quality scoring
-	// uses the gap between this and the actual duration.
-	const naturalPrefermentHours = preFerment
-		? prefermentRefHours(preFerment.type) / temperatureFactor(inputs.roomTempC)
-		: null;
+	// Unclamped pre-ferment durations the math wanted at this temperature — the
+	// "natural" values the [8, 24] h clamp may have pulled in. Quality scoring
+	// uses the gap between these and the actual step durations, matched by type.
+	const naturalPreferments = preFerments.map((pf) => ({
+		type: pf.type,
+		naturalHours: prefermentRefHours(pf.type) / temperatureFactor(prefermentTempC)
+	}));
 
 	return {
 		mode,
@@ -237,24 +305,27 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		feasible,
 		yeastPercent: yeastPct,
 		yeastType: inputs.yeastType,
-		preFerment,
+		preFerments,
 		warnings,
 		pizzaCount: inputs.pizzaCount,
 		ballWeight: inputs.ballWeight,
-		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC),
+		mixingMethod: inputs.mixingMethod,
+		preFermentTempC: preFerments.length > 0 ? inputs.preFermentTempC : null,
+		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC, inputs.mixingMethod),
 		naturalColdBulkMin,
 		desiredColdBulkMin,
-		naturalPrefermentHours
+		naturalPreferments
 	};
 }
 
-function unitsToPercent(yeastType: 'fresh' | 'sourdough', equivalentHours: number): number {
-	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
+function unitsToPercent(yeastType: YeastType, equivalentHours: number): number {
 	// equivalentHours can hit 0 when the window is so short that every
 	// fermentation phase shrinks to nothing — feasibility is already false
 	// in that case, so callers see the warning rather than an Infinity %.
 	if (equivalentHours <= 0) return 0;
-	return target / equivalentHours;
+	// Solve in fresh-equivalent percent, then convert to the chosen carrier's
+	// mass — one factor covers dry-yeast conversions and sourdough activity.
+	return (TARGET_UNITS_FRESH / equivalentHours) * yeastMassFactor(yeastType);
 }
 
 function subMin(d: Date, min: number): Date {
@@ -263,45 +334,62 @@ function subMin(d: Date, min: number): Date {
 
 interface BuildArgs {
 	readyBy: Date;
-	prefermentDurationMin: number | null;
+	prefermentDurationsMin: Array<{ type: PreFermentSpec['type']; min: number }>;
+	mixDurationMin: number;
 	bulkRoomMin: number;
-	// `null` ⇒ room-only schedule (no cold leg). Non-null ⇒ cold-bulk
-	// sandwiched between the initial room bulk and divide.
+	// `null` ⇒ room-only schedule (no cold leg). Non-null ⇒ a cold leg either
+	// as bulk-cold before divide (classic) or as proof-cold after divide
+	// (ballProofCold) — same length, different position.
 	bulkColdMin: number | null;
+	ballProofCold: boolean;
 	finalProofMin: number;
 }
 
 function buildSteps({
 	readyBy,
-	prefermentDurationMin,
+	prefermentDurationsMin,
+	mixDurationMin,
 	bulkRoomMin,
 	bulkColdMin,
+	ballProofCold,
 	finalProofMin
 }: BuildArgs): ScheduleStep[] {
 	const finalProofAt = subMin(readyBy, finalProofMin);
-	const divideAt = subMin(finalProofAt, DIVIDE_MIN);
-	const bulkColdAt = bulkColdMin !== null ? subMin(divideAt, bulkColdMin) : null;
+	// Cold ball proof slides the cold leg to the other side of divide; every
+	// other distance stays identical, so prep lands on the same minute either
+	// way and the yeast solve is untouched.
+	const proofColdAt =
+		bulkColdMin !== null && ballProofCold ? subMin(finalProofAt, bulkColdMin) : null;
+	const divideAt = subMin(proofColdAt ?? finalProofAt, DIVIDE_MIN);
+	const bulkColdAt = bulkColdMin !== null && !ballProofCold ? subMin(divideAt, bulkColdMin) : null;
 	const bulkRoomAt = subMin(bulkColdAt ?? divideAt, bulkRoomMin);
-	const mixAt = subMin(bulkRoomAt, MIX_MIN);
+	const mixAt = subMin(bulkRoomAt, mixDurationMin);
 	const prepAt = subMin(mixAt, PREP_MIN);
 
 	const steps: ScheduleStep[] = [];
-	if (prefermentDurationMin !== null) {
-		// One row covers the brief active mixing plus the long maturation — the
-		// schedule table reads "until prep at HH:MM" from this duration.
+	// One row per pre-ferment covers the brief active mixing plus the long
+	// maturation — the schedule table reads "until prep at HH:MM" from the
+	// duration. All end at prep, so the longest starts first; emitting
+	// longest-first keeps the list in forward time order (the sort is stable,
+	// preserving canonical biga-first order on equal durations).
+	for (const d of [...prefermentDurationsMin].sort((a, b) => b.min - a.min)) {
 		steps.push({
 			kind: 'preferment-mix',
-			at: subMin(prepAt, prefermentDurationMin),
-			durationMinutes: prefermentDurationMin
+			at: subMin(prepAt, d.min),
+			durationMinutes: d.min,
+			preFermentType: d.type
 		});
 	}
 	steps.push({ kind: 'prep', at: prepAt, durationMinutes: PREP_MIN });
-	steps.push({ kind: 'mix', at: mixAt, durationMinutes: MIX_MIN });
+	steps.push({ kind: 'mix', at: mixAt, durationMinutes: mixDurationMin });
 	steps.push({ kind: 'bulk-room', at: bulkRoomAt, durationMinutes: bulkRoomMin });
 	if (bulkColdAt !== null && bulkColdMin !== null) {
 		steps.push({ kind: 'bulk-cold', at: bulkColdAt, durationMinutes: bulkColdMin });
 	}
 	steps.push({ kind: 'divide', at: divideAt, durationMinutes: DIVIDE_MIN });
+	if (proofColdAt !== null && bulkColdMin !== null) {
+		steps.push({ kind: 'proof-cold', at: proofColdAt, durationMinutes: bulkColdMin });
+	}
 	steps.push({ kind: 'final-proof', at: finalProofAt, durationMinutes: finalProofMin });
 	steps.push({ kind: 'ready', at: readyBy, durationMinutes: 0 });
 	return steps;

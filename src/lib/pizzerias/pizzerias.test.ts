@@ -259,7 +259,10 @@ describe('findMatchingPizzeria', () => {
 			starterHydration: 100,
 			roomTempC: 22,
 			fridgeTempC: 4,
-			preFerment: null,
+			preFermentTempC: null,
+			ballProof: 'room',
+			mixingMethod: 'machine',
+			preFerments: [],
 			...overrides
 		};
 	}
@@ -299,6 +302,13 @@ describe('findMatchingPizzeria', () => {
 		expect(findMatchingPizzeria(inputs({ roomTempC: 24 }), [e])).toBeNull();
 		expect(findMatchingPizzeria(inputs({ fridgeTempC: 5 }), [e])).toBeNull();
 		expect(findMatchingPizzeria(inputs({ yeastType: 'sourdough' }), [e])).toBeNull();
+		// Entries parsed from pre-v=4 share URLs carry no mixingMethod — they
+		// imply machine, so a hand-mixed form must not claim the source badge.
+		expect(findMatchingPizzeria(inputs({ mixingMethod: 'hand' }), [e])).toBeNull();
+		// Same for the pre-ferment temperature: unset means follows-the-room.
+		expect(findMatchingPizzeria(inputs({ preFermentTempC: 17 }), [e])).toBeNull();
+		// And for the ball proof: unset means the classic room-temperature one.
+		expect(findMatchingPizzeria(inputs({ ballProof: 'cold' }), [e])).toBeNull();
 	});
 
 	it('compares starterHydration only when yeastType is sourdough', () => {
@@ -319,23 +329,27 @@ describe('findMatchingPizzeria', () => {
 	});
 
 	it('compares pre-ferment shape and falls through on mismatch', () => {
-		const withBiga = entry({ preFerment: { type: 'biga', flourPercent: 48 } });
+		const withBiga = entry({ preFerments: [{ type: 'biga', flourPercent: 48 }] });
 		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'biga', flourPercent: 48 } }), [withBiga])
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'biga', flourPercent: 48 }] }), [
+				withBiga
+			])
 		).toBe(withBiga);
 		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'biga', flourPercent: 50 } }), [withBiga])
-		).toBeNull();
-		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'poolish', flourPercent: 48 } }), [
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'biga', flourPercent: 50 }] }), [
 				withBiga
 			])
 		).toBeNull();
-		expect(findMatchingPizzeria(inputs({ preFerment: null }), [withBiga])).toBeNull();
+		expect(
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'poolish', flourPercent: 48 }] }), [
+				withBiga
+			])
+		).toBeNull();
+		expect(findMatchingPizzeria(inputs({ preFerments: [] }), [withBiga])).toBeNull();
 		// And the inverse — pre-ferment in inputs, none in entry.
 		const noPf = entry();
 		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'biga', flourPercent: 30 } }), [noPf])
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'biga', flourPercent: 30 }] }), [noPf])
 		).toBeNull();
 	});
 
@@ -370,7 +384,10 @@ describe('findMatchingPizzeria', () => {
 			starterHydration: shipped.inputs.starterHydration ?? 100,
 			roomTempC: shipped.inputs.roomTempC!,
 			fridgeTempC: shipped.inputs.fridgeTempC!,
-			preFerment: shipped.inputs.preFerment ?? null
+			mixingMethod: shipped.inputs.mixingMethod ?? 'machine',
+			preFermentTempC: shipped.inputs.preFermentTempC ?? null,
+			ballProof: shipped.inputs.ballProof ?? 'room',
+			preFerments: shipped.inputs.preFerments ?? []
 		};
 		expect(findMatchingPizzeria(dough)).toBe(shipped);
 	});

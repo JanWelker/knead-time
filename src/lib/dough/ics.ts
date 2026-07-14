@@ -16,6 +16,7 @@ const FREE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'preferment-mix',
 	'bulk-room',
 	'bulk-cold',
+	'proof-cold',
 	'final-proof'
 ]);
 
@@ -65,5 +66,8 @@ export function formatUtc(date: Date): string {
 }
 
 function stableUid(step: ScheduleStep): string {
-	return `${step.kind}-${step.at.getTime()}`;
+	// Two parallel pre-ferment mixes can share a start time when both were
+	// shrunk to the same wall budget — the type keeps their UIDs distinct.
+	const typeSuffix = step.preFermentType ? `-${step.preFermentType}` : '';
+	return `${step.kind}${typeSuffix}-${step.at.getTime()}`;
 }

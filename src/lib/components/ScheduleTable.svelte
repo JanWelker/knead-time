@@ -2,15 +2,23 @@
 	import { onMount } from 'svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { formatDuration, formatShortDate, formatTime } from '$lib/format';
-	import { stepDescription, stepIngredients, stepTitle } from '$lib/stepCopy';
+	import { stepDescription, stepDetail, stepIngredients, stepTitle } from '$lib/stepCopy';
 	import { isActiveStep } from '$lib/dough/scheduleStatus';
 	import { stepQualityFlags, type StepQualityFlag } from '$lib/dough/quality';
 	import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from '$lib/dough/types';
 	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
+	import type { ScheduleVerbosity } from '$lib/storedVerbosity';
 	import { interpolate } from '$lib/i18n/interpolate';
 
-	let { schedule, sourceTiming }: { schedule: ComputedSchedule; sourceTiming?: SourceTiming } =
-		$props();
+	let {
+		schedule,
+		sourceTiming,
+		verbosity = 'short'
+	}: {
+		schedule: ComputedSchedule;
+		sourceTiming?: SourceTiming;
+		verbosity?: ScheduleVerbosity;
+	} = $props();
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
 
@@ -28,6 +36,7 @@
 		'preferment-mix',
 		'bulk-room',
 		'bulk-cold',
+		'proof-cold',
 		'final-proof'
 	]);
 
@@ -109,7 +118,9 @@
 		</div>
 
 		<ol class="tabular-nums">
-			{#each day.steps as step, si (step.kind + '-' + step.at.getTime())}
+			<!-- preFermentType disambiguates the two parallel pre-ferment mixes,
+			     which can share a start time when both shrink to the wall budget. -->
+			{#each day.steps as step, si (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
 				{@const isReady = step.kind === 'ready'}
 				{@const active = isActiveStep(step.kind)}
 				{@const past = isPast(step)}
@@ -119,7 +130,7 @@
 				{@const ingredients = stepIngredients(step, t, schedule)}
 				<li
 					class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3 {past
-						? 'opacity-55'
+						? 'opacity-70'
 						: ''}"
 				>
 					<!-- Rail: a vertical line threading every node within the day. -->
@@ -157,7 +168,7 @@
 					<div
 						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
 							? 'text-accent'
-							: 'text-stone-500 dark:text-stone-400'}"
+							: 'text-stone-600 dark:text-stone-300'}"
 					>
 						{formatTime(step.at, locale)}
 					</div>
@@ -220,15 +231,23 @@
 										>
 											{ing.amount}
 										</span>
-										<span class="text-xs text-stone-500 dark:text-stone-400">{ing.name}</span>
+										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-500 dark:text-stone-400">
+						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
 							{stepDescription(step, t, schedule)}
 						</p>
+
+						{#if verbosity === 'descriptive'}
+							<p
+								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
+							>
+								{stepDetail(step, t)}
+							</p>
+						{/if}
 
 						{#if sourceTiming?.[step.kind] && step.durationMinutes > 0 && outsideSourceRange(step.durationMinutes, sourceTiming[step.kind]!.minMinutes, sourceTiming[step.kind]!.maxMinutes)}
 							<div class="text-accent mt-1.5 text-xs font-medium">

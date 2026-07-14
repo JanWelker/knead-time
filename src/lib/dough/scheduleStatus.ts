@@ -28,6 +28,7 @@ export function isActiveStep(kind: ScheduleStepKind): boolean {
 			return true;
 		case 'bulk-room':
 		case 'bulk-cold':
+		case 'proof-cold':
 		case 'final-proof':
 		case 'ready':
 			return false;

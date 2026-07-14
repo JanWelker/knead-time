@@ -5,7 +5,9 @@
 
 A time-anchored Neapolitan pizza dough calculator — [try it live](https://janwelker.github.io/knead-time/). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
-Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, six languages (EN / DE / IT / FR / NL / JAM), shareable recipes via URL.
+New in v4: a **beginner view** (just "how many, when, and how you knead" — every step explained via the schedule's short/detailed switch; experts get the full form), **hand vs machine mixing** that adapts the kneading step and water temperature, **combined pre-ferments** (biga and poolish maturing in parallel, each with its own flour share and an optional cellar temperature), **dry yeast** (instant and active dry alongside fresh and sourdough), a **cold ball proof** option (divide first, balls ripen in the fridge), and **recipe memory** — the app restores your last recipe on a fresh visit and keeps a device-local recipe book.
+
+Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, five languages (EN / DE / IT / FR / NL), shareable recipes via URL.
 
 ---
 
@@ -51,17 +53,21 @@ src/
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
-│   ├── i18n/             ← messages (en/de/it/fr/nl/jam), locale detection, runtime interpolation
+│   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
+│   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── state.svelte.ts   ← form state as a $state class
+│   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
+│   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
+│   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
 │   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
 ├── routes/
 │   ├── +layout.svelte    ← global styles, language bootstrap
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
 │   ├── +page.svelte      ← the entire calculator UI
-│   └── trmnl/+page.svelte← 800×480 black-on-white schedule for TRMNL e-ink devices
+│   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
 ├── app.css               ← Tailwind v4 entrypoint + @theme palette
 └── app.html              ← shell
 
@@ -96,7 +102,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 1. **Math/logic first.** Add or extend a module in `src/lib/dough/`. Keep it pure (no Svelte imports). Add a `*.test.ts` next to it. Run `npm test` until green.
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
 3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
-4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all six locales. The parity test will fail loudly if a key is missing.
+4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
 5. **Verify.** `npm test && npm run check && npm run build`. The CI workflow runs the same commands plus `npm run lint`.
 
 ### Print / PDF export
@@ -107,9 +113,9 @@ If you touch the printed layout, check it in your browser's print preview — do
 
 ### TRMNL e-ink view
 
-The **Copy TRMNL link** action copies an absolute URL of the form `/trmnl/<locale>?…` carrying the current locale and recipe. Point a [TRMNL](https://trmnl.com/) **Screenshot plugin** at that URL — the device polls it on its usual cadence and TRMNL captures a black-on-white screenshot for the e-ink panel. A big **Now / Next** card calls out the active step against the rendering clock — past steps fade and strike through, the current step inverts to white-on-black, future steps stay plain — so the same URL stays useful from "soak the biga tonight" all the way to "pizza time".
+The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the schedule menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
 
-The route lives at `src/routes/trmnl/[[locale]]/+page.svelte`. The optional `locale` path segment selects which of the six languages the page prerenders in — one static HTML per locale (`/trmnl/de`, `/trmnl/it`, …) plus a `/trmnl` fallback that renders in English. **Per-locale prerendering is load-bearing**: TRMNL's screenshot service doesn't reliably execute our JS bundle, so the language has to be baked into the static HTML rather than swapped at runtime via `navigator.languages`. The root layout therefore skips its navigator-language detection for `/trmnl/*` paths so the URL's locale wins on the client too. All styles live in `<svelte:head><style>` (not the component's `<style>` block) so they ship inline — TRMNL's renderer doesn't fetch external stylesheets reliably either.
+Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the setup walkthrough and the Liquid template are in `docs/trmnl-setup.md`. The payload uses 1–2 character keys to stay under the free tier's 2 KB cap in every locale — a regression test measures the wire size, so adding fields without measuring fails CI. There is **no `/trmnl` route** any more: the earlier screenshot-plugin approach failed because TRMNL's renderer doesn't reliably execute JS, so every capture showed build-time defaults.
 
 The page reuses `decodeInputs` + `computeSchedule` from the main app. Highlighting is driven by the pure `currentStepIndex(steps, now)` helper in `src/lib/dough/scheduleStatus.ts` (covered by `scheduleStatus.test.ts`). Keep the styling reserved: no gradients or background fills beyond the solid-black current-row highlight, no 1 px light borders (they break up at the screenshot's upscale), no external assets.
 
@@ -119,7 +125,7 @@ The page reuses `decodeInputs` + `computeSchedule` from the main app. Highlighti
 - **Mass balance is subtly different for sourdough**: fresh yeast adds new mass (`pctSum = 100 + h + s + y + oil + sugar`), while sourdough starter is just flour+water from the existing budget (`pctSum = 100 + h + s + oil + sugar`). Both produce ingredients that sum exactly to `pizzaCount × ballWeight` — there's a test that enforces this. Oil and sugar default to 0 and stay out of any pre-ferment (they'd inhibit the culture); when > 0 they get weighed at the main `mix` step. When a pre-ferment is active the ingredient table renders as three sections (**Pre-dough / Main dough / Totals**) rather than one flat table — a single subtracted table reads as a math error because the totals row never matches the visible sum.
 - **Fermentation model**: ferment "units" = `yeast% × hours × temperatureFactor(T)`. Temperature factor follows Q10 = 2 (rate doubles every 10 °C). Reference: 0.2% fresh yeast at 22 °C ferments for ~8 h. Every fermentation phase contributes to the same equivalent-hours sum that solves for the yeast %, including the pre-ferment — see below. Both `roomTempC` (used during room ferment, warmup, final proof, and pre-ferment) and `fridgeTempC` (used during the cold-bulk leg) are user inputs.
 - **Cold/room switch**: deterministic on available time. ≥ 16 h available → cold ferment with a fixed-shape schedule (prep → mix → 1 h room bulk → long fridge bulk → divide → 3 h warmup → 1 h final proof → bake). Below that → room ferment with bulk + final proof split 2:1 inside the available window. Yeast % is then chosen so the actual ferment-unit total matches the target.
-- **Pre-ferment as a real fermentation phase**: when biga/poolish is selected the wall-clock duration is solved from the type and `roomTempC` (`prefermentDurationHours` — biga ~14 h, poolish ~12 h at 22 °C, Q10-scaled and clamped to [8, 24] h). That duration both (a) reserves time before mix-day prep on the schedule and (b) contributes to the equivalent-hours sum that solves for yeast %. The pre-ferment carries **all of the recipe's yeast** for fresh-yeast recipes — no extra yeast goes into the main dough on baking day. Pre-ferment is mutually exclusive with sourdough (the starter is itself the pre-ferment culture); selecting sourdough nulls the biga/poolish spec in `effectivePreFerment`.
+- **Pre-ferments as real fermentation phases**: biga and poolish can be enabled independently — together, if you like — each with its own flour share (5–80 % each, 80 % combined). Wall-clock durations are solved per type from `roomTempC` (`prefermentDurationHours` — biga ~14 h, poolish ~12 h at 22 °C, Q10-scaled and clamped to [8, 24] h). All pre-ferments mature **in parallel and end at prep**: the schedule reserves the longest and emits one `preferment-mix` step per pre-ferment. Their legs enter the yeast solve weighted by flour share (`w = share / Σ shares` — a single pre-ferment has `w = 1`, so old share links keep their exact yeast %). The pre-ferments carry **all of the recipe's yeast** for fresh-yeast recipes, split proportional to flour share — no extra yeast on baking day. Pre-ferments are mutually exclusive with sourdough (the starter is itself the pre-ferment culture); selecting sourdough empties the list in `effectivePreFerments`.
 - **Schedule window**: the user picks both a **start datetime** (defaults to page-load time, editable, persisted in the URL) and a **ready-by datetime**. Everything is sized to fit inside that window. When a pre-ferment is selected, the temperature-dependent pre-ferment duration is reserved before mix-day prep — `preferment-mix` defaults to landing at/after `startAt`, but the night-window guard below can pull it earlier.
 - **Night-window guard**: no baker-action step may start in `[22:00, 08:00)` local time. In cold mode the scheduler stretches the bulk-cold duration within its floor/ceiling so the pre-cold cluster (`preferment-mix` → bulk-cold start) lands during waking hours — typically by extending the cold ferment so prep happens the prior evening rather than overnight. Post-cold steps (divide, warm-up) are anchored to `readyBy` and can't be shifted; room mode has no slack. When a step can't be lifted out of the window the scheduler emits a `night-step` warning (surfaced via `Warnings.svelte`) instead of silently rearranging. Because the guard can pull the first step earlier than `startAt`, `startAt` is a soft hint rather than a strict floor.
 - **Round numbers action**: the button next to the ball-weight input nudges the ball weight (to 0.1 g precision; the field accepts decimals like `288.5`) so the derived flour and water come out as tidy multiples of 100 g — or 50 g when 100 g would drift too far. It's **idempotent** (clicking twice is a no-op) and works for both fresh yeast and sourdough, branching on the `pctSum` difference above.

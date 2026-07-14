@@ -1,10 +1,15 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
 import { computeSchedule } from './dough/schedule';
-import type { ComputedSchedule, DoughInputs, YeastType } from './dough/types';
+import type {
+	BallProof,
+	ComputedSchedule,
+	DoughInputs,
+	MixingMethod,
+	PreFermentSpec,
+	YeastType
+} from './dough/types';
 import type { SerializableInputs } from './dough/urlState';
-
-export type PreFermentChoice = 'none' | 'biga' | 'poolish';
 
 function defaultReadyBy(): Date {
 	const d = new SvelteDate();
@@ -25,8 +30,14 @@ export class FormState {
 	starterHydration: number = $state(100);
 	roomTempC: number = $state(22);
 	fridgeTempC: number = $state(4);
-	preFermentType: PreFermentChoice = $state('none');
-	preFermentFlour: number = $state(30);
+	mixingMethod: MixingMethod = $state('machine');
+	ballProof: BallProof = $state('room');
+	preFermentTempEnabled: boolean = $state(false);
+	preFermentTempValue: number = $state(18);
+	bigaEnabled: boolean = $state(false);
+	bigaFlourPercent: number = $state(30);
+	poolishEnabled: boolean = $state(false);
+	poolishFlourPercent: number = $state(20);
 	startAt: Date = $state(new SvelteDate());
 
 	readonly inputs: DoughInputs = $derived({
@@ -42,10 +53,18 @@ export class FormState {
 		starterHydration: this.starterHydration,
 		roomTempC: this.roomTempC,
 		fridgeTempC: this.fridgeTempC,
-		preFerment:
-			this.preFermentType === 'none'
-				? null
-				: { type: this.preFermentType, flourPercent: this.preFermentFlour }
+		mixingMethod: this.mixingMethod,
+		ballProof: this.ballProof,
+		preFermentTempC: this.preFermentTempEnabled ? this.preFermentTempValue : null,
+		// Canonical biga-first order — the encoder and decoder preserve it.
+		preFerments: [
+			...(this.bigaEnabled
+				? [{ type: 'biga', flourPercent: this.bigaFlourPercent } satisfies PreFermentSpec]
+				: []),
+			...(this.poolishEnabled
+				? [{ type: 'poolish', flourPercent: this.poolishFlourPercent } satisfies PreFermentSpec]
+				: [])
+		]
 	});
 
 	readonly schedule: ComputedSchedule = $derived(computeSchedule(this.inputs));
@@ -80,13 +99,19 @@ export class FormState {
 		if (partial.starterHydration !== undefined) this.starterHydration = partial.starterHydration;
 		if (partial.roomTempC !== undefined) this.roomTempC = partial.roomTempC;
 		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
-		if (partial.preFerment !== undefined) {
-			if (partial.preFerment === null) {
-				this.preFermentType = 'none';
-			} else {
-				this.preFermentType = partial.preFerment.type;
-				this.preFermentFlour = partial.preFerment.flourPercent;
-			}
+		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
+		if (partial.ballProof !== undefined) this.ballProof = partial.ballProof;
+		if (partial.preFermentTempC !== undefined && partial.preFermentTempC !== null) {
+			this.preFermentTempEnabled = true;
+			this.preFermentTempValue = partial.preFermentTempC;
+		}
+		if (partial.preFerments !== undefined) {
+			const biga = partial.preFerments.find((pf) => pf.type === 'biga');
+			const poolish = partial.preFerments.find((pf) => pf.type === 'poolish');
+			this.bigaEnabled = biga !== undefined;
+			if (biga) this.bigaFlourPercent = biga.flourPercent;
+			this.poolishEnabled = poolish !== undefined;
+			if (poolish) this.poolishFlourPercent = poolish.flourPercent;
 		}
 	}
 }

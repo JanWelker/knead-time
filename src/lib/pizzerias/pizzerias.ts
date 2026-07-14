@@ -202,11 +202,19 @@ function matchesRecipe(a: Partial<SerializableInputs>, b: DoughInputs): boolean 
 	if (a.roomTempC !== b.roomTempC) return false;
 	if (a.fridgeTempC !== b.fridgeTempC) return false;
 	if (a.yeastType === 'sourdough' && a.starterHydration !== b.starterHydration) return false;
-	const aPf = a.preFerment ?? null;
-	const bPf = b.preFerment ?? null;
-	if (aPf === null && bPf === null) return true;
-	if (aPf === null || bPf === null) return false;
-	return aPf.type === bPf.type && aPf.flourPercent === bPf.flourPercent;
+	// Pre-v=4 share URLs omit the mixing method; the parser leaves it
+	// undefined, the form supplies 'machine'. Treat unset === machine so
+	// legacy entries keep matching. Same story for the pre-ferment
+	// temperature, whose unset value is null (follows the room).
+	if ((a.mixingMethod ?? 'machine') !== b.mixingMethod) return false;
+	if ((a.preFermentTempC ?? null) !== b.preFermentTempC) return false;
+	if ((a.ballProof ?? 'room') !== b.ballProof) return false;
+	// Both sides are in canonical biga-first order (decode and the form both
+	// guarantee it), so element-wise comparison suffices.
+	const aPf = a.preFerments ?? [];
+	const bPf = b.preFerments;
+	if (aPf.length !== bPf.length) return false;
+	return aPf.every((pf, i) => pf.type === bPf[i].type && pf.flourPercent === bPf[i].flourPercent);
 }
 
 export const pizzeriaEntries: PizzeriaEntry[] = parsePizzerias(source).sort(comparePizzerias);

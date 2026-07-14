@@ -1,12 +1,19 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
-	import { recipeFitScore, type FitFactor, type FitFactorDetail } from '$lib/dough/quality';
+	import {
+		fitStars,
+		recipeFitScore,
+		type FitFactor,
+		type FitFactorDetail
+	} from '$lib/dough/quality';
 	import type { ComputedSchedule, DoughInputs } from '$lib/dough/types';
 
 	let { schedule, inputs }: { schedule: ComputedSchedule; inputs: DoughInputs } = $props();
 	const t = $derived(i18n.t);
 	const fit = $derived(recipeFitScore(schedule, inputs));
+	const stars = $derived(fitStars(fit.score));
+	const starRow = $derived('★'.repeat(stars) + '☆'.repeat(5 - stars));
 
 	function factorTemplate(factor: FitFactor): string {
 		switch (factor) {
@@ -48,7 +55,7 @@
 
 	const summaryTooltip = $derived.by(() => {
 		const lines = fit.factors.length === 0 ? [t.quality.fit_perfect] : fit.factors.map(factorLabel);
-		return `${t.quality.fit_heading} ${fit.score}%: ${lines.join(' · ')}`;
+		return `${t.quality.fit_heading} ${starRow}: ${lines.join(' · ')}`;
 	});
 </script>
 
@@ -56,10 +63,10 @@
 	<summary
 		class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex cursor-pointer list-none items-center gap-1.5 text-sm font-medium text-stone-600 select-none dark:text-stone-300"
 		title={summaryTooltip}
-		aria-label={interpolate(t.quality.fit_aria, { score: fit.score })}
+		aria-label={interpolate(t.quality.fit_aria, { stars })}
 	>
-		<span class="font-display text-accent inline-block tabular-nums" aria-hidden="true">
-			{fit.score}%
+		<span class="text-accent inline-block tracking-tight" aria-hidden="true">
+			{starRow}
 		</span>
 		<span>{t.quality.fit_heading}</span>
 	</summary>
@@ -70,7 +77,9 @@
 			<p class="text-stone-600 dark:text-stone-300">{t.quality.fit_perfect}</p>
 		{:else}
 			<ul class="space-y-1 text-stone-600 dark:text-stone-300">
-				{#each fit.factors as detail (detail.factor)}
+				<!-- Key includes the index: with biga + poolish both clamped the same
+				     factor legitimately appears twice, once per pre-ferment. -->
+				{#each fit.factors as detail, i (detail.factor + '-' + i)}
 					<li>{factorLabel(detail)}</li>
 				{/each}
 			</ul>

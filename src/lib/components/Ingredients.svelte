@@ -1,27 +1,32 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { formatGrams, formatPercent } from '$lib/format';
-	import type { Ingredients } from '$lib/dough/types';
+	import { yeastIngredientName } from '$lib/stepCopy';
+	import type { Ingredients, YeastType } from '$lib/dough/types';
 
 	let {
 		ingredients,
 		yeastType,
 		yeastPercent
-	}: { ingredients: Ingredients; yeastType: 'fresh' | 'sourdough'; yeastPercent: number } =
-		$props();
+	}: { ingredients: Ingredients; yeastType: YeastType; yeastPercent: number } = $props();
 	const t = $derived(i18n.t);
 
-	const yeastLabel = $derived(
-		yeastType === 'fresh' ? t.ingredients.fresh_yeast : t.ingredients.sourdough_starter
+	const yeastLabel = $derived(yeastIngredientName(yeastType, t));
+
+	// A 1 g kitchen scale cannot weigh a 0.8 g yeast pinch — surface the hint
+	// whenever any yeast amount on the page drops below 2 g.
+	const needsFineScale = $derived(
+		(ingredients.yeast > 0 && ingredients.yeast < 2) ||
+			ingredients.preFerments.some((pf) => pf.yeast > 0 && pf.yeast < 2)
 	);
 
 	const totals = $derived(
-		ingredients.preFerment
+		ingredients.preFerments.length > 0
 			? {
-					flour: ingredients.flour + ingredients.preFerment.flour,
-					water: ingredients.water + ingredients.preFerment.water,
+					flour: ingredients.flour + ingredients.preFerments.reduce((sum, pf) => sum + pf.flour, 0),
+					water: ingredients.water + ingredients.preFerments.reduce((sum, pf) => sum + pf.water, 0),
 					salt: ingredients.salt,
-					yeast: ingredients.yeast + ingredients.preFerment.yeast
+					yeast: ingredients.yeast + ingredients.preFerments.reduce((sum, pf) => sum + pf.yeast, 0)
 				}
 			: null
 	);
@@ -58,20 +63,26 @@
 {/snippet}
 
 <div class="space-y-6">
-	{#if ingredients.preFerment}
-		<section>
-			<header class="mb-2">
-				<h3 class="font-display text-accent text-base">{t.ingredients.preFerment_heading}</h3>
-				<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.preFerment_help}</p>
-			</header>
-			<table class="w-full border-collapse tabular-nums">
-				<tbody>
-					{@render row(t.ingredients.flour, ingredients.preFerment.flour)}
-					{@render row(t.ingredients.water, ingredients.preFerment.water)}
-					{@render row(t.ingredients.fresh_yeast, ingredients.preFerment.yeast)}
-				</tbody>
-			</table>
-		</section>
+	{#if ingredients.preFerments.length > 0}
+		{#each ingredients.preFerments as pf (pf.type)}
+			<section>
+				<header class="mb-2">
+					<h3 class="font-display text-accent text-base">
+						{pf.type === 'biga'
+							? t.ingredients.preFerment_heading_biga
+							: t.ingredients.preFerment_heading_poolish}
+					</h3>
+					<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.preFerment_help}</p>
+				</header>
+				<table class="w-full border-collapse tabular-nums">
+					<tbody>
+						{@render row(t.ingredients.flour, pf.flour)}
+						{@render row(t.ingredients.water, pf.water)}
+						{@render row(yeastLabel, pf.yeast)}
+					</tbody>
+				</table>
+			</section>
+		{/each}
 
 		<section>
 			<header class="mb-2">
@@ -117,5 +128,9 @@
 				{@render totalRow()}
 			</tbody>
 		</table>
+	{/if}
+
+	{#if needsFineScale}
+		<p class="text-xs text-stone-500 italic dark:text-stone-400">{t.ingredients.scale_hint}</p>
 	{/if}
 </div>
