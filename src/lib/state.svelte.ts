@@ -30,7 +30,7 @@ export class FormState {
 	starterHydration: number = $state(100);
 	roomTempC: number = $state(22);
 	fridgeTempC: number = $state(4);
-	mixingMethod: MixingMethod = $state('machine');
+	mixingMethod: MixingMethod = $state('spiral');
 	ballProof: BallProof = $state('room');
 	preFermentTempEnabled: boolean = $state(false);
 	preFermentTempValue: number = $state(18);

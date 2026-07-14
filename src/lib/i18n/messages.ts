@@ -75,7 +75,8 @@ export interface Messages {
 		fridgeTemp_help: string;
 		mixingMethod: string;
 		mixingMethod_help: string;
-		mixing_machine: string;
+		mixing_spiral: string;
+		mixing_stand: string;
 		mixing_hand: string;
 		preFerment: string;
 		preFerment_biga: string;
@@ -112,7 +113,8 @@ export interface Messages {
 		mix_desc_with_biga: string;
 		mix_desc_with_poolish: string;
 		mix_desc_with_both: string;
-		mix_technique_machine: string;
+		mix_technique_spiral: string;
+		mix_technique_stand: string;
 		mix_technique_hand: string;
 		bulk_room: string;
 		bulk_room_desc: string;
@@ -366,10 +368,10 @@ const en: Messages = {
 			'After reserving the longest pre-ferment, a remaining window of 16 h or more activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
 		info_budget_title: 'How the window is divided',
 		info_budget_body:
-			'Fixed handwork comes off the top: 15 min prep + 15 min mix (25 by hand) + 15 min divide, plus a 60 min settle and the fixed 4 h final proof in cold mode. Room mode gives a third of the remaining budget to the final proof (capped at 90 min) and the rest to bulk. Cold mode sends the whole remainder to the fridge leg, capped at 48 h. When even that does not fit, the cold leg shrinks first, then the pre-ferments — the first step never lands before your start time. With a cold ball proof the same cold leg simply moves to the other side of divide: the balls ripen in the fridge instead of the bulk.',
+			'Fixed handwork comes off the top: 15 min prep + 15 min mix (20 in a stand mixer, 25 by hand) + 15 min divide, plus a 60 min settle and the fixed 4 h final proof in cold mode. Room mode gives a third of the remaining budget to the final proof (capped at 90 min) and the rest to bulk. Cold mode sends the whole remainder to the fridge leg, capped at 48 h. When even that does not fit, the cold leg shrinks first, then the pre-ferments — the first step never lands before your start time. With a cold ball proof the same cold leg simply moves to the other side of divide: the balls ripen in the fridge instead of the bulk.',
 		info_water_title: 'Mix-water temperature',
 		info_water_body:
-			'The desired-dough-temperature rule targets 23 °C after kneading, with flour assumed at room temperature. Friction is the heat the mixing adds: about 24 °C on a spiral mixer, about 5 °C by hand. The recommendation is clamped to [4, 35] °C:',
+			'The desired-dough-temperature rule targets 23 °C after kneading, with flour assumed at room temperature. Friction is the heat the mixing adds: about 24 °C on a spiral mixer, about 18 °C in a stand mixer, about 5 °C by hand. The recommendation is clamped to [4, 35] °C:',
 		info_mass_title: 'Mass balance',
 		info_mass_body:
 			"Baker's percentages with flour = 100%. Solve for flour from the total dough mass:",
@@ -410,8 +412,9 @@ const en: Messages = {
 		fridgeTemp_help: 'Only used during the cold-bulk phase. Home fridges run 2–7 °C.',
 		mixingMethod: 'Mixing',
 		mixingMethod_help:
-			'Hand kneading takes longer and warms the dough far less than a mixer — the mix step and the recommended water temperature adapt.',
-		mixing_machine: 'Stand or spiral mixer',
+			'A spiral mixer kneads most efficiently; a stand mixer needs longer; hand kneading takes the longest and warms the dough the least — the mix step and the recommended water temperature adapt.',
+		mixing_spiral: 'Spiral mixer',
+		mixing_stand: 'Stand mixer (dough hook)',
 		mixing_hand: 'By hand',
 		preFerment: 'Pre-ferment',
 		preFerment_biga: 'Biga (stiff, ~50% hydration)',
@@ -459,8 +462,10 @@ const en: Messages = {
 			'Pour the ripe poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
 		mix_desc_with_both:
 			'Tear the ripe biga into small pieces and pour the poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
-		mix_technique_machine:
-			'Knead in the mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.',
+		mix_technique_spiral:
+			'Knead in the spiral mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.',
+		mix_technique_stand:
+			'Knead in the stand mixer with the dough hook about 15 minutes, scraping down once or twice, until smooth and elastic — it works less efficiently than a spiral, so give it the extra time. Keep the dough below 24 °C.',
 		mix_technique_hand:
 			'Knead by hand about 10 minutes, rest 5, then knead another 5–10 minutes until smooth and elastic, keeping the dough below 24 °C.',
 		bulk_room: 'Bulk ferment (room)',
@@ -735,10 +740,10 @@ const de: Messages = {
 			'Nachdem der längste Vorteig reserviert ist, aktiviert ein verbleibendes Fenster von 16 h oder mehr eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
 		info_budget_title: 'Wie das Fenster aufgeteilt wird',
 		info_budget_body:
-			'Feste Handarbeit geht vorab ab: 15 min Vorbereiten + 15 min Mischen (25 von Hand) + 15 min Portionieren, dazu 60 min Ruhe und im Kühlmodus die feste Stückgare von 4 h. Im Raummodus bekommt die Stückgare ein Drittel des verbleibenden Budgets (höchstens 90 min), der Rest geht an die Stockgare. Im Kühlmodus wandert der gesamte Rest in die Kühlphase, begrenzt auf 48 h. Passt selbst das nicht, schrumpft zuerst die Kühlphase, dann die Vorteige — der erste Schritt liegt nie vor deiner Startzeit. Bei kalter Stückgare wandert dieselbe Kühlphase einfach auf die andere Seite des Portionierens: statt des Teigs reifen die Teiglinge im Kühlschrank.',
+			'Feste Handarbeit geht vorab ab: 15 min Vorbereiten + 15 min Mischen (20 in der Küchenmaschine, 25 von Hand) + 15 min Portionieren, dazu 60 min Ruhe und im Kühlmodus die feste Stückgare von 4 h. Im Raummodus bekommt die Stückgare ein Drittel des verbleibenden Budgets (höchstens 90 min), der Rest geht an die Stockgare. Im Kühlmodus wandert der gesamte Rest in die Kühlphase, begrenzt auf 48 h. Passt selbst das nicht, schrumpft zuerst die Kühlphase, dann die Vorteige — der erste Schritt liegt nie vor deiner Startzeit. Bei kalter Stückgare wandert dieselbe Kühlphase einfach auf die andere Seite des Portionierens: statt des Teigs reifen die Teiglinge im Kühlschrank.',
 		info_water_title: 'Temperatur des Knetwassers',
 		info_water_body:
-			'Die Regel der gewünschten Teigtemperatur zielt auf 23 °C nach dem Kneten; das Mehl wird bei Raumtemperatur angenommen. Reibung ist die Wärme, die das Mischen einträgt: etwa 24 °C mit dem Spiralkneter, etwa 5 °C von Hand. Die Empfehlung wird auf [4, 35] °C begrenzt:',
+			'Die Regel der gewünschten Teigtemperatur zielt auf 23 °C nach dem Kneten; das Mehl wird bei Raumtemperatur angenommen. Die Reibung ist die Wärme, die das Kneten einbringt: etwa 24 °C im Spiralkneter, etwa 18 °C in der Küchenmaschine, etwa 5 °C von Hand. Die Empfehlung ist auf [4, 35] °C begrenzt:',
 		info_mass_title: 'Massenbilanz',
 		info_mass_body: 'Bäckerprozente mit Mehl = 100%. Mehl wird aus der Gesamtmasse aufgelöst:',
 		info_mass_caption_fresh: 'Frischhefe — zusätzliche Masse im Budget:',
@@ -779,8 +784,9 @@ const de: Messages = {
 		fridgeTemp_help: 'Nur in der Kühlgare relevant. Haushaltskühlschränke laufen bei 2–7 °C.',
 		mixingMethod: 'Kneten',
 		mixingMethod_help:
-			'Handkneten dauert länger und erwärmt den Teig deutlich weniger als eine Knetmaschine — der Misch-Schritt und die empfohlene Wassertemperatur passen sich an.',
-		mixing_machine: 'Küchenmaschine oder Spiralkneter',
+			'Ein Spiralkneter knetet am effizientesten; eine Küchenmaschine braucht länger; Handkneten dauert am längsten und erwärmt den Teig am wenigsten — der Misch-Schritt und die empfohlene Wassertemperatur passen sich an.',
+		mixing_spiral: 'Spiralkneter',
+		mixing_stand: 'Küchenmaschine (Knethaken)',
 		mixing_hand: 'Von Hand',
 		preFerment: 'Vorteig',
 		preFerment_biga: 'Biga (fest, ~50% Hydration)',
@@ -828,8 +834,10 @@ const de: Messages = {
 			'Den reifen Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
 		mix_desc_with_both:
 			'Die reife Biga in kleine Stücke zupfen und den Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
-		mix_technique_machine:
-			'In der Maschine etwa 10 Minuten glatt und elastisch kneten; die Teigtemperatur dabei unter 24 °C halten.',
+		mix_technique_spiral:
+			'Im Spiralkneter etwa 10 Minuten glatt und elastisch kneten; die Teigtemperatur dabei unter 24 °C halten.',
+		mix_technique_stand:
+			'In der Küchenmaschine mit dem Knethaken etwa 15 Minuten kneten und den Teig ein- bis zweimal vom Rand schaben, bis er glatt und elastisch ist — sie arbeitet weniger effizient als ein Spiralkneter, also die zusätzliche Zeit geben. Teigtemperatur unter 24 °C halten.',
 		mix_technique_hand:
 			'Von Hand etwa 10 Minuten kneten, 5 Minuten ruhen lassen, dann weitere 5–10 Minuten glatt und elastisch kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		bulk_room: 'Stockgare (Raum)',
@@ -1112,10 +1120,10 @@ const it: Messages = {
 			'Dopo aver riservato il preimpasto più lungo, una finestra rimanente di 16 h o più attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 16× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
 		info_budget_title: 'Come si divide la finestra',
 		info_budget_body:
-			'Il lavoro manuale fisso si toglie subito: 15 min di preparazione + 15 min di impasto (25 a mano) + 15 min di staglio, più 60 min di riposo e, in modalità frigo, l’appretto fisso di 4 h. In modalità ambiente un terzo del budget rimanente va all’appretto (al massimo 90 min) e il resto alla puntata. In modalità frigo tutto il resto va alla fase in frigo, limitata a 48 h. Se nemmeno così ci sta, si accorcia prima la fase in frigo, poi i preimpasti — il primo passo non cade mai prima dell’ora di inizio. Con l’appretto a freddo la stessa fase si sposta semplicemente dall’altra parte dello staglio: in frigorifero maturano i panetti invece dell’impasto.',
+			'Il lavoro manuale fisso si toglie subito: 15 min di preparazione + 15 min di impasto (20 con la planetaria, 25 a mano) + 15 min di staglio, più 60 min di riposo e, in modalità frigo, l’appretto fisso di 4 h. In modalità ambiente un terzo del budget rimanente va all’appretto (al massimo 90 min) e il resto alla puntata. In modalità frigo tutto il resto va alla fase in frigo, limitata a 48 h. Se nemmeno così ci sta, si accorcia prima la fase in frigo, poi i preimpasti — il primo passo non cade mai prima dell’ora di inizio. Con l’appretto a freddo la stessa fase si sposta semplicemente dall’altra parte dello staglio: in frigorifero maturano i panetti invece dell’impasto.',
 		info_water_title: 'Temperatura dell’acqua d’impasto',
 		info_water_body:
-			'La regola della temperatura desiderata dell’impasto punta a 23 °C dopo l’impastamento, con la farina assunta a temperatura ambiente. L’attrito è il calore aggiunto dall’impastamento: circa 24 °C con l’impastatrice a spirale, circa 5 °C a mano. La raccomandazione è limitata a [4, 35] °C:',
+			"La regola della temperatura desiderata dell'impasto punta a 23 °C dopo l'impastamento, con la farina considerata a temperatura ambiente. L'attrito è il calore aggiunto dall'impastare: circa 24 °C con la spirale, circa 18 °C con la planetaria, circa 5 °C a mano. Il consiglio è limitato a [4, 35] °C:",
 		info_mass_title: 'Bilancio di massa',
 		info_mass_body:
 			'Percentuali del fornaio con farina = 100%. La farina si ricava dalla massa totale:',
@@ -1156,8 +1164,9 @@ const it: Messages = {
 		fridgeTemp_help: 'Usata solo durante la puntata in frigo. I frigo domestici stanno tra 2–7 °C.',
 		mixingMethod: 'Impasto',
 		mixingMethod_help:
-			"Impastare a mano richiede più tempo e scalda l'impasto molto meno di un'impastatrice — la fase di impasto e la temperatura dell'acqua consigliata si adattano.",
-		mixing_machine: 'Planetaria o impastatrice a spirale',
+			"Un'impastatrice a spirale impasta nel modo più efficiente; una planetaria richiede più tempo; a mano serve ancora di più e l'impasto si scalda meno — il passaggio di impasto e la temperatura dell'acqua consigliata si adattano.",
+		mixing_spiral: 'Impastatrice a spirale',
+		mixing_stand: 'Planetaria (gancio)',
 		mixing_hand: 'A mano',
 		preFerment: 'Preimpasto',
 		preFerment_biga: 'Biga (asciutta, ~50% idratazione)',
@@ -1206,8 +1215,10 @@ const it: Messages = {
 			"Versare il poolish maturo sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
 		mix_desc_with_both:
 			"Spezzettare la biga matura in piccoli pezzi e versare il poolish sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
-		mix_technique_machine:
-			"Impastare nell'impastatrice per circa 10 minuti fino a impasto liscio ed elastico, mantenendolo sotto i 24 °C.",
+		mix_technique_spiral:
+			"Impastare nella spirale per circa 10 minuti finché liscio ed elastico, tenendo l'impasto sotto i 24 °C.",
+		mix_technique_stand:
+			"Impastare nella planetaria con il gancio per circa 15 minuti, staccando l'impasto dal bordo una o due volte, finché liscio ed elastico — lavora meno efficacemente di una spirale, quindi concederle il tempo in più. Tenere l'impasto sotto i 24 °C.",
 		mix_technique_hand:
 			'Impastare a mano per circa 10 minuti, far riposare 5 minuti, poi impastare altri 5–10 minuti fino a impasto liscio ed elastico, mantenendolo sotto i 24 °C.',
 		bulk_room: 'Puntata (ambiente)',
@@ -1489,10 +1500,10 @@ const fr: Messages = {
 			"Après réservation du pré-ferment le plus long, une fenêtre restante de 16 h ou plus active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 16× plus lent qu'à 22 °C). Les fenêtres plus courtes restent à température ambiante.",
 		info_budget_title: 'Comment la fenêtre se répartit',
 		info_budget_body:
-			"Le travail manuel fixe est retiré d'emblée : 15 min de préparation + 15 min de pétrissage (25 à la main) + 15 min de division, plus 60 min de repos et, en mode frigo, l'apprêt fixe de 4 h. En mode ambiant, un tiers du budget restant va à l'apprêt (plafonné à 90 min) et le reste au pointage. En mode frigo, tout le reste part dans la phase au frigo, plafonnée à 48 h. Si même cela ne rentre pas, la phase au frigo raccourcit d'abord, puis les pré-ferments — la première étape ne tombe jamais avant votre heure de départ. Avec un apprêt à froid, la même phase froide passe simplement de l'autre côté de la division : ce sont les pâtons qui mûrissent au réfrigérateur, et non la masse.",
+			"Le travail manuel fixe est retiré d'emblée : 15 min de préparation + 15 min de pétrissage (20 au robot pâtissier, 25 à la main) + 15 min de division, plus 60 min de repos et, en mode frigo, l'apprêt fixe de 4 h. En mode ambiant, un tiers du budget restant va à l'apprêt (plafonné à 90 min) et le reste au pointage. En mode frigo, tout le reste part dans la phase au frigo, plafonnée à 48 h. Si même cela ne rentre pas, la phase au frigo raccourcit d'abord, puis les pré-ferments — la première étape ne tombe jamais avant votre heure de départ. Avec un apprêt à froid, la même phase froide passe simplement de l'autre côté de la division : ce sont les pâtons qui mûrissent au réfrigérateur, et non la masse.",
 		info_water_title: "Température de l'eau de pétrissage",
 		info_water_body:
-			'La règle de la température de pâte désirée vise 23 °C après pétrissage, la farine étant supposée à température ambiante. La friction est la chaleur ajoutée par le pétrissage : environ 24 °C au pétrin spirale, environ 5 °C à la main. La recommandation est bornée à [4, 35] °C :',
+			'La règle de la température de pâte désirée vise 23 °C après pétrissage, la farine étant supposée à température ambiante. La friction est la chaleur ajoutée par le pétrissage : environ 24 °C au pétrin à spirale, environ 18 °C au robot pâtissier, environ 5 °C à la main. La recommandation est bornée à [4, 35] °C :',
 		info_mass_title: 'Bilan de masse',
 		info_mass_body:
 			'Pourcentages du boulanger avec farine = 100%. On résout la farine à partir de la masse totale :',
@@ -1536,8 +1547,9 @@ const fr: Messages = {
 			'Utilisée seulement pendant la phase au frigo. Les frigos domestiques sont à 2–7 °C.',
 		mixingMethod: 'Pétrissage',
 		mixingMethod_help:
-			"Pétrir à la main prend plus de temps et chauffe la pâte bien moins qu'un pétrin — l'étape de pétrissage et la température d'eau recommandée s'adaptent.",
-		mixing_machine: 'Robot pâtissier ou pétrin à spirale',
+			"Un pétrin à spirale pétrit le plus efficacement ; un robot pâtissier demande plus de temps ; le pétrissage à la main est le plus long et réchauffe le moins la pâte — l'étape de pétrissage et la température d'eau recommandée s'adaptent.",
+		mixing_spiral: 'Pétrin à spirale',
+		mixing_stand: 'Robot pâtissier (crochet)',
 		mixing_hand: 'À la main',
 		preFerment: 'Pré-ferment',
 		preFerment_biga: "Biga (ferme, ~50% d'hydratation)",
@@ -1587,8 +1599,10 @@ const fr: Messages = {
 			"Versez le poolish mûr sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
 		mix_desc_with_both:
 			"Émiettez la biga mûre en petits morceaux et versez le poolish sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
-		mix_technique_machine:
-			"Pétrissez au pétrin environ 10 minutes jusqu'à obtenir une pâte lisse et élastique, en la gardant sous 24 °C.",
+		mix_technique_spiral:
+			"Pétrissez au pétrin à spirale environ 10 minutes jusqu'à une pâte lisse et élastique, en gardant la pâte sous 24 °C.",
+		mix_technique_stand:
+			"Pétrissez au robot pâtissier avec le crochet environ 15 minutes, en raclant les bords une ou deux fois, jusqu'à une pâte lisse et élastique — il travaille moins efficacement qu'un pétrin à spirale, accordez-lui ce temps supplémentaire. Gardez la pâte sous 24 °C.",
 		mix_technique_hand:
 			"Pétrissez à la main environ 10 minutes, laissez reposer 5 minutes, puis pétrissez encore 5–10 minutes jusqu'à obtenir une pâte lisse et élastique, en la gardant sous 24 °C.",
 		bulk_room: 'Pointage (ambiante)',
@@ -1870,10 +1884,10 @@ const nl: Messages = {
 			'Na het reserveren van het langste voordeeg activeert een resterend venster van 16 u of meer een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 16× trager dan 22 °C). Kortere vensters blijven op kamertemperatuur.',
 		info_budget_title: 'Hoe het venster wordt verdeeld',
 		info_budget_body:
-			'Vast handwerk gaat er eerst af: 15 min voorbereiden + 15 min mengen (25 met de hand) + 15 min verdelen, plus 60 min rust en in de koelmodus de vaste narijs van 4 u. In de kamermodus krijgt de narijs een derde van het resterende budget (hoogstens 90 min) en de rest gaat naar de bulkrijs. In de koelmodus gaat de hele rest naar de koelfase, begrensd op 48 u. Past zelfs dat niet, dan krimpt eerst de koelfase en daarna de voordegen — de eerste stap valt nooit vóór je starttijd. Bij koude narijs verschuift dezelfde koude fase gewoon naar de andere kant van het verdelen: de bollen rijpen in de koelkast in plaats van het deeg.',
+			'Vast handwerk gaat er eerst af: 15 min voorbereiden + 15 min mengen (20 in de keukenmachine, 25 met de hand) + 15 min verdelen, plus 60 min rust en in de koelmodus de vaste narijs van 4 u. In de kamermodus krijgt de narijs een derde van het resterende budget (hoogstens 90 min) en de rest gaat naar de bulkrijs. In de koelmodus gaat de hele rest naar de koelfase, begrensd op 48 u. Past zelfs dat niet, dan krimpt eerst de koelfase en daarna de voordegen — de eerste stap valt nooit vóór je starttijd. Bij koude narijs verschuift dezelfde koude fase gewoon naar de andere kant van het verdelen: de bollen rijpen in de koelkast in plaats van het deeg.',
 		info_water_title: 'Temperatuur van het kneedwater',
 		info_water_body:
-			'De regel van de gewenste deegtemperatuur mikt op 23 °C na het kneden, met de bloem verondersteld op kamertemperatuur. Wrijving is de warmte die het kneden toevoegt: ongeveer 24 °C met een spiraalkneder, ongeveer 5 °C met de hand. De aanbeveling wordt begrensd op [4, 35] °C:',
+			'De regel van de gewenste deegtemperatuur mikt op 23 °C na het kneden, met de bloem verondersteld op kamertemperatuur. De wrijving is de warmte die het kneden toevoegt: ongeveer 24 °C in de spiraalkneder, ongeveer 18 °C in de keukenmachine, ongeveer 5 °C met de hand. De aanbeveling is begrensd op [4, 35] °C:',
 		info_mass_title: 'Massabalans',
 		info_mass_body:
 			'Bakkerpercentages met bloem = 100%. Bloem wordt opgelost uit de totale deegmassa:',
@@ -1915,8 +1929,9 @@ const nl: Messages = {
 			'Alleen tijdens de koelkast-rijs gebruikt. Huishoudkoelkasten staan op 2–7 °C.',
 		mixingMethod: 'Kneden',
 		mixingMethod_help:
-			'Met de hand kneden duurt langer en verwarmt het deeg veel minder dan een machine — de kneedstap en de aanbevolen watertemperatuur passen zich aan.',
-		mixing_machine: 'Keukenmachine of spiraalkneder',
+			'Een spiraalkneder kneedt het efficiëntst; een keukenmachine heeft langer nodig; met de hand kneden duurt het langst en verwarmt het deeg het minst — de kneedstap en de aanbevolen watertemperatuur passen zich aan.',
+		mixing_spiral: 'Spiraalkneder',
+		mixing_stand: 'Keukenmachine (deeghaak)',
 		mixing_hand: 'Met de hand',
 		preFerment: 'Voordeeg',
 		preFerment_biga: 'Biga (stevig, ~50% hydratatie)',
@@ -1965,8 +1980,10 @@ const nl: Messages = {
 			'Giet de rijpe poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
 		mix_desc_with_both:
 			'Scheur de rijpe biga in kleine stukjes en giet de poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
-		mix_technique_machine:
-			'Kneed in de machine ongeveer 10 minuten tot een glad en elastisch deeg en houd de deegtemperatuur onder 24 °C.',
+		mix_technique_spiral:
+			'Kneed in de spiraalkneder ongeveer 10 minuten tot een glad en elastisch deeg en houd de deegtemperatuur onder 24 °C.',
+		mix_technique_stand:
+			'Kneed in de keukenmachine met de deeghaak ongeveer 15 minuten en schraap het deeg een of twee keer van de rand, tot het glad en elastisch is — hij werkt minder efficiënt dan een spiraalkneder, dus gun hem die extra tijd. Houd de deegtemperatuur onder 24 °C.',
 		mix_technique_hand:
 			'Kneed met de hand ongeveer 10 minuten, laat 5 minuten rusten en kneed dan nog 5–10 minuten tot een glad en elastisch deeg en houd de deegtemperatuur onder 24 °C.',
 		bulk_room: 'Bulkrijs (kamer)',

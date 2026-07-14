@@ -118,11 +118,18 @@ describe('stepDescription — prep / mix method copy', () => {
 		expect(stepDescription(findStep(r, 'mix'), MESSAGES.en)).toBe(MESSAGES.en.steps.mix_desc);
 	});
 
-	it('appends the machine kneading technique to the mix method by default', () => {
+	it('appends the spiral kneading technique to the mix method by default', () => {
 		const r = computeSchedule(inputs());
 		const desc = stepDescription(findStep(r, 'mix'), MESSAGES.en, r);
-		expect(desc).toContain(MESSAGES.en.steps.mix_technique_machine);
+		expect(desc).toContain(MESSAGES.en.steps.mix_technique_spiral);
 		expect(desc).not.toContain(MESSAGES.en.steps.mix_technique_hand);
+	});
+
+	it('appends the stand-mixer technique when kneading with the dough hook', () => {
+		const r = computeSchedule(inputs({ mixingMethod: 'stand' }));
+		const desc = stepDescription(findStep(r, 'mix'), MESSAGES.en, r);
+		expect(desc).toContain(MESSAGES.en.steps.mix_technique_stand);
+		expect(desc).not.toContain(MESSAGES.en.steps.mix_technique_spiral);
 	});
 
 	it('appends the hand kneading technique when mixing by hand, also under a pre-ferment', () => {

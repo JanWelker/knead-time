@@ -105,7 +105,8 @@
 				{t.form.mixingMethod}
 			</span>
 			<select class={selectClass} bind:value={state.mixingMethod}>
-				<option value="machine">{t.form.mixing_machine}</option>
+				<option value="spiral">{t.form.mixing_spiral}</option>
+				<option value="stand">{t.form.mixing_stand}</option>
 				<option value="hand">{t.form.mixing_hand}</option>
 			</select>
 			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">

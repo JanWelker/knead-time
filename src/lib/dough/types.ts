@@ -8,7 +8,12 @@ export type YeastType = 'fresh' | 'instant' | 'active-dry' | 'sourdough';
 // Room mode has no cold leg, so the choice is inert there.
 export type BallProof = 'room' | 'cold';
 
-export type MixingMethod = 'hand' | 'machine';
+// A spiral mixer transfers energy into the dough most efficiently (shortest
+// knead, most friction heat); a stand/planetary mixer with a dough hook needs
+// longer and runs cooler; hand kneading is the slowest and coolest. Legacy
+// v4.0 links encoded 'machine' — that was calibrated on a spiral, so the
+// decoder maps it there.
+export type MixingMethod = 'spiral' | 'stand' | 'hand';
 
 export type PreFermentType = 'none' | 'biga' | 'poolish';
 
