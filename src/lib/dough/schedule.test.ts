@@ -4,8 +4,11 @@ import {
 	ACTIVE_NIGHT_KINDS,
 	computeSchedule,
 	COLD_MODE_THRESHOLD_MIN,
+	DIVIDE_MIN,
+	MIX_MIN_SPIRAL,
 	NIGHT_END_HOUR,
 	NIGHT_START_HOUR,
+	PREP_MIN,
 	ROOM_MIN_TOTAL_MIN
 } from './schedule';
 import { defaultInputs, findStep } from './testFixtures';
@@ -860,6 +863,67 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		expect(r.yeastPercent).toBe(0);
 	});
 
+	it('holds the floor for every feasible window length × pre-ferment shape × mixing method', () => {
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		// From the 3 h room minimum up through multi-day cold windows.
+		const windowsMin = [ROOM_MIN_TOTAL_MIN, 240, 360, 600, 960, 1440, 2880, 4320];
+		const shapes: DoughInputs['preFerments'][] = [
+			[],
+			[{ type: 'biga', flourPercent: 30 }],
+			[{ type: 'poolish', flourPercent: 30 }],
+			[
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		];
+		for (const min of windowsMin) {
+			for (const preFerments of shapes) {
+				for (const mixingMethod of ['spiral', 'stand', 'hand'] as const) {
+					const startAt = new Date(readyBy.getTime() - min * 60_000);
+					const r = computeSchedule(baseInputs({ startAt, readyBy, preFerments, mixingMethod }));
+					expect(r.feasible).toBe(true);
+					expect(
+						firstStepAt(r).getTime(),
+						`window ${min} min, ${preFerments.length} pre-ferments, ${mixingMethod}`
+					).toBeGreaterThanOrEqual(startAt.getTime());
+				}
+			}
+		}
+	});
+
+	it('still holds the floor when the window exactly equals the fixed hands-on steps', () => {
+		// 45 min = prep + spiral mix + divide. Infeasible (below the 3 h room
+		// minimum), but the first step lands exactly on startAt, not before it —
+		// the floor violation only begins strictly below the fixed-step sum.
+		const fixedMin = PREP_MIN + MIX_MIN_SPIRAL + DIVIDE_MIN;
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const startAt = new Date(readyBy.getTime() - fixedMin * 60_000);
+		const r = computeSchedule(baseInputs({ startAt, readyBy }));
+		expect(r.feasible).toBe(false);
+		expect(firstStepAt(r).getTime()).toBe(startAt.getTime());
+	});
+
+	it('documents the one exception: a window shorter than the fixed steps keeps readyBy anchored', () => {
+		// 30 min window < prep + mix + divide (45 min). The contract resolution:
+		// readyBy stays the anchor and the hands-on steps keep their physical
+		// durations — they cannot be compressed below the time they take — so the
+		// first step lands BEFORE startAt. The schedule must be honest about it:
+		// such a window is always below ROOM_MIN_TOTAL_MIN, so feasible = false
+		// and the 'too-short' warning (quality.ts's 'infeasible' factor) fires.
+		const startAt = new Date('2026-05-12T18:30:00Z');
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt, readyBy }));
+		expect(r.feasible).toBe(false);
+		expect(r.warnings).toContain('too-short');
+		expect(r.steps[r.steps.length - 1].at.getTime()).toBe(readyBy.getTime());
+		expect(findStep(r, 'prep').durationMinutes).toBe(PREP_MIN);
+		expect(findStep(r, 'mix').durationMinutes).toBe(MIX_MIN_SPIRAL);
+		expect(findStep(r, 'divide').durationMinutes).toBe(DIVIDE_MIN);
+		const fixedMin = PREP_MIN + MIX_MIN_SPIRAL + DIVIDE_MIN;
+		expect(firstStepAt(r).getTime()).toBe(readyBy.getTime() - fixedMin * 60_000);
+		expect(firstStepAt(r).getTime()).toBeLessThan(startAt.getTime());
+	});
+
 	it('night-window adjuster never extends cold-bulk past natural (would push start before startAt)', () => {
 		// Same scenario as the existing night-shift test but tighter. The
 		// adjuster used to be able to extend cold-bulk upward (back-shifting
@@ -891,6 +955,107 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
 		const bulkCold = findStep(r, 'bulk-cold');
 		expect(bulkCold.durationMinutes).toBe(r.naturalColdBulkMin);
+	});
+});
+
+// The full invariant matrix CLAUDE.md promises: {fresh, instant, active-dry,
+// sourdough} × {none, biga, poolish, biga+poolish} × {room, cold} × {spiral,
+// stand, hand} × {room, cold} ball proof. Every combination must keep the
+// mass-balance invariant (each pctSum branch) and solve a finite, positive
+// yeast percent. Sourdough × pre-ferments is not a valid recipe — the matrix
+// asserts the documented drop behaviour for those cells instead of skipping.
+describe('computeSchedule — invariant matrix (mass balance × yeast solve)', () => {
+	const yeastTypes = ['fresh', 'instant', 'active-dry', 'sourdough'] as const;
+	const prefermentShapes = [
+		{ label: 'none', preFerments: [] as DoughInputs['preFerments'] },
+		{
+			label: 'biga',
+			preFerments: [{ type: 'biga', flourPercent: 30 }] as DoughInputs['preFerments']
+		},
+		{
+			label: 'poolish',
+			preFerments: [{ type: 'poolish', flourPercent: 30 }] as DoughInputs['preFerments']
+		},
+		{
+			label: 'biga+poolish',
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			] as DoughInputs['preFerments']
+		}
+	];
+	// 6 h window stays in room mode even with a pre-ferment reserved; the 36 h
+	// window stays in cold mode even after the longest (14 h biga) reservation.
+	const windows = [
+		{
+			mode: 'room' as const,
+			startAt: new Date('2026-05-12T13:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		},
+		{
+			mode: 'cold' as const,
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		}
+	];
+	const cells = ['spiral', 'stand', 'hand'].flatMap((mixingMethod) =>
+		(['room', 'cold'] as const).map((ballProof) => ({
+			mixingMethod: mixingMethod as DoughInputs['mixingMethod'],
+			ballProof
+		}))
+	);
+
+	describe.each(yeastTypes)('%s', (yeastType) => {
+		describe.each(prefermentShapes)('pre-ferment: $label', ({ preFerments }) => {
+			describe.each(windows)('$mode mode', ({ mode, startAt, readyBy }) => {
+				it.each(cells)(
+					'$mixingMethod mixing, $ballProof ball proof',
+					({ mixingMethod, ballProof }) => {
+						const r = computeSchedule(
+							baseInputs({ startAt, readyBy, yeastType, preFerments, mixingMethod, ballProof })
+						);
+						expect(r.mode).toBe(mode);
+
+						// Solve sanity: a feasible window always yields a finite,
+						// positive yeast percent.
+						expect(Number.isFinite(r.yeastPercent)).toBe(true);
+						expect(r.yeastPercent).toBeGreaterThan(0);
+
+						// Sourdough drops the pre-ferments (the starter IS the
+						// pre-ferment); every other carrier keeps them.
+						const effective = yeastType === 'sourdough' ? [] : preFerments;
+						expect(r.ingredients.preFerments.map((pf) => pf.type)).toEqual(
+							effective.map((pf) => pf.type)
+						);
+						expect(r.steps.filter((s) => s.kind === 'preferment-mix')).toHaveLength(
+							effective.length
+						);
+
+						// Mass balance: every separately-weighed row sums to
+						// pizzaCount × ballWeight.
+						const ing = r.ingredients;
+						const pfMass = ing.preFerments.reduce((s, pf) => s + pf.flour + pf.water + pf.yeast, 0);
+						expect(
+							ing.flour + ing.water + ing.salt + ing.yeast + ing.oil + ing.sugar + pfMass
+						).toBeCloseTo(ing.totalDough, 6);
+						expect(ing.totalDough).toBe(4 * 280);
+
+						// pctSum branch: fresh-style carriers add their own mass,
+						// sourdough starter is flour + water from the existing budget.
+						const pctSum = 100 + 70 + 3 + (yeastType === 'sourdough' ? 0 : r.yeastPercent);
+						const flourTotal = (ing.totalDough * 100) / pctSum;
+						if (yeastType === 'sourdough') {
+							// starterHydration is 100 → the starter is half flour.
+							expect(ing.flour + ing.yeast / 2).toBeCloseTo(flourTotal, 6);
+						} else {
+							// Pre-ferments redistribute flour — they never change the total.
+							const pfFlour = ing.preFerments.reduce((s, pf) => s + pf.flour, 0);
+							expect(ing.flour + pfFlour).toBeCloseTo(flourTotal, 6);
+						}
+					}
+				);
+			});
+		});
 	});
 });
 

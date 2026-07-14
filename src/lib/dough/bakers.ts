@@ -44,11 +44,6 @@ export function computePctSum(args: {
 
 export function computeIngredients(args: BakerArgs): Ingredients {
 	const totalDough = args.pizzaCount * args.ballWeight;
-	const isSourdough = args.yeastType === 'sourdough';
-	// Sourdough's "starter" is the pre-ferment — adding a separate biga/poolish
-	// on top would double-stack two cultures. computeSchedule already empties
-	// the preFerments for sourdough; this guard makes the bakers' module match.
-	const hasPreFerment = !isSourdough && args.preFerments.length > 0;
 
 	const pctSum = computePctSum(args);
 	const flourTotal = (totalDough * 100) / pctSum;
@@ -58,6 +53,26 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 	const sugar = (flourTotal * args.sugarPercent) / 100;
 	const yeastMass = (flourTotal * args.yeastPercent) / 100;
 
+	// Sourdough's "starter" is the pre-ferment — adding a separate biga/poolish
+	// on top would double-stack two cultures, so any preFerments the caller
+	// passes are ignored here (computeSchedule's effectivePreFerments already
+	// empties them for sourdough).
+	if (args.yeastType === 'sourdough') {
+		const starterFlour = yeastMass / (1 + args.starterHydration / 100);
+		const starterWater = yeastMass - starterFlour;
+		return {
+			flour: flourTotal - starterFlour,
+			water: waterTotal - starterWater,
+			salt,
+			yeast: yeastMass,
+			oil,
+			sugar,
+			totalDough,
+			preFerments: []
+		};
+	}
+
+	const hasPreFerment = args.preFerments.length > 0;
 	let preFerments: Ingredients['preFerments'] = [];
 	if (hasPreFerment) {
 		// All of the recipe's yeast goes into the pre-ferments — that's how
@@ -76,21 +91,6 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 				yeast: yeastMass * (pf.flourPercent / totalShare)
 			};
 		});
-	}
-
-	if (isSourdough) {
-		const starterFlour = yeastMass / (1 + args.starterHydration / 100);
-		const starterWater = yeastMass - starterFlour;
-		return {
-			flour: flourTotal - starterFlour,
-			water: waterTotal - starterWater,
-			salt,
-			yeast: yeastMass,
-			oil,
-			sugar,
-			totalDough,
-			preFerments: []
-		};
 	}
 
 	return {

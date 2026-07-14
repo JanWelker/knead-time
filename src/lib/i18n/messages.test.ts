@@ -31,4 +31,24 @@ describe('messages parity', () => {
 			expect(flatten(MESSAGES[loc]).sort(), `locale ${loc} mismatched keys`).toEqual(reference);
 		}
 	});
+
+	it('every key interpolates the same {placeholder} set in every locale', () => {
+		// A translation that drops or misspells a {token} silently prints the
+		// raw brace text to the user — pin the placeholder sets to English.
+		const collect = (obj: unknown, prefix = ''): Array<[string, string]> => {
+			if (typeof obj === 'string') return [[prefix, obj]];
+			return Object.entries(obj as Record<string, unknown>).flatMap(([k, v]) =>
+				collect(v, prefix ? `${prefix}.${k}` : k)
+			);
+		};
+		const placeholders = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
+		const reference = new Map(collect(MESSAGES.en));
+		for (const loc of LOCALES) {
+			for (const [key, value] of collect(MESSAGES[loc])) {
+				expect(placeholders(value), `locale ${loc} key ${key} placeholder mismatch`).toEqual(
+					placeholders(reference.get(key) ?? '')
+				);
+			}
+		}
+	});
 });

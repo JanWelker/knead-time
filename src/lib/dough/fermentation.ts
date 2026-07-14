@@ -99,32 +99,31 @@ export function prefermentDurationHours(type: 'biga' | 'poolish', tempC: number)
 	return wall;
 }
 
-// Equivalent-hours-at-22°C the pre-ferment actually delivers at the user's
-// kitchen temperature. Inside the clamped band this equals the reference load
-// exactly; at the band edges it's the clamped wall-clock × f(T).
-export function prefermentEquivHours(type: 'biga' | 'poolish', tempC: number): number {
-	return prefermentDurationHours(type, tempC) * temperatureFactor(tempC);
-}
-
+// A fermentation phase as the yeast solve sees it. `hours` may already be
+// flour-share-weighted (a pre-ferment leg only works for the yeast fraction
+// it carries) — weighting hours is equivalent to weighting the whole term.
 export interface FermentPhase {
 	hours: number;
 	tempC: number;
 }
 
-export function equivalentHoursAtRef(phases: FermentPhase[]): number {
+function equivalentHoursAtRef(phases: FermentPhase[]): number {
 	return phases.reduce((sum, p) => sum + p.hours * temperatureFactor(p.tempC), 0);
 }
 
+// The one yeast solve: enough carrier mass to reach TARGET_UNITS_FRESH over
+// the given phases, converted to the carrier's gram scale at the end.
+// Equivalent hours can hit 0 when the window is so short that every
+// fermentation phase shrinks to nothing — the schedule is already infeasible
+// in that case, so callers see the warning rather than an Infinity %.
 export function yeastPercentForPhases(yeastType: YeastType, phases: FermentPhase[]): number {
 	const eq = equivalentHoursAtRef(phases);
 	if (eq <= 0) return 0;
 	return (TARGET_UNITS_FRESH / eq) * yeastMassFactor(yeastType);
 }
 
-export function fermentHoursForYeast(
-	yeastType: YeastType,
-	yeastPct: number,
-	tempC: number
-): number {
-	return (TARGET_UNITS_FRESH * yeastMassFactor(yeastType)) / (yeastPct * temperatureFactor(tempC));
+// Sanity bands and the fit score judge leavening power, not the carrier's
+// gram scale (0.5 g IDY ≈ 1.5 g fresh) — one conversion, shared by both.
+export function freshEquivalentPercent(yeastPct: number, yeastType: YeastType): number {
+	return yeastPct / yeastMassFactor(yeastType);
 }

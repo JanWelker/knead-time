@@ -1,11 +1,5 @@
-import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS, yeastMassFactor } from './fermentation';
-import {
-	ACTIVE_NIGHT_KINDS,
-	COLD_BULK_CEIL_MIN,
-	COLD_BULK_FLOOR_MIN,
-	NIGHT_END_HOUR,
-	NIGHT_START_HOUR
-} from './schedule';
+import { freshEquivalentPercent, PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
+import { ACTIVE_NIGHT_KINDS, COLD_BULK_CEIL_MIN, COLD_BULK_FLOOR_MIN, isAtNight } from './schedule';
 import type { ComputedSchedule, DoughInputs, ScheduleStep } from './types';
 
 // Schedule-imperfection penalties (0–100 scale). The UI renders the score as
@@ -110,9 +104,7 @@ export interface FitScore {
 }
 
 function isNightStep(step: ScheduleStep): boolean {
-	if (!ACTIVE_NIGHT_KINDS.has(step.kind)) return false;
-	const h = step.at.getHours();
-	return h >= NIGHT_START_HOUR || h < NIGHT_END_HOUR;
+	return ACTIVE_NIGHT_KINDS.has(step.kind) && isAtNight(step.at);
 }
 
 // The variable cold leg: bulk-cold classically, proof-cold with a cold ball
@@ -252,7 +244,7 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 	// fresh-equivalent first (0.5% IDY is a normal 1.5% fresh, and a 20%
 	// sourdough starter is a modest 0.2% — without the conversion every
 	// sourdough recipe would read as extreme).
-	const freshEquivalentPct = schedule.yeastPercent / yeastMassFactor(schedule.yeastType);
+	const freshEquivalentPct = freshEquivalentPercent(schedule.yeastPercent, schedule.yeastType);
 	if (freshEquivalentPct < YEAST_PCT_LOW || freshEquivalentPct > YEAST_PCT_HIGH) {
 		factors.push({ factor: 'yeast-extreme', delta: 0 });
 	}
