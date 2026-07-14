@@ -195,6 +195,11 @@
 					<option value="active-dry">{t.form.yeast_active_dry}</option>
 					<option value="sourdough">{t.form.yeast_sourdough}</option>
 				</select>
+				{#if state.yeastType === 'active-dry'}
+					<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+						{t.form.yeast_active_dry_help}
+					</span>
+				{/if}
 			</label>
 
 			{#if state.yeastType === 'sourdough'}

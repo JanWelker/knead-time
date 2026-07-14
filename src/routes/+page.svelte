@@ -204,35 +204,14 @@
 		</div>
 
 		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
-			<div class="relative mb-4 flex flex-wrap items-end justify-between gap-3">
-				<div>
+			<!-- Title row keeps Actions pinned top-right at every width; the badge/
+			     stars/verbosity strip lives on its own full-width row below so it
+			     can never wrap the button out of place (issue #189). -->
+			<div class="relative mb-4">
+				<div class="flex flex-wrap items-start justify-between gap-3">
 					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
 						{t.schedule.heading}
 					</h2>
-					<div class="mt-2 flex flex-wrap items-center gap-3">
-						<ModeBadge mode={form.schedule.mode} />
-						<FitScore schedule={form.schedule} inputs={form.serializable()} />
-						<fieldset
-							class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold dark:border-stone-700 dark:bg-stone-800/70"
-						>
-							<legend class="sr-only">{t.schedule.verbosity_label}</legend>
-							{#each ['short', 'descriptive'] as const as v (v)}
-								{@const active = scheduleVerbosity.current === v}
-								<button
-									type="button"
-									class="px-3 py-1 transition-colors {active
-										? 'bg-tomato-500 text-white'
-										: 'hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700'}"
-									aria-pressed={active}
-									onclick={() => scheduleVerbosity.set(v)}
-								>
-									{v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
-								</button>
-							{/each}
-						</fieldset>
-					</div>
-				</div>
-				<div>
 					<details bind:this={actionsRef} bind:open={actionsOpen}>
 						<summary
 							class="btn-tomato flex cursor-pointer list-none items-center gap-2 select-none"
@@ -293,6 +272,28 @@
 							/>
 						</div>
 					</details>
+				</div>
+				<div class="mt-2 flex flex-wrap items-center gap-3">
+					<ModeBadge mode={form.schedule.mode} />
+					<FitScore schedule={form.schedule} inputs={form.serializable()} />
+					<fieldset
+						class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold dark:border-stone-700 dark:bg-stone-800/70"
+					>
+						<legend class="sr-only">{t.schedule.verbosity_label}</legend>
+						{#each ['short', 'descriptive'] as const as v (v)}
+							{@const active = scheduleVerbosity.current === v}
+							<button
+								type="button"
+								class="px-3 py-1 transition-colors {active
+									? 'bg-tomato-500 text-white'
+									: 'hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700'}"
+								aria-pressed={active}
+								onclick={() => scheduleVerbosity.set(v)}
+							>
+								{v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
+							</button>
+						{/each}
+					</fieldset>
 				</div>
 			</div>
 

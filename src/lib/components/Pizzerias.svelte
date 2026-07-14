@@ -42,7 +42,9 @@
 			<!-- Mobile: card list. The desktop table is wider than the viewport on phones
 	     and the secondary actions land behind a hidden horizontal scrollbar —
 	     cards put Open up front and tuck the rest under a disclosure. -->
-			<ul class="flex flex-col gap-3 md:hidden">
+			<!-- Cards up to lg: the 840 px table minimum needs a hidden horizontal
+		     scroll on iPad-portrait widths, exactly what the cards avoid. -->
+			<ul class="flex flex-col gap-3 lg:hidden">
 				{#each entries as entry (entry.recipeUrl)}
 					<li class="border-dough-200/70 rounded-lg border p-3 dark:border-stone-700/70">
 						<div class="flex items-baseline justify-between gap-3">
@@ -137,7 +139,7 @@
 			</ul>
 
 			<!-- Desktop: full table. -->
-			<div class="hidden overflow-x-auto md:block">
+			<div class="hidden overflow-x-auto lg:block">
 				<table class="w-full min-w-[840px] border-collapse text-left text-sm tabular-nums">
 					<thead>
 						<tr
