@@ -25,7 +25,7 @@
 </script>
 
 {#if warnings.length > 0}
-	<ul class="space-y-2" role="alert" aria-live="polite">
+	<ul class="space-y-2" aria-live="polite">
 		{#each warnings as w (w)}
 			<li
 				class="rounded-lg border px-3 py-2 text-sm {SEVERITY[w] === 'danger'

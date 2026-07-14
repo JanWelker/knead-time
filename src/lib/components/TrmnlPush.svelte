@@ -11,13 +11,11 @@
 	let {
 		inputs,
 		schedule,
-		locale,
-		triggerClass = ''
+		locale
 	}: {
 		inputs: DoughInputs;
 		schedule: ComputedSchedule;
 		locale: Locale;
-		triggerClass?: string;
 	} = $props();
 
 	const t = $derived(i18n.t);
@@ -33,7 +31,7 @@
 		uuidInput = savedUuid ?? '';
 	});
 
-	function open(): void {
+	export function open(): void {
 		if (!dialogEl) return;
 		uuidInput = savedUuid ?? '';
 		status = 'idle';
@@ -43,6 +41,14 @@
 
 	function close(): void {
 		dialogEl?.close();
+	}
+
+	// Submit handler so Enter in the UUID field sends instead of triggering
+	// the implicit <form method="dialog"> submission that closed the dialog
+	// without sending.
+	function onSubmit(event: SubmitEvent): void {
+		event.preventDefault();
+		void send();
 	}
 
 	async function send(): Promise<void> {
@@ -75,21 +81,11 @@
 	}
 </script>
 
-<button
-	type="button"
-	role="menuitem"
-	class={triggerClass}
-	onclick={open}
-	disabled={!schedule.feasible}
->
-	{t.trmnl_push.menu_item}
-</button>
-
 <dialog
 	bind:this={dialogEl}
 	class="border-dough-200 max-w-md rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200"
 >
-	<form method="dialog" class="space-y-4 p-5">
+	<form class="space-y-4 p-5" onsubmit={onSubmit}>
 		<header class="space-y-1">
 			<h2 class="font-display text-accent text-lg">
 				{t.trmnl_push.dialog_heading}
@@ -108,16 +104,14 @@
 				bind:value={uuidInput}
 				placeholder="00000000-0000-0000-0000-000000000000"
 				class="border-dough-300 w-full rounded-lg border bg-white px-3 py-2 font-mono text-sm tracking-tight text-stone-900 focus:outline-none dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100"
-				formnovalidate
 			/>
 		</label>
 
 		<div class="flex flex-wrap items-center gap-2">
 			<button
-				type="button"
+				type="submit"
 				class="btn-tomato"
 				disabled={status === 'sending' || uuidInput.trim().length === 0}
-				onclick={send}
 			>
 				{status === 'sending' ? t.trmnl_push.sending : t.trmnl_push.send}
 			</button>
