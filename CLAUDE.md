@@ -33,7 +33,12 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 ### Beginner / expert view mode
 
 - `UiMode = 'beginner' | 'expert'` (`src/lib/storedMode.ts` pure helpers + `src/lib/mode.svelte.ts` runtime singleton). **UI-level only — never enters `DoughInputs` or the math.**
-- Beginner shows startAt/readyBy/pizzaCount/mixingMethod plus a switch to expert; ball weight is fixed at the 280 g default and every other input keeps its default too. Each schedule step gains a `steps.<kind>_detail` explanation paragraph (`stepDetail` in `stepCopy.ts`), also appended to `.ics` events via `stepDetailText(..., { includeDetail: true })`. Print and TRMNL never carry the detail copy.
+- Beginner shows startAt/readyBy/pizzaCount/mixingMethod plus a switch to expert; ball weight is fixed at the 280 g default and every other input keeps its default too. **The view mode only shapes the form — it never affects the schedule.**
+
+### Schedule verbosity (short / detailed)
+
+- `ScheduleVerbosity = 'short' | 'descriptive'` (`src/lib/storedVerbosity.ts` pure helpers + `src/lib/verbosity.svelte.ts` runtime singleton), toggled by the pill switch in the schedule header. Descriptive shows a `steps.<kind>_detail` explanation paragraph under every step (`stepDetail` in `stepCopy.ts`) and appends it to `.ics` events via `stepDetailText(..., { includeDetail: true })`; short hides both. Print and TRMNL never carry the detail copy.
+- Device-level reading preference: **not in the share URL** and independent of the view mode. Default is descriptive; explicit toggles persist to `localStorage` `kneadtime:scheduleVerbosity`.
 - **Resolution order on mount**: URL `md` param (`md=b` = beginner; encode stamps it only for beginner) → any other non-empty query = expert (all pre-v4 links were made in the full view) → `localStorage` `kneadtime:mode` → **beginner** (the fresh-visit default that justified the v4 major bump). Only explicit toggles persist to localStorage — opening someone's beginner link never overwrites the local preference.
 
 ### "Round numbers" action

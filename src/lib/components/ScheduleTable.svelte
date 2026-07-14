@@ -7,14 +7,18 @@
 	import { stepQualityFlags, type StepQualityFlag } from '$lib/dough/quality';
 	import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from '$lib/dough/types';
 	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
-	import type { UiMode } from '$lib/storedMode';
+	import type { ScheduleVerbosity } from '$lib/storedVerbosity';
 	import { interpolate } from '$lib/i18n/interpolate';
 
 	let {
 		schedule,
 		sourceTiming,
-		mode = 'expert'
-	}: { schedule: ComputedSchedule; sourceTiming?: SourceTiming; mode?: UiMode } = $props();
+		verbosity = 'short'
+	}: {
+		schedule: ComputedSchedule;
+		sourceTiming?: SourceTiming;
+		verbosity?: ScheduleVerbosity;
+	} = $props();
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
 
@@ -236,7 +240,7 @@
 							{stepDescription(step, t, schedule)}
 						</p>
 
-						{#if mode === 'beginner'}
+						{#if verbosity === 'descriptive'}
 							<p
 								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
 							>

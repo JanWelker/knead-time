@@ -126,6 +126,9 @@ export interface Messages {
 	};
 	schedule: {
 		heading: string;
+		verbosity_label: string;
+		verbosity_short: string;
+		verbosity_descriptive: string;
 		col_when: string;
 		col_step: string;
 		col_duration: string;
@@ -452,6 +455,9 @@ const en: Messages = {
 	},
 	schedule: {
 		heading: 'Schedule',
+		verbosity_label: 'Step descriptions',
+		verbosity_short: 'Short',
+		verbosity_descriptive: 'Detailed',
 		col_when: 'When',
 		col_step: 'Step',
 		col_duration: 'Duration',
@@ -791,6 +797,9 @@ const de: Messages = {
 	},
 	schedule: {
 		heading: 'Zeitplan',
+		verbosity_label: 'Schrittbeschreibungen',
+		verbosity_short: 'Kurz',
+		verbosity_descriptive: 'Ausführlich',
 		col_when: 'Wann',
 		col_step: 'Schritt',
 		col_duration: 'Dauer',
@@ -1134,6 +1143,9 @@ const it: Messages = {
 	},
 	schedule: {
 		heading: 'Programma',
+		verbosity_label: 'Descrizioni dei passaggi',
+		verbosity_short: 'Brevi',
+		verbosity_descriptive: 'Dettagliate',
 		col_when: 'Quando',
 		col_step: 'Passo',
 		col_duration: 'Durata',
@@ -1480,6 +1492,9 @@ const fr: Messages = {
 	},
 	schedule: {
 		heading: 'Programme',
+		verbosity_label: 'Descriptions des étapes',
+		verbosity_short: 'Courtes',
+		verbosity_descriptive: 'Détaillées',
 		col_when: 'Quand',
 		col_step: 'Étape',
 		col_duration: 'Durée',
@@ -1822,6 +1837,9 @@ const nl: Messages = {
 	},
 	schedule: {
 		heading: 'Schema',
+		verbosity_label: 'Stapbeschrijvingen',
+		verbosity_short: 'Kort',
+		verbosity_descriptive: 'Uitgebreid',
 		col_when: 'Wanneer',
 		col_step: 'Stap',
 		col_duration: 'Duur',

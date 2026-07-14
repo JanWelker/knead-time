@@ -7,6 +7,8 @@
 	import { decodeInputs, decodeUiMode, encodeInputs } from '$lib/dough/urlState';
 	import { uiMode } from '$lib/mode.svelte';
 	import { loadStoredMode } from '$lib/storedMode';
+	import { scheduleVerbosity } from '$lib/verbosity.svelte';
+	import { loadStoredVerbosity } from '$lib/storedVerbosity';
 	import Community from '$lib/components/Community.svelte';
 	import Pizzerias from '$lib/components/Pizzerias.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
@@ -45,6 +47,7 @@
 		// uiMode.set) so a link never overwrites the stored preference.
 		uiMode.current =
 			decodeUiMode(window.location.search) ?? loadStoredMode(localStorage) ?? 'beginner';
+		scheduleVerbosity.current = loadStoredVerbosity(localStorage) ?? 'descriptive';
 		hydrated = true;
 	});
 
@@ -71,7 +74,7 @@
 		const ics = buildIcs(form.schedule.steps, (step) => ({
 			summary: stepTitle(step, t),
 			description: stepDetailText(step, t, form.schedule, {
-				includeDetail: uiMode.current === 'beginner'
+				includeDetail: scheduleVerbosity.current === 'descriptive'
 			})
 		}));
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
@@ -149,6 +152,24 @@
 					<div class="mt-2 flex flex-wrap items-center gap-3">
 						<ModeBadge mode={form.schedule.mode} />
 						<FitScore schedule={form.schedule} inputs={form.serializable()} />
+						<fieldset
+							class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold dark:border-stone-700 dark:bg-stone-800/70"
+						>
+							<legend class="sr-only">{t.schedule.verbosity_label}</legend>
+							{#each ['short', 'descriptive'] as const as v (v)}
+								{@const active = scheduleVerbosity.current === v}
+								<button
+									type="button"
+									class="px-3 py-1 transition-colors {active
+										? 'bg-tomato-500 text-white'
+										: 'hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700'}"
+									aria-pressed={active}
+									onclick={() => scheduleVerbosity.set(v)}
+								>
+									{v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
+								</button>
+							{/each}
+						</fieldset>
 					</div>
 				</div>
 				<div>
@@ -217,7 +238,7 @@
 				<ScheduleTable
 					schedule={form.schedule}
 					sourceTiming={activePizzeria?.timing}
-					mode={uiMode.current}
+					verbosity={scheduleVerbosity.current}
 				/>
 			</div>
 		</div>
