@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
-	equivalentHoursAtRef,
-	fermentHoursForYeast,
+	freshEquivalentPercent,
 	idealMixWaterTempC,
 	PREFERMENT_MAX_HOURS,
 	PREFERMENT_MIN_HOURS,
 	PREFERMENT_REF_HOURS_BIGA,
 	PREFERMENT_REF_HOURS_POOLISH,
 	prefermentDurationHours,
-	prefermentEquivHours,
 	TARGET_UNITS_FRESH,
 	TARGET_UNITS_SOURDOUGH,
 	temperatureFactor,
@@ -54,17 +52,16 @@ describe('temperatureFactor', () => {
 	});
 });
 
-describe('equivalentHoursAtRef', () => {
-	it('sums weighted phases', () => {
-		const eq = equivalentHoursAtRef([
+describe('yeastPercentForPhases — fresh yeast', () => {
+	it('weights every phase by its temperature factor', () => {
+		const eq = 1 + 24 * temperatureFactor(4);
+		const y = yeastPercentForPhases('fresh', [
 			{ hours: 1, tempC: 22 },
 			{ hours: 24, tempC: 4 }
 		]);
-		expect(eq).toBeCloseTo(1 + 24 * temperatureFactor(4), 6);
+		expect(y).toBeCloseTo(TARGET_UNITS_FRESH / eq, 6);
 	});
-});
 
-describe('yeastPercentForPhases — fresh yeast', () => {
 	it('matches the 0.2% / 8h / 22°C reference', () => {
 		const y = yeastPercentForPhases('fresh', [{ hours: 8, tempC: 22 }]);
 		expect(y).toBeCloseTo(0.2, 6);
@@ -123,32 +120,11 @@ describe('prefermentDurationHours', () => {
 		expect(prefermentDurationHours('biga', 26)).toBeLessThan(PREFERMENT_REF_HOURS_BIGA);
 		expect(prefermentDurationHours('poolish', 26)).toBeLessThan(PREFERMENT_REF_HOURS_POOLISH);
 	});
-	it('clamps below the floor for very cold kitchens', () => {
+	it('clamps at the 24 h ceiling for very cold kitchens', () => {
 		expect(prefermentDurationHours('biga', 4)).toBe(PREFERMENT_MAX_HOURS);
 	});
-	it('clamps above the ceiling for very warm kitchens', () => {
+	it('clamps at the 8 h floor for very warm kitchens', () => {
 		expect(prefermentDurationHours('poolish', 40)).toBe(PREFERMENT_MIN_HOURS);
-	});
-});
-
-describe('prefermentEquivHours', () => {
-	it('delivers the reference fermentation load inside the clamp band', () => {
-		// Inside the wall-clock clamp, wall × f(T) = refHours regardless of temp.
-		for (const tempC of [16, 20, 22, 26]) {
-			expect(prefermentEquivHours('biga', tempC)).toBeCloseTo(PREFERMENT_REF_HOURS_BIGA, 6);
-			expect(prefermentEquivHours('poolish', tempC)).toBeCloseTo(PREFERMENT_REF_HOURS_POOLISH, 6);
-		}
-	});
-	it('overshoots the reference load when the wall-clock is clamped up to the floor in a warm kitchen', () => {
-		// At very warm temps the math wants a wall-clock below MIN, but we keep
-		// it at MIN — the pre-ferment ends up more fermented than the reference.
-		expect(prefermentEquivHours('poolish', 35)).toBeGreaterThan(PREFERMENT_REF_HOURS_POOLISH);
-	});
-	it('falls short of the reference load when the wall-clock is clamped down to the ceiling in a cold kitchen', () => {
-		// At very cold temps the math wants a wall-clock above MAX, but we cap it
-		// at MAX to avoid overproofing — the pre-ferment delivers less than the
-		// reference load.
-		expect(prefermentEquivHours('biga', 4)).toBeLessThan(PREFERMENT_REF_HOURS_BIGA);
 	});
 });
 
@@ -187,17 +163,15 @@ describe('idealMixWaterTempC', () => {
 	});
 });
 
-describe('fermentHoursForYeast', () => {
-	it('round-trips with yeastPercentForPhases at constant temperature (fresh)', () => {
-		const hours = 12;
-		const tempC = 24;
-		const y = yeastPercentForPhases('fresh', [{ hours, tempC }]);
-		expect(fermentHoursForYeast('fresh', y, tempC)).toBeCloseTo(hours, 6);
-	});
-	it('round-trips with yeastPercentForPhases at constant temperature (sourdough)', () => {
-		const hours = 10;
-		const tempC = 24;
-		const y = yeastPercentForPhases('sourdough', [{ hours, tempC }]);
-		expect(fermentHoursForYeast('sourdough', y, tempC)).toBeCloseTo(hours, 6);
+describe('freshEquivalentPercent', () => {
+	it('round-trips yeastPercentForPhases back to the fresh solve for every carrier', () => {
+		const phases = [{ hours: 8, tempC: 22 }];
+		const fresh = yeastPercentForPhases('fresh', phases);
+		for (const type of ['fresh', 'instant', 'active-dry', 'sourdough'] as const) {
+			expect(freshEquivalentPercent(yeastPercentForPhases(type, phases), type)).toBeCloseTo(
+				fresh,
+				12
+			);
+		}
 	});
 });

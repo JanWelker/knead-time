@@ -1,11 +1,12 @@
 import { computeIngredients } from './bakers';
 import {
+	freshEquivalentPercent,
 	idealMixWaterTempC,
 	prefermentDurationHours,
 	prefermentRefHours,
-	TARGET_UNITS_FRESH,
 	temperatureFactor,
-	yeastMassFactor
+	yeastPercentForPhases,
+	type FermentPhase
 } from './fermentation';
 import type {
 	ComputedSchedule,
@@ -15,8 +16,7 @@ import type {
 	PreFermentSpec,
 	ScheduleStep,
 	ScheduleStepKind,
-	ScheduleWarning,
-	YeastType
+	ScheduleWarning
 } from './types';
 
 export const PREP_MIN = 15;
@@ -83,7 +83,9 @@ export const ACTIVE_NIGHT_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'proof-cold'
 ]);
 
-function isAtNight(d: Date): boolean {
+// Single source for the night predicate — quality.ts judges steps against
+// exactly the window the scheduler dodges.
+export function isAtNight(d: Date): boolean {
 	const h = d.getHours();
 	return h >= NIGHT_START_HOUR || h < NIGHT_END_HOUR;
 }
@@ -169,15 +171,11 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	// it carries: eq = Σ wᵢ · hoursᵢ · f(T). With a single pre-ferment w = 1,
 	// which reproduces the pre-v4 solve exactly.
 	const totalShare = preFerments.reduce((sum, pf) => sum + pf.flourPercent, 0);
-	const prefermentEquivalentHours = (durations: typeof prefermentDurationsMin) =>
-		durations.reduce(
-			(sum, d, i) =>
-				sum +
-				(preFerments[i].flourPercent / totalShare) *
-					(d.min / 60) *
-					temperatureFactor(prefermentTempC),
-			0
-		);
+	const prefermentPhases = (durations: typeof prefermentDurationsMin): FermentPhase[] =>
+		durations.map((d, i) => ({
+			hours: (preFerments[i].flourPercent / totalShare) * (d.min / 60),
+			tempC: prefermentTempC
+		}));
 	const warnings: ScheduleWarning[] = [];
 
 	if (inputs.roomTempC < 14) warnings.push('too-cold');
@@ -220,12 +218,11 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			inputs.ballProof === 'cold'
 		);
 
-		const equivalentHours =
-			prefermentEquivalentHours(prefermentDurationsMin) +
-			((COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60) * temperatureFactor(inputs.roomTempC) +
-			(coldMin / 60) * temperatureFactor(inputs.fridgeTempC);
-
-		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
+		yeastPct = yeastPercentForPhases(inputs.yeastType, [
+			...prefermentPhases(prefermentDurationsMin),
+			{ hours: (COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60, tempC: inputs.roomTempC },
+			{ hours: coldMin / 60, tempC: inputs.fridgeTempC }
+		]);
 		steps = buildSteps({
 			readyBy: inputs.readyBy,
 			prefermentDurationsMin,
@@ -243,12 +240,21 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		if (fermentBudget >= 0) {
 			// Pre-ferments fit; the rest goes to bulk + final-proof in roughly
 			// a 2:1 ratio. Both can shrink to 0 if the window is very tight.
-			finalProofMin = Math.min(90, Math.max(0, Math.floor(fermentBudget / 3)));
-			bulkMin = Math.max(0, fermentBudget - finalProofMin);
+			finalProofMin = Math.min(90, Math.floor(fermentBudget / 3));
+			bulkMin = fermentBudget - finalProofMin;
 		} else {
 			// The longest pre-ferment alone overflows. Cap every pre-ferment at
 			// the wall budget so first-step >= startAt still holds — shorter
 			// ones may fit untouched. Bulk and final-proof are 0.
+			//
+			// Degenerate exception: when the window is shorter than the fixed
+			// hands-on steps themselves (totalAvailableMin < roomFixedMin), the
+			// budget bottoms out at 0 but prep + mix + divide keep their physical
+			// durations anchored to readyBy — the first step lands BEFORE startAt.
+			// We never compress fixed steps or slip readyBy; instead the schedule
+			// is honest about being infeasible: roomFixedMin is always well below
+			// ROOM_MIN_TOTAL_MIN, so the 'too-short' warning (feasible = false,
+			// quality.ts's 'infeasible' factor) has already fired above.
 			const budget = Math.max(0, totalAvailableMin - roomFixedMin);
 			prefermentDurationsMin = prefermentDurationsMin.map((d) => ({
 				...d,
@@ -258,10 +264,10 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			finalProofMin = 0;
 		}
 
-		const equivalentHours =
-			prefermentEquivalentHours(prefermentDurationsMin) +
-			((bulkMin + finalProofMin) / 60) * temperatureFactor(inputs.roomTempC);
-		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
+		yeastPct = yeastPercentForPhases(inputs.yeastType, [
+			...prefermentPhases(prefermentDurationsMin),
+			{ hours: (bulkMin + finalProofMin) / 60, tempC: inputs.roomTempC }
+		]);
 		steps = buildSteps({
 			readyBy: inputs.readyBy,
 			prefermentDurationsMin,
@@ -273,9 +279,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		});
 	}
 
-	// Sanity bands live in fresh-equivalent terms so every carrier is judged
-	// on leavening power, not on its own gram scale (0.5 g IDY ≈ 1.5 g fresh).
-	const freshEquivalentPct = yeastPct / yeastMassFactor(inputs.yeastType);
+	const freshEquivalentPct = freshEquivalentPercent(yeastPct, inputs.yeastType);
 	if (freshEquivalentPct > 0 && freshEquivalentPct < 0.02) warnings.push('yeast-tiny');
 	if (freshEquivalentPct > 2) warnings.push('yeast-large');
 
@@ -325,16 +329,6 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		desiredColdBulkMin,
 		naturalPreferments
 	};
-}
-
-function unitsToPercent(yeastType: YeastType, equivalentHours: number): number {
-	// equivalentHours can hit 0 when the window is so short that every
-	// fermentation phase shrinks to nothing — feasibility is already false
-	// in that case, so callers see the warning rather than an Infinity %.
-	if (equivalentHours <= 0) return 0;
-	// Solve in fresh-equivalent percent, then convert to the chosen carrier's
-	// mass — one factor covers dry-yeast conversions and sourdough activity.
-	return (TARGET_UNITS_FRESH / equivalentHours) * yeastMassFactor(yeastType);
 }
 
 function subMin(d: Date, min: number): Date {
