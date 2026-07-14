@@ -9,6 +9,15 @@
 	import { loadStoredMode } from '$lib/storedMode';
 	import { scheduleVerbosity } from '$lib/verbosity.svelte';
 	import { loadStoredVerbosity } from '$lib/storedVerbosity';
+	import {
+		deleteRecipe,
+		loadLastRecipe,
+		loadRecipes,
+		saveLastRecipe,
+		saveRecipe,
+		type SavedRecipe
+	} from '$lib/storedRecipes';
+	import MyRecipes from '$lib/components/MyRecipes.svelte';
 	import Community from '$lib/components/Community.svelte';
 	import Pizzerias from '$lib/components/Pizzerias.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
@@ -38,9 +47,24 @@
 	let actionsRef: HTMLDetailsElement | null = $state(null);
 	let actionsOpen = $state(false);
 
+	let savedRecipes = $state<SavedRecipe[]>([]);
+
 	onMount(() => {
-		const parsed = decodeInputs(window.location.search);
-		form.apply(parsed);
+		if (window.location.search && window.location.search !== '?') {
+			form.apply(decodeInputs(window.location.search));
+		} else {
+			// Fresh visit: restore the last recipe this device worked on. Its
+			// bake window is stale by definition, so the date fields keep
+			// today's defaults — only the recipe parameters come back.
+			const last = loadLastRecipe(localStorage);
+			if (last) {
+				const recipeOnly = { ...decodeInputs(last) };
+				delete recipeOnly.readyBy;
+				delete recipeOnly.startAt;
+				form.apply(recipeOnly);
+			}
+		}
+		savedRecipes = loadRecipes(localStorage);
 		// View mode: the URL's word wins (a shared link opens the way its
 		// sender saw it), then the visitor's stored preference, and a truly
 		// fresh visit starts in the beginner view. Set directly (not via
@@ -58,7 +82,20 @@
 		if (next !== window.location.pathname + window.location.search) {
 			history.replaceState({}, '', next);
 		}
+		// Remember the working recipe so a fresh visit picks up where the
+		// baker left off.
+		saveLastRecipe(localStorage, qs);
 	});
+
+	function saveCurrentRecipe() {
+		const name = window.prompt(t.actions.save_recipe_prompt)?.trim();
+		if (!name) return;
+		savedRecipes = saveRecipe(localStorage, {
+			name,
+			search: encodeInputs(form.serializable()),
+			savedAt: new Date().toISOString()
+		});
+	}
 
 	// Surfaces source-recipe context (timings, name) when the form params
 	// match a known pizzeria. Adjusting only the bake time keeps the match.
@@ -245,6 +282,9 @@
 							>
 								{copied === 'share' ? t.actions.copied : t.actions.share}
 							</button>
+							<button type="button" role="menuitem" class="menu-item" onclick={saveCurrentRecipe}>
+								{t.actions.save_recipe}
+							</button>
 							<TrmnlPush
 								inputs={form.serializable()}
 								schedule={form.schedule}
@@ -266,6 +306,13 @@
 			</div>
 		</div>
 	</div>
+
+	<section class="card mt-8">
+		<MyRecipes
+			recipes={savedRecipes}
+			onDelete={(name) => (savedRecipes = deleteRecipe(localStorage, name))}
+		/>
+	</section>
 
 	<section class="card mt-8">
 		<Community />

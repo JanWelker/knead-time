@@ -200,6 +200,13 @@ export interface Messages {
 		mainDough_help: string;
 		totals_heading: string;
 	};
+	myRecipes: {
+		heading: string;
+		intro: string;
+		empty: string;
+		open_link: string;
+		delete_label: string;
+	};
 	actions: {
 		menu: string;
 		download_ics: string;
@@ -207,6 +214,8 @@ export interface Messages {
 		share: string;
 		copied: string;
 		share_help: string;
+		save_recipe: string;
+		save_recipe_prompt: string;
 	};
 	print: {
 		recipe_heading: string;
@@ -556,13 +565,22 @@ const en: Messages = {
 		mainDough_help: 'Mix on baking day, together with the ripe pre-dough.',
 		totals_heading: 'Totals'
 	},
+	myRecipes: {
+		heading: 'My recipes',
+		intro: 'Saved on this device — nothing leaves your browser.',
+		empty: 'Nothing saved yet — use "Save recipe" in the schedule menu.',
+		open_link: 'Open',
+		delete_label: 'Delete'
+	},
 	actions: {
 		menu: 'Actions',
 		download_ics: 'Download .ics',
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
 		copied: 'Copied!',
-		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.'
+		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.',
+		save_recipe: 'Save recipe',
+		save_recipe_prompt: 'Name this recipe:'
 	},
 	print: {
 		recipe_heading: 'Recipe',
@@ -924,13 +942,22 @@ const de: Messages = {
 		mainDough_help: 'Am Backtag zusammen mit dem reifen Vorteig vermengen.',
 		totals_heading: 'Gesamt'
 	},
+	myRecipes: {
+		heading: 'Meine Rezepte',
+		intro: 'Auf diesem Gerät gespeichert — nichts verlässt deinen Browser.',
+		empty: 'Noch nichts gespeichert — nutze „Rezept speichern" im Zeitplan-Menü.',
+		open_link: 'Öffnen',
+		delete_label: 'Löschen'
+	},
 	actions: {
 		menu: 'Aktionen',
 		download_ics: '.ics herunterladen',
 		print: 'Drucken / als PDF',
 		share: 'Link kopieren',
 		copied: 'Kopiert!',
-		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.'
+		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.',
+		save_recipe: 'Rezept speichern',
+		save_recipe_prompt: 'Name für dieses Rezept:'
 	},
 	print: {
 		recipe_heading: 'Rezept',
@@ -1292,13 +1319,22 @@ const it: Messages = {
 		mainDough_help: 'Da impastare il giorno della cottura insieme al preimpasto maturo.',
 		totals_heading: 'Totale'
 	},
+	myRecipes: {
+		heading: 'Le mie ricette',
+		intro: 'Salvate su questo dispositivo — nulla lascia il tuo browser.',
+		empty: 'Ancora niente di salvato — usa "Salva ricetta" nel menu del programma.',
+		open_link: 'Apri',
+		delete_label: 'Elimina'
+	},
 	actions: {
 		menu: 'Azioni',
 		download_ics: 'Scarica .ics',
 		print: 'Stampa / Salva PDF',
 		share: 'Copia link',
 		copied: 'Copiato!',
-		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.'
+		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.',
+		save_recipe: 'Salva ricetta',
+		save_recipe_prompt: 'Nome per questa ricetta:'
 	},
 	print: {
 		recipe_heading: 'Ricetta',
@@ -1663,13 +1699,23 @@ const fr: Messages = {
 		mainDough_help: 'À pétrir le jour de la cuisson, avec le pré-ferment mûr.',
 		totals_heading: 'Total'
 	},
+	myRecipes: {
+		heading: 'Mes recettes',
+		intro: 'Enregistrées sur cet appareil — rien ne quitte votre navigateur.',
+		empty:
+			"Rien d'enregistré pour l'instant — utilisez « Enregistrer la recette » dans le menu du programme.",
+		open_link: 'Ouvrir',
+		delete_label: 'Supprimer'
+	},
 	actions: {
 		menu: 'Actions',
 		download_ics: 'Télécharger .ics',
 		print: 'Imprimer / Enregistrer en PDF',
 		share: 'Copier le lien',
 		copied: 'Copié !',
-		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte."
+		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte.",
+		save_recipe: 'Enregistrer la recette',
+		save_recipe_prompt: 'Nom de cette recette :'
 	},
 	print: {
 		recipe_heading: 'Recette',
@@ -2031,13 +2077,22 @@ const nl: Messages = {
 		mainDough_help: 'Op de bakdag samen met het rijpe voordeeg kneden.',
 		totals_heading: 'Totaal'
 	},
+	myRecipes: {
+		heading: 'Mijn recepten',
+		intro: 'Opgeslagen op dit apparaat — niets verlaat je browser.',
+		empty: 'Nog niets opgeslagen — gebruik "Recept opslaan" in het schemamenu.',
+		open_link: 'Openen',
+		delete_label: 'Verwijderen'
+	},
 	actions: {
 		menu: 'Acties',
 		download_ics: '.ics downloaden',
 		print: 'Afdrukken / Opslaan als PDF',
 		share: 'Deellink kopiëren',
 		copied: 'Gekopieerd!',
-		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.'
+		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.',
+		save_recipe: 'Recept opslaan',
+		save_recipe_prompt: 'Naam voor dit recept:'
 	},
 	print: {
 		recipe_heading: 'Recept',
