@@ -172,6 +172,117 @@ describe('urlState round-trip', () => {
 	});
 });
 
+describe('crafted URLs cannot reach the math out of band (issue #194)', () => {
+	it('clamps a negative starter hydration — no Infinity in the starter row', () => {
+		expect(decodeInputs('?sh=-100').starterHydration).toBe(40);
+	});
+
+	it('clamps pizza count so Round numbers can never divide by zero', () => {
+		expect(decodeInputs('?n=0').pizzaCount).toBe(1);
+		expect(decodeInputs('?n=-3').pizzaCount).toBe(1);
+		expect(decodeInputs('?n=999').pizzaCount).toBe(100);
+	});
+
+	it('clamps every other numeric into its form band', () => {
+		expect(decodeInputs('?h=-50').hydration).toBe(50);
+		expect(decodeInputs('?s=999').saltPercent).toBe(5);
+		expect(decodeInputs('?t=1000').roomTempC).toBe(35);
+		expect(decodeInputs('?b=1').ballWeight).toBe(100);
+		expect(decodeInputs('?ft=99').fridgeTempC).toBe(12);
+		expect(decodeInputs('?o=99').oilPercent).toBe(15);
+		expect(decodeInputs('?sg=99').sugarPercent).toBe(5);
+		expect(decodeInputs('?pt=1000').preFermentTempC).toBe(35);
+	});
+
+	it('rejects the loose numeric forms Number() would accept', () => {
+		// '+' and '%20' decode to ' ' / '+', which Number() reads as 0; hex is
+		// a valid Number() form too. None of them are plain decimals — treat
+		// all as absent so form defaults fill in.
+		expect(decodeInputs('?n=%2B').pizzaCount).toBeUndefined();
+		expect(decodeInputs('?n=+').pizzaCount).toBeUndefined();
+		expect(decodeInputs('?n=%20').pizzaCount).toBeUndefined();
+		expect(decodeInputs('?n=0x10').pizzaCount).toBeUndefined();
+		expect(decodeInputs('?n=Infinity').pizzaCount).toBeUndefined();
+	});
+
+	it('still accepts everything String(number) can emit', () => {
+		expect(decodeInputs('?n=1e1').pizzaCount).toBe(10);
+		expect(decodeInputs('?b=288.5').ballWeight).toBe(288.5);
+		expect(decodeInputs('?s=.5').saltPercent).toBe(0.5);
+		expect(decodeInputs('?t=-5').roomTempC).toBe(10);
+	});
+
+	it('treats an overflowing exponent as absent rather than clamping Infinity', () => {
+		expect(decodeInputs('?n=1e999').pizzaCount).toBeUndefined();
+	});
+
+	it('restores the "+" in a hand-written ISO date with a zone offset', () => {
+		// URLSearchParams decodes '+' as a space; the date fallback must put it
+		// back instead of silently dropping the value.
+		const out = decodeInputs('?r=2026-05-12T19:00:00+02:00&sa=2026-05-12T09:00:00+02:00');
+		expect(out.readyBy?.toISOString()).toBe('2026-05-12T17:00:00.000Z');
+		expect(out.startAt?.toISOString()).toBe('2026-05-12T07:00:00.000Z');
+	});
+});
+
+describe('legacy encoder-produced links keep their exact meaning', () => {
+	// Real published links (community.md / pizzerias.md rows) plus a synthetic
+	// v1 link: every value the app's encoders ever wrote is inside the bands,
+	// so decode-side clamping must be a no-op for all of them.
+	it('round-trips the community row (v=2, biga) unchanged', () => {
+		const out = decodeInputs(
+			'?v=2&r=2026-05-23T17%3A00%3A00.000Z&sa=2026-05-18T09%3A35%3A00.000Z&n=6&b=296.8&h=75&s=3&y=f&t=22&ft=5&p=b50'
+		);
+		expect(out.readyBy?.toISOString()).toBe('2026-05-23T17:00:00.000Z');
+		expect(out.startAt?.toISOString()).toBe('2026-05-18T09:35:00.000Z');
+		expect(out.pizzaCount).toBe(6);
+		expect(out.ballWeight).toBe(296.8);
+		expect(out.hydration).toBe(75);
+		expect(out.saltPercent).toBe(3);
+		expect(out.yeastType).toBe('fresh');
+		expect(out.roomTempC).toBe(22);
+		expect(out.fridgeTempC).toBe(5);
+		expect(out.preFerments).toEqual([{ type: 'biga', flourPercent: 50 }]);
+	});
+
+	it('round-trips a 50 Top Pizza sourdough row (v=3, oil) unchanged', () => {
+		const out = decodeInputs(
+			'?v=3&r=2026-06-13T17%3A00%3A00.000Z&sa=2026-06-13T11%3A00%3A00.000Z&n=4&b=480&h=60&s=2.2&o=5&y=s&sh=50&t=24&ft=4'
+		);
+		expect(out.pizzaCount).toBe(4);
+		expect(out.ballWeight).toBe(480);
+		expect(out.hydration).toBe(60);
+		expect(out.saltPercent).toBe(2.2);
+		expect(out.oilPercent).toBe(5);
+		expect(out.yeastType).toBe('sourdough');
+		expect(out.starterHydration).toBe(50);
+		expect(out.roomTempC).toBe(24);
+		expect(out.fridgeTempC).toBe(4);
+	});
+
+	it('round-trips a 50 Top Pizza poolish row (v=3, oil + sugar) unchanged', () => {
+		const out = decodeInputs(
+			'?v=3&r=2026-06-13T17%3A00%3A00.000Z&sa=2026-06-12T13%3A00%3A00.000Z&n=3&b=255&h=60&s=2&o=1&sg=2&y=f&t=22&ft=4&p=p10'
+		);
+		expect(out.pizzaCount).toBe(3);
+		expect(out.ballWeight).toBe(255);
+		expect(out.hydration).toBe(60);
+		expect(out.saltPercent).toBe(2);
+		expect(out.oilPercent).toBe(1);
+		expect(out.sugarPercent).toBe(2);
+		expect(out.preFerments).toEqual([{ type: 'poolish', flourPercent: 10 }]);
+	});
+
+	it('round-trips a pre-versioning legacy link unchanged', () => {
+		const out = decodeInputs('?r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&s=3&y=f&t=22');
+		expect(out.pizzaCount).toBe(4);
+		expect(out.ballWeight).toBe(280);
+		expect(out.hydration).toBe(70);
+		expect(out.saltPercent).toBe(3);
+		expect(out.roomTempC).toBe(22);
+	});
+});
+
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
 		expect(encodeInputs(base)).toContain('v=4');

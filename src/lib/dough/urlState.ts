@@ -1,4 +1,5 @@
 import type { UiMode } from '../storedMode';
+import { clampInput, clampPreFermentShares } from './inputBounds';
 import type { DoughInputs, PreFermentSpec, YeastType } from './types';
 
 // v=4 additions 'i' (instant dry) and 'a' (active dry) extend the original
@@ -95,31 +96,24 @@ function formatPreFerment(pf: PreFermentSpec): string {
 	return `${t}${pf.flourPercent}`;
 }
 
-// Flour-percent bounds enforced on decode so hand-crafted URLs can't push a
-// pre-ferment outside what the form allows. Mirrors the InputForm limits.
-const PREFERMENT_PCT_MIN = 5;
-const PREFERMENT_PCT_MAX = 80;
-
 // One token per pre-ferment, underscore-separated ('_' survives URL encoding
 // unescaped; ',' is accepted too for hand-written links). v3 links carry a
 // single token, which parses as a 1-element list through the same path.
-// Duplicate types keep the first token; percents clamp to [5, 80]; when the
-// two shares sum past 80 the second yields to the first and is dropped
-// entirely if that leaves it under 5. The result is canonical biga-first
-// order, matching what the form and encoder produce.
+// Duplicate types keep the first token; clampPreFermentShares (shared with
+// the form) clamps each percent to [5, 80] in token order — when the two
+// shares sum past 80 the second yields to the first and is dropped entirely
+// if that leaves it under 5. The result is canonical biga-first order,
+// matching what the form and encoder produce.
 function parsePreFerments(encoded: string): PreFermentSpec[] {
-	const out: PreFermentSpec[] = [];
+	const parsed: PreFermentSpec[] = [];
 	for (const token of encoded.split(/[,_]/)) {
 		const type = token.startsWith('b') ? 'biga' : token.startsWith('p') ? 'poolish' : null;
 		const pct = type ? num(token.slice(1)) : null;
 		if (!type || pct === null || pct <= 0) continue;
-		if (out.some((pf) => pf.type === type)) continue;
-		const clamped = Math.min(PREFERMENT_PCT_MAX, Math.max(PREFERMENT_PCT_MIN, pct));
-		const remaining = PREFERMENT_PCT_MAX - out.reduce((sum, pf) => sum + pf.flourPercent, 0);
-		const pct2 = Math.min(clamped, remaining);
-		if (pct2 < PREFERMENT_PCT_MIN) continue;
-		out.push({ type, flourPercent: pct2 });
+		if (parsed.some((pf) => pf.type === type)) continue;
+		parsed.push({ type, flourPercent: pct });
 	}
+	const out = clampPreFermentShares(parsed);
 	return [...out.filter((pf) => pf.type === 'biga'), ...out.filter((pf) => pf.type === 'poolish')];
 }
 
@@ -155,26 +149,26 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 
 	const r = params.get(KEYS_V4.readyBy);
 	if (r) {
-		const d = new Date(r);
-		if (!Number.isNaN(d.getTime())) out.readyBy = d;
+		const d = parseDate(r);
+		if (d) out.readyBy = d;
 	}
 	const sa = params.get(KEYS_V4.startAt);
 	if (sa) {
-		const d = new Date(sa);
-		if (!Number.isNaN(d.getTime())) out.startAt = d;
+		const d = parseDate(sa);
+		if (d) out.startAt = d;
 	}
 	const n = num(params.get(KEYS_V4.pizzaCount));
-	if (n !== null) out.pizzaCount = n;
+	if (n !== null) out.pizzaCount = clampInput('pizzaCount', n);
 	const b = num(params.get(KEYS_V4.ballWeight));
-	if (b !== null) out.ballWeight = b;
+	if (b !== null) out.ballWeight = clampInput('ballWeight', b);
 	const h = num(params.get(KEYS_V4.hydration));
-	if (h !== null) out.hydration = h;
+	if (h !== null) out.hydration = clampInput('hydration', h);
 	const s = num(params.get(KEYS_V4.saltPercent));
-	if (s !== null) out.saltPercent = s;
+	if (s !== null) out.saltPercent = clampInput('saltPercent', s);
 	const o = num(params.get(KEYS_V4.oilPercent));
-	if (o !== null) out.oilPercent = o;
+	if (o !== null) out.oilPercent = clampInput('oilPercent', o);
 	const sg = num(params.get(KEYS_V4.sugarPercent));
-	if (sg !== null) out.sugarPercent = sg;
+	if (sg !== null) out.sugarPercent = clampInput('sugarPercent', sg);
 
 	const y = params.get(KEYS_V4.yeastType);
 	if (y === 'f') out.yeastType = 'fresh';
@@ -183,16 +177,16 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	if (y === 's') out.yeastType = 'sourdough';
 
 	const sh = num(params.get(KEYS_V4.starterHydration));
-	if (sh !== null) out.starterHydration = sh;
+	if (sh !== null) out.starterHydration = clampInput('starterHydration', sh);
 
 	const t = num(params.get(KEYS_V4.roomTempC));
-	if (t !== null) out.roomTempC = t;
+	if (t !== null) out.roomTempC = clampInput('roomTempC', t);
 
 	const ft = num(params.get(KEYS_V4.fridgeTempC));
-	if (ft !== null) out.fridgeTempC = ft;
+	if (ft !== null) out.fridgeTempC = clampInput('fridgeTempC', ft);
 
 	const pt = num(params.get(KEYS_V4.preFermentTempC));
-	if (pt !== null) out.preFermentTempC = pt;
+	if (pt !== null) out.preFermentTempC = clampInput('preFermentTempC', pt);
 
 	const mm = params.get(KEYS_V4.mixingMethod);
 	if (mm === 'h') out.mixingMethod = 'hand';
@@ -213,8 +207,24 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	return out;
 }
 
+// Plain decimal syntax only — everything String(number) emits for in-band
+// values (integer, fraction, exponent, leading minus) plus a bare leading
+// '.', but none of the extra forms Number() accepts: hex ('0x10'),
+// whitespace (' ' → 0), a lone sign ('+' → 0) or the empty string.
+const NUM_RE = /^-?(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?$/;
+
 function num(value: string | null): number | null {
-	if (value === null || value === '') return null;
+	if (value === null || !NUM_RE.test(value)) return null;
 	const n = Number(value);
 	return Number.isFinite(n) ? n : null;
+}
+
+// Hand-written ISO dates with a '+HH:MM' zone offset arrive with the '+'
+// decoded as a space (URLSearchParams treats '+' as ' '); restore it before
+// giving up on the value.
+function parseDate(value: string): Date | null {
+	const direct = new Date(value);
+	if (!Number.isNaN(direct.getTime())) return direct;
+	const restored = new Date(value.replace(/ /g, '+'));
+	return Number.isNaN(restored.getTime()) ? null : restored;
 }
