@@ -65,9 +65,13 @@ export function formatTime(date: Date, locale: Locale): string {
 
 export function formatDuration(minutes: number, locale: Locale): string {
 	const m = MESSAGES[locale].schedule;
-	if (minutes < 60) return interpolate(m.duration_minutes, { n: minutes });
-	const h = Math.floor(minutes / 60);
-	const rem = Math.round(minutes - h * 60);
+	// Round before splitting so the minute carry propagates into the hours
+	// (119.6 → "2 h", not "1 h 60 min") and the sub-hour path never prints a
+	// raw fraction.
+	const total = Math.round(minutes);
+	if (total < 60) return interpolate(m.duration_minutes, { n: total });
+	const h = Math.floor(total / 60);
+	const rem = total % 60;
 	if (rem === 0) return interpolate(m.duration_hours, { n: h });
 	return interpolate(m.duration_hours_minutes, { h, m: rem });
 }
@@ -122,5 +126,10 @@ export function combineDateTimeInputs(datePart: string, timePart: string): Date 
 	const minute = +tm[2];
 	if (month < 1 || month > 12 || day < 1 || day > 31) return null;
 	if (hour > 23 || minute > 59) return null;
-	return new Date(year, month - 1, day, hour, minute, 0, 0);
+	const date = new Date(year, month - 1, day, hour, minute, 0, 0);
+	// A day inside [1, 31] can still overflow its month (2026-02-31 rolls to
+	// March 3). With month and day already range-checked, any roll shifts the
+	// month, so a month round-trip is a complete calendar-validity check.
+	if (date.getMonth() !== month - 1) return null;
+	return date;
 }

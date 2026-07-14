@@ -29,6 +29,13 @@ describe('formatDuration', () => {
 		expect(formatDuration(125, 'en')).toBe('2 h 5 min');
 	});
 
+	it('rounds before splitting so the minute carry propagates', () => {
+		expect(formatDuration(119.6, 'en')).toBe('2 h');
+		expect(formatDuration(119.4, 'en')).toBe('1 h 59 min');
+		expect(formatDuration(59.6, 'en')).toBe('1 h');
+		expect(formatDuration(59.4, 'en')).toBe('59 min');
+	});
+
 	it('handles all supported locales', () => {
 		expect(formatDuration(90, 'de')).toContain('Std');
 		expect(formatDuration(90, 'it')).toContain('h');
@@ -158,6 +165,12 @@ describe('split date/time input round-trip', () => {
 		expect(combineDateTimeInputs('2026-13-01', '12:00')).toBeNull();
 		expect(combineDateTimeInputs('2026-05-00', '12:00')).toBeNull();
 		expect(combineDateTimeInputs('2026-05-32', '12:00')).toBeNull();
+	});
+	it('rejects days that overflow their month instead of rolling over', () => {
+		expect(combineDateTimeInputs('2026-02-31', '12:00')).toBeNull();
+		expect(combineDateTimeInputs('2026-04-31', '12:00')).toBeNull();
+		expect(combineDateTimeInputs('2025-02-29', '12:00')).toBeNull();
+		expect(combineDateTimeInputs('2024-02-29', '12:00')).not.toBeNull();
 	});
 	it('accepts shorthand H:MM in addition to the zero-padded HH:MM', () => {
 		const d1 = combineDateTimeInputs('2026-05-12', '9:30')!;

@@ -86,6 +86,29 @@ closing paragraph
 		expect(entries.map((e) => e.name)).toEqual(['Dated']);
 	});
 
+	it('drops rows with a shape-valid but impossible calendar date', () => {
+		const md = `
+| Name | Date | Recipe |
+| --- | --- | --- |
+| Bad Month | 2026-13-01 | https://example.com/?n=2 |
+| Bad Day | 2026-02-31 | https://example.com/?n=2 |
+| Leap Day | 2024-02-29 | https://example.com/?n=2 |
+`;
+		const entries = parseCommunity(md);
+		expect(entries.map((e) => e.name)).toEqual(['Leap Day']);
+	});
+
+	it('drops rows with an empty name cell', () => {
+		const md = `
+| Name | Date | Recipe |
+| --- | --- | --- |
+|  | 2026-05-13 | https://example.com/?n=2 |
+| Named | 2026-05-14 | https://example.com/?n=3 |
+`;
+		const entries = parseCommunity(md);
+		expect(entries.map((e) => e.name)).toEqual(['Named']);
+	});
+
 	it('returns an empty list for markdown without a table', () => {
 		expect(parseCommunity('# Community\n\nNo entries yet.')).toEqual([]);
 	});
@@ -128,14 +151,20 @@ closing paragraph
 | @-leading | 2026-05-01 | https://example.com/?n=1 |
 | @trailing- | 2026-05-02 | https://example.com/?n=1 |
 | @has space | 2026-05-03 | https://example.com/?n=1 |
-| @ok | 2026-05-04 | https://example.com/?n=1 |
+| @double--hyphen | 2026-05-04 | https://example.com/?n=1 |
+| @${'a'.repeat(40)} | 2026-05-05 | https://example.com/?n=1 |
+| @${'a'.repeat(39)} | 2026-05-06 | https://example.com/?n=1 |
+| @ok | 2026-05-07 | https://example.com/?n=1 |
 `;
 		const entries = parseCommunity(md);
-		expect(entries.map((e) => [e.name, e.handle])).toEqual([
-			['@-leading', null],
-			['@trailing-', null],
-			['@has space', null],
-			['@ok', 'ok']
+		expect(entries.map((e) => e.handle)).toEqual([
+			null,
+			null,
+			null,
+			null,
+			null,
+			'a'.repeat(39),
+			'ok'
 		]);
 	});
 });

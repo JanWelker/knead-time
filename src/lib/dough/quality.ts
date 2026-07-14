@@ -59,6 +59,9 @@ const YEAST_EXTREME_PENALTY = 8;
 // Sub-minute drift between natural and actual is rounding noise, not a real
 // deviation; below this we don't flag or deduct.
 const SHIFT_NOISE_FLOOR_MIN = 1;
+// Same floor for the pre-ferment clamp deltas, which are measured in hours —
+// a fraction-of-a-minute band overshoot must not emit a ≈ 0.001 h factor row.
+const PREFERMENT_CLAMP_NOISE_FLOOR_HOURS = SHIFT_NOISE_FLOOR_MIN / 60;
 
 export type StepQualityFlag =
 	| 'night'
@@ -156,7 +159,10 @@ function prefermentClampHours(
 	// "the pre-ferment is too short" regardless of cause.
 	const short = Math.max(0, PREFERMENT_MIN_HOURS - Math.min(entry.naturalHours, actualHours));
 	const long = Math.max(0, entry.naturalHours - PREFERMENT_MAX_HOURS);
-	return { short, long };
+	return {
+		short: short < PREFERMENT_CLAMP_NOISE_FLOOR_HOURS ? 0 : short,
+		long: long < PREFERMENT_CLAMP_NOISE_FLOOR_HOURS ? 0 : long
+	};
 }
 
 function outsideBand(value: number, low: number, high: number): number {

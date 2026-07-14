@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
 import { fitStars, recipeFitScore, stepQualityFlags, type FitFactor } from './quality';
 import { computeSchedule } from './schedule';
 import { defaultInputs as inputs } from './testFixtures';
@@ -232,6 +233,34 @@ describe('recipeFitScore — schedule imperfection', () => {
 		// Biga's natural duration is farther below the floor than poolish's, so
 		// its delta must be strictly larger — each entry carries its own gap.
 		expect(shortClamps[0].delta).not.toBeCloseTo(shortClamps[1].delta, 6);
+	});
+
+	it('ignores sub-minute pre-ferment band overshoots (noise floor)', () => {
+		// A natural duration a fraction of a minute outside the [8, 24] h band
+		// is rounding noise — it must not emit a ≈ 0.001 h factor row. Same
+		// synthetic-schedule trick as the low-yeast test: keep the real steps,
+		// override the natural durations.
+		const i = inputs({
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z'),
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
+		});
+		const s = computeSchedule(i);
+		const tinyHours = 0.5 / 60;
+		const overLong: ComputedSchedule = {
+			...s,
+			naturalPreferments: [{ type: 'biga', naturalHours: PREFERMENT_MAX_HOURS + tinyHours }]
+		};
+		expect(factorKinds(recipeFitScore(overLong, i).factors)).not.toContain(
+			'preferment-clamped-long'
+		);
+		const overShort: ComputedSchedule = {
+			...s,
+			naturalPreferments: [{ type: 'biga', naturalHours: PREFERMENT_MIN_HOURS - tinyHours }]
+		};
+		expect(factorKinds(recipeFitScore(overShort, i).factors)).not.toContain(
+			'preferment-clamped-short'
+		);
 	});
 
 	it('deducts when the pre-ferment is long-clamped (10 °C biga)', () => {
