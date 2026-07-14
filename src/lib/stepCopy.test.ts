@@ -9,7 +9,8 @@ import {
 	stepDetail,
 	stepDetailText,
 	stepIngredients,
-	stepTitle
+	stepTitle,
+	yeastIngredientName
 } from './stepCopy';
 
 // stepCopy tests use the decimal ball weight (288.5 g) by default because
@@ -359,6 +360,23 @@ describe('stepDetailText — flat .ics form', () => {
 		const withDetail = stepDetailText(divide, MESSAGES.en, r, { includeDetail: true });
 		expect(plain).not.toContain(MESSAGES.en.steps.divide_detail);
 		expect(withDetail).toBe(`${plain}\n${MESSAGES.en.steps.divide_detail}`);
+	});
+});
+
+describe('yeastIngredientName', () => {
+	it.each([
+		{ type: 'fresh', key: 'fresh_yeast' },
+		{ type: 'instant', key: 'instant_yeast' },
+		{ type: 'active-dry', key: 'active_dry_yeast' },
+		{ type: 'sourdough', key: 'sourdough_starter' }
+	] as const)('$type → ingredients.$key', ({ type, key }) => {
+		expect(yeastIngredientName(type, MESSAGES.en)).toBe(MESSAGES.en.ingredients[key]);
+	});
+
+	it('names the pre-ferment carrier by the recipe yeast type', () => {
+		const r = computeSchedule(prefermentInputs('poolish', { yeastType: 'instant' }));
+		const list = stepIngredients(findStep(r, 'preferment-mix'), MESSAGES.en, r);
+		expect(list[2].name).toBe(MESSAGES.en.ingredients.instant_yeast);
 	});
 });
 

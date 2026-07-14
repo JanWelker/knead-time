@@ -28,6 +28,7 @@ export interface Messages {
 		info_units_fresh: string;
 		info_units_sourdough: string;
 		info_units_solve: string;
+		info_units_carriers: string;
 		info_preferment_title: string;
 		info_preferment_body: string;
 		info_preferment_biga: string;
@@ -63,6 +64,8 @@ export interface Messages {
 		sugar_help: string;
 		yeastType: string;
 		yeast_fresh: string;
+		yeast_instant: string;
+		yeast_active_dry: string;
 		yeast_sourdough: string;
 		starterHydration: string;
 		starterHydration_help: string;
@@ -174,6 +177,8 @@ export interface Messages {
 		oil: string;
 		sugar: string;
 		fresh_yeast: string;
+		instant_yeast: string;
+		active_dry_yeast: string;
 		sourdough_starter: string;
 		fresh_yeast_inline: string;
 		sourdough_starter_inline: string;
@@ -327,6 +332,8 @@ const en: Messages = {
 		info_units_sourdough: 'Sourdough starter: 160 units (~100× less active per gram)',
 		info_units_solve:
 			'Yeast percent solves the target. Shared phases (bulk, proof) have w = 1; a pre-ferment leg counts only for the yeast fraction it carries — its share of the pre-fermented flour:',
+		info_units_carriers:
+			'The solve is in fresh-yeast terms; the chosen carrier converts by mass at the end: instant dry ≈ one third, active dry ≈ 0.4×, sourdough starter ≈ 100× of the fresh amount.',
 		info_preferment_title: 'Pre-ferment as a fermentation phase',
 		info_preferment_body:
 			"Biga and poolish aren't decorative — each adds its own phase to the equivalent-hours sum, so yeast % drops to compensate. Enabled together they mature in parallel, both ending at prep, and each leg is weighted by its flour share. Reference loads at 22 °C:",
@@ -335,7 +342,7 @@ const en: Messages = {
 		info_preferment_wall:
 			'Wall-clock duration solves back from the reference load and is clamped to [8 h, 24 h]:',
 		info_preferment_yeast:
-			"For fresh-yeast recipes, all of the recipe's yeast goes into the pre-ferments — split proportional to their flour shares, none on baking day. A biga is mixed stiff at 50% hydration, a poolish pourable at 100% — both drawn from the recipe's existing flour and water budget. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
+			"For yeast-carried recipes (fresh or dry), all of the recipe's yeast goes into the pre-ferments — split proportional to their flour shares, none on baking day. A biga is mixed stiff at 50% hydration, a poolish pourable at 100% — both drawn from the recipe's existing flour and water budget. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
 		info_switch_title: 'Cold ↔ room switch',
 		info_switch_body:
 			'After reserving the longest pre-ferment, a remaining window of 16 h or more activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
@@ -374,6 +381,8 @@ const en: Messages = {
 			'Plain sugar or diastatic malt. 0 % for Neapolitan; ~1–2 % helps browning in cooler ovens.',
 		yeastType: 'Yeast',
 		yeast_fresh: 'Fresh yeast (cube)',
+		yeast_instant: 'Instant dry yeast',
+		yeast_active_dry: 'Active dry yeast (bloom in water first)',
 		yeast_sourdough: 'Sourdough starter',
 		starterHydration: 'Starter hydration (%)',
 		starterHydration_help: '100% means equal flour and water.',
@@ -407,9 +416,9 @@ const en: Messages = {
 		preferment_mix_biga: 'Mix biga',
 		preferment_mix_poolish: 'Mix poolish',
 		preferment_mix_desc_biga:
-			'Stir the flour, water and fresh yeast together just until shaggy — do not knead, the biga should stay crumbly. Cover and let it mature at room temperature.',
+			'Stir the flour, water and yeast together just until shaggy — do not knead, the biga should stay crumbly. Cover and let it mature at room temperature.',
 		preferment_mix_desc_poolish:
-			'Whisk the flour, water and fresh yeast in a bowl until smooth. Cover and let it mature at room temperature.',
+			'Whisk the flour, water and yeast in a bowl until smooth. Cover and let it mature at room temperature.',
 		prep: 'Weigh & prep',
 		prep_desc: 'Weigh out each amount listed below — a scale beats measuring cups every time.',
 		prep_desc_with_preferment:
@@ -511,6 +520,8 @@ const en: Messages = {
 		oil: 'Oil',
 		sugar: 'Sugar',
 		fresh_yeast: 'Fresh yeast',
+		instant_yeast: 'Instant dry yeast',
+		active_dry_yeast: 'Active dry yeast',
 		sourdough_starter: 'Sourdough starter',
 		fresh_yeast_inline: 'fresh yeast',
 		sourdough_starter_inline: 'sourdough starter',
@@ -668,6 +679,8 @@ const de: Messages = {
 		info_units_sourdough: 'Sauerteig-Anstellgut: 160 Einheiten (~100× weniger aktiv pro Gramm)',
 		info_units_solve:
 			'Der Hefe-Anteil löst die Zielgleichung. Gemeinsame Phasen (Stockgare, Stückgare) haben w = 1; eine Vorteig-Phase zählt nur für den Hefe-Anteil, den sie trägt — ihren Anteil am Vorteig-Mehl:',
+		info_units_carriers:
+			'Gelöst wird in Frischhefe-Einheiten; der gewählte Träger wird am Ende in Masse umgerechnet: Trockenhefe (instant) ≈ ein Drittel, aktive Trockenhefe ≈ 0,4×, Sauerteig-Anstellgut ≈ 100× der Frischhefemenge.',
 		info_preferment_title: 'Vorteig als eigene Gärphase',
 		info_preferment_body:
 			'Biga und Poolish sind keine Deko — jeder bringt seine eigene Phase in die Äquivalentstundensumme ein, sodass der Hefe-Anteil entsprechend sinkt. Gemeinsam aktiviert reifen sie parallel und enden beide beim Vorbereiten; jede Phase wird mit ihrem Mehlanteil gewichtet. Referenzwerte bei 22 °C:',
@@ -676,7 +689,7 @@ const de: Messages = {
 		info_preferment_wall:
 			'Die Wanduhrzeit ergibt sich aus dem Referenzwert und wird auf [8 h, 24 h] begrenzt:',
 		info_preferment_yeast:
-			'Bei Frischhefe-Rezepten landet die gesamte Hefe in den Vorteigen — aufgeteilt nach ihren Mehlanteilen, am Backtag kommt keine mehr dazu. Eine Biga wird fest bei 50% Hydration angesetzt, ein Poolish gießfähig bei 100% — beide stammen aus dem vorhandenen Mehl- und Wasserbudget des Rezepts. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
+			'Bei Rezepten mit Hefe (frisch oder trocken) landet die gesamte Hefe in den Vorteigen — aufgeteilt nach ihren Mehlanteilen, am Backtag kommt keine mehr dazu. Eine Biga wird fest bei 50% Hydration angesetzt, ein Poolish gießfähig bei 100% — beide stammen aus dem vorhandenen Mehl- und Wasserbudget des Rezepts. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
 		info_switch_title: 'Wechsel Kühlschrank ↔ Raum',
 		info_switch_body:
 			'Nachdem der längste Vorteig reserviert ist, aktiviert ein verbleibendes Fenster von 16 h oder mehr eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
@@ -715,6 +728,8 @@ const de: Messages = {
 			'Zucker oder diastatisches Malz. 0 % für Neapolitaner; ~1–2 % helfen in kühleren Öfen beim Bräunen.',
 		yeastType: 'Hefe',
 		yeast_fresh: 'Frischhefe (Würfel)',
+		yeast_instant: 'Trockenhefe (instant)',
+		yeast_active_dry: 'Aktive Trockenhefe (zuerst in Wasser auflösen)',
 		yeast_sourdough: 'Sauerteig-Anstellgut',
 		starterHydration: 'Hydration Anstellgut (%)',
 		starterHydration_help: '100% heißt gleich viel Mehl wie Wasser.',
@@ -748,9 +763,9 @@ const de: Messages = {
 		preferment_mix_biga: 'Biga ansetzen',
 		preferment_mix_poolish: 'Poolish ansetzen',
 		preferment_mix_desc_biga:
-			'Mehl, Wasser und Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur reifen lassen.',
+			'Mehl, Wasser und Hefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur reifen lassen.',
 		preferment_mix_desc_poolish:
-			'Mehl, Wasser und Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur reifen lassen.',
+			'Mehl, Wasser und Hefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur reifen lassen.',
 		prep: 'Abwiegen & vorbereiten',
 		prep_desc: 'Jede unten aufgeführte Menge abwiegen — eine Waage schlägt jeden Messbecher.',
 		prep_desc_with_preferment:
@@ -858,6 +873,8 @@ const de: Messages = {
 		oil: 'Öl',
 		sugar: 'Zucker',
 		fresh_yeast: 'Frischhefe',
+		instant_yeast: 'Trockenhefe (instant)',
+		active_dry_yeast: 'Aktive Trockenhefe',
 		sourdough_starter: 'Sauerteig',
 		fresh_yeast_inline: 'Frischhefe',
 		sourdough_starter_inline: 'Sauerteig',
@@ -1016,6 +1033,8 @@ const it: Messages = {
 		info_units_sourdough: 'Lievito madre: 160 unità (~100× meno attivo per grammo)',
 		info_units_solve:
 			'La percentuale di lievito risolve il target. Le fasi condivise (puntata, appretto) hanno w = 1; la fase di un preimpasto conta solo per la frazione di lievito che trasporta — la sua quota di farina prefermentata:',
+		info_units_carriers:
+			'Il calcolo è in termini di lievito fresco; il tipo scelto viene convertito in massa alla fine: secco istantaneo ≈ un terzo, secco attivo ≈ 0,4×, lievito madre ≈ 100× della quantità di fresco.',
 		info_preferment_title: 'Preimpasto come fase di lievitazione',
 		info_preferment_body:
 			'Biga e poolish non sono decorativi — ognuno aggiunge la propria fase alla somma di ore-equivalenti, quindi la percentuale di lievito scende di conseguenza. Attivati insieme maturano in parallelo, terminando entrambi alla preparazione; ogni fase è pesata per la sua quota di farina. Carichi di riferimento a 22 °C:',
@@ -1024,7 +1043,7 @@ const it: Messages = {
 		info_preferment_wall:
 			'La durata reale si ricava dal carico di riferimento ed è limitata a [8 h, 24 h]:',
 		info_preferment_yeast:
-			'Per le ricette con lievito di birra, tutto il lievito va nei preimpasti — suddiviso in proporzione alle loro quote di farina, niente lievito il giorno della cottura. La biga si impasta soda al 50% di idratazione, il poolish colabile al 100% — entrambi attingono alla farina e all’acqua già previste dalla ricetta. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
+			'Per le ricette con lievito (fresco o secco), tutto il lievito va nei preimpasti — suddiviso in proporzione alle loro quote di farina, niente lievito il giorno della cottura. La biga si impasta soda al 50% di idratazione, il poolish colabile al 100% — entrambi attingono alla farina e all’acqua già previste dalla ricetta. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
 		info_switch_title: 'Passaggio frigo ↔ ambiente',
 		info_switch_body:
 			'Dopo aver riservato il preimpasto più lungo, una finestra rimanente di 16 h o più attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 16× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
@@ -1063,6 +1082,8 @@ const it: Messages = {
 			'Zucchero o malto diastatico. 0 % per una napoletana; ~1–2 % aiutano la doratura in forni meno caldi.',
 		yeastType: 'Lievito',
 		yeast_fresh: 'Lievito di birra fresco',
+		yeast_instant: 'Lievito secco istantaneo',
+		yeast_active_dry: 'Lievito secco attivo (sciogliere prima in acqua)',
 		yeast_sourdough: 'Lievito madre',
 		starterHydration: 'Idratazione lievito madre (%)',
 		starterHydration_help: '100% significa stessa quantità di farina e acqua.',
@@ -1097,9 +1118,9 @@ const it: Messages = {
 		preferment_mix_biga: 'Preparare la biga',
 		preferment_mix_poolish: 'Preparare il poolish',
 		preferment_mix_desc_biga:
-			'Mescolare farina, acqua e lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente.',
+			'Mescolare farina, acqua e lievito appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente.',
 		preferment_mix_desc_poolish:
-			'Sbattere farina, acqua e lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente.',
+			'Sbattere farina, acqua e lievito in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente.',
 		prep: 'Pesare e preparare',
 		prep_desc: 'Pesare ogni quantità indicata sotto — la bilancia batte sempre i misurini.',
 		prep_desc_with_preferment:
@@ -1206,6 +1227,8 @@ const it: Messages = {
 		oil: 'Olio',
 		sugar: 'Zucchero',
 		fresh_yeast: 'Lievito fresco',
+		instant_yeast: 'Lievito secco istantaneo',
+		active_dry_yeast: 'Lievito secco attivo',
 		sourdough_starter: 'Lievito madre',
 		fresh_yeast_inline: 'lievito fresco',
 		sourdough_starter_inline: 'lievito madre',
@@ -1364,6 +1387,8 @@ const fr: Messages = {
 		info_units_sourdough: 'Levain : 160 unités (~100× moins actif par gramme)',
 		info_units_solve:
 			"Le pourcentage de levure résout la cible. Les phases communes (pointage, apprêt) ont w = 1 ; la phase d'un pré-ferment ne compte que pour la fraction de levure qu'elle porte — sa part de la farine préfermentée :",
+		info_units_carriers:
+			'Le calcul se fait en équivalent levure fraîche ; le type choisi est converti en masse à la fin : sèche instantanée ≈ un tiers, sèche active ≈ 0,4×, levain ≈ 100× de la quantité de levure fraîche.',
 		info_preferment_title: 'Pré-ferment comme phase de fermentation',
 		info_preferment_body:
 			"La biga et le poolish ne sont pas décoratifs — chacun ajoute sa propre phase à la somme d'heures-équivalentes, donc le pourcentage de levure baisse en conséquence. Activés ensemble, ils mûrissent en parallèle et se terminent tous deux à la préparation ; chaque phase est pondérée par sa part de farine. Charges de référence à 22 °C :",
@@ -1372,7 +1397,7 @@ const fr: Messages = {
 		info_preferment_wall:
 			'La durée réelle se déduit de la charge de référence et est bornée à [8 h, 24 h] :',
 		info_preferment_yeast:
-			"Pour les recettes avec levure fraîche, toute la levure va dans les pré-ferments — répartie au prorata de leur part de farine, aucune le jour de la cuisson. Une biga se mélange ferme à 50% d'hydratation, un poolish coulant à 100% — tous deux puisés dans le budget de farine et d'eau existant de la recette. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).",
+			"Pour les recettes avec levure (fraîche ou sèche), toute la levure va dans les pré-ferments — répartie au prorata de leur part de farine, aucune le jour de la cuisson. Une biga se mélange ferme à 50% d'hydratation, un poolish coulant à 100% — tous deux puisés dans le budget de farine et d'eau existant de la recette. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).",
 		info_switch_title: 'Bascule frigo ↔ ambiante',
 		info_switch_body:
 			"Après réservation du pré-ferment le plus long, une fenêtre restante de 16 h ou plus active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 16× plus lent qu'à 22 °C). Les fenêtres plus courtes restent à température ambiante.",
@@ -1412,6 +1437,8 @@ const fr: Messages = {
 			'Sucre ou malt diastasique. 0 % pour la napolitaine ; ~1–2 % aident la coloration dans les fours moins chauds.',
 		yeastType: 'Levure',
 		yeast_fresh: 'Levure fraîche (cube)',
+		yeast_instant: 'Levure sèche instantanée',
+		yeast_active_dry: "Levure sèche active (délayer d'abord dans l'eau)",
 		yeast_sourdough: 'Levain',
 		starterHydration: 'Hydratation du levain (%)',
 		starterHydration_help: "100% signifie autant de farine que d'eau.",
@@ -1448,9 +1475,9 @@ const fr: Messages = {
 		preferment_mix_biga: 'Préparer la biga',
 		preferment_mix_poolish: 'Préparer le poolish',
 		preferment_mix_desc_biga:
-			"Mélangez la farine, l'eau et la levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante.",
+			"Mélangez la farine, l'eau et la levure juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante.",
 		preferment_mix_desc_poolish:
-			"Fouettez la farine, l'eau et la levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante.",
+			"Fouettez la farine, l'eau et la levure dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante.",
 		prep: 'Peser et préparer',
 		prep_desc:
 			'Pesez chaque quantité indiquée ci-dessous — la balance bat toujours les verres doseurs.',
@@ -1557,6 +1584,8 @@ const fr: Messages = {
 		oil: 'Huile',
 		sugar: 'Sucre',
 		fresh_yeast: 'Levure fraîche',
+		instant_yeast: 'Levure sèche instantanée',
+		active_dry_yeast: 'Levure sèche active',
 		sourdough_starter: 'Levain',
 		fresh_yeast_inline: 'levure fraîche',
 		sourdough_starter_inline: 'levain',
@@ -1715,6 +1744,8 @@ const nl: Messages = {
 		info_units_sourdough: 'Zuurdesem: 160 eenheden (~100× minder actief per gram)',
 		info_units_solve:
 			'Het gistpercentage lost het doel op. Gedeelde fasen (bulkrijs, narijs) hebben w = 1; de fase van een voordeeg telt alleen voor de gistfractie die het draagt — zijn aandeel in de voordeegbloem:',
+		info_units_carriers:
+			'Er wordt gerekend in verse-gist-termen; het gekozen type wordt aan het einde omgerekend naar massa: instant gedroogd ≈ een derde, actief gedroogd ≈ 0,4×, zuurdesem ≈ 100× van de verse hoeveelheid.',
 		info_preferment_title: 'Voordeeg als fermentatiefase',
 		info_preferment_body:
 			'Biga en poolish zijn niet decoratief — elk voegt zijn eigen fase toe aan de som van equivalente uren, waardoor het gistpercentage navenant daalt. Samen ingeschakeld rijpen ze parallel en eindigen beide bij het voorbereiden; elke fase wordt gewogen naar zijn bloemaandeel. Referentiebelasting bij 22 °C:',
@@ -1723,7 +1754,7 @@ const nl: Messages = {
 		info_preferment_wall:
 			'De werkelijke duur wordt afgeleid van de referentiebelasting en wordt begrensd op [8 u, 24 u]:',
 		info_preferment_yeast:
-			'Bij recepten met verse gist zit alle gist in de voordegen — verdeeld naar hun bloemaandeel, niets op de bakdag. Een biga wordt stijf aangemaakt op 50% hydratatie, een poolish gietbaar op 100% — beide komen uit het bestaande bloem- en waterbudget van het recept. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
+			'Bij recepten met gist (vers of gedroogd) zit alle gist in de voordegen — verdeeld naar hun bloemaandeel, niets op de bakdag. Een biga wordt stijf aangemaakt op 50% hydratatie, een poolish gietbaar op 100% — beide komen uit het bestaande bloem- en waterbudget van het recept. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
 		info_switch_title: 'Wissel koelkast ↔ kamer',
 		info_switch_body:
 			'Na het reserveren van het langste voordeeg activeert een resterend venster van 16 u of meer een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 16× trager dan 22 °C). Kortere vensters blijven op kamertemperatuur.',
@@ -1762,6 +1793,8 @@ const nl: Messages = {
 			'Suiker of diastatische mout. 0 % voor Napolitaans; ~1–2 % helpt de bruining in koelere ovens.',
 		yeastType: 'Gist',
 		yeast_fresh: 'Verse gist (blokje)',
+		yeast_instant: 'Instant gedroogde gist',
+		yeast_active_dry: 'Actieve gedroogde gist (eerst in water oplossen)',
 		yeast_sourdough: 'Zuurdesem',
 		starterHydration: 'Desem-hydratatie (%)',
 		starterHydration_help: '100% betekent evenveel bloem als water.',
@@ -1796,9 +1829,9 @@ const nl: Messages = {
 		preferment_mix_biga: 'Biga mengen',
 		preferment_mix_poolish: 'Poolish mengen',
 		preferment_mix_desc_biga:
-			'Meng bloem, water en verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat op kamertemperatuur rijpen.',
+			'Meng bloem, water en gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat op kamertemperatuur rijpen.',
 		preferment_mix_desc_poolish:
-			'Klop bloem, water en verse gist in een kom glad. Dek af en laat op kamertemperatuur rijpen.',
+			'Klop bloem, water en gist in een kom glad. Dek af en laat op kamertemperatuur rijpen.',
 		prep: 'Wegen en klaarzetten',
 		prep_desc:
 			'Weeg elke hieronder vermelde hoeveelheid af — een weegschaal wint het altijd van maatbekers.',
@@ -1905,6 +1938,8 @@ const nl: Messages = {
 		oil: 'Olie',
 		sugar: 'Suiker',
 		fresh_yeast: 'Verse gist',
+		instant_yeast: 'Instant gedroogde gist',
+		active_dry_yeast: 'Actieve gedroogde gist',
 		sourdough_starter: 'Zuurdesem',
 		fresh_yeast_inline: 'verse gist',
 		sourdough_starter_inline: 'zuurdesem',

@@ -1,5 +1,14 @@
 import type { UiMode } from '../storedMode';
-import type { DoughInputs, PreFermentSpec } from './types';
+import type { DoughInputs, PreFermentSpec, YeastType } from './types';
+
+// v=4 additions 'i' (instant dry) and 'a' (active dry) extend the original
+// 'f'/'s' pair — old links only ever carried those two.
+const YEAST_CODES: Record<YeastType, string> = {
+	fresh: 'f',
+	instant: 'i',
+	'active-dry': 'a',
+	sourdough: 's'
+};
 
 export type SerializableInputs = DoughInputs;
 
@@ -58,7 +67,7 @@ export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }):
 	// produce short URLs identical to the v=2 era (modulo the version bump).
 	if (inputs.oilPercent > 0) params.set(KEYS_V4.oilPercent, String(inputs.oilPercent));
 	if (inputs.sugarPercent > 0) params.set(KEYS_V4.sugarPercent, String(inputs.sugarPercent));
-	params.set(KEYS_V4.yeastType, inputs.yeastType === 'sourdough' ? 's' : 'f');
+	params.set(KEYS_V4.yeastType, YEAST_CODES[inputs.yeastType]);
 	if (inputs.yeastType === 'sourdough') {
 		params.set(KEYS_V4.starterHydration, String(inputs.starterHydration));
 	}
@@ -160,6 +169,8 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 
 	const y = params.get(KEYS_V4.yeastType);
 	if (y === 'f') out.yeastType = 'fresh';
+	if (y === 'i') out.yeastType = 'instant';
+	if (y === 'a') out.yeastType = 'active-dry';
 	if (y === 's') out.yeastType = 'sourdough';
 
 	const sh = num(params.get(KEYS_V4.starterHydration));

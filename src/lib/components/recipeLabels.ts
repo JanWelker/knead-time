@@ -5,9 +5,18 @@ import type { SerializableInputs } from '../dough/urlState';
 // localized message bundle to keep the components free of i18n plumbing.
 
 export function yeastLabel(inputs: Partial<SerializableInputs>, t: Messages): string {
-	if (inputs.yeastType === 'sourdough') return t.form.yeast_sourdough;
-	if (inputs.yeastType === 'fresh') return t.form.yeast_fresh;
-	return '—';
+	switch (inputs.yeastType) {
+		case 'fresh':
+			return t.form.yeast_fresh;
+		case 'instant':
+			return t.form.yeast_instant;
+		case 'active-dry':
+			return t.form.yeast_active_dry;
+		case 'sourdough':
+			return t.form.yeast_sourdough;
+		default:
+			return '—';
+	}
 }
 
 export function preFermentLabel(inputs: Partial<SerializableInputs>, t: Messages): string {

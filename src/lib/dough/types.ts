@@ -1,4 +1,6 @@
-export type YeastType = 'fresh' | 'sourdough';
+// Non-sourdough types all drive the same fresh-calibrated model; their masses
+// differ by yeastMassFactor in fermentation.ts.
+export type YeastType = 'fresh' | 'instant' | 'active-dry' | 'sourdough';
 
 export type MixingMethod = 'hand' | 'machine';
 

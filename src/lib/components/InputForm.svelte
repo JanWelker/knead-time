@@ -175,6 +175,8 @@
 				</span>
 				<select class={selectClass} bind:value={state.yeastType}>
 					<option value="fresh">{t.form.yeast_fresh}</option>
+					<option value="instant">{t.form.yeast_instant}</option>
+					<option value="active-dry">{t.form.yeast_active_dry}</option>
 					<option value="sourdough">{t.form.yeast_sourdough}</option>
 				</select>
 			</label>
@@ -277,6 +279,7 @@
 					<p class="mt-2">{t.form.info_units_solve}</p>
 					<pre
 						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">yeast% = target / Σ (w · hours · f(T))</pre>
+					<p class="mt-2">{t.form.info_units_carriers}</p>
 				</div>
 
 				<div class="min-w-0">

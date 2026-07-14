@@ -74,8 +74,13 @@ export function buildMergeVariables(
 	msgs: Messages,
 	locale: Locale
 ): TrmnlMergeVariables {
-	const yeastLabel =
-		inputs.yeastType === 'fresh' ? msgs.form.yeast_fresh : msgs.form.yeast_sourdough;
+	const YEAST_LABEL_KEYS = {
+		fresh: 'yeast_fresh',
+		instant: 'yeast_instant',
+		'active-dry': 'yeast_active_dry',
+		sourdough: 'yeast_sourdough'
+	} as const;
+	const yeastLabel = msgs.form[YEAST_LABEL_KEYS[inputs.yeastType]];
 	const preFermentLabel =
 		inputs.preFerments.length > 0
 			? inputs.preFerments

@@ -38,6 +38,13 @@ describe('urlState round-trip', () => {
 		expect(out.fridgeTempC).toBe(7);
 	});
 
+	it('round-trips the dry yeast types', () => {
+		expect(decodeInputs(encodeInputs({ ...base, yeastType: 'instant' })).yeastType).toBe('instant');
+		expect(decodeInputs(encodeInputs({ ...base, yeastType: 'active-dry' })).yeastType).toBe(
+			'active-dry'
+		);
+	});
+
 	it('round-trips sourdough with starter hydration', () => {
 		const inp: SerializableInputs = {
 			...base,

@@ -15,7 +15,7 @@ export interface BakerArgs {
 	oilPercent: number;
 	sugarPercent: number;
 	yeastPercent: number;
-	yeastType: 'fresh' | 'sourdough';
+	yeastType: YeastType;
 	starterHydration: number;
 	preFerments: PreFermentSpec[];
 }

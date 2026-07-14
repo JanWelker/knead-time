@@ -9,9 +9,36 @@ import {
 	PREFERMENT_REF_HOURS_POOLISH,
 	prefermentDurationHours,
 	prefermentEquivHours,
+	TARGET_UNITS_FRESH,
+	TARGET_UNITS_SOURDOUGH,
 	temperatureFactor,
+	yeastMassFactor,
 	yeastPercentForPhases
 } from './fermentation';
+
+describe('yeastMassFactor', () => {
+	it.each([
+		{ type: 'fresh', factor: 1 },
+		{ type: 'instant', factor: 1 / 3 },
+		{ type: 'active-dry', factor: 0.4 }
+	] as const)('$type → $factor of the fresh mass', ({ type, factor }) => {
+		expect(yeastMassFactor(type)).toBeCloseTo(factor, 12);
+	});
+
+	it('expresses the sourdough target as the same factor (starter ≈ 100× fresh)', () => {
+		expect(yeastMassFactor('sourdough')).toBeCloseTo(
+			TARGET_UNITS_SOURDOUGH / TARGET_UNITS_FRESH,
+			12
+		);
+	});
+
+	it('keeps yeastPercentForPhases consistent across carriers', () => {
+		const phases = [{ hours: 8, tempC: 22 }];
+		const fresh = yeastPercentForPhases('fresh', phases);
+		expect(yeastPercentForPhases('instant', phases)).toBeCloseTo(fresh / 3, 12);
+		expect(yeastPercentForPhases('sourdough', phases)).toBeCloseTo(fresh * 100, 12);
+	});
+});
 
 describe('temperatureFactor', () => {
 	it('is 1 at reference (22 °C)', () => {

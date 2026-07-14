@@ -1,4 +1,4 @@
-import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from './dough/types';
+import type { ComputedSchedule, ScheduleStep, ScheduleStepKind, YeastType } from './dough/types';
 import { formatBallWeight, formatGrams } from './format';
 import { interpolate } from './i18n/interpolate';
 import type { Messages } from './i18n/messages';
@@ -50,6 +50,20 @@ export interface StepIngredient {
 	name: string;
 }
 
+// Localized ingredient-row name for whatever carries the recipe's yeast.
+export function yeastIngredientName(type: YeastType, msgs: Messages): string {
+	switch (type) {
+		case 'fresh':
+			return msgs.ingredients.fresh_yeast;
+		case 'instant':
+			return msgs.ingredients.instant_yeast;
+		case 'active-dry':
+			return msgs.ingredients.active_dry_yeast;
+		case 'sourdough':
+			return msgs.ingredients.sourdough_starter;
+	}
+}
+
 export function stepTitle(step: ScheduleStep, msgs: Messages): string {
 	if (step.kind === 'preferment-mix') {
 		return step.preFermentType === 'biga'
@@ -71,7 +85,7 @@ export function stepIngredients(
 ): StepIngredient[] {
 	const { ingredients } = schedule;
 	const i = msgs.ingredients;
-	const yeastName = schedule.yeastType === 'fresh' ? i.fresh_yeast : i.sourdough_starter;
+	const yeastName = yeastIngredientName(schedule.yeastType, msgs);
 
 	// Oil/sugar are weighed for the main dough; they never enter the pre-ferment.
 	const extras: StepIngredient[] = [];
@@ -86,7 +100,8 @@ export function stepIngredients(
 			return [
 				{ amount: formatGrams(pf.flour), name: i.flour },
 				{ amount: formatGrams(pf.water), name: i.water },
-				{ amount: formatGrams(pf.yeast), name: i.fresh_yeast }
+				// The pre-ferment carries the recipe's yeast — whichever type it is.
+				{ amount: formatGrams(pf.yeast), name: yeastName }
 			];
 		}
 		case 'prep': {

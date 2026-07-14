@@ -13,6 +13,11 @@ describe('yeastLabel', () => {
 		expect(yeastLabel({ yeastType: 'sourdough' }, t)).toBe(t.form.yeast_sourdough);
 	});
 
+	it('returns the localized dry-yeast labels', () => {
+		expect(yeastLabel({ yeastType: 'instant' }, t)).toBe(t.form.yeast_instant);
+		expect(yeastLabel({ yeastType: 'active-dry' }, t)).toBe(t.form.yeast_active_dry);
+	});
+
 	it('returns an em-dash placeholder when yeast type is missing', () => {
 		expect(yeastLabel({}, t)).toBe('—');
 	});

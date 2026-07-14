@@ -307,6 +307,30 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 		expect(factorKinds(fit.factors)).toContain('yeast-extreme');
 	});
 
+	it('judges the yeast band in fresh-equivalent terms — a normal sourdough is not extreme', () => {
+		// A ~20% starter equals ~0.2% fresh yeast: squarely inside the band.
+		// Before the fresh-equivalent conversion every sourdough recipe was
+		// flagged extreme because its raw percent sits far above 1.5.
+		const i = inputs({
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z'),
+			yeastType: 'sourdough'
+		});
+		const s = computeSchedule(i);
+		expect(s.yeastPercent).toBeGreaterThan(1.5);
+		expect(factorKinds(recipeFitScore(s, i).factors)).not.toContain('yeast-extreme');
+	});
+
+	it('does not flag instant dry yeast for its smaller gram scale', () => {
+		const i = inputs({
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z'),
+			yeastType: 'instant'
+		});
+		const s = computeSchedule(i);
+		expect(factorKinds(recipeFitScore(s, i).factors)).not.toContain('yeast-extreme');
+	});
+
 	it('caps each factor at its per-factor max so one extreme value cannot pin the score to 0', () => {
 		// 1 kg dough balls (huge): grams-out-of-band = 680. At 0.1 pts/g
 		// uncapped that would be -68; the cap clamps to -8.

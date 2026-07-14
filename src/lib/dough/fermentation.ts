@@ -6,7 +6,7 @@
 //   - Sourdough starter 20% at 22 °C: full ferment in ~8 h
 // Temperature factor follows a Q10 = 2 model (rate doubles every 10 °C).
 
-import type { MixingMethod } from './types';
+import type { MixingMethod, YeastType } from './types';
 
 const REF_TEMP_C = 22;
 const Q10 = 2;
@@ -16,6 +16,24 @@ const Q10 = 2;
 export const TARGET_UNITS_FRESH = 1.6;
 // Sourdough: 20% starter × ~8 h at 22 °C = 160 units (~100× fresh — starter is far less active per gram).
 export const TARGET_UNITS_SOURDOUGH = 160;
+
+// Grams of each yeast type per gram of fresh yeast for the same leavening
+// power. The whole model solves in fresh-equivalent percent and converts at
+// the end: instant dry (IDY) is the classic 3:1, active dry (ADY) 2.5:1, and
+// sourdough starter ~100× (which is exactly TARGET_UNITS_SOURDOUGH ÷ FRESH —
+// one factor expresses both dry-yeast conversion and the starter's activity).
+export function yeastMassFactor(type: YeastType): number {
+	switch (type) {
+		case 'fresh':
+			return 1;
+		case 'instant':
+			return 1 / 3;
+		case 'active-dry':
+			return 0.4;
+		case 'sourdough':
+			return TARGET_UNITS_SOURDOUGH / TARGET_UNITS_FRESH;
+	}
+}
 
 // Pre-ferment reference fermentation loads (equivalent-hours at 22 °C). A biga
 // is stiffer and traditionally sits cooler/longer, so we credit it slightly
@@ -89,21 +107,16 @@ export function equivalentHoursAtRef(phases: FermentPhase[]): number {
 	return phases.reduce((sum, p) => sum + p.hours * temperatureFactor(p.tempC), 0);
 }
 
-export function yeastPercentForPhases(
-	yeastType: 'fresh' | 'sourdough',
-	phases: FermentPhase[]
-): number {
+export function yeastPercentForPhases(yeastType: YeastType, phases: FermentPhase[]): number {
 	const eq = equivalentHoursAtRef(phases);
 	if (eq <= 0) return 0;
-	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
-	return target / eq;
+	return (TARGET_UNITS_FRESH / eq) * yeastMassFactor(yeastType);
 }
 
 export function fermentHoursForYeast(
-	yeastType: 'fresh' | 'sourdough',
+	yeastType: YeastType,
 	yeastPct: number,
 	tempC: number
 ): number {
-	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
-	return target / (yeastPct * temperatureFactor(tempC));
+	return (TARGET_UNITS_FRESH * yeastMassFactor(yeastType)) / (yeastPct * temperatureFactor(tempC));
 }

@@ -18,7 +18,8 @@
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { qrCode } from '$lib/qr';
-	import { stepDescription, stepIngredients, stepTitle } from '$lib/stepCopy';
+	import { stepDescription, stepIngredients, stepTitle, yeastIngredientName } from '$lib/stepCopy';
+	import { yeastLabel as yeastTypeLabelFor } from '$lib/components/recipeLabels';
 
 	// Locale lives in the URL path so each language can ship its own prerendered
 	// HTML; the root layout skips its navigator-based detection on this route.
@@ -61,12 +62,8 @@
 		browser ? `${window.location.origin}${base}/?${encodeInputs(inputs)}` : ''
 	);
 	const qr = $derived(shareUrl ? qrCode(shareUrl) : null);
-	const yeastLabel = $derived(
-		inputs.yeastType === 'fresh' ? t.ingredients.fresh_yeast : t.ingredients.sourdough_starter
-	);
-	const yeastTypeLabel = $derived(
-		inputs.yeastType === 'fresh' ? t.form.yeast_fresh : t.form.yeast_sourdough
-	);
+	const yeastLabel = $derived(yeastIngredientName(inputs.yeastType, t));
+	const yeastTypeLabel = $derived(yeastTypeLabelFor(inputs, t));
 	const preFermentLabel = $derived(
 		schedule.preFerments.length > 0
 			? schedule.preFerments
@@ -314,7 +311,7 @@
 							<tbody>
 								<tr><th>{t.ingredients.flour}</th><td>{formatGrams(pf.flour)}</td></tr>
 								<tr><th>{t.ingredients.water}</th><td>{formatGrams(pf.water)}</td></tr>
-								<tr><th>{t.ingredients.fresh_yeast}</th><td>{formatGrams(pf.yeast)}</td></tr>
+								<tr><th>{yeastLabel}</th><td>{formatGrams(pf.yeast)}</td></tr>
 							</tbody>
 						</table>
 					</section>

@@ -1,4 +1,4 @@
-import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
+import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS, yeastMassFactor } from './fermentation';
 import {
 	ACTIVE_NIGHT_KINDS,
 	COLD_BULK_CEIL_MIN,
@@ -236,7 +236,12 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 	const fridgeT = outsideBand(inputs.fridgeTempC, FRIDGE_TEMP_LOW, FRIDGE_TEMP_HIGH);
 	if (fridgeT > 0) factors.push({ factor: 'fridge-temp-off', delta: fridgeT });
 
-	if (schedule.yeastPercent < YEAST_PCT_LOW || schedule.yeastPercent > YEAST_PCT_HIGH) {
+	// The band is calibrated for fresh yeast; other carriers convert to
+	// fresh-equivalent first (0.5% IDY is a normal 1.5% fresh, and a 20%
+	// sourdough starter is a modest 0.2% — without the conversion every
+	// sourdough recipe would read as extreme).
+	const freshEquivalentPct = schedule.yeastPercent / yeastMassFactor(schedule.yeastType);
+	if (freshEquivalentPct < YEAST_PCT_LOW || freshEquivalentPct > YEAST_PCT_HIGH) {
 		factors.push({ factor: 'yeast-extreme', delta: 0 });
 	}
 

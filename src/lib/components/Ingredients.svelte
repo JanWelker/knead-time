@@ -1,19 +1,17 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { formatGrams, formatPercent } from '$lib/format';
-	import type { Ingredients } from '$lib/dough/types';
+	import { yeastIngredientName } from '$lib/stepCopy';
+	import type { Ingredients, YeastType } from '$lib/dough/types';
 
 	let {
 		ingredients,
 		yeastType,
 		yeastPercent
-	}: { ingredients: Ingredients; yeastType: 'fresh' | 'sourdough'; yeastPercent: number } =
-		$props();
+	}: { ingredients: Ingredients; yeastType: YeastType; yeastPercent: number } = $props();
 	const t = $derived(i18n.t);
 
-	const yeastLabel = $derived(
-		yeastType === 'fresh' ? t.ingredients.fresh_yeast : t.ingredients.sourdough_starter
-	);
+	const yeastLabel = $derived(yeastIngredientName(yeastType, t));
 
 	// A 1 g kitchen scale cannot weigh a 0.8 g yeast pinch — surface the hint
 	// whenever any yeast amount on the page drops below 2 g.
@@ -80,7 +78,7 @@
 					<tbody>
 						{@render row(t.ingredients.flour, pf.flour)}
 						{@render row(t.ingredients.water, pf.water)}
-						{@render row(t.ingredients.fresh_yeast, pf.yeast)}
+						{@render row(yeastLabel, pf.yeast)}
 					</tbody>
 				</table>
 			</section>

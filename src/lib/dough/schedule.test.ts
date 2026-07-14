@@ -129,6 +129,51 @@ describe('computeSchedule — mixing method', () => {
 	});
 });
 
+describe('computeSchedule — dry yeast carriers', () => {
+	it('solves instant dry yeast at a third of the fresh mass, active dry at 0.4', () => {
+		const fresh = computeSchedule(baseInputs());
+		const instant = computeSchedule(baseInputs({ yeastType: 'instant' }));
+		const activeDry = computeSchedule(baseInputs({ yeastType: 'active-dry' }));
+		expect(instant.yeastPercent).toBeCloseTo(fresh.yeastPercent / 3, 12);
+		expect(activeDry.yeastPercent).toBeCloseTo(fresh.yeastPercent * 0.4, 12);
+	});
+
+	it('keeps the schedule identical across yeast carriers — only the mass changes', () => {
+		const fresh = computeSchedule(baseInputs());
+		const instant = computeSchedule(baseInputs({ yeastType: 'instant' }));
+		expect(instant.steps.map((s) => s.at.getTime())).toEqual(
+			fresh.steps.map((s) => s.at.getTime())
+		);
+	});
+
+	it('lets dry yeast carry a pre-ferment, unlike sourdough', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				yeastType: 'instant',
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
+			})
+		);
+		expect(r.steps.some((s) => s.kind === 'preferment-mix')).toBe(true);
+		expect(r.ingredients.yeast).toBe(0);
+		expect(r.ingredients.preFerments[0].yeast).toBeGreaterThan(0);
+	});
+
+	it('judges the yeast-tiny warning in fresh-equivalent terms', () => {
+		// A long cold window that pushes fresh yeast to ~0.03% would push IDY
+		// to ~0.01% — the warning must not fire just because IDY grams are
+		// smaller for the same leavening power.
+		const window = {
+			startAt: new Date('2026-05-10T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		};
+		const fresh = computeSchedule(baseInputs(window));
+		const instant = computeSchedule(baseInputs({ ...window, yeastType: 'instant' }));
+		expect(instant.warnings.includes('yeast-tiny')).toBe(fresh.warnings.includes('yeast-tiny'));
+	});
+});
+
 describe('computeSchedule — yeast selection', () => {
 	it('uses much less yeast for cold ferment than for a short room ferment', () => {
 		const short = computeSchedule(baseInputs());
@@ -591,9 +636,21 @@ describe('computeSchedule — yeast magnitude warnings', () => {
 		expect(r.warnings).toContain('yeast-tiny');
 	});
 
-	it('does not flag sourdough schedules with yeast-large or yeast-tiny', () => {
-		// Both warnings are gated on yeastType === 'fresh'.
-		const r = computeSchedule(
+	it('judges sourdough warnings in fresh-equivalent terms', () => {
+		// A sane overnight sourdough (~20% starter ≈ 0.2% fresh) stays quiet…
+		const sane = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T19:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				yeastType: 'sourdough'
+			})
+		);
+		expect(sane.warnings).not.toContain('yeast-large');
+		expect(sane.warnings).not.toContain('yeast-tiny');
+		// …but a 3 h window in a 5 °C room would need >200% starter — that IS
+		// a yeast-large situation, and hiding it behind the carrier's gram
+		// scale (the pre-v4 fresh-only gate) just suppressed a real problem.
+		const absurd = computeSchedule(
 			baseInputs({
 				startAt: new Date('2026-05-12T13:00:00Z'),
 				readyBy: new Date('2026-05-12T16:00:00Z'),
@@ -601,8 +658,7 @@ describe('computeSchedule — yeast magnitude warnings', () => {
 				yeastType: 'sourdough'
 			})
 		);
-		expect(r.warnings).not.toContain('yeast-large');
-		expect(r.warnings).not.toContain('yeast-tiny');
+		expect(absurd.warnings).toContain('yeast-large');
 	});
 });
 

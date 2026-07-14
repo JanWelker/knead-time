@@ -45,6 +45,14 @@ describe('computeIngredients — fresh yeast', () => {
 	});
 });
 
+describe('computeIngredients — dry yeast', () => {
+	it('keeps the mass balance with instant dry yeast (yeast adds mass like fresh)', () => {
+		const r = computeIngredients({ ...baseArgs, yeastType: 'instant', yeastPercent: 0.07 });
+		expect(r.flour + r.water + r.salt + r.yeast).toBeCloseTo(1120, 6);
+		expect(r.yeast / r.flour).toBeCloseTo(0.0007, 6);
+	});
+});
+
 describe('computeIngredients — sourdough', () => {
 	it('subtracts starter flour & water from main amounts', () => {
 		const r = computeIngredients({

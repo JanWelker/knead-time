@@ -4,8 +4,8 @@ import {
 	prefermentDurationHours,
 	prefermentRefHours,
 	TARGET_UNITS_FRESH,
-	TARGET_UNITS_SOURDOUGH,
-	temperatureFactor
+	temperatureFactor,
+	yeastMassFactor
 } from './fermentation';
 import type {
 	ComputedSchedule,
@@ -15,7 +15,8 @@ import type {
 	PreFermentSpec,
 	ScheduleStep,
 	ScheduleStepKind,
-	ScheduleWarning
+	ScheduleWarning,
+	YeastType
 } from './types';
 
 export const PREP_MIN = 15;
@@ -245,10 +246,11 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		});
 	}
 
-	if (inputs.yeastType === 'fresh') {
-		if (yeastPct > 0 && yeastPct < 0.02) warnings.push('yeast-tiny');
-		if (yeastPct > 2) warnings.push('yeast-large');
-	}
+	// Sanity bands live in fresh-equivalent terms so every carrier is judged
+	// on leavening power, not on its own gram scale (0.5 g IDY ≈ 1.5 g fresh).
+	const freshEquivalentPct = yeastPct / yeastMassFactor(inputs.yeastType);
+	if (freshEquivalentPct > 0 && freshEquivalentPct < 0.02) warnings.push('yeast-tiny');
+	if (freshEquivalentPct > 2) warnings.push('yeast-large');
 
 	// Cold mode shifts coldMin to avoid the night window for the pre-cold
 	// cluster, but the post-cold divide is anchored to readyBy and room mode
@@ -297,13 +299,14 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	};
 }
 
-function unitsToPercent(yeastType: 'fresh' | 'sourdough', equivalentHours: number): number {
-	const target = yeastType === 'fresh' ? TARGET_UNITS_FRESH : TARGET_UNITS_SOURDOUGH;
+function unitsToPercent(yeastType: YeastType, equivalentHours: number): number {
 	// equivalentHours can hit 0 when the window is so short that every
 	// fermentation phase shrinks to nothing — feasibility is already false
 	// in that case, so callers see the warning rather than an Infinity %.
 	if (equivalentHours <= 0) return 0;
-	return target / equivalentHours;
+	// Solve in fresh-equivalent percent, then convert to the chosen carrier's
+	// mass — one factor covers dry-yeast conversions and sourdough activity.
+	return (TARGET_UNITS_FRESH / equivalentHours) * yeastMassFactor(yeastType);
 }
 
 function subMin(d: Date, min: number): Date {
