@@ -208,6 +208,7 @@ function matchesRecipe(a: Partial<SerializableInputs>, b: DoughInputs): boolean 
 	// temperature, whose unset value is null (follows the room).
 	if ((a.mixingMethod ?? 'machine') !== b.mixingMethod) return false;
 	if ((a.preFermentTempC ?? null) !== b.preFermentTempC) return false;
+	if ((a.ballProof ?? 'room') !== b.ballProof) return false;
 	// Both sides are in canonical biga-first order (decode and the form both
 	// guarantee it), so element-wise comparison suffices.
 	const aPf = a.preFerments ?? [];

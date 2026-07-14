@@ -15,6 +15,7 @@ const base: SerializableInputs = {
 	roomTempC: 22,
 	fridgeTempC: 4,
 	preFermentTempC: null,
+	ballProof: 'room',
 	mixingMethod: 'machine',
 	preFerments: []
 };
@@ -44,6 +45,13 @@ describe('urlState round-trip', () => {
 		const out = decodeInputs(encodeInputs({ ...base, preFermentTempC: 17 }));
 		expect(out.preFermentTempC).toBe(17);
 		expect(decodeInputs(encodeInputs(base)).preFermentTempC).toBeUndefined();
+	});
+
+	it('round-trips the cold ball proof and omits the classic default', () => {
+		expect(encodeInputs(base)).not.toContain('bp=');
+		expect(decodeInputs(encodeInputs({ ...base, ballProof: 'cold' })).ballProof).toBe('cold');
+		// encode never emits it, but hand-crafted URLs should still resolve.
+		expect(decodeInputs('?v=4&n=4&bp=r').ballProof).toBe('room');
 	});
 
 	it('round-trips the dry yeast types', () => {

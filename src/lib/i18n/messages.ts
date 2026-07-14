@@ -86,6 +86,8 @@ export interface Messages {
 		preFermentTemp: string;
 		preFermentTemp_toggle: string;
 		preFermentTemp_help: string;
+		ballProof_toggle: string;
+		ballProof_help: string;
 		mode_beginner: string;
 		mode_expert: string;
 		mode_help: string;
@@ -118,12 +120,15 @@ export interface Messages {
 		bulk_cold_desc: string;
 		divide: string;
 		divide_desc: string;
+		proof_cold: string;
+		proof_cold_desc: string;
 		preferment_mix_detail: string;
 		prep_detail: string;
 		mix_detail: string;
 		bulk_room_detail: string;
 		bulk_cold_detail: string;
 		divide_detail: string;
+		proof_cold_detail: string;
 		final_proof_detail: string;
 		ready_detail: string;
 		final_proof: string;
@@ -352,7 +357,7 @@ const en: Messages = {
 			'After reserving the longest pre-ferment, a remaining window of 16 h or more activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
 		info_budget_title: 'How the window is divided',
 		info_budget_body:
-			'Fixed handwork comes off the top: 15 min prep + 15 min mix (25 by hand) + 15 min divide, plus a 60 min settle and the fixed 4 h final proof in cold mode. Room mode gives a third of the remaining budget to the final proof (capped at 90 min) and the rest to bulk. Cold mode sends the whole remainder to the fridge leg, capped at 48 h. When even that does not fit, the cold leg shrinks first, then the pre-ferments — the first step never lands before your start time.',
+			'Fixed handwork comes off the top: 15 min prep + 15 min mix (25 by hand) + 15 min divide, plus a 60 min settle and the fixed 4 h final proof in cold mode. Room mode gives a third of the remaining budget to the final proof (capped at 90 min) and the rest to bulk. Cold mode sends the whole remainder to the fridge leg, capped at 48 h. When even that does not fit, the cold leg shrinks first, then the pre-ferments — the first step never lands before your start time. With a cold ball proof the same cold leg simply moves to the other side of divide: the balls ripen in the fridge instead of the bulk.',
 		info_water_title: 'Mix-water temperature',
 		info_water_body:
 			'The desired-dough-temperature rule targets 23 °C after kneading, with flour assumed at room temperature. Friction is the heat the mixing adds: about 24 °C on a spiral mixer, about 5 °C by hand. The recommendation is clamped to [4, 35] °C:',
@@ -409,6 +414,9 @@ const en: Messages = {
 		preFermentTemp_toggle: 'Matures somewhere cooler (cellar, wine fridge)',
 		preFermentTemp_help:
 			'Where the biga or poolish sits while it matures. Cooler places stretch the maturation — the schedule and the yeast amounts account for it.',
+		ballProof_toggle: 'Proof the balls in the fridge',
+		ballProof_help:
+			'Divide before the cold phase: the balls ripen in the fridge and temper on the counter before baking. Only applies when the plan has a cold phase.',
 		mode_beginner: 'Back to the simple view',
 		mode_expert: 'Show all options (expert)',
 		mode_help:
@@ -452,6 +460,10 @@ const en: Messages = {
 		bulk_cold_desc: 'Move the covered dough to the fridge. Long, slow fermentation.',
 		divide: 'Divide & ball',
 		divide_desc: 'Cut the dough into {n} equal balls of {weight} g each and shape them tight.',
+		proof_cold: 'Ball proof (fridge)',
+		proof_cold_desc: 'Move the covered balls to the fridge. Long, slow proof right in their box.',
+		proof_cold_detail:
+			'The cold slows the balls right down, so they build flavour for hours without overproofing — and they hold their shape better than a warm proof. Keep them covered so the surface does not dry out.',
 		preferment_mix_detail:
 			'A pre-ferment is a small starter dough that ferments ahead of the main dough. It builds flavour and strength a same-day dough cannot develop — a flat or bubbly surface after the rest is exactly what ripe looks like.',
 		prep_detail:
@@ -705,7 +717,7 @@ const de: Messages = {
 			'Nachdem der längste Vorteig reserviert ist, aktiviert ein verbleibendes Fenster von 16 h oder mehr eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
 		info_budget_title: 'Wie das Fenster aufgeteilt wird',
 		info_budget_body:
-			'Feste Handarbeit geht vorab ab: 15 min Vorbereiten + 15 min Mischen (25 von Hand) + 15 min Portionieren, dazu 60 min Ruhe und im Kühlmodus die feste Stückgare von 4 h. Im Raummodus bekommt die Stückgare ein Drittel des verbleibenden Budgets (höchstens 90 min), der Rest geht an die Stockgare. Im Kühlmodus wandert der gesamte Rest in die Kühlphase, begrenzt auf 48 h. Passt selbst das nicht, schrumpft zuerst die Kühlphase, dann die Vorteige — der erste Schritt liegt nie vor deiner Startzeit.',
+			'Feste Handarbeit geht vorab ab: 15 min Vorbereiten + 15 min Mischen (25 von Hand) + 15 min Portionieren, dazu 60 min Ruhe und im Kühlmodus die feste Stückgare von 4 h. Im Raummodus bekommt die Stückgare ein Drittel des verbleibenden Budgets (höchstens 90 min), der Rest geht an die Stockgare. Im Kühlmodus wandert der gesamte Rest in die Kühlphase, begrenzt auf 48 h. Passt selbst das nicht, schrumpft zuerst die Kühlphase, dann die Vorteige — der erste Schritt liegt nie vor deiner Startzeit. Bei kalter Stückgare wandert dieselbe Kühlphase einfach auf die andere Seite des Portionierens: statt des Teigs reifen die Teiglinge im Kühlschrank.',
 		info_water_title: 'Temperatur des Knetwassers',
 		info_water_body:
 			'Die Regel der gewünschten Teigtemperatur zielt auf 23 °C nach dem Kneten; das Mehl wird bei Raumtemperatur angenommen. Reibung ist die Wärme, die das Mischen einträgt: etwa 24 °C mit dem Spiralkneter, etwa 5 °C von Hand. Die Empfehlung wird auf [4, 35] °C begrenzt:',
@@ -762,6 +774,9 @@ const de: Messages = {
 		preFermentTemp_toggle: 'Reift an einem kühleren Ort (Keller, Weinkühlschrank)',
 		preFermentTemp_help:
 			'Wo die Biga oder der Poolish während der Reife steht. Kühlere Orte strecken die Reife — Zeitplan und Hefemengen berücksichtigen das.',
+		ballProof_toggle: 'Teiglinge im Kühlschrank gehen lassen',
+		ballProof_help:
+			'Portionieren vor der Kühlphase: die Teiglinge reifen im Kühlschrank und temperieren vor dem Backen auf der Arbeitsfläche. Wirkt nur, wenn der Plan eine Kühlphase hat.',
 		mode_beginner: 'Zurück zur einfachen Ansicht',
 		mode_expert: 'Alle Optionen anzeigen (Experten)',
 		mode_help:
@@ -806,6 +821,11 @@ const de: Messages = {
 		divide: 'Portionieren',
 		divide_desc:
 			'Den Teig in {n} gleich große Teiglinge zu je {weight} g teilen und straff rundwirken.',
+		proof_cold: 'Stückgare (Kühlschrank)',
+		proof_cold_desc:
+			'Die abgedeckten Teiglinge in den Kühlschrank stellen. Lange, langsame Gare direkt in der Box.',
+		proof_cold_detail:
+			'Die Kälte bremst die Teiglinge stark aus: Sie entwickeln stundenlang Aroma, ohne zu übergaren — und halten ihre Form besser als bei warmer Gare. Abgedeckt lassen, damit die Oberfläche nicht austrocknet.',
 		preferment_mix_detail:
 			'Ein Vorteig ist ein kleiner Ansatzteig, der vor dem Hauptteig fermentiert. Er baut Aroma und Stärke auf, die ein Teig vom selben Tag nicht entwickeln kann — eine flache oder blasige Oberfläche nach dem Reifen ist genau das, wie reif aussieht.',
 		prep_detail:
@@ -1065,7 +1085,7 @@ const it: Messages = {
 			'Dopo aver riservato il preimpasto più lungo, una finestra rimanente di 16 h o più attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 16× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
 		info_budget_title: 'Come si divide la finestra',
 		info_budget_body:
-			'Il lavoro manuale fisso si toglie subito: 15 min di preparazione + 15 min di impasto (25 a mano) + 15 min di staglio, più 60 min di riposo e, in modalità frigo, l’appretto fisso di 4 h. In modalità ambiente un terzo del budget rimanente va all’appretto (al massimo 90 min) e il resto alla puntata. In modalità frigo tutto il resto va alla fase in frigo, limitata a 48 h. Se nemmeno così ci sta, si accorcia prima la fase in frigo, poi i preimpasti — il primo passo non cade mai prima dell’ora di inizio.',
+			'Il lavoro manuale fisso si toglie subito: 15 min di preparazione + 15 min di impasto (25 a mano) + 15 min di staglio, più 60 min di riposo e, in modalità frigo, l’appretto fisso di 4 h. In modalità ambiente un terzo del budget rimanente va all’appretto (al massimo 90 min) e il resto alla puntata. In modalità frigo tutto il resto va alla fase in frigo, limitata a 48 h. Se nemmeno così ci sta, si accorcia prima la fase in frigo, poi i preimpasti — il primo passo non cade mai prima dell’ora di inizio. Con l’appretto a freddo la stessa fase si sposta semplicemente dall’altra parte dello staglio: in frigorifero maturano i panetti invece dell’impasto.',
 		info_water_title: 'Temperatura dell’acqua d’impasto',
 		info_water_body:
 			'La regola della temperatura desiderata dell’impasto punta a 23 °C dopo l’impastamento, con la farina assunta a temperatura ambiente. L’attrito è il calore aggiunto dall’impastamento: circa 24 °C con l’impastatrice a spirale, circa 5 °C a mano. La raccomandazione è limitata a [4, 35] °C:',
@@ -1123,6 +1143,9 @@ const it: Messages = {
 		preFermentTemp_toggle: 'Matura in un luogo più fresco (cantina, cantinetta per il vino)',
 		preFermentTemp_help:
 			'Dove riposa la biga o il poolish durante la maturazione. Luoghi più freschi allungano la maturazione — il programma e le quantità di lievito ne tengono conto.',
+		ballProof_toggle: 'Appretto dei panetti in frigorifero',
+		ballProof_help:
+			'Staglio prima della fase a freddo: i panetti maturano in frigorifero e si acclimatano sul banco prima della cottura. Vale solo quando il programma prevede una fase a freddo.',
 		mode_beginner: 'Torna alla vista semplice',
 		mode_expert: 'Mostra tutte le opzioni (esperto)',
 		mode_help:
@@ -1166,6 +1189,11 @@ const it: Messages = {
 		bulk_cold_desc: "Spostare l'impasto coperto in frigorifero — lievitazione lunga e lenta.",
 		divide: 'Staglio',
 		divide_desc: "Dividere l'impasto in {n} panetti da {weight} g e pirlarli stretti.",
+		proof_cold: 'Appretto (frigorifero)',
+		proof_cold_desc:
+			'Mettere i panetti coperti in frigorifero. Appretto lungo e lento direttamente nella cassetta.',
+		proof_cold_detail:
+			'Il freddo rallenta molto i panetti: sviluppano aroma per ore senza maturare troppo — e tengono la forma meglio di un appretto a caldo. Tenerli coperti perché la superficie non si secchi.',
 		preferment_mix_detail:
 			"Un preimpasto è un piccolo impasto di partenza che fermenta prima dell'impasto principale. Sviluppa sapore e forza che un impasto in giornata non può raggiungere — una superficie piatta o piena di bolle dopo il riposo è esattamente l'aspetto della giusta maturazione.",
 		prep_detail:
@@ -1425,7 +1453,7 @@ const fr: Messages = {
 			"Après réservation du pré-ferment le plus long, une fenêtre restante de 16 h ou plus active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 16× plus lent qu'à 22 °C). Les fenêtres plus courtes restent à température ambiante.",
 		info_budget_title: 'Comment la fenêtre se répartit',
 		info_budget_body:
-			"Le travail manuel fixe est retiré d'emblée : 15 min de préparation + 15 min de pétrissage (25 à la main) + 15 min de division, plus 60 min de repos et, en mode frigo, l'apprêt fixe de 4 h. En mode ambiant, un tiers du budget restant va à l'apprêt (plafonné à 90 min) et le reste au pointage. En mode frigo, tout le reste part dans la phase au frigo, plafonnée à 48 h. Si même cela ne rentre pas, la phase au frigo raccourcit d'abord, puis les pré-ferments — la première étape ne tombe jamais avant votre heure de départ.",
+			"Le travail manuel fixe est retiré d'emblée : 15 min de préparation + 15 min de pétrissage (25 à la main) + 15 min de division, plus 60 min de repos et, en mode frigo, l'apprêt fixe de 4 h. En mode ambiant, un tiers du budget restant va à l'apprêt (plafonné à 90 min) et le reste au pointage. En mode frigo, tout le reste part dans la phase au frigo, plafonnée à 48 h. Si même cela ne rentre pas, la phase au frigo raccourcit d'abord, puis les pré-ferments — la première étape ne tombe jamais avant votre heure de départ. Avec un apprêt à froid, la même phase froide passe simplement de l'autre côté de la division : ce sont les pâtons qui mûrissent au réfrigérateur, et non la masse.",
 		info_water_title: "Température de l'eau de pétrissage",
 		info_water_body:
 			'La règle de la température de pâte désirée vise 23 °C après pétrissage, la farine étant supposée à température ambiante. La friction est la chaleur ajoutée par le pétrissage : environ 24 °C au pétrin spirale, environ 5 °C à la main. La recommandation est bornée à [4, 35] °C :',
@@ -1486,6 +1514,9 @@ const fr: Messages = {
 		preFermentTemp_toggle: 'Mûrit dans un endroit plus frais (cave, cave à vin)',
 		preFermentTemp_help:
 			'Là où repose la biga ou le poolish pendant la maturation. Les endroits plus frais allongent la maturation — le programme et les quantités de levure en tiennent compte.',
+		ballProof_toggle: 'Apprêt des pâtons au réfrigérateur',
+		ballProof_help:
+			"Division avant la phase froide : les pâtons mûrissent au réfrigérateur et reviennent à température sur le plan de travail avant la cuisson. Ne s'applique que si le programme comporte une phase froide.",
 		mode_beginner: 'Revenir à la vue simple',
 		mode_expert: 'Afficher toutes les options (expert)',
 		mode_help:
@@ -1530,6 +1561,11 @@ const fr: Messages = {
 		bulk_cold_desc: 'Mettez la pâte couverte au frigo — fermentation longue et lente.',
 		divide: 'Diviser et bouler',
 		divide_desc: 'Coupez la pâte en {n} pâtons égaux de {weight} g chacun et boulez-les serrés.',
+		proof_cold: 'Apprêt (réfrigérateur)',
+		proof_cold_desc:
+			'Placez les pâtons couverts au réfrigérateur. Apprêt long et lent, directement dans leur bac.',
+		proof_cold_detail:
+			"Le froid ralentit fortement les pâtons : ils développent des arômes pendant des heures sans dépasser leur maturation — et gardent mieux leur forme qu'avec un apprêt à chaud. Laissez-les couverts pour que la surface ne sèche pas.",
 		preferment_mix_detail:
 			"Un pré-ferment est une petite pâte de départ qui fermente avant la pâte principale. Il développe un arôme et une force qu'une pâte du jour ne peut pas atteindre — une surface plate ou couverte de bulles après le repos, c'est exactement l'aspect d'un pré-ferment mûr.",
 		prep_detail:
@@ -1788,7 +1824,7 @@ const nl: Messages = {
 			'Na het reserveren van het langste voordeeg activeert een resterend venster van 16 u of meer een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 16× trager dan 22 °C). Kortere vensters blijven op kamertemperatuur.',
 		info_budget_title: 'Hoe het venster wordt verdeeld',
 		info_budget_body:
-			'Vast handwerk gaat er eerst af: 15 min voorbereiden + 15 min mengen (25 met de hand) + 15 min verdelen, plus 60 min rust en in de koelmodus de vaste narijs van 4 u. In de kamermodus krijgt de narijs een derde van het resterende budget (hoogstens 90 min) en de rest gaat naar de bulkrijs. In de koelmodus gaat de hele rest naar de koelfase, begrensd op 48 u. Past zelfs dat niet, dan krimpt eerst de koelfase en daarna de voordegen — de eerste stap valt nooit vóór je starttijd.',
+			'Vast handwerk gaat er eerst af: 15 min voorbereiden + 15 min mengen (25 met de hand) + 15 min verdelen, plus 60 min rust en in de koelmodus de vaste narijs van 4 u. In de kamermodus krijgt de narijs een derde van het resterende budget (hoogstens 90 min) en de rest gaat naar de bulkrijs. In de koelmodus gaat de hele rest naar de koelfase, begrensd op 48 u. Past zelfs dat niet, dan krimpt eerst de koelfase en daarna de voordegen — de eerste stap valt nooit vóór je starttijd. Bij koude narijs verschuift dezelfde koude fase gewoon naar de andere kant van het verdelen: de bollen rijpen in de koelkast in plaats van het deeg.',
 		info_water_title: 'Temperatuur van het kneedwater',
 		info_water_body:
 			'De regel van de gewenste deegtemperatuur mikt op 23 °C na het kneden, met de bloem verondersteld op kamertemperatuur. Wrijving is de warmte die het kneden toevoegt: ongeveer 24 °C met een spiraalkneder, ongeveer 5 °C met de hand. De aanbeveling wordt begrensd op [4, 35] °C:',
@@ -1846,6 +1882,9 @@ const nl: Messages = {
 		preFermentTemp_toggle: 'Rijpt op een koelere plek (kelder, wijnkoelkast)',
 		preFermentTemp_help:
 			'Waar de biga of poolish staat tijdens het rijpen. Koelere plekken rekken de rijping — het schema en de gisthoeveelheden houden er rekening mee.',
+		ballProof_toggle: 'Deegbollen in de koelkast laten rijzen',
+		ballProof_help:
+			'Verdelen vóór de koude fase: de bollen rijpen in de koelkast en komen voor het bakken op temperatuur op het aanrecht. Geldt alleen als het schema een koude fase heeft.',
 		mode_beginner: 'Terug naar de eenvoudige weergave',
 		mode_expert: 'Alle opties tonen (expert)',
 		mode_help:
@@ -1890,6 +1929,11 @@ const nl: Messages = {
 		bulk_cold_desc: 'Zet het afgedekte deeg in de koelkast — lange, langzame rijs.',
 		divide: 'Verdelen en bollen',
 		divide_desc: 'Verdeel het deeg in {n} gelijke bolletjes van {weight} g en bol ze strak op.',
+		proof_cold: 'Narijs (koelkast)',
+		proof_cold_desc:
+			'Zet de afgedekte bollen in de koelkast. Lange, langzame narijs, gewoon in hun bak.',
+		proof_cold_detail:
+			'De kou remt de bollen sterk af: ze bouwen urenlang smaak op zonder door te rijzen — en houden hun vorm beter dan bij een warme narijs. Houd ze afgedekt zodat het oppervlak niet uitdroogt.',
 		preferment_mix_detail:
 			'Een voordeeg is een klein startdeeg dat vóór het hoofddeeg fermenteert. Het bouwt smaak en kracht op die een deeg van dezelfde dag niet kan ontwikkelen — een plat of bubbelig oppervlak na het rijpen is precies hoe rijp eruitziet.',
 		prep_detail:

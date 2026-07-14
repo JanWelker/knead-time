@@ -112,11 +112,17 @@ function isNightStep(step: ScheduleStep): boolean {
 	return h >= NIGHT_START_HOUR || h < NIGHT_END_HOUR;
 }
 
+// The variable cold leg: bulk-cold classically, proof-cold with a cold ball
+// proof — same length semantics, so the quality factors treat them alike.
+function isColdLeg(kind: ScheduleStep['kind']): boolean {
+	return kind === 'bulk-cold' || kind === 'proof-cold';
+}
+
 function coldBulkShiftMin(schedule: ComputedSchedule): number {
 	if (schedule.mode !== 'cold' || schedule.naturalColdBulkMin === null) return 0;
-	// In cold mode schedule.ts always emits a bulk-cold step, so the find is
-	// guaranteed to succeed — the `!` reflects that invariant.
-	const actual = schedule.steps.find((s) => s.kind === 'bulk-cold')!;
+	// In cold mode schedule.ts always emits exactly one cold-leg step, so the
+	// find is guaranteed to succeed — the `!` reflects that invariant.
+	const actual = schedule.steps.find((s) => isColdLeg(s.kind))!;
 	const delta = actual.durationMinutes - schedule.naturalColdBulkMin;
 	return Math.abs(delta) < SHIFT_NOISE_FLOOR_MIN ? 0 : delta;
 }
@@ -166,7 +172,7 @@ export function stepQualityFlags(
 	const flags: StepQualityFlag[] = [];
 	if (isNightStep(step)) flags.push('night');
 
-	if (step.kind === 'bulk-cold') {
+	if (isColdLeg(step.kind)) {
 		if (Math.abs(coldBulkShiftMin(schedule)) >= SHIFT_NOISE_FLOOR_MIN) {
 			flags.push('cold-bulk-shifted');
 		}

@@ -44,6 +44,7 @@ const KEYS_V4 = {
 	roomTempC: 't',
 	fridgeTempC: 'ft',
 	preFermentTempC: 'pt',
+	ballProof: 'bp',
 	mixingMethod: 'mm',
 	preFerment: 'p'
 } as const;
@@ -80,6 +81,8 @@ export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }):
 	}
 	// Omitted for machine — the pre-v4 default every older link implies.
 	if (inputs.mixingMethod === 'hand') params.set(KEYS_V4.mixingMethod, 'h');
+	// Omitted for the classic room-temperature ball proof.
+	if (inputs.ballProof === 'cold') params.set(KEYS_V4.ballProof, 'c');
 	if (inputs.preFerments.length > 0) {
 		params.set(KEYS_V4.preFerment, inputs.preFerments.map(formatPreFerment).join('_'));
 	}
@@ -193,6 +196,10 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	const mm = params.get(KEYS_V4.mixingMethod);
 	if (mm === 'h') out.mixingMethod = 'hand';
 	if (mm === 'm') out.mixingMethod = 'machine';
+
+	const bp = params.get(KEYS_V4.ballProof);
+	if (bp === 'c') out.ballProof = 'cold';
+	if (bp === 'r') out.ballProof = 'room';
 
 	const p = params.get(KEYS_V4.preFerment);
 	if (p) {

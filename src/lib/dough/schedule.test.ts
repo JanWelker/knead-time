@@ -561,6 +561,62 @@ describe('computeSchedule — combined biga + poolish', () => {
 	});
 });
 
+describe('computeSchedule — cold ball proof', () => {
+	const window = {
+		startAt: new Date('2026-05-11T07:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+
+	it('moves the cold leg after divide: divide → proof-cold → final proof', () => {
+		const r = computeSchedule(baseInputs({ ...window, ballProof: 'cold' }));
+		expect(r.mode).toBe('cold');
+		const kinds = r.steps.map((s) => s.kind);
+		expect(kinds).toEqual([
+			'prep',
+			'mix',
+			'bulk-room',
+			'divide',
+			'proof-cold',
+			'final-proof',
+			'ready'
+		]);
+		expect(kinds).not.toContain('bulk-cold');
+	});
+
+	it('keeps prep on the same minute and the yeast solve identical to the classic shape', () => {
+		// The cold leg is the same length at the same temperature — only its
+		// position relative to divide changes, so nothing about the solve may.
+		const classic = computeSchedule(baseInputs(window));
+		const balls = computeSchedule(baseInputs({ ...window, ballProof: 'cold' }));
+		expect(findStep(balls, 'prep').at.getTime()).toBe(findStep(classic, 'prep').at.getTime());
+		expect(balls.yeastPercent).toBeCloseTo(classic.yeastPercent, 12);
+		expect(findStep(balls, 'proof-cold').durationMinutes).toBe(
+			findStep(classic, 'bulk-cold').durationMinutes
+		);
+	});
+
+	it('is inert in room mode — no cold leg to move', () => {
+		const r = computeSchedule(baseInputs({ ballProof: 'cold' }));
+		expect(r.mode).toBe('room');
+		expect(r.steps.some((s) => s.kind === 'proof-cold' || s.kind === 'bulk-cold')).toBe(false);
+	});
+
+	it('keeps the pre-cold cluster (now including divide) out of the night window', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-09T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				ballProof: 'cold'
+			})
+		);
+		expect(r.mode).toBe('cold');
+		for (const s of r.steps.filter((s) => ACTIVE_NIGHT_KINDS.has(s.kind))) {
+			expect(inDayWindow(s.at), `${s.kind} at ${s.at.toISOString()} fell in the night`).toBe(true);
+		}
+		expect(r.warnings).not.toContain('night-step');
+	});
+});
+
 describe('computeSchedule — pre-ferment temperature', () => {
 	const window = {
 		startAt: new Date('2026-05-10T07:00:00Z'),

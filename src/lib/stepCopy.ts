@@ -11,6 +11,7 @@ const TITLE: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages[
 	'bulk-room': 'bulk_room',
 	'bulk-cold': 'bulk_cold',
 	divide: 'divide',
+	'proof-cold': 'proof_cold',
 	'final-proof': 'final_proof',
 	ready: 'ready'
 };
@@ -21,6 +22,7 @@ const DESC: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['
 	'bulk-room': 'bulk_room_desc',
 	'bulk-cold': 'bulk_cold_desc',
 	divide: 'divide_desc',
+	'proof-cold': 'proof_cold_desc',
 	'final-proof': 'final_proof_desc',
 	ready: 'ready_desc'
 };
@@ -35,6 +37,7 @@ const DETAIL: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'bulk-room': 'bulk_room_detail',
 	'bulk-cold': 'bulk_cold_detail',
 	divide: 'divide_detail',
+	'proof-cold': 'proof_cold_detail',
 	'final-proof': 'final_proof_detail',
 	ready: 'ready_detail'
 };

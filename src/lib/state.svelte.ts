@@ -2,6 +2,7 @@ import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
 import { computeSchedule } from './dough/schedule';
 import type {
+	BallProof,
 	ComputedSchedule,
 	DoughInputs,
 	MixingMethod,
@@ -30,6 +31,7 @@ export class FormState {
 	roomTempC: number = $state(22);
 	fridgeTempC: number = $state(4);
 	mixingMethod: MixingMethod = $state('machine');
+	ballProof: BallProof = $state('room');
 	preFermentTempEnabled: boolean = $state(false);
 	preFermentTempValue: number = $state(18);
 	bigaEnabled: boolean = $state(false);
@@ -52,6 +54,7 @@ export class FormState {
 		roomTempC: this.roomTempC,
 		fridgeTempC: this.fridgeTempC,
 		mixingMethod: this.mixingMethod,
+		ballProof: this.ballProof,
 		preFermentTempC: this.preFermentTempEnabled ? this.preFermentTempValue : null,
 		// Canonical biga-first order — the encoder and decoder preserve it.
 		preFerments: [
@@ -97,6 +100,7 @@ export class FormState {
 		if (partial.roomTempC !== undefined) this.roomTempC = partial.roomTempC;
 		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
 		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
+		if (partial.ballProof !== undefined) this.ballProof = partial.ballProof;
 		if (partial.preFermentTempC !== undefined && partial.preFermentTempC !== null) {
 			this.preFermentTempEnabled = true;
 			this.preFermentTempValue = partial.preFermentTempC;

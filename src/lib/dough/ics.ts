@@ -16,6 +16,7 @@ const FREE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'preferment-mix',
 	'bulk-room',
 	'bulk-cold',
+	'proof-cold',
 	'final-proof'
 ]);
 

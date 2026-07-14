@@ -2,6 +2,12 @@
 // differ by yeastMassFactor in fermentation.ts.
 export type YeastType = 'fresh' | 'instant' | 'active-dry' | 'sourdough';
 
+// Where the cold leg happens in cold mode: 'room' = classic bulk-cold then
+// divide with a room-temperature ball proof (the pre-v4 shape); 'cold' =
+// divide first, then the balls proof in the fridge and temper on the counter.
+// Room mode has no cold leg, so the choice is inert there.
+export type BallProof = 'room' | 'cold';
+
 export type MixingMethod = 'hand' | 'machine';
 
 export type PreFermentType = 'none' | 'biga' | 'poolish';
@@ -31,6 +37,7 @@ export interface DoughInputs {
 	// number means a cellar or wine fridge — durations and the yeast solve
 	// use it for the pre-ferment legs only.
 	preFermentTempC: number | null;
+	ballProof: BallProof;
 	mixingMethod: MixingMethod;
 	// Pre-ferments mature in parallel, each ending at prep. Empty = none.
 	// Types are unique (the form exposes one toggle per type) and the list is
@@ -65,6 +72,9 @@ export type ScheduleStepKind =
 	| 'bulk-room'
 	| 'bulk-cold'
 	| 'divide'
+	// The cold leg after divide when ballProof === 'cold' — same length and
+	// temperature as bulk-cold, different position and copy.
+	| 'proof-cold'
 	| 'final-proof'
 	| 'ready';
 

@@ -68,7 +68,10 @@ export const ACTIVE_NIGHT_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'mix',
 	'bulk-room',
 	'bulk-cold',
-	'divide'
+	'divide',
+	// Loading the divided balls into the fridge is the same wall-clock-bound
+	// action as loading the bulk.
+	'proof-cold'
 ]);
 
 function isAtNight(d: Date): boolean {
@@ -79,7 +82,8 @@ function isAtNight(d: Date): boolean {
 function clusterClean(
 	prepAt: Date,
 	prefermentOffsetsMin: number[],
-	mixDurationMin: number
+	mixDurationMin: number,
+	ballProofCold: boolean
 ): boolean {
 	const offsets = [
 		...prefermentOffsetsMin.map((m) => -m),
@@ -88,6 +92,11 @@ function clusterClean(
 		PREP_MIN + mixDurationMin,
 		PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN
 	];
+	// With a cold ball proof, divide and the fridge-loading moment both sit in
+	// the pre-cold cluster (nothing active remains after the cold leg).
+	if (ballProofCold) {
+		offsets.push(PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN + DIVIDE_MIN);
+	}
 	for (const o of offsets) {
 		if (isAtNight(new Date(prepAt.getTime() + o * 60_000))) return false;
 	}
@@ -103,13 +112,16 @@ function adjustColdMinForNight(
 	readyBy: Date,
 	naturalColdMin: number,
 	prefermentOffsetsMin: number[],
-	mixDurationMin: number
+	mixDurationMin: number,
+	ballProofCold: boolean
 ): number {
+	// The fixed minutes around the variable cold leg sum identically for both
+	// cold-leg positions — only the order of divide and the leg differs.
 	const prepAtFor = (cm: number) =>
 		new Date(readyBy.getTime() - (coldPrePostOffsetMin(mixDurationMin) + cm) * 60_000);
 
 	for (let cm = naturalColdMin; cm >= 0; cm--) {
-		if (clusterClean(prepAtFor(cm), prefermentOffsetsMin, mixDurationMin)) return cm;
+		if (clusterClean(prepAtFor(cm), prefermentOffsetsMin, mixDurationMin, ballProofCold)) return cm;
 	}
 	return naturalColdMin;
 }
@@ -195,7 +207,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			inputs.readyBy,
 			naturalColdMin,
 			prefermentDurationsMin.map((d) => d.min),
-			mixDurationMin
+			mixDurationMin,
+			inputs.ballProof === 'cold'
 		);
 
 		const equivalentHours =
@@ -210,6 +223,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			mixDurationMin,
 			bulkRoomMin: COLD_INITIAL_BULK_MIN,
 			bulkColdMin: coldMin,
+			ballProofCold: inputs.ballProof === 'cold',
 			finalProofMin: COLD_FINAL_PROOF_MIN
 		});
 	} else {
@@ -245,6 +259,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			mixDurationMin,
 			bulkRoomMin: bulkMin,
 			bulkColdMin: null,
+			ballProofCold: false,
 			finalProofMin
 		});
 	}
@@ -322,9 +337,11 @@ interface BuildArgs {
 	prefermentDurationsMin: Array<{ type: PreFermentSpec['type']; min: number }>;
 	mixDurationMin: number;
 	bulkRoomMin: number;
-	// `null` ⇒ room-only schedule (no cold leg). Non-null ⇒ cold-bulk
-	// sandwiched between the initial room bulk and divide.
+	// `null` ⇒ room-only schedule (no cold leg). Non-null ⇒ a cold leg either
+	// as bulk-cold before divide (classic) or as proof-cold after divide
+	// (ballProofCold) — same length, different position.
 	bulkColdMin: number | null;
+	ballProofCold: boolean;
 	finalProofMin: number;
 }
 
@@ -334,11 +351,17 @@ function buildSteps({
 	mixDurationMin,
 	bulkRoomMin,
 	bulkColdMin,
+	ballProofCold,
 	finalProofMin
 }: BuildArgs): ScheduleStep[] {
 	const finalProofAt = subMin(readyBy, finalProofMin);
-	const divideAt = subMin(finalProofAt, DIVIDE_MIN);
-	const bulkColdAt = bulkColdMin !== null ? subMin(divideAt, bulkColdMin) : null;
+	// Cold ball proof slides the cold leg to the other side of divide; every
+	// other distance stays identical, so prep lands on the same minute either
+	// way and the yeast solve is untouched.
+	const proofColdAt =
+		bulkColdMin !== null && ballProofCold ? subMin(finalProofAt, bulkColdMin) : null;
+	const divideAt = subMin(proofColdAt ?? finalProofAt, DIVIDE_MIN);
+	const bulkColdAt = bulkColdMin !== null && !ballProofCold ? subMin(divideAt, bulkColdMin) : null;
 	const bulkRoomAt = subMin(bulkColdAt ?? divideAt, bulkRoomMin);
 	const mixAt = subMin(bulkRoomAt, mixDurationMin);
 	const prepAt = subMin(mixAt, PREP_MIN);
@@ -364,6 +387,9 @@ function buildSteps({
 		steps.push({ kind: 'bulk-cold', at: bulkColdAt, durationMinutes: bulkColdMin });
 	}
 	steps.push({ kind: 'divide', at: divideAt, durationMinutes: DIVIDE_MIN });
+	if (proofColdAt !== null && bulkColdMin !== null) {
+		steps.push({ kind: 'proof-cold', at: proofColdAt, durationMinutes: bulkColdMin });
+	}
 	steps.push({ kind: 'final-proof', at: finalProofAt, durationMinutes: finalProofMin });
 	steps.push({ kind: 'ready', at: readyBy, durationMinutes: 0 });
 	return steps;

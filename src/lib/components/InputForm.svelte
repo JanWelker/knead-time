@@ -169,6 +169,21 @@
 				bind:value={state.fridgeTempC}
 			/>
 
+			<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+				<input
+					type="checkbox"
+					class="accent-tomato-500"
+					checked={state.ballProof === 'cold'}
+					onchange={(e) => (state.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
+				/>
+				<span>
+					{t.form.ballProof_toggle}
+					<span class="block text-xs font-normal text-stone-500 dark:text-stone-400">
+						{t.form.ballProof_help}
+					</span>
+				</span>
+			</label>
+
 			<label class="block">
 				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 					{t.form.yeastType}

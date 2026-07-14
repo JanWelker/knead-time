@@ -260,6 +260,7 @@ describe('findMatchingPizzeria', () => {
 			roomTempC: 22,
 			fridgeTempC: 4,
 			preFermentTempC: null,
+			ballProof: 'room',
 			mixingMethod: 'machine',
 			preFerments: [],
 			...overrides
@@ -306,6 +307,8 @@ describe('findMatchingPizzeria', () => {
 		expect(findMatchingPizzeria(inputs({ mixingMethod: 'hand' }), [e])).toBeNull();
 		// Same for the pre-ferment temperature: unset means follows-the-room.
 		expect(findMatchingPizzeria(inputs({ preFermentTempC: 17 }), [e])).toBeNull();
+		// And for the ball proof: unset means the classic room-temperature one.
+		expect(findMatchingPizzeria(inputs({ ballProof: 'cold' }), [e])).toBeNull();
 	});
 
 	it('compares starterHydration only when yeastType is sourdough', () => {
@@ -383,6 +386,7 @@ describe('findMatchingPizzeria', () => {
 			fridgeTempC: shipped.inputs.fridgeTempC!,
 			mixingMethod: shipped.inputs.mixingMethod ?? 'machine',
 			preFermentTempC: shipped.inputs.preFermentTempC ?? null,
+			ballProof: shipped.inputs.ballProof ?? 'room',
 			preFerments: shipped.inputs.preFerments ?? []
 		};
 		expect(findMatchingPizzeria(dough)).toBe(shipped);

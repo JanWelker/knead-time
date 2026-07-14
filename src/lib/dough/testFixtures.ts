@@ -18,6 +18,7 @@ export function defaultInputs(overrides: Partial<DoughInputs> = {}): DoughInputs
 		roomTempC: 22,
 		fridgeTempC: 4,
 		preFermentTempC: null,
+		ballProof: 'room',
 		mixingMethod: 'machine',
 		preFerments: [],
 		...overrides
