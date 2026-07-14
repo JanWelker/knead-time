@@ -299,6 +299,18 @@
 					<p class="mt-1">{t.form.info_switch_body}</p>
 				</div>
 
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_budget_title}</p>
+					<p class="mt-1">{t.form.info_budget_body}</p>
+				</div>
+
+				<div class="min-w-0">
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_water_title}</p>
+					<p class="mt-1">{t.form.info_water_body}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">water = 3·23 − 2·room − friction</pre>
+				</div>
+
 				<div class="min-w-0">
 					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_mass_title}</p>
 					<p class="mt-1">{t.form.info_mass_body}</p>
@@ -310,6 +322,16 @@
 					<p class="mt-2">{t.form.info_mass_caption_sourdough}</p>
 					<pre
 						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">pctSum = 100 + hydration + salt% + oil% + sugar%</pre>
+				</div>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_round_title}</p>
+					<p class="mt-1">{t.form.info_round_body}</p>
+				</div>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_fit_title}</p>
+					<p class="mt-1">{t.form.info_fit_body}</p>
 				</div>
 
 				<div>
