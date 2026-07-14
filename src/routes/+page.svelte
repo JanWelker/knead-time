@@ -46,6 +46,7 @@
 	let hydrated = $state(false);
 	let actionsRef: HTMLDetailsElement | null = $state(null);
 	let actionsOpen = $state(false);
+	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
 
 	let savedRecipes = $state<SavedRecipe[]>([]);
 
@@ -136,17 +137,50 @@
 		}
 	}
 
+	// The role="menu" contract: enabled menuitems in DOM order.
+	function menuItemEls(): HTMLElement[] {
+		return Array.from(
+			actionsRef?.querySelectorAll<HTMLElement>('[role="menuitem"]:not(:disabled)') ?? []
+		);
+	}
+
+	// ArrowDown/ArrowUp cycle through the items, Home/End jump. Called from
+	// the document-level keydown listener that only exists while the menu is
+	// open — the menu container itself must not be focusable (focus roves
+	// across the items), so it carries no handler of its own.
+	function onMenuKeydown(event: KeyboardEvent) {
+		const items = menuItemEls();
+		if (items.length === 0) return;
+		const index = items.indexOf(document.activeElement as HTMLElement);
+		let next: number;
+		if (event.key === 'ArrowDown') next = (index + 1) % items.length;
+		else if (event.key === 'ArrowUp') next = index <= 0 ? items.length - 1 : index - 1;
+		else if (event.key === 'Home') next = 0;
+		else if (event.key === 'End') next = items.length - 1;
+		else return;
+		event.preventDefault();
+		items[next].focus();
+	}
+
 	// Close the actions menu on outside-click + Escape — <details> handles
-	// click-on-summary toggle natively, but doesn't dismiss otherwise.
+	// click-on-summary toggle natively, but doesn't dismiss otherwise. On
+	// open, focus moves to the first item (ARIA menu contract); Escape
+	// returns it to the trigger.
 	$effect(() => {
 		if (!browser || !actionsOpen) return;
+		menuItemEls()[0]?.focus();
 		function onDocClick(event: MouseEvent) {
 			if (actionsRef && !actionsRef.contains(event.target as Node)) {
 				actionsOpen = false;
 			}
 		}
 		function onKey(event: KeyboardEvent) {
-			if (event.key === 'Escape') actionsOpen = false;
+			if (event.key === 'Escape') {
+				actionsOpen = false;
+				actionsRef?.querySelector<HTMLElement>('summary')?.focus();
+				return;
+			}
+			onMenuKeydown(event);
 		}
 		document.addEventListener('click', onDocClick);
 		document.addEventListener('keydown', onKey);
@@ -264,14 +298,29 @@
 							<button type="button" role="menuitem" class="menu-item" onclick={saveCurrentRecipe}>
 								{t.actions.save_recipe}
 							</button>
-							<TrmnlPush
-								inputs={form.serializable()}
-								schedule={form.schedule}
-								{locale}
-								triggerClass="menu-item"
-							/>
+							<button
+								type="button"
+								role="menuitem"
+								aria-haspopup="dialog"
+								class="menu-item"
+								disabled={!form.schedule.feasible}
+								onclick={() => {
+									actionsOpen = false;
+									trmnlPush?.open();
+								}}
+							>
+								{t.trmnl_push.menu_item}
+							</button>
 						</div>
 					</details>
+					<!-- The modal lives outside the role="menu" container: a dialog is
+					     invalid ARIA-menu content, and the menu closes before it opens. -->
+					<TrmnlPush
+						bind:this={trmnlPush}
+						inputs={form.serializable()}
+						schedule={form.schedule}
+						{locale}
+					/>
 				</div>
 				<div class="mt-2 flex flex-wrap items-center gap-3">
 					<ModeBadge mode={form.schedule.mode} />
