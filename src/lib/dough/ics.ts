@@ -41,7 +41,38 @@ export function buildIcs(steps: ScheduleStep[], describe: EventDescriptorFn): st
 		);
 	}
 	lines.push('END:VCALENDAR', '');
-	return lines.join('\r\n');
+	// Folding is a final pass over each fully-assembled content line so it
+	// composes with escaping — a fold can legally land between the backslash
+	// and the 'n' of an escaped newline, and unfolding restores it.
+	return lines.map(foldLine).join('\r\n');
+}
+
+// RFC 5545 §3.1: a content line must not exceed 75 octets (UTF-8 bytes, not
+// code points; the CRLF delimiter doesn't count). Longer lines fold onto
+// continuation lines that begin with a single space, which does count toward
+// their 75. Splits always land on code-point boundaries — German/French copy
+// carries umlauts/accents whose multi-byte sequences must never be cut.
+const MAX_LINE_OCTETS = 75;
+const encoder = new TextEncoder();
+
+export function foldLine(line: string): string {
+	if (encoder.encode(line).length <= MAX_LINE_OCTETS) return line;
+	const folded: string[] = [];
+	let chunk = '';
+	let octets = 0;
+	// for...of iterates code points, so surrogate pairs stay intact too.
+	for (const char of line) {
+		const charOctets = encoder.encode(char).length;
+		if (octets + charOctets > MAX_LINE_OCTETS) {
+			folded.push(chunk);
+			chunk = ' ';
+			octets = 1;
+		}
+		chunk += char;
+		octets += charOctets;
+	}
+	folded.push(chunk);
+	return folded.join('\r\n');
 }
 
 export function escapeText(value: string): string {
@@ -49,7 +80,7 @@ export function escapeText(value: string): string {
 		.replace(/\\/g, '\\\\')
 		.replace(/;/g, '\\;')
 		.replace(/,/g, '\\,')
-		.replace(/\r?\n/g, '\\n');
+		.replace(/\r\n|\r|\n/g, '\\n');
 }
 
 export function formatUtc(date: Date): string {
