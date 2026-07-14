@@ -110,7 +110,7 @@
 
 <div class="text-stone-800 dark:text-stone-200">
 	{#each days as day (day.key)}
-		<div class="kt-day flex items-center gap-3 pt-6 pb-2 first:pt-0">
+		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
 			<span class="text-xs font-bold tracking-[0.14em] text-stone-400 uppercase dark:text-stone-500"
 				>{day.label}</span
 			>
@@ -148,7 +148,7 @@
 							></span>
 						{/if}
 						<span
-							class="kt-node absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
+							class="absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
 								? 'kt-node-now'
 								: ''} {isReady
 								? 'bg-tomato-600 ring-tomato-500/25'

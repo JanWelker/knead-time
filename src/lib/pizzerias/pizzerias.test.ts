@@ -155,6 +155,24 @@ closing paragraph
 		]);
 	});
 
+	it('drops ranking tokens that violate the year↔list pairing', () => {
+		const md = `
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Mixed | City, Country | 2024-it:3, 2017-it:1, 2021-w:5, 2021-it:5, 2022-w:8 | https://example.com/?n=4 |  |  | https://src.example/x |
+| AllBad | City, Country | 2024-it:3, 2021-w:5 | https://example.com/?n=4 |  |  | https://src.example/y |
+`;
+		const entries = parsePizzerias(md);
+		// The Italy list only ran 2018–2021 and the World list starts 2022; a
+		// token outside its list's years is a typo and must not survive. A row
+		// left with zero valid rankings is dropped entirely.
+		expect(entries.map((e) => e.name)).toEqual(['Mixed']);
+		expect(entries[0].rankings).toEqual([
+			{ year: 2021, rank: 5, list: 'italy' },
+			{ year: 2022, rank: 8, list: 'world' }
+		]);
+	});
+
 	it('parses single-value and ranged timing tokens with h or m units', () => {
 		const md = `
 | Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
@@ -181,6 +199,19 @@ closing paragraph
 		// divide is a real step kind but not in TIMING_STEP_KINDS, so it's also dropped.
 		expect(parsePizzerias(md)[0].timing).toEqual({
 			'bulk-room': { minMinutes: 300, maxMinutes: 300 }
+		});
+	});
+
+	it('drops inverted timing ranges (min > max)', () => {
+		const md = `
+| Pizzeria | Location | Rankings | Recipe | Timing | Notes | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Inverted | City, IT | 2024-w:1 | https://example.com/?n=4 | bulk-room:5-3h, final-proof:2-3h |  | https://src.example/x |
+`;
+		// An inverted range would flip the out-of-range badge — the token is a
+		// typo and gets dropped; the valid token in the same cell survives.
+		expect(parsePizzerias(md)[0].timing).toEqual({
+			'final-proof': { minMinutes: 120, maxMinutes: 180 }
 		});
 	});
 

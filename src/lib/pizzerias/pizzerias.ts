@@ -123,6 +123,11 @@ function parseRankings(cell: string): Ranking[] {
 		const year = Number(m[1]);
 		const list: RankingList = m[2] === 'it' ? 'italy' : 'world';
 		const rank = Number(m[3]);
+		// Enforce the documented year↔list pairing: the guide was Italy-only
+		// 2018–2021 and a standalone World ranking from 2022 on. A token like
+		// `2024-it:3` is a typo, not data — drop it silently.
+		const validPairing = list === 'italy' ? year >= 2018 && year <= 2021 : year >= 2022;
+		if (!validPairing) continue;
 		out.push({ year, rank, list });
 	}
 	return out;
@@ -140,6 +145,9 @@ function parseTiming(cell: string): SourceTiming {
 		const factor = m[4] === 'h' ? 60 : 1;
 		const minMinutes = Math.round(Number(m[2]) * factor);
 		const maxMinutes = m[3] === undefined ? minMinutes : Math.round(Number(m[3]) * factor);
+		// An inverted range (`bulk-room:5-3h`) would flip the out-of-range
+		// badge; it's a typo, not data — drop the token silently.
+		if (minMinutes > maxMinutes) continue;
 		out[kind] = { minMinutes, maxMinutes };
 	}
 	return out;
