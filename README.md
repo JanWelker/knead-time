@@ -56,14 +56,18 @@ src/
 │   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
+│   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── state.svelte.ts   ← form state as a $state class
+│   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
+│   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
+│   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
 │   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
 ├── routes/
 │   ├── +layout.svelte    ← global styles, language bootstrap
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
 │   ├── +page.svelte      ← the entire calculator UI
-│   └── trmnl/+page.svelte← 800×480 black-on-white schedule for TRMNL e-ink devices
+│   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
 ├── app.css               ← Tailwind v4 entrypoint + @theme palette
 └── app.html              ← shell
 
@@ -109,9 +113,9 @@ If you touch the printed layout, check it in your browser's print preview — do
 
 ### TRMNL e-ink view
 
-The **Copy TRMNL link** action copies an absolute URL of the form `/trmnl/<locale>?…` carrying the current locale and recipe. Point a [TRMNL](https://trmnl.com/) **Screenshot plugin** at that URL — the device polls it on its usual cadence and TRMNL captures a black-on-white screenshot for the e-ink panel. A big **Now / Next** card calls out the active step against the rendering clock — past steps fade and strike through, the current step inverts to white-on-black, future steps stay plain — so the same URL stays useful from "soak the biga tonight" all the way to "pizza time".
+The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the schedule menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
 
-The route lives at `src/routes/trmnl/[[locale]]/+page.svelte`. The optional `locale` path segment selects which of the six languages the page prerenders in — one static HTML per locale (`/trmnl/de`, `/trmnl/it`, …) plus a `/trmnl` fallback that renders in English. **Per-locale prerendering is load-bearing**: TRMNL's screenshot service doesn't reliably execute our JS bundle, so the language has to be baked into the static HTML rather than swapped at runtime via `navigator.languages`. The root layout therefore skips its navigator-language detection for `/trmnl/*` paths so the URL's locale wins on the client too. All styles live in `<svelte:head><style>` (not the component's `<style>` block) so they ship inline — TRMNL's renderer doesn't fetch external stylesheets reliably either.
+Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the setup walkthrough and the Liquid template are in `docs/trmnl-setup.md`. The payload uses 1–2 character keys to stay under the free tier's 2 KB cap in every locale — a regression test measures the wire size, so adding fields without measuring fails CI. There is **no `/trmnl` route** any more: the earlier screenshot-plugin approach failed because TRMNL's renderer doesn't reliably execute JS, so every capture showed build-time defaults.
 
 The page reuses `decodeInputs` + `computeSchedule` from the main app. Highlighting is driven by the pure `currentStepIndex(steps, now)` helper in `src/lib/dough/scheduleStatus.ts` (covered by `scheduleStatus.test.ts`). Keep the styling reserved: no gradients or background fills beyond the solid-black current-row highlight, no 1 px light borders (they break up at the screenshot's upscale), no external assets.
 

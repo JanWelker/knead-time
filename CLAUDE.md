@@ -154,7 +154,7 @@ Math/schedule bugs are silent until a dough overproofs. **Coverage is a hard gat
 - Tests live next to the code (`foo.ts` + `foo.test.ts`).
 - **100 % lines/functions/branches/statements across `src/lib/`** — pinned in `vitest.config.ts`, enforced by `npm run test:coverage` (CI runs the same).
 - **If a branch is hard to reach, delete it.** Don't write fake tests for defensive guards against caller-enforced invariants — remove the guard.
-- **Mass-balance and yeast-solve invariants are regression-tested for every combination**: fresh/sourdough × {none, biga, poolish, biga+poolish} × {room, cold} × {hand, machine}. New input or yeast carrier → new row in each matrix. Single-pre-ferment yeast % is pinned flour-share-independent (the w = 1 property that keeps old links stable).
+- **Mass-balance and yeast-solve invariants are regression-tested for every combination**: {fresh, instant, active-dry, sourdough} × {none, biga, poolish, biga+poolish} × {room, cold} × {hand, machine} × {room, cold} ball proof. New input or yeast carrier → new row in each matrix. Single-pre-ferment yeast % is pinned flour-share-independent (the w = 1 property that keeps old links stable); the cold-ball-proof shape is pinned solve-identical to the classic one; dry-yeast masses are pinned at their exact factors of fresh.
 - Pre-commit hook runs the faster `npm run test` (no coverage); don't lean on it — **run `npm run test:coverage` before opening a PR.**
 - **UI components are not in the coverage target.** `.svelte` and `.svelte.ts` are excluded; verify manually in a browser.
 
