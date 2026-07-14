@@ -178,6 +178,7 @@ export interface Messages {
 		fresh_yeast_inline: string;
 		sourdough_starter_inline: string;
 		total: string;
+		scale_hint: string;
 		preFerment_heading_biga: string;
 		preFerment_heading_poolish: string;
 		preFerment_help: string;
@@ -410,7 +411,7 @@ const en: Messages = {
 		preferment_mix_desc_poolish:
 			'Whisk the flour, water and fresh yeast in a bowl until smooth. Cover and let it mature at room temperature.',
 		prep: 'Weigh & prep',
-		prep_desc: 'Take the dough ingredients out of the fridge and weigh out each amount.',
+		prep_desc: 'Weigh out each amount listed below — a scale beats measuring cups every time.',
 		prep_desc_with_preferment:
 			'Weigh out the remaining flour, water and salt — the pre-ferment already carries all the yeast.',
 		mix: 'Mix dough',
@@ -514,6 +515,7 @@ const en: Messages = {
 		fresh_yeast_inline: 'fresh yeast',
 		sourdough_starter_inline: 'sourdough starter',
 		total: 'Total dough',
+		scale_hint: 'Amounts this small need a 0.1 g scale — or weigh 10× the amount and use a tenth.',
 		preFerment_heading_biga: 'Biga (pre-dough)',
 		preFerment_heading_poolish: 'Poolish (pre-dough)',
 		preFerment_help: 'Mix the day before, leave at room temperature overnight.',
@@ -750,7 +752,7 @@ const de: Messages = {
 		preferment_mix_desc_poolish:
 			'Mehl, Wasser und Frischhefe in einer Schüssel glatt verrühren. Abgedeckt bei Raumtemperatur reifen lassen.',
 		prep: 'Abwiegen & vorbereiten',
-		prep_desc: 'Die Zutaten rechtzeitig aus dem Kühlschrank holen und jede Menge abwiegen.',
+		prep_desc: 'Jede unten aufgeführte Menge abwiegen — eine Waage schlägt jeden Messbecher.',
 		prep_desc_with_preferment:
 			'Das restliche Mehl, Wasser und Salz abwiegen — die gesamte Hefe steckt bereits im Vorteig.',
 		mix: 'Teig mischen',
@@ -860,6 +862,8 @@ const de: Messages = {
 		fresh_yeast_inline: 'Frischhefe',
 		sourdough_starter_inline: 'Sauerteig',
 		total: 'Gesamtteig',
+		scale_hint:
+			'So kleine Mengen brauchen eine 0,1-g-Waage — oder die zehnfache Menge abwiegen und ein Zehntel davon nehmen.',
 		preFerment_heading_biga: 'Biga (Vorteig)',
 		preFerment_heading_poolish: 'Poolish (Vorteig)',
 		preFerment_help: 'Am Vorabend ansetzen, über Nacht bei Raumtemperatur reifen lassen.',
@@ -1097,7 +1101,7 @@ const it: Messages = {
 		preferment_mix_desc_poolish:
 			'Sbattere farina, acqua e lievito di birra fresco in una ciotola fino ad amalgamare. Coprire e far maturare a temperatura ambiente.',
 		prep: 'Pesare e preparare',
-		prep_desc: 'Togliere gli ingredienti dal frigo e pesare ogni quantità.',
+		prep_desc: 'Pesare ogni quantità indicata sotto — la bilancia batte sempre i misurini.',
 		prep_desc_with_preferment:
 			'Pesare la farina, l’acqua e il sale rimanenti — tutto il lievito è già nel preimpasto.',
 		mix: 'Impastare',
@@ -1206,6 +1210,8 @@ const it: Messages = {
 		fresh_yeast_inline: 'lievito fresco',
 		sourdough_starter_inline: 'lievito madre',
 		total: 'Impasto totale',
+		scale_hint:
+			'Quantità così piccole richiedono una bilancia da 0,1 g — oppure pesare 10 volte la quantità e usarne un decimo.',
 		preFerment_heading_biga: 'Biga (preimpasto)',
 		preFerment_heading_poolish: 'Poolish (preimpasto)',
 		preFerment_help: 'Da preparare il giorno prima e lasciar maturare a temperatura ambiente.',
@@ -1446,7 +1452,8 @@ const fr: Messages = {
 		preferment_mix_desc_poolish:
 			"Fouettez la farine, l'eau et la levure fraîche dans un bol jusqu'à obtenir un mélange lisse. Couvrez et laissez maturer à température ambiante.",
 		prep: 'Peser et préparer',
-		prep_desc: 'Sortez les ingrédients du frigo et pesez chaque quantité.',
+		prep_desc:
+			'Pesez chaque quantité indiquée ci-dessous — la balance bat toujours les verres doseurs.',
 		prep_desc_with_preferment:
 			"Pesez la farine, l'eau et le sel restants — toute la levure est déjà dans le pré-ferment.",
 		mix: 'Pétrir la pâte',
@@ -1554,6 +1561,8 @@ const fr: Messages = {
 		fresh_yeast_inline: 'levure fraîche',
 		sourdough_starter_inline: 'levain',
 		total: 'Pâte totale',
+		scale_hint:
+			"Des quantités aussi petites demandent une balance au 0,1 g — ou pesez 10 fois la quantité et n'en utilisez qu'un dixième.",
 		preFerment_heading_biga: 'Biga (pré-ferment)',
 		preFerment_heading_poolish: 'Poolish (pré-ferment)',
 		preFerment_help: 'À préparer la veille, laisser maturer la nuit à température ambiante.',
@@ -1791,7 +1800,8 @@ const nl: Messages = {
 		preferment_mix_desc_poolish:
 			'Klop bloem, water en verse gist in een kom glad. Dek af en laat op kamertemperatuur rijpen.',
 		prep: 'Wegen en klaarzetten',
-		prep_desc: 'Haal de ingrediënten uit de koelkast en weeg elke hoeveelheid af.',
+		prep_desc:
+			'Weeg elke hieronder vermelde hoeveelheid af — een weegschaal wint het altijd van maatbekers.',
 		prep_desc_with_preferment:
 			'Weeg de resterende bloem, water en zout af — de gist zit volledig in het voordeeg.',
 		mix: 'Deeg kneden',
@@ -1899,6 +1909,8 @@ const nl: Messages = {
 		fresh_yeast_inline: 'verse gist',
 		sourdough_starter_inline: 'zuurdesem',
 		total: 'Totaal deeg',
+		scale_hint:
+			'Zulke kleine hoeveelheden vragen een weegschaal met 0,1 g — of weeg 10× de hoeveelheid af en gebruik een tiende.',
 		preFerment_heading_biga: 'Biga (voordeeg)',
 		preFerment_heading_poolish: 'Poolish (voordeeg)',
 		preFerment_help: "De dag ervoor mengen, 's nachts op kamertemperatuur laten rijpen.",

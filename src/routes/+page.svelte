@@ -143,6 +143,29 @@
 			<InputForm state={form} />
 		</section>
 
+		<div class="card lg:col-start-1 lg:row-start-2">
+			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+					{t.ingredients.heading}
+				</h2>
+				<button
+					type="button"
+					class="btn-tomato-sm inline-flex items-center gap-1"
+					onclick={() => form.roundBallWeight()}
+					title={t.form.ballWeight_round_help}
+					aria-label={t.form.ballWeight_round_help}
+				>
+					<span aria-hidden="true">↻</span>
+					{t.form.ballWeight_round}
+				</button>
+			</div>
+			<Ingredients
+				ingredients={form.schedule.ingredients}
+				yeastType={form.yeastType}
+				yeastPercent={form.schedule.yeastPercent}
+			/>
+		</div>
+
 		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
 			<div class="relative mb-4 flex flex-wrap items-end justify-between gap-3">
 				<div>
@@ -241,29 +264,6 @@
 					verbosity={scheduleVerbosity.current}
 				/>
 			</div>
-		</div>
-
-		<div class="card lg:col-start-1 lg:row-start-2">
-			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-					{t.ingredients.heading}
-				</h2>
-				<button
-					type="button"
-					class="btn-tomato-sm inline-flex items-center gap-1"
-					onclick={() => form.roundBallWeight()}
-					title={t.form.ballWeight_round_help}
-					aria-label={t.form.ballWeight_round_help}
-				>
-					<span aria-hidden="true">↻</span>
-					{t.form.ballWeight_round}
-				</button>
-			</div>
-			<Ingredients
-				ingredients={form.schedule.ingredients}
-				yeastType={form.yeastType}
-				yeastPercent={form.schedule.yeastPercent}
-			/>
 		</div>
 	</div>
 

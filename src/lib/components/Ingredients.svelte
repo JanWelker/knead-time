@@ -15,6 +15,13 @@
 		yeastType === 'fresh' ? t.ingredients.fresh_yeast : t.ingredients.sourdough_starter
 	);
 
+	// A 1 g kitchen scale cannot weigh a 0.8 g yeast pinch — surface the hint
+	// whenever any yeast amount on the page drops below 2 g.
+	const needsFineScale = $derived(
+		(ingredients.yeast > 0 && ingredients.yeast < 2) ||
+			ingredients.preFerments.some((pf) => pf.yeast > 0 && pf.yeast < 2)
+	);
+
 	const totals = $derived(
 		ingredients.preFerments.length > 0
 			? {
@@ -123,5 +130,9 @@
 				{@render totalRow()}
 			</tbody>
 		</table>
+	{/if}
+
+	{#if needsFineScale}
+		<p class="text-xs text-stone-500 italic dark:text-stone-400">{t.ingredients.scale_hint}</p>
 	{/if}
 </div>
