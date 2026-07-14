@@ -260,7 +260,7 @@ describe('findMatchingPizzeria', () => {
 			roomTempC: 22,
 			fridgeTempC: 4,
 			mixingMethod: 'machine',
-			preFerment: null,
+			preFerments: [],
 			...overrides
 		};
 	}
@@ -323,23 +323,27 @@ describe('findMatchingPizzeria', () => {
 	});
 
 	it('compares pre-ferment shape and falls through on mismatch', () => {
-		const withBiga = entry({ preFerment: { type: 'biga', flourPercent: 48 } });
+		const withBiga = entry({ preFerments: [{ type: 'biga', flourPercent: 48 }] });
 		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'biga', flourPercent: 48 } }), [withBiga])
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'biga', flourPercent: 48 }] }), [
+				withBiga
+			])
 		).toBe(withBiga);
 		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'biga', flourPercent: 50 } }), [withBiga])
-		).toBeNull();
-		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'poolish', flourPercent: 48 } }), [
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'biga', flourPercent: 50 }] }), [
 				withBiga
 			])
 		).toBeNull();
-		expect(findMatchingPizzeria(inputs({ preFerment: null }), [withBiga])).toBeNull();
+		expect(
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'poolish', flourPercent: 48 }] }), [
+				withBiga
+			])
+		).toBeNull();
+		expect(findMatchingPizzeria(inputs({ preFerments: [] }), [withBiga])).toBeNull();
 		// And the inverse — pre-ferment in inputs, none in entry.
 		const noPf = entry();
 		expect(
-			findMatchingPizzeria(inputs({ preFerment: { type: 'biga', flourPercent: 30 } }), [noPf])
+			findMatchingPizzeria(inputs({ preFerments: [{ type: 'biga', flourPercent: 30 }] }), [noPf])
 		).toBeNull();
 	});
 
@@ -375,7 +379,7 @@ describe('findMatchingPizzeria', () => {
 			roomTempC: shipped.inputs.roomTempC!,
 			fridgeTempC: shipped.inputs.fridgeTempC!,
 			mixingMethod: shipped.inputs.mixingMethod ?? 'machine',
-			preFerment: shipped.inputs.preFerment ?? null
+			preFerments: shipped.inputs.preFerments ?? []
 		};
 		expect(findMatchingPizzeria(dough)).toBe(shipped);
 	});

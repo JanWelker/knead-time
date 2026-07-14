@@ -58,8 +58,8 @@ export function encodeInputs(inputs: SerializableInputs): string {
 	params.set(KEYS_V4.fridgeTempC, String(inputs.fridgeTempC));
 	// Omitted for machine — the pre-v4 default every older link implies.
 	if (inputs.mixingMethod === 'hand') params.set(KEYS_V4.mixingMethod, 'h');
-	if (inputs.preFerment) {
-		params.set(KEYS_V4.preFerment, formatPreFerment(inputs.preFerment));
+	if (inputs.preFerments.length > 0) {
+		params.set(KEYS_V4.preFerment, inputs.preFerments.map(formatPreFerment).join('_'));
 	}
 	return params.toString();
 }
@@ -69,10 +69,32 @@ function formatPreFerment(pf: PreFermentSpec): string {
 	return `${t}${pf.flourPercent}`;
 }
 
-function parsePreFerment(encoded: string): { type: 'biga' | 'poolish' | null; pct: number | null } {
-	const type = encoded.startsWith('b') ? 'biga' : encoded.startsWith('p') ? 'poolish' : null;
-	const pct = type ? num(encoded.slice(1)) : null;
-	return { type, pct };
+// Flour-percent bounds enforced on decode so hand-crafted URLs can't push a
+// pre-ferment outside what the form allows. Mirrors the InputForm limits.
+const PREFERMENT_PCT_MIN = 5;
+const PREFERMENT_PCT_MAX = 80;
+
+// One token per pre-ferment, underscore-separated ('_' survives URL encoding
+// unescaped; ',' is accepted too for hand-written links). v3 links carry a
+// single token, which parses as a 1-element list through the same path.
+// Duplicate types keep the first token; percents clamp to [5, 80]; when the
+// two shares sum past 80 the second yields to the first and is dropped
+// entirely if that leaves it under 5. The result is canonical biga-first
+// order, matching what the form and encoder produce.
+function parsePreFerments(encoded: string): PreFermentSpec[] {
+	const out: PreFermentSpec[] = [];
+	for (const token of encoded.split(/[,_]/)) {
+		const type = token.startsWith('b') ? 'biga' : token.startsWith('p') ? 'poolish' : null;
+		const pct = type ? num(token.slice(1)) : null;
+		if (!type || pct === null || pct <= 0) continue;
+		if (out.some((pf) => pf.type === type)) continue;
+		const clamped = Math.min(PREFERMENT_PCT_MAX, Math.max(PREFERMENT_PCT_MIN, pct));
+		const remaining = PREFERMENT_PCT_MAX - out.reduce((sum, pf) => sum + pf.flourPercent, 0);
+		const pct2 = Math.min(clamped, remaining);
+		if (pct2 < PREFERMENT_PCT_MIN) continue;
+		out.push({ type, flourPercent: pct2 });
+	}
+	return [...out.filter((pf) => pf.type === 'biga'), ...out.filter((pf) => pf.type === 'poolish')];
 }
 
 export function decodeInputs(query: string): Partial<SerializableInputs> {
@@ -134,12 +156,7 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 
 	const p = params.get(KEYS_V4.preFerment);
 	if (p) {
-		const { type, pct } = parsePreFerment(p);
-		if (type && pct !== null && pct > 0) {
-			out.preFerment = { type, flourPercent: pct } satisfies PreFermentSpec;
-		} else {
-			out.preFerment = null;
-		}
+		out.preFerments = parsePreFerments(p);
 	}
 
 	return out;

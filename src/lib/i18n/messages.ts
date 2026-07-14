@@ -67,10 +67,11 @@ export interface Messages {
 		mixing_machine: string;
 		mixing_hand: string;
 		preFerment: string;
-		preFerment_none: string;
 		preFerment_biga: string;
 		preFerment_poolish: string;
-		preFermentFlour: string;
+		preFermentFlour_biga: string;
+		preFermentFlour_poolish: string;
+		preFerment_sum_help: string;
 	};
 	mode: {
 		cold: string;
@@ -79,8 +80,8 @@ export interface Messages {
 		room_blurb: string;
 	};
 	steps: {
-		preferment_mix: string;
-		preferment_mix_desc: string;
+		preferment_mix_biga: string;
+		preferment_mix_poolish: string;
 		preferment_mix_desc_biga: string;
 		preferment_mix_desc_poolish: string;
 		prep: string;
@@ -90,6 +91,7 @@ export interface Messages {
 		mix_desc: string;
 		mix_desc_with_biga: string;
 		mix_desc_with_poolish: string;
+		mix_desc_with_both: string;
 		mix_technique_machine: string;
 		mix_technique_hand: string;
 		bulk_room: string;
@@ -154,7 +156,8 @@ export interface Messages {
 		fresh_yeast_inline: string;
 		sourdough_starter_inline: string;
 		total: string;
-		preFerment_heading: string;
+		preFerment_heading_biga: string;
+		preFerment_heading_poolish: string;
 		preFerment_help: string;
 		mainDough_heading: string;
 		mainDough_help: string;
@@ -348,10 +351,11 @@ const en: Messages = {
 		mixing_machine: 'Stand or spiral mixer',
 		mixing_hand: 'By hand',
 		preFerment: 'Pre-ferment',
-		preFerment_none: 'None',
 		preFerment_biga: 'Biga (stiff, ~50% hydration)',
 		preFerment_poolish: 'Poolish (loose, 100% hydration)',
-		preFermentFlour: 'Pre-ferment flour (% of total)'
+		preFermentFlour_biga: 'Biga flour (% of total)',
+		preFermentFlour_poolish: 'Poolish flour (% of total)',
+		preFerment_sum_help: 'Together the two pre-ferments may carry at most 80% of the flour.'
 	},
 	mode: {
 		cold: 'Cold ferment',
@@ -360,9 +364,8 @@ const en: Messages = {
 		room_blurb: 'Everything at room temperature.'
 	},
 	steps: {
-		preferment_mix: 'Mix pre-ferment',
-		preferment_mix_desc:
-			'Combine the pre-ferment ingredients, cover, and let mature at room temperature.',
+		preferment_mix_biga: 'Mix biga',
+		preferment_mix_poolish: 'Mix poolish',
 		preferment_mix_desc_biga:
 			'Stir the flour, water and fresh yeast together just until shaggy — do not knead, the biga should stay crumbly. Cover and let it mature at room temperature.',
 		preferment_mix_desc_poolish:
@@ -378,6 +381,8 @@ const en: Messages = {
 			'Tear the ripe biga into small pieces, add the flour and water (about {water_temp} °C — chill with ice cubes if needed) and bring everything together until cohesive, then work in the salt.',
 		mix_desc_with_poolish:
 			'Pour the ripe poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
+		mix_desc_with_both:
+			'Tear the ripe biga into small pieces and pour the poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
 		mix_technique_machine:
 			'Knead in the mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.',
 		mix_technique_hand:
@@ -451,7 +456,8 @@ const en: Messages = {
 		fresh_yeast_inline: 'fresh yeast',
 		sourdough_starter_inline: 'sourdough starter',
 		total: 'Total dough',
-		preFerment_heading: 'Pre-dough',
+		preFerment_heading_biga: 'Biga (pre-dough)',
+		preFerment_heading_poolish: 'Poolish (pre-dough)',
 		preFerment_help: 'Mix the day before, leave at room temperature overnight.',
 		mainDough_heading: 'Main dough',
 		mainDough_help: 'Mix on baking day, together with the ripe pre-dough.',
@@ -649,10 +655,11 @@ const de: Messages = {
 		mixing_machine: 'Küchenmaschine oder Spiralkneter',
 		mixing_hand: 'Von Hand',
 		preFerment: 'Vorteig',
-		preFerment_none: 'Keiner',
 		preFerment_biga: 'Biga (fest, ~50% Hydration)',
 		preFerment_poolish: 'Poolish (flüssig, 100% Hydration)',
-		preFermentFlour: 'Vorteig-Mehl (% vom Gesamtmehl)'
+		preFermentFlour_biga: 'Biga-Mehl (% vom Gesamtmehl)',
+		preFermentFlour_poolish: 'Poolish-Mehl (% vom Gesamtmehl)',
+		preFerment_sum_help: 'Zusammen dürfen die beiden Vorteige höchstens 80% des Mehls tragen.'
 	},
 	mode: {
 		cold: 'Kühlschrank-Gare',
@@ -661,9 +668,8 @@ const de: Messages = {
 		room_blurb: 'Alles bei Raumtemperatur.'
 	},
 	steps: {
-		preferment_mix: 'Vorteig ansetzen',
-		preferment_mix_desc:
-			'Zutaten des Vorteigs verrühren, abdecken und bei Raumtemperatur reifen lassen.',
+		preferment_mix_biga: 'Biga ansetzen',
+		preferment_mix_poolish: 'Poolish ansetzen',
 		preferment_mix_desc_biga:
 			'Mehl, Wasser und Frischhefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur reifen lassen.',
 		preferment_mix_desc_poolish:
@@ -679,6 +685,8 @@ const de: Messages = {
 			'Die reife Biga in kleine Stücke zupfen, Mehl und Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) dazugeben und alles zu einem zusammenhängenden Teig vermengen, dann das Salz einarbeiten.',
 		mix_desc_with_poolish:
 			'Den reifen Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
+		mix_desc_with_both:
+			'Die reife Biga in kleine Stücke zupfen und den Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
 		mix_technique_machine:
 			'In der Maschine etwa 10 Minuten glatt und elastisch kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		mix_technique_hand:
@@ -758,7 +766,8 @@ const de: Messages = {
 		fresh_yeast_inline: 'Frischhefe',
 		sourdough_starter_inline: 'Sauerteig',
 		total: 'Gesamtteig',
-		preFerment_heading: 'Vorteig',
+		preFerment_heading_biga: 'Biga (Vorteig)',
+		preFerment_heading_poolish: 'Poolish (Vorteig)',
 		preFerment_help: 'Am Vorabend ansetzen, über Nacht bei Raumtemperatur reifen lassen.',
 		mainDough_heading: 'Hauptteig',
 		mainDough_help: 'Am Backtag zusammen mit dem reifen Vorteig vermengen.',
@@ -955,10 +964,11 @@ const it: Messages = {
 		mixing_machine: 'Planetaria o impastatrice a spirale',
 		mixing_hand: 'A mano',
 		preFerment: 'Preimpasto',
-		preFerment_none: 'Nessuno',
 		preFerment_biga: 'Biga (asciutta, ~50% idratazione)',
 		preFerment_poolish: 'Poolish (liquido, 100% idratazione)',
-		preFermentFlour: 'Farina nel preimpasto (% del totale)'
+		preFermentFlour_biga: 'Farina nella biga (% del totale)',
+		preFermentFlour_poolish: 'Farina nel poolish (% del totale)',
+		preFerment_sum_help: 'Insieme i due preimpasti possono contenere al massimo l’80% della farina.'
 	},
 	mode: {
 		cold: 'Maturazione in frigo',
@@ -967,9 +977,8 @@ const it: Messages = {
 		room_blurb: 'Tutto a temperatura ambiente.'
 	},
 	steps: {
-		preferment_mix: 'Preparare il preimpasto',
-		preferment_mix_desc:
-			'Mescolare gli ingredienti del preimpasto, coprire e lasciare maturare a temperatura ambiente.',
+		preferment_mix_biga: 'Preparare la biga',
+		preferment_mix_poolish: 'Preparare il poolish',
 		preferment_mix_desc_biga:
 			'Mescolare farina, acqua e lievito di birra fresco appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente.',
 		preferment_mix_desc_poolish:
@@ -985,6 +994,8 @@ const it: Messages = {
 			"Spezzettare la biga matura in piccoli pezzi, aggiungere la farina e l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e amalgamare fino a ottenere un impasto coeso, poi incorporare il sale.",
 		mix_desc_with_poolish:
 			"Versare il poolish maturo sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
+		mix_desc_with_both:
+			"Spezzettare la biga matura in piccoli pezzi e versare il poolish sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
 		mix_technique_machine:
 			"Impastare nell'impastatrice per circa 10 minuti fino a impasto liscio ed elastico, mantenendolo sotto i 24 °C.",
 		mix_technique_hand:
@@ -1063,7 +1074,8 @@ const it: Messages = {
 		fresh_yeast_inline: 'lievito fresco',
 		sourdough_starter_inline: 'lievito madre',
 		total: 'Impasto totale',
-		preFerment_heading: 'Preimpasto',
+		preFerment_heading_biga: 'Biga (preimpasto)',
+		preFerment_heading_poolish: 'Poolish (preimpasto)',
 		preFerment_help: 'Da preparare il giorno prima e lasciar maturare a temperatura ambiente.',
 		mainDough_heading: 'Impasto principale',
 		mainDough_help: 'Da impastare il giorno della cottura insieme al preimpasto maturo.',
@@ -1264,10 +1276,12 @@ const fr: Messages = {
 		mixing_machine: 'Robot pâtissier ou pétrin à spirale',
 		mixing_hand: 'À la main',
 		preFerment: 'Pré-ferment',
-		preFerment_none: 'Aucun',
 		preFerment_biga: "Biga (ferme, ~50% d'hydratation)",
 		preFerment_poolish: "Poolish (liquide, 100% d'hydratation)",
-		preFermentFlour: 'Farine du pré-ferment (% du total)'
+		preFermentFlour_biga: 'Farine de la biga (% du total)',
+		preFermentFlour_poolish: 'Farine du poolish (% du total)',
+		preFerment_sum_help:
+			'Ensemble, les deux pré-ferments peuvent porter au maximum 80% de la farine.'
 	},
 	mode: {
 		cold: 'Maturation au froid',
@@ -1276,9 +1290,8 @@ const fr: Messages = {
 		room_blurb: 'Tout à température ambiante.'
 	},
 	steps: {
-		preferment_mix: 'Préparer le pré-ferment',
-		preferment_mix_desc:
-			'Mélangez les ingrédients du pré-ferment, couvrez et laissez maturer à température ambiante.',
+		preferment_mix_biga: 'Préparer la biga',
+		preferment_mix_poolish: 'Préparer le poolish',
 		preferment_mix_desc_biga:
 			"Mélangez la farine, l'eau et la levure fraîche juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante.",
 		preferment_mix_desc_poolish:
@@ -1294,6 +1307,8 @@ const fr: Messages = {
 			"Émiettez la biga mûre en petits morceaux, ajoutez la farine et l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et amalgamez le tout jusqu'à obtenir une pâte cohérente, puis incorporez le sel.",
 		mix_desc_with_poolish:
 			"Versez le poolish mûr sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
+		mix_desc_with_both:
+			"Émiettez la biga mûre en petits morceaux et versez le poolish sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
 		mix_technique_machine:
 			"Pétrissez au pétrin environ 10 minutes jusqu'à obtenir une pâte lisse et élastique, en la gardant sous 24 °C.",
 		mix_technique_hand:
@@ -1371,7 +1386,8 @@ const fr: Messages = {
 		fresh_yeast_inline: 'levure fraîche',
 		sourdough_starter_inline: 'levain',
 		total: 'Pâte totale',
-		preFerment_heading: 'Pré-ferment',
+		preFerment_heading_biga: 'Biga (pré-ferment)',
+		preFerment_heading_poolish: 'Poolish (pré-ferment)',
 		preFerment_help: 'À préparer la veille, laisser maturer la nuit à température ambiante.',
 		mainDough_heading: 'Pâte principale',
 		mainDough_help: 'À pétrir le jour de la cuisson, avec le pré-ferment mûr.',
@@ -1570,10 +1586,11 @@ const nl: Messages = {
 		mixing_machine: 'Keukenmachine of spiraalkneder',
 		mixing_hand: 'Met de hand',
 		preFerment: 'Voordeeg',
-		preFerment_none: 'Geen',
 		preFerment_biga: 'Biga (stevig, ~50% hydratatie)',
 		preFerment_poolish: 'Poolish (vloeibaar, 100% hydratatie)',
-		preFermentFlour: 'Voordeeg-bloem (% van totaal)'
+		preFermentFlour_biga: 'Biga-bloem (% van totaal)',
+		preFermentFlour_poolish: 'Poolish-bloem (% van totaal)',
+		preFerment_sum_help: 'Samen mogen de twee voordegen maximaal 80% van de bloem bevatten.'
 	},
 	mode: {
 		cold: 'Koelkast-rijs',
@@ -1582,9 +1599,8 @@ const nl: Messages = {
 		room_blurb: 'Alles op kamertemperatuur.'
 	},
 	steps: {
-		preferment_mix: 'Voordeeg mengen',
-		preferment_mix_desc:
-			'Meng de voordeeg-ingrediënten, dek af en laat op kamertemperatuur rijpen.',
+		preferment_mix_biga: 'Biga mengen',
+		preferment_mix_poolish: 'Poolish mengen',
 		preferment_mix_desc_biga:
 			'Meng bloem, water en verse gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat op kamertemperatuur rijpen.',
 		preferment_mix_desc_poolish:
@@ -1600,6 +1616,8 @@ const nl: Messages = {
 			'Scheur de rijpe biga in kleine stukjes, voeg de bloem en het water toe (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en meng alles tot een samenhangend deeg, werk daarna het zout erdoor.',
 		mix_desc_with_poolish:
 			'Giet de rijpe poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
+		mix_desc_with_both:
+			'Scheur de rijpe biga in kleine stukjes en giet de poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
 		mix_technique_machine:
 			'Kneed in de machine ongeveer 10 minuten tot een glad en elastisch deeg en houd de deegtemperatuur onder 24 °C.',
 		mix_technique_hand:
@@ -1677,7 +1695,8 @@ const nl: Messages = {
 		fresh_yeast_inline: 'verse gist',
 		sourdough_starter_inline: 'zuurdesem',
 		total: 'Totaal deeg',
-		preFerment_heading: 'Voordeeg',
+		preFerment_heading_biga: 'Biga (voordeeg)',
+		preFerment_heading_poolish: 'Poolish (voordeeg)',
 		preFerment_help: "De dag ervoor mengen, 's nachts op kamertemperatuur laten rijpen.",
 		mainDough_heading: 'Hoofddeeg',
 		mainDough_help: 'Op de bakdag samen met het rijpe voordeeg kneden.',
@@ -1873,10 +1892,11 @@ const jam: Messages = {
 		mixing_machine: 'Stand or spiral mixer',
 		mixing_hand: 'By hand',
 		preFerment: 'Befo-dough',
-		preFerment_none: 'None',
 		preFerment_biga: 'Biga (stiff, ~50% wata)',
 		preFerment_poolish: 'Poolish (loose, 100% wata)',
-		preFermentFlour: 'Befo-dough flour (% a di total)'
+		preFermentFlour_biga: 'Biga flour (% a di total)',
+		preFermentFlour_poolish: 'Poolish flour (% a di total)',
+		preFerment_sum_help: 'Togedda di two befo-dough dem can carry 80% a di flour at di most.'
 	},
 	mode: {
 		cold: 'Cold rise',
@@ -1885,9 +1905,8 @@ const jam: Messages = {
 		room_blurb: 'Everyting a sit a room temperature.'
 	},
 	steps: {
-		preferment_mix: 'Mek di befo-dough',
-		preferment_mix_desc:
-			'Mix up di befo-dough tings dem, cova it an mek it sit a room temperature.',
+		preferment_mix_biga: 'Mek di biga',
+		preferment_mix_poolish: 'Mek di poolish',
 		preferment_mix_desc_biga:
 			'Mix up flour, wata an fresh ris-ting jus til it shaggy — nuh knead it, di biga fi stay crumby. Cova it an mek it sit a room temperature.',
 		preferment_mix_desc_poolish:
@@ -1903,6 +1922,8 @@ const jam: Messages = {
 			'Tear up di ripe biga inna likkle piece, add di flour an wata (bout {water_temp} °C — chill it wid ice cube if yu need to) an bring everyting togedda til it hol as one, den work in di salt.',
 		mix_desc_with_poolish:
 			'Pour di ripe poolish ova di flour, add di wata (bout {water_temp} °C — chill it wid ice cube if yu need to) an di salt, an bring everyting togedda.',
+		mix_desc_with_both:
+			'Tear up di ripe biga inna likkle piece an pour di poolish ova di flour, add di wata (bout {water_temp} °C — chill it wid ice cube if yu need to) an di salt, an bring everyting togedda.',
 		mix_technique_machine:
 			'Run di mixer bout 10 minit til di dough smood an stretchy, an keep it unda 24 °C.',
 		mix_technique_hand:
@@ -1975,7 +1996,8 @@ const jam: Messages = {
 		fresh_yeast_inline: 'fresh ris-ting',
 		sourdough_starter_inline: 'sour starta',
 		total: 'Whole dough',
-		preFerment_heading: 'Befo-dough',
+		preFerment_heading_biga: 'Biga (befo-dough)',
+		preFerment_heading_poolish: 'Poolish (befo-dough)',
 		preFerment_help: 'Mek it di day before, lef it a room temperature ova di night.',
 		mainDough_heading: 'Main dough',
 		mainDough_help: 'Mek it pon baking day, wid di ripe befo-dough.',

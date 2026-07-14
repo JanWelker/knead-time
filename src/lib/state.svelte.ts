@@ -1,10 +1,14 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
 import { computeSchedule } from './dough/schedule';
-import type { ComputedSchedule, DoughInputs, MixingMethod, YeastType } from './dough/types';
+import type {
+	ComputedSchedule,
+	DoughInputs,
+	MixingMethod,
+	PreFermentSpec,
+	YeastType
+} from './dough/types';
 import type { SerializableInputs } from './dough/urlState';
-
-export type PreFermentChoice = 'none' | 'biga' | 'poolish';
 
 function defaultReadyBy(): Date {
 	const d = new SvelteDate();
@@ -26,8 +30,10 @@ export class FormState {
 	roomTempC: number = $state(22);
 	fridgeTempC: number = $state(4);
 	mixingMethod: MixingMethod = $state('machine');
-	preFermentType: PreFermentChoice = $state('none');
-	preFermentFlour: number = $state(30);
+	bigaEnabled: boolean = $state(false);
+	bigaFlourPercent: number = $state(30);
+	poolishEnabled: boolean = $state(false);
+	poolishFlourPercent: number = $state(20);
 	startAt: Date = $state(new SvelteDate());
 
 	readonly inputs: DoughInputs = $derived({
@@ -44,10 +50,15 @@ export class FormState {
 		roomTempC: this.roomTempC,
 		fridgeTempC: this.fridgeTempC,
 		mixingMethod: this.mixingMethod,
-		preFerment:
-			this.preFermentType === 'none'
-				? null
-				: { type: this.preFermentType, flourPercent: this.preFermentFlour }
+		// Canonical biga-first order — the encoder and decoder preserve it.
+		preFerments: [
+			...(this.bigaEnabled
+				? [{ type: 'biga', flourPercent: this.bigaFlourPercent } satisfies PreFermentSpec]
+				: []),
+			...(this.poolishEnabled
+				? [{ type: 'poolish', flourPercent: this.poolishFlourPercent } satisfies PreFermentSpec]
+				: [])
+		]
 	});
 
 	readonly schedule: ComputedSchedule = $derived(computeSchedule(this.inputs));
@@ -83,13 +94,13 @@ export class FormState {
 		if (partial.roomTempC !== undefined) this.roomTempC = partial.roomTempC;
 		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
 		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
-		if (partial.preFerment !== undefined) {
-			if (partial.preFerment === null) {
-				this.preFermentType = 'none';
-			} else {
-				this.preFermentType = partial.preFerment.type;
-				this.preFermentFlour = partial.preFerment.flourPercent;
-			}
+		if (partial.preFerments !== undefined) {
+			const biga = partial.preFerments.find((pf) => pf.type === 'biga');
+			const poolish = partial.preFerments.find((pf) => pf.type === 'poolish');
+			this.bigaEnabled = biga !== undefined;
+			if (biga) this.bigaFlourPercent = biga.flourPercent;
+			this.poolishEnabled = poolish !== undefined;
+			if (poolish) this.poolishFlourPercent = poolish.flourPercent;
 		}
 	}
 }

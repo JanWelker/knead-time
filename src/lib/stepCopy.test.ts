@@ -17,7 +17,7 @@ function prefermentInputs(type: PreFermentType, overrides: Partial<DoughInputs> 
 	return inputs({
 		startAt: new Date('2026-05-11T07:00:00Z'),
 		readyBy: new Date('2026-05-12T19:00:00Z'),
-		preFerment: type === 'none' ? null : { type, flourPercent: 30 },
+		preFerments: type === 'none' ? [] : [{ type, flourPercent: 30 }],
 		...overrides
 	});
 }
@@ -29,6 +29,20 @@ describe('stepTitle', () => {
 		expect(stepTitle(divide, MESSAGES.en)).toBe('Divide & ball');
 		expect(stepTitle(divide, MESSAGES.de)).toBe('Portionieren');
 		expect(stepTitle(divide, MESSAGES.it)).toBe('Staglio');
+	});
+
+	it('titles each preferment-mix step by its own type', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		const [biga, poolish] = r.steps.filter((s) => s.kind === 'preferment-mix');
+		expect(stepTitle(biga, MESSAGES.en)).toBe(MESSAGES.en.steps.preferment_mix_biga);
+		expect(stepTitle(poolish, MESSAGES.en)).toBe(MESSAGES.en.steps.preferment_mix_poolish);
 	});
 });
 
@@ -131,6 +145,41 @@ describe('stepDescription — prep / mix method copy', () => {
 			}
 			expect(stepDescription(mix, MESSAGES.en, r)).toContain(`${r.idealWaterTempC} °C`);
 		}
+	});
+
+	it('uses the combined mix copy when biga and poolish run together', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		const desc = stepDescription(findStep(r, 'mix'), MESSAGES.en, r);
+		expect(desc.toLowerCase()).toContain('biga');
+		expect(desc.toLowerCase()).toContain('poolish');
+		expect(desc).toContain(`${r.idealWaterTempC} °C`);
+		expect(desc).not.toContain('{');
+	});
+
+	it('lists each pre-dough on its own preferment-mix step with its own amounts', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		const [bigaStep, poolishStep] = r.steps.filter((s) => s.kind === 'preferment-mix');
+		const bigaList = stepIngredients(bigaStep, MESSAGES.en, r);
+		const poolishList = stepIngredients(poolishStep, MESSAGES.en, r);
+		const [bigaIng, poolishIng] = r.ingredients.preFerments;
+		expect(bigaList[0].amount).toBe(formatGrams(bigaIng.flour));
+		expect(poolishList[0].amount).toBe(formatGrams(poolishIng.flour));
+		expect(bigaList[2].amount).toBe(formatGrams(bigaIng.yeast));
+		expect(poolishList[2].amount).toBe(formatGrams(poolishIng.yeast));
 	});
 });
 
@@ -237,8 +286,8 @@ describe('stepIngredients — weighed amounts', () => {
 		const r = computeSchedule(prefermentInputs('poolish'));
 		const list = stepIngredients(findStep(r, 'preferment-mix'), MESSAGES.en, r);
 		expect(list.map((i) => i.name)).toEqual(['Flour', 'Water', 'Fresh yeast']);
-		expect(list[0].amount).toBe(formatGrams(r.ingredients.preFerment!.flour));
-		expect(list[2].amount).toBe(formatGrams(r.ingredients.preFerment!.yeast));
+		expect(list[0].amount).toBe(formatGrams(r.ingredients.preFerments[0].flour));
+		expect(list[2].amount).toBe(formatGrams(r.ingredients.preFerments[0].yeast));
 	});
 
 	it('appends an oil row to prep when oilPercent > 0, without repeating it at mix', () => {

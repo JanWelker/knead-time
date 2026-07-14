@@ -77,16 +77,16 @@ function isAtNight(d: Date): boolean {
 
 function clusterClean(
 	prepAt: Date,
-	prefermentOffsetMin: number | null,
+	prefermentOffsetsMin: number[],
 	mixDurationMin: number
 ): boolean {
-	const base = [
+	const offsets = [
+		...prefermentOffsetsMin.map((m) => -m),
 		0,
 		PREP_MIN,
 		PREP_MIN + mixDurationMin,
 		PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN
 	];
-	const offsets = prefermentOffsetMin !== null ? [-prefermentOffsetMin, ...base] : base;
 	for (const o of offsets) {
 		if (isAtNight(new Date(prepAt.getTime() + o * 60_000))) return false;
 	}
@@ -101,14 +101,14 @@ function clusterClean(
 function adjustColdMinForNight(
 	readyBy: Date,
 	naturalColdMin: number,
-	prefermentOffsetMin: number | null,
+	prefermentOffsetsMin: number[],
 	mixDurationMin: number
 ): number {
 	const prepAtFor = (cm: number) =>
 		new Date(readyBy.getTime() - (coldPrePostOffsetMin(mixDurationMin) + cm) * 60_000);
 
 	for (let cm = naturalColdMin; cm >= 0; cm--) {
-		if (clusterClean(prepAtFor(cm), prefermentOffsetMin, mixDurationMin)) return cm;
+		if (clusterClean(prepAtFor(cm), prefermentOffsetsMin, mixDurationMin)) return cm;
 	}
 	return naturalColdMin;
 }
@@ -117,23 +117,42 @@ function adjustColdMinForNight(
 // biga/poolish on top would stack two cultures, which is not what the user
 // wants. Centralising this rule here keeps the bakers' module and UI from
 // having to repeat the same check.
-function effectivePreFerment(inputs: DoughInputs): PreFermentSpec | null {
-	if (inputs.yeastType === 'sourdough') return null;
-	return inputs.preFerment;
+function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
+	if (inputs.yeastType === 'sourdough') return [];
+	return inputs.preFerments;
 }
 
 export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
-	const preFerment = effectivePreFerment(inputs);
+	const preFerments = effectivePreFerments(inputs);
 	const mixDurationMin = mixMin(inputs.mixingMethod);
 	const totalAvailableMin = Math.floor(
 		(inputs.readyBy.getTime() - inputs.startAt.getTime()) / 60_000
 	);
-	// Temperature-driven pre-ferment duration, clamped to the [8, 24] h band
-	// in fermentation.prefermentDurationHours. May still be shrunk below this
-	// natural value if the wall-clock window can't accommodate it (see below).
-	const naturalPrefermentMin = preFerment
-		? Math.round(prefermentDurationHours(preFerment.type, inputs.roomTempC) * 60)
-		: 0;
+	// Temperature-driven wall-clock duration per pre-ferment, clamped to the
+	// [8, 24] h band in fermentation.prefermentDurationHours. All pre-ferments
+	// mature in parallel and end at prep, so the schedule only reserves the
+	// longest one; shorter ones start later inside that window. Durations may
+	// still be shrunk below the natural values if the wall-clock window can't
+	// accommodate them (see the room-mode overflow branch).
+	let prefermentDurationsMin = preFerments.map((pf) => ({
+		type: pf.type,
+		min: Math.round(prefermentDurationHours(pf.type, inputs.roomTempC) * 60)
+	}));
+	const naturalPrefermentMin = prefermentDurationsMin.reduce((max, d) => Math.max(max, d.min), 0);
+	// Yeast splits across the pre-ferments proportional to flour share, so
+	// each pre-ferment's equivalent hours count only for the yeast fraction
+	// it carries: eq = Σ wᵢ · hoursᵢ · f(T). With a single pre-ferment w = 1,
+	// which reproduces the pre-v4 solve exactly.
+	const totalShare = preFerments.reduce((sum, pf) => sum + pf.flourPercent, 0);
+	const prefermentEquivalentHours = (durations: typeof prefermentDurationsMin) =>
+		durations.reduce(
+			(sum, d, i) =>
+				sum +
+				(preFerments[i].flourPercent / totalShare) *
+					(d.min / 60) *
+					temperatureFactor(inputs.roomTempC),
+			0
+		);
 	const warnings: ScheduleWarning[] = [];
 
 	if (inputs.roomTempC < 14) warnings.push('too-cold');
@@ -149,7 +168,6 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const feasible = totalAvailableMin >= ROOM_MIN_TOTAL_MIN;
 	if (!feasible) warnings.push('too-short');
 
-	let prefermentDurationMin = naturalPrefermentMin;
 	let yeastPct: number;
 	let steps: ScheduleStep[];
 	let naturalColdBulkMin: number | null = null;
@@ -172,19 +190,19 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		const coldMin = adjustColdMinForNight(
 			inputs.readyBy,
 			naturalColdMin,
-			preFerment ? prefermentDurationMin : null,
+			prefermentDurationsMin.map((d) => d.min),
 			mixDurationMin
 		);
 
 		const equivalentHours =
-			(prefermentDurationMin / 60) * temperatureFactor(inputs.roomTempC) +
+			prefermentEquivalentHours(prefermentDurationsMin) +
 			((COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60) * temperatureFactor(inputs.roomTempC) +
 			(coldMin / 60) * temperatureFactor(inputs.fridgeTempC);
 
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
 		steps = buildSteps({
 			readyBy: inputs.readyBy,
-			prefermentDurationMin: preFerment ? prefermentDurationMin : null,
+			prefermentDurationsMin,
 			mixDurationMin,
 			bulkRoomMin: COLD_INITIAL_BULK_MIN,
 			bulkColdMin: coldMin,
@@ -196,25 +214,30 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		let bulkMin: number;
 		let finalProofMin: number;
 		if (fermentBudget >= 0) {
-			// Pre-ferment fits; the rest goes to bulk + final-proof in roughly
+			// Pre-ferments fit; the rest goes to bulk + final-proof in roughly
 			// a 2:1 ratio. Both can shrink to 0 if the window is very tight.
 			finalProofMin = Math.min(90, Math.max(0, Math.floor(fermentBudget / 3)));
 			bulkMin = Math.max(0, fermentBudget - finalProofMin);
 		} else {
-			// Pre-ferment alone overflows. Shrink it so first-step >= startAt
-			// still holds; bulk and final-proof are 0.
-			prefermentDurationMin = Math.max(0, totalAvailableMin - roomFixedMin);
+			// The longest pre-ferment alone overflows. Cap every pre-ferment at
+			// the wall budget so first-step >= startAt still holds — shorter
+			// ones may fit untouched. Bulk and final-proof are 0.
+			const budget = Math.max(0, totalAvailableMin - roomFixedMin);
+			prefermentDurationsMin = prefermentDurationsMin.map((d) => ({
+				...d,
+				min: Math.min(d.min, budget)
+			}));
 			bulkMin = 0;
 			finalProofMin = 0;
 		}
 
 		const equivalentHours =
-			((prefermentDurationMin + bulkMin + finalProofMin) / 60) *
-			temperatureFactor(inputs.roomTempC);
+			prefermentEquivalentHours(prefermentDurationsMin) +
+			((bulkMin + finalProofMin) / 60) * temperatureFactor(inputs.roomTempC);
 		yeastPct = unitsToPercent(inputs.yeastType, equivalentHours);
 		steps = buildSteps({
 			readyBy: inputs.readyBy,
-			prefermentDurationMin: preFerment ? prefermentDurationMin : null,
+			prefermentDurationsMin,
 			mixDurationMin,
 			bulkRoomMin: bulkMin,
 			bulkColdMin: null,
@@ -244,16 +267,16 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		yeastPercent: yeastPct,
 		yeastType: inputs.yeastType,
 		starterHydration: inputs.starterHydration,
-		preFermentFlourPercent: preFerment ? preFerment.flourPercent : 0,
-		preFermentHydration: preFerment?.type === 'biga' ? 50 : 100
+		preFerments
 	});
 
-	// Unclamped pre-ferment duration the math wanted at this temperature — the
-	// "natural" value the [8, 24] h clamp may have pulled in. Quality scoring
-	// uses the gap between this and the actual duration.
-	const naturalPrefermentHours = preFerment
-		? prefermentRefHours(preFerment.type) / temperatureFactor(inputs.roomTempC)
-		: null;
+	// Unclamped pre-ferment durations the math wanted at this temperature — the
+	// "natural" values the [8, 24] h clamp may have pulled in. Quality scoring
+	// uses the gap between these and the actual step durations, matched by type.
+	const naturalPreferments = preFerments.map((pf) => ({
+		type: pf.type,
+		naturalHours: prefermentRefHours(pf.type) / temperatureFactor(inputs.roomTempC)
+	}));
 
 	return {
 		mode,
@@ -262,7 +285,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		feasible,
 		yeastPercent: yeastPct,
 		yeastType: inputs.yeastType,
-		preFerment,
+		preFerments,
 		warnings,
 		pizzaCount: inputs.pizzaCount,
 		ballWeight: inputs.ballWeight,
@@ -270,7 +293,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC, inputs.mixingMethod),
 		naturalColdBulkMin,
 		desiredColdBulkMin,
-		naturalPrefermentHours
+		naturalPreferments
 	};
 }
 
@@ -289,7 +312,7 @@ function subMin(d: Date, min: number): Date {
 
 interface BuildArgs {
 	readyBy: Date;
-	prefermentDurationMin: number | null;
+	prefermentDurationsMin: Array<{ type: PreFermentSpec['type']; min: number }>;
 	mixDurationMin: number;
 	bulkRoomMin: number;
 	// `null` ⇒ room-only schedule (no cold leg). Non-null ⇒ cold-bulk
@@ -300,7 +323,7 @@ interface BuildArgs {
 
 function buildSteps({
 	readyBy,
-	prefermentDurationMin,
+	prefermentDurationsMin,
 	mixDurationMin,
 	bulkRoomMin,
 	bulkColdMin,
@@ -314,13 +337,17 @@ function buildSteps({
 	const prepAt = subMin(mixAt, PREP_MIN);
 
 	const steps: ScheduleStep[] = [];
-	if (prefermentDurationMin !== null) {
-		// One row covers the brief active mixing plus the long maturation — the
-		// schedule table reads "until prep at HH:MM" from this duration.
+	// One row per pre-ferment covers the brief active mixing plus the long
+	// maturation — the schedule table reads "until prep at HH:MM" from the
+	// duration. All end at prep, so the longest starts first; emitting
+	// longest-first keeps the list in forward time order (the sort is stable,
+	// preserving canonical biga-first order on equal durations).
+	for (const d of [...prefermentDurationsMin].sort((a, b) => b.min - a.min)) {
 		steps.push({
 			kind: 'preferment-mix',
-			at: subMin(prepAt, prefermentDurationMin),
-			durationMinutes: prefermentDurationMin
+			at: subMin(prepAt, d.min),
+			durationMinutes: d.min,
+			preFermentType: d.type
 		});
 	}
 	steps.push({ kind: 'prep', at: prepAt, durationMinutes: PREP_MIN });

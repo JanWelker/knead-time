@@ -109,7 +109,9 @@
 		</div>
 
 		<ol class="tabular-nums">
-			{#each day.steps as step, si (step.kind + '-' + step.at.getTime())}
+			<!-- preFermentType disambiguates the two parallel pre-ferment mixes,
+			     which can share a start time when both shrink to the wall budget. -->
+			{#each day.steps as step, si (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
 				{@const isReady = step.kind === 'ready'}
 				{@const active = isActiveStep(step.kind)}
 				{@const past = isPast(step)}

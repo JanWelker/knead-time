@@ -88,7 +88,7 @@ describe('stepQualityFlags — cold-bulk and preferment', () => {
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z'),
 			roomTempC: 32,
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		});
 		const s = computeSchedule(i);
 		const pf = s.steps.find((st) => st.kind === 'preferment-mix')!;
@@ -102,7 +102,7 @@ describe('stepQualityFlags — cold-bulk and preferment', () => {
 		const i = inputs({
 			startAt: new Date('2026-05-12T11:00:00Z'),
 			readyBy: new Date('2026-05-12T18:00:00Z'),
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		});
 		const s = computeSchedule(i);
 		const pf = s.steps.find((st) => st.kind === 'preferment-mix')!;
@@ -116,11 +116,32 @@ describe('stepQualityFlags — cold-bulk and preferment', () => {
 			startAt: new Date('2026-05-10T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z'),
 			roomTempC: 10,
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		});
 		const s = computeSchedule(i);
 		const pf = s.steps.find((st) => st.kind === 'preferment-mix')!;
 		expect(stepQualityFlags(pf, s)).toContain('preferment-clamped-long');
+	});
+
+	it('flags each parallel pre-ferment against its own natural duration', () => {
+		// At 26 °C biga wants ~10.6 h (inside the band) while poolish wants
+		// ~9.1 h (also inside) — but at 32 °C both drop below the 8 h floor.
+		// Verify the flags are computed per step, not from a shared value.
+		const i = inputs({
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z'),
+			roomTempC: 32,
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		});
+		const s = computeSchedule(i);
+		const pfSteps = s.steps.filter((st) => st.kind === 'preferment-mix');
+		expect(pfSteps).toHaveLength(2);
+		for (const step of pfSteps) {
+			expect(stepQualityFlags(step, s)).toContain('preferment-clamped-short');
+		}
 	});
 
 	it('returns no clamp flags for a bulk-cold within the [floor, ceiling] band', () => {
@@ -187,11 +208,30 @@ describe('recipeFitScore — schedule imperfection', () => {
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z'),
 			roomTempC: 32,
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		});
 		const s = computeSchedule(i);
 		const fit = recipeFitScore(s, i);
 		expect(factorKinds(fit.factors)).toContain('preferment-clamped-short');
+	});
+
+	it('deducts once per clamped pre-ferment — the factor appears twice with biga + poolish', () => {
+		const i = inputs({
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z'),
+			roomTempC: 32,
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		});
+		const s = computeSchedule(i);
+		const fit = recipeFitScore(s, i);
+		const shortClamps = fit.factors.filter((f) => f.factor === 'preferment-clamped-short');
+		expect(shortClamps).toHaveLength(2);
+		// Biga's natural duration is farther below the floor than poolish's, so
+		// its delta must be strictly larger — each entry carries its own gap.
+		expect(shortClamps[0].delta).not.toBeCloseTo(shortClamps[1].delta, 6);
 	});
 
 	it('deducts when the pre-ferment is long-clamped (10 °C biga)', () => {
@@ -199,7 +239,7 @@ describe('recipeFitScore — schedule imperfection', () => {
 			startAt: new Date('2026-05-10T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z'),
 			roomTempC: 10,
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		});
 		const s = computeSchedule(i);
 		const fit = recipeFitScore(s, i);

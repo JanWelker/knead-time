@@ -20,7 +20,7 @@ describe('yeastLabel', () => {
 
 describe('preFermentLabel', () => {
 	it('returns an em-dash placeholder when no pre-ferment is set', () => {
-		expect(preFermentLabel({ preFerment: null }, t)).toBe('—');
+		expect(preFermentLabel({ preFerments: [] }, t)).toBe('—');
 	});
 
 	it('returns an em-dash placeholder when the field is missing entirely', () => {
@@ -28,16 +28,29 @@ describe('preFermentLabel', () => {
 	});
 
 	it('renders biga with its flour percentage and strips the parenthetical', () => {
-		const label = preFermentLabel({ preFerment: { type: 'biga', flourPercent: 30 } }, t);
+		const label = preFermentLabel({ preFerments: [{ type: 'biga', flourPercent: 30 }] }, t);
 		expect(label.startsWith('Biga')).toBe(true);
 		expect(label).toContain('30%');
 		expect(label).not.toContain('(');
 	});
 
 	it('renders poolish with its flour percentage', () => {
-		const label = preFermentLabel({ preFerment: { type: 'poolish', flourPercent: 25 } }, t);
+		const label = preFermentLabel({ preFerments: [{ type: 'poolish', flourPercent: 25 }] }, t);
 		expect(label.startsWith('Poolish')).toBe(true);
 		expect(label).toContain('25%');
+	});
+
+	it('joins combined pre-ferments with a plus sign', () => {
+		const label = preFermentLabel(
+			{
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			},
+			t
+		);
+		expect(label).toBe('Biga 30% + Poolish 20%');
 	});
 });
 

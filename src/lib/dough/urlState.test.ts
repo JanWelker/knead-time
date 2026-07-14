@@ -15,7 +15,7 @@ const base: SerializableInputs = {
 	roomTempC: 22,
 	fridgeTempC: 4,
 	mixingMethod: 'machine',
-	preFerment: null
+	preFerments: []
 };
 
 describe('urlState round-trip', () => {
@@ -30,7 +30,7 @@ describe('urlState round-trip', () => {
 		expect(out.yeastType).toBe('fresh');
 		expect(out.roomTempC).toBe(22);
 		expect(out.fridgeTempC).toBe(4);
-		expect(out.preFerment).toBeUndefined();
+		expect(out.preFerments).toBeUndefined();
 	});
 
 	it('round-trips a non-default fridge temperature', () => {
@@ -52,19 +52,19 @@ describe('urlState round-trip', () => {
 	it('round-trips a biga pre-ferment', () => {
 		const inp: SerializableInputs = {
 			...base,
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		};
 		const out = decodeInputs(encodeInputs(inp));
-		expect(out.preFerment).toEqual({ type: 'biga', flourPercent: 30 });
+		expect(out.preFerments).toEqual([{ type: 'biga', flourPercent: 30 }]);
 	});
 
 	it('round-trips a poolish pre-ferment', () => {
 		const inp: SerializableInputs = {
 			...base,
-			preFerment: { type: 'poolish', flourPercent: 20 }
+			preFerments: [{ type: 'poolish', flourPercent: 20 }]
 		};
 		const out = decodeInputs(encodeInputs(inp));
-		expect(out.preFerment).toEqual({ type: 'poolish', flourPercent: 20 });
+		expect(out.preFerments).toEqual([{ type: 'poolish', flourPercent: 20 }]);
 	});
 
 	it('keeps query parameter keys short', () => {
@@ -87,19 +87,65 @@ describe('urlState round-trip', () => {
 		expect(out.startAt).toBeUndefined();
 	});
 
-	it('clears the pre-ferment when its value is malformed', () => {
+	it('clears the pre-ferments when the value is malformed', () => {
 		// Unknown type prefix
-		expect(decodeInputs('?p=xyz').preFerment).toBeNull();
+		expect(decodeInputs('?p=xyz').preFerments).toEqual([]);
 		// Known prefix but non-positive flour percentage
-		expect(decodeInputs('?p=b0').preFerment).toBeNull();
-		expect(decodeInputs('?p=p-5').preFerment).toBeNull();
+		expect(decodeInputs('?p=b0').preFerments).toEqual([]);
+		expect(decodeInputs('?p=p-5').preFerments).toEqual([]);
 		// Non-numeric flour percentage
-		expect(decodeInputs('?p=bxx').preFerment).toBeNull();
+		expect(decodeInputs('?p=bxx').preFerments).toEqual([]);
 	});
 
 	it('round-trips a poolish pre-ferment in the encoded URL', () => {
-		const encoded = encodeInputs({ ...base, preFerment: { type: 'poolish', flourPercent: 20 } });
+		const encoded = encodeInputs({ ...base, preFerments: [{ type: 'poolish', flourPercent: 20 }] });
 		expect(encoded).toContain('p=p20');
+	});
+
+	it('round-trips combined biga + poolish as an underscore-separated token list', () => {
+		const combined: SerializableInputs = {
+			...base,
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		};
+		const encoded = encodeInputs(combined);
+		// '_' survives URLSearchParams unescaped, keeping the link readable.
+		expect(encoded).toContain('p=b30_p20');
+		expect(decodeInputs(encoded).preFerments).toEqual(combined.preFerments);
+	});
+
+	it('accepts a comma separator in hand-written links', () => {
+		expect(decodeInputs('?p=b30,p20').preFerments).toEqual([
+			{ type: 'biga', flourPercent: 30 },
+			{ type: 'poolish', flourPercent: 20 }
+		]);
+	});
+
+	it('canonicalises token order to biga-first', () => {
+		expect(decodeInputs('?p=p20_b30').preFerments).toEqual([
+			{ type: 'biga', flourPercent: 30 },
+			{ type: 'poolish', flourPercent: 20 }
+		]);
+	});
+
+	it('keeps the first token when a type is duplicated', () => {
+		expect(decodeInputs('?p=b30_b50').preFerments).toEqual([{ type: 'biga', flourPercent: 30 }]);
+	});
+
+	it('clamps each flour percent to the [5, 80] form band', () => {
+		expect(decodeInputs('?p=b90').preFerments).toEqual([{ type: 'biga', flourPercent: 80 }]);
+		expect(decodeInputs('?p=b2').preFerments).toEqual([{ type: 'biga', flourPercent: 5 }]);
+	});
+
+	it('caps the combined flour share at 80% — the second token yields', () => {
+		expect(decodeInputs('?p=b70_p40').preFerments).toEqual([
+			{ type: 'biga', flourPercent: 70 },
+			{ type: 'poolish', flourPercent: 10 }
+		]);
+		// The remainder falls below the 5% minimum — drop the second entirely.
+		expect(decodeInputs('?p=b78_p40').preFerments).toEqual([{ type: 'biga', flourPercent: 78 }]);
 	});
 });
 

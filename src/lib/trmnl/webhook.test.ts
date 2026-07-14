@@ -55,7 +55,7 @@ describe('buildMergeVariables', () => {
 	it('includes a biga label in the summary when biga is selected', () => {
 		const i = inputs({
 			startAt: new Date('2026-05-11T07:00:00Z'),
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		});
 		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
 		expect(m.s.toLowerCase()).toContain('biga');
@@ -64,7 +64,7 @@ describe('buildMergeVariables', () => {
 	it('includes a poolish label in the summary when poolish is selected', () => {
 		const i = inputs({
 			startAt: new Date('2026-05-11T07:00:00Z'),
-			preFerment: { type: 'poolish', flourPercent: 30 }
+			preFerments: [{ type: 'poolish', flourPercent: 30 }]
 		});
 		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
 		expect(m.s.toLowerCase()).toContain('poolish');
@@ -92,15 +92,20 @@ describe('buildMergeVariables', () => {
 		expect(m.rl).toBe(MESSAGES.de.form.readyBy);
 	});
 
-	it('keeps a cold-mode + biga preferment payload under TRMNL free tier 2 KB cap in every locale', () => {
-		// Cold mode + pre-ferment is the worst case: 8 steps with the longest
-		// titles. German/French translations of step titles are noticeably
-		// longer than English, so the cap must hold for every locale we ship
-		// — checking only `en` once let an over-cap regression slip through.
+	it('keeps a cold-mode + biga + poolish payload under TRMNL free tier 2 KB cap in every locale', () => {
+		// Cold mode + both pre-ferments is the worst case: 9 steps (two
+		// preferment-mix rows) with the longest titles and the longest summary
+		// label ("Biga + Poolish"). German/French translations of step titles
+		// are noticeably longer than English, so the cap must hold for every
+		// locale we ship — checking only `en` once let an over-cap regression
+		// slip through.
 		const i = inputs({
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z'),
-			preFerment: { type: 'biga', flourPercent: 30 }
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
 		});
 		const s = computeSchedule(i);
 		for (const loc of LOCALES) {

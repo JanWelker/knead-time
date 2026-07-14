@@ -26,7 +26,10 @@ export interface DoughInputs {
 	roomTempC: number;
 	fridgeTempC: number;
 	mixingMethod: MixingMethod;
-	preFerment: PreFermentSpec | null;
+	// Pre-ferments mature in parallel, each ending at prep. Empty = none.
+	// Types are unique (the form exposes one toggle per type) and the list is
+	// kept in canonical biga-first order. Σ flourPercent ≤ 80.
+	preFerments: PreFermentSpec[];
 }
 
 export interface Ingredients {
@@ -38,11 +41,15 @@ export interface Ingredients {
 	oil: number;
 	sugar: number;
 	totalDough: number;
-	preFerment: {
+	// One pre-dough per enabled pre-ferment; empty when the recipe has none.
+	// The solved yeast mass is split across the entries proportional to their
+	// flour share — the main dough carries no yeast whenever this is non-empty.
+	preFerments: Array<{
+		type: Exclude<PreFermentType, 'none'>;
 		flour: number;
 		water: number;
 		yeast: number;
-	} | null;
+	}>;
 }
 
 export type ScheduleStepKind =
@@ -59,6 +66,10 @@ export interface ScheduleStep {
 	kind: ScheduleStepKind;
 	at: Date;
 	durationMinutes: number;
+	// Set only on 'preferment-mix' steps — with biga and poolish running in
+	// parallel the schedule emits one such step per pre-ferment, and copy,
+	// row keys and calendar UIDs all need to tell them apart.
+	preFermentType?: Exclude<PreFermentType, 'none'>;
 }
 
 export type FermentMode = 'room' | 'cold';
@@ -70,9 +81,9 @@ export interface ComputedSchedule {
 	feasible: boolean;
 	yeastPercent: number;
 	yeastType: YeastType;
-	// Pre-ferment that was actually used to build the schedule. May be null
-	// even when DoughInputs.preFerment was set (sourdough collapses it).
-	preFerment: PreFermentSpec | null;
+	// Pre-ferments actually used to build the schedule. May be empty even
+	// when DoughInputs.preFerments was set (sourdough collapses them).
+	preFerments: PreFermentSpec[];
 	warnings: ScheduleWarning[];
 	pizzaCount: number;
 	ballWeight: number;
@@ -81,11 +92,12 @@ export interface ComputedSchedule {
 	// Pre-clamp / pre-shift values used by the recipe fit-score metric. A
 	// "perfect" schedule keeps the actual durations equal to these naturals;
 	// quality.ts deducts a percentage for each gap. Null when the field
-	// doesn't apply (cold-only fields in room mode, no-preferment field
-	// when no pre-ferment is set).
+	// doesn't apply (cold-only fields in room mode); naturalPreferments is
+	// empty when no pre-ferment is set, with one entry per pre-ferment
+	// matched to its step via ScheduleStep.preFermentType.
 	naturalColdBulkMin: number | null;
 	desiredColdBulkMin: number | null;
-	naturalPrefermentHours: number | null;
+	naturalPreferments: Array<{ type: Exclude<PreFermentType, 'none'>; naturalHours: number }>;
 }
 
 export type ScheduleWarning =

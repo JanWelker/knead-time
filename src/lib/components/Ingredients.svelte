@@ -16,12 +16,12 @@
 	);
 
 	const totals = $derived(
-		ingredients.preFerment
+		ingredients.preFerments.length > 0
 			? {
-					flour: ingredients.flour + ingredients.preFerment.flour,
-					water: ingredients.water + ingredients.preFerment.water,
+					flour: ingredients.flour + ingredients.preFerments.reduce((sum, pf) => sum + pf.flour, 0),
+					water: ingredients.water + ingredients.preFerments.reduce((sum, pf) => sum + pf.water, 0),
 					salt: ingredients.salt,
-					yeast: ingredients.yeast + ingredients.preFerment.yeast
+					yeast: ingredients.yeast + ingredients.preFerments.reduce((sum, pf) => sum + pf.yeast, 0)
 				}
 			: null
 	);
@@ -58,20 +58,26 @@
 {/snippet}
 
 <div class="space-y-6">
-	{#if ingredients.preFerment}
-		<section>
-			<header class="mb-2">
-				<h3 class="font-display text-accent text-base">{t.ingredients.preFerment_heading}</h3>
-				<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.preFerment_help}</p>
-			</header>
-			<table class="w-full border-collapse tabular-nums">
-				<tbody>
-					{@render row(t.ingredients.flour, ingredients.preFerment.flour)}
-					{@render row(t.ingredients.water, ingredients.preFerment.water)}
-					{@render row(t.ingredients.fresh_yeast, ingredients.preFerment.yeast)}
-				</tbody>
-			</table>
-		</section>
+	{#if ingredients.preFerments.length > 0}
+		{#each ingredients.preFerments as pf (pf.type)}
+			<section>
+				<header class="mb-2">
+					<h3 class="font-display text-accent text-base">
+						{pf.type === 'biga'
+							? t.ingredients.preFerment_heading_biga
+							: t.ingredients.preFerment_heading_poolish}
+					</h3>
+					<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.preFerment_help}</p>
+				</header>
+				<table class="w-full border-collapse tabular-nums">
+					<tbody>
+						{@render row(t.ingredients.flour, pf.flour)}
+						{@render row(t.ingredients.water, pf.water)}
+						{@render row(t.ingredients.fresh_yeast, pf.yeast)}
+					</tbody>
+				</table>
+			</section>
+		{/each}
 
 		<section>
 			<header class="mb-2">

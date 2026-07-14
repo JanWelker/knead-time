@@ -3,8 +3,9 @@ import { formatBallWeight, formatGrams } from './format';
 import { interpolate } from './i18n/interpolate';
 import type { Messages } from './i18n/messages';
 
-const TITLE: Record<ScheduleStepKind, keyof Messages['steps']> = {
-	'preferment-mix': 'preferment_mix',
+// preferment-mix has no single title/description — the step's own
+// preFermentType picks the biga or poolish copy, so both maps exclude it.
+const TITLE: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['steps']> = {
 	prep: 'prep',
 	mix: 'mix',
 	'bulk-room': 'bulk_room',
@@ -14,8 +15,7 @@ const TITLE: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	ready: 'ready'
 };
 
-const DESC: Record<ScheduleStepKind, keyof Messages['steps']> = {
-	'preferment-mix': 'preferment_mix_desc',
+const DESC: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['steps']> = {
 	prep: 'prep_desc',
 	mix: 'mix_desc',
 	'bulk-room': 'bulk_room_desc',
@@ -33,6 +33,11 @@ export interface StepIngredient {
 }
 
 export function stepTitle(step: ScheduleStep, msgs: Messages): string {
+	if (step.kind === 'preferment-mix') {
+		return step.preFermentType === 'biga'
+			? msgs.steps.preferment_mix_biga
+			: msgs.steps.preferment_mix_poolish;
+	}
 	return msgs.steps[TITLE[step.kind]];
 }
 
@@ -57,7 +62,9 @@ export function stepIngredients(
 
 	switch (step.kind) {
 		case 'preferment-mix': {
-			const pf = ingredients.preFerment!;
+			// Each parallel pre-ferment weighs its own pre-dough — the step's
+			// type picks the matching entry.
+			const pf = ingredients.preFerments.find((p) => p.type === step.preFermentType)!;
 			return [
 				{ amount: formatGrams(pf.flour), name: i.flour },
 				{ amount: formatGrams(pf.water), name: i.water },
@@ -72,7 +79,7 @@ export function stepIngredients(
 			];
 			// With a pre-ferment the yeast is already in the pre-dough, and oil/sugar
 			// are weighed at the mix step — so day-two prep only weighs the basics.
-			if (schedule.preFerment) return base;
+			if (schedule.preFerments.length > 0) return base;
 			return [...base, { amount: formatGrams(ingredients.yeast), name: yeastName }, ...extras];
 		}
 		case 'mix':
@@ -80,7 +87,7 @@ export function stepIngredients(
 			// would render the same table twice in a row. Only the extras are newly
 			// weighed at mix, and only under a pre-ferment (without one they're
 			// weighed at prep too).
-			return schedule.preFerment ? extras : [];
+			return schedule.preFerments.length > 0 ? extras : [];
 		default:
 			return [];
 	}
@@ -94,11 +101,19 @@ export function stepDescription(
 	msgs: Messages,
 	schedule?: ComputedSchedule
 ): string {
+	// The step's own type carries everything the pre-ferment copy needs, so
+	// this works with or without schedule context.
+	if (step.kind === 'preferment-mix') {
+		return step.preFermentType === 'biga'
+			? msgs.steps.preferment_mix_desc_biga
+			: msgs.steps.preferment_mix_desc_poolish;
+	}
+
 	const template = msgs.steps[DESC[step.kind]];
 
 	if (!schedule) return template;
 
-	const prefermentType = schedule.preFerment?.type ?? null;
+	const prefermentTypes = schedule.preFerments.map((pf) => pf.type);
 
 	switch (step.kind) {
 		case 'divide':
@@ -106,12 +121,8 @@ export function stepDescription(
 				n: schedule.pizzaCount,
 				weight: formatBallWeight(schedule.ballWeight)
 			});
-		case 'preferment-mix':
-			return prefermentType === 'biga'
-				? msgs.steps.preferment_mix_desc_biga
-				: msgs.steps.preferment_mix_desc_poolish;
 		case 'prep':
-			return prefermentType ? msgs.steps.prep_desc_with_preferment : template;
+			return prefermentTypes.length > 0 ? msgs.steps.prep_desc_with_preferment : template;
 		case 'mix': {
 			const waterTemp = { water_temp: schedule.idealWaterTempC };
 			// The base descriptions are method-neutral; the how-to-knead sentence
@@ -121,8 +132,9 @@ export function stepDescription(
 					? msgs.steps.mix_technique_hand
 					: msgs.steps.mix_technique_machine;
 			let base = template;
-			if (prefermentType === 'biga') base = msgs.steps.mix_desc_with_biga;
-			if (prefermentType === 'poolish') base = msgs.steps.mix_desc_with_poolish;
+			if (prefermentTypes.length > 1) base = msgs.steps.mix_desc_with_both;
+			else if (prefermentTypes[0] === 'biga') base = msgs.steps.mix_desc_with_biga;
+			else if (prefermentTypes[0] === 'poolish') base = msgs.steps.mix_desc_with_poolish;
 			return `${interpolate(base, waterTemp)} ${technique}`;
 		}
 		default:

@@ -70,7 +70,9 @@
 			<p class="text-stone-600 dark:text-stone-300">{t.quality.fit_perfect}</p>
 		{:else}
 			<ul class="space-y-1 text-stone-600 dark:text-stone-300">
-				{#each fit.factors as detail (detail.factor)}
+				<!-- Key includes the index: with biga + poolish both clamped the same
+				     factor legitimately appears twice, once per pre-ferment. -->
+				{#each fit.factors as detail, i (detail.factor + '-' + i)}
 					<li>{factorLabel(detail)}</li>
 				{/each}
 			</ul>

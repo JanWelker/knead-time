@@ -187,26 +187,42 @@
 				bind:value={state.starterHydration}
 			/>
 		{:else}
-			<label class="block">
-				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+			<fieldset class="space-y-2">
+				<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 					{t.form.preFerment}
-				</span>
-				<select class={selectClass} bind:value={state.preFermentType}>
-					<option value="none">{t.form.preFerment_none}</option>
-					<option value="biga">{t.form.preFerment_biga}</option>
-					<option value="poolish">{t.form.preFerment_poolish}</option>
-				</select>
-			</label>
-
-			{#if state.preFermentType !== 'none'}
-				<FormField
-					label={t.form.preFermentFlour}
-					min={5}
-					max={80}
-					step={5}
-					bind:value={state.preFermentFlour}
-				/>
-			{/if}
+				</legend>
+				<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+					<input type="checkbox" class="accent-tomato-500" bind:checked={state.bigaEnabled} />
+					{t.form.preFerment_biga}
+				</label>
+				{#if state.bigaEnabled}
+					<FormField
+						label={t.form.preFermentFlour_biga}
+						min={5}
+						max={80 - (state.poolishEnabled ? state.poolishFlourPercent : 0)}
+						step={5}
+						bind:value={state.bigaFlourPercent}
+					/>
+				{/if}
+				<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+					<input type="checkbox" class="accent-tomato-500" bind:checked={state.poolishEnabled} />
+					{t.form.preFerment_poolish}
+				</label>
+				{#if state.poolishEnabled}
+					<FormField
+						label={t.form.preFermentFlour_poolish}
+						min={5}
+						max={80 - (state.bigaEnabled ? state.bigaFlourPercent : 0)}
+						step={5}
+						bind:value={state.poolishFlourPercent}
+					/>
+				{/if}
+				{#if state.bigaEnabled && state.poolishEnabled}
+					<span class="block text-xs text-stone-500 dark:text-stone-400">
+						{t.form.preFerment_sum_help}
+					</span>
+				{/if}
+			</fieldset>
 		{/if}
 	</fieldset>
 

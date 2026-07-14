@@ -132,19 +132,22 @@ function coldBulkClampMin(schedule: ComputedSchedule): { short: number; long: nu
 	return { short, long };
 }
 
-function prefermentClampHours(schedule: ComputedSchedule): { short: number; long: number } {
-	const natural = schedule.naturalPrefermentHours;
-	if (natural === null) return { short: 0, long: 0 };
+function prefermentClampHours(
+	schedule: ComputedSchedule,
+	entry: ComputedSchedule['naturalPreferments'][number]
+): { short: number; long: number } {
 	// Actual duration on the emitted step — may be < natural when the wall-clock
 	// window was too tight to fit the pre-ferment and we shrank it to honour
-	// startAt. The pre-ferment-mix step is always present when naturalHours is
-	// non-null, so a missing step would be a schedule-shape bug, not an input.
-	const actualHours = schedule.steps.find((s) => s.kind === 'preferment-mix')!.durationMinutes / 60;
+	// startAt. Each naturalPreferments entry has exactly one matching step, so
+	// a missing step would be a schedule-shape bug, not an input.
+	const actualHours =
+		schedule.steps.find((s) => s.kind === 'preferment-mix' && s.preFermentType === entry.type)!
+			.durationMinutes / 60;
 	// 'short' folds two reasons into one penalty: temperature wanted below
 	// MIN, OR time-budget forced actual below MIN. The user reads this as
 	// "the pre-ferment is too short" regardless of cause.
-	const short = Math.max(0, PREFERMENT_MIN_HOURS - Math.min(natural, actualHours));
-	const long = Math.max(0, natural - PREFERMENT_MAX_HOURS);
+	const short = Math.max(0, PREFERMENT_MIN_HOURS - Math.min(entry.naturalHours, actualHours));
+	const long = Math.max(0, entry.naturalHours - PREFERMENT_MAX_HOURS);
 	return { short, long };
 }
 
@@ -171,7 +174,10 @@ export function stepQualityFlags(
 	}
 
 	if (step.kind === 'preferment-mix') {
-		const { short, long } = prefermentClampHours(schedule);
+		// The step carries its own type, so each parallel pre-ferment is judged
+		// against its own natural duration.
+		const entry = schedule.naturalPreferments.find((n) => n.type === step.preFermentType)!;
+		const { short, long } = prefermentClampHours(schedule, entry);
 		if (short > 0) flags.push('preferment-clamped-short');
 		if (long > 0) flags.push('preferment-clamped-long');
 	}
@@ -197,12 +203,16 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 		factors.push({ factor: 'cold-bulk-clamped-long', delta: coldClamp.long / 60 });
 	}
 
-	const prefClamp = prefermentClampHours(schedule);
-	if (prefClamp.short > 0) {
-		factors.push({ factor: 'preferment-clamped-short', delta: prefClamp.short });
-	}
-	if (prefClamp.long > 0) {
-		factors.push({ factor: 'preferment-clamped-long', delta: prefClamp.long });
+	// One clamp check per pre-ferment — with biga and poolish both clamped the
+	// same factor can appear twice, each with its own delta.
+	for (const entry of schedule.naturalPreferments) {
+		const prefClamp = prefermentClampHours(schedule, entry);
+		if (prefClamp.short > 0) {
+			factors.push({ factor: 'preferment-clamped-short', delta: prefClamp.short });
+		}
+		if (prefClamp.long > 0) {
+			factors.push({ factor: 'preferment-clamped-long', delta: prefClamp.long });
+		}
 	}
 
 	if (schedule.warnings.includes('night-step')) {

@@ -164,7 +164,7 @@ describe('computeSchedule — pre-ferment', () => {
 			baseInputs({
 				startAt: new Date('2026-05-11T07:00:00Z'),
 				readyBy: new Date('2026-05-12T19:00:00Z'),
-				preFerment: { type: 'biga', flourPercent: 30 }
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			})
 		);
 		expect(r.steps[0].kind).toBe('preferment-mix');
@@ -180,7 +180,7 @@ describe('computeSchedule — pre-ferment', () => {
 				startAt: new Date('2026-05-11T07:00:00Z'),
 				readyBy: new Date('2026-05-12T19:00:00Z'),
 				roomTempC: 26,
-				preFerment: { type: 'biga', flourPercent: 30 }
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			})
 		);
 		const cool = computeSchedule(
@@ -188,7 +188,7 @@ describe('computeSchedule — pre-ferment', () => {
 				startAt: new Date('2026-05-11T07:00:00Z'),
 				readyBy: new Date('2026-05-12T19:00:00Z'),
 				roomTempC: 18,
-				preFerment: { type: 'biga', flourPercent: 30 }
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			})
 		);
 		const durOf = (sched: typeof warm) => findStep(sched, 'preferment-mix').durationMinutes;
@@ -196,30 +196,32 @@ describe('computeSchedule — pre-ferment', () => {
 	});
 
 	it('does not emit a preferment-mix when no pre-ferment is selected', () => {
-		const r = computeSchedule(baseInputs({ preFerment: null }));
+		const r = computeSchedule(baseInputs({ preFerments: [] }));
 		expect(r.steps.some((s) => s.kind === 'preferment-mix')).toBe(false);
 	});
 
-	it('populates ingredients.preFerment when biga is selected', () => {
-		const r = computeSchedule(baseInputs({ preFerment: { type: 'biga', flourPercent: 30 } }));
-		expect(r.ingredients.preFerment).not.toBeNull();
-		expect(r.ingredients.preFerment!.flour).toBeGreaterThan(0);
-		expect(r.ingredients.preFerment!.water).toBeGreaterThan(0);
-		expect(r.ingredients.preFerment!.yeast).toBeGreaterThan(0);
+	it('populates ingredients.preFerments when biga is selected', () => {
+		const r = computeSchedule(baseInputs({ preFerments: [{ type: 'biga', flourPercent: 30 }] }));
+		expect(r.ingredients.preFerments).toHaveLength(1);
+		const pf = r.ingredients.preFerments[0];
+		expect(pf.flour).toBeGreaterThan(0);
+		expect(pf.water).toBeGreaterThan(0);
+		expect(pf.yeast).toBeGreaterThan(0);
 		// biga is ~50% hydration — water should be roughly half the flour
-		expect(r.ingredients.preFerment!.water / r.ingredients.preFerment!.flour).toBeCloseTo(0.5, 6);
+		expect(pf.water / pf.flour).toBeCloseTo(0.5, 6);
 	});
 
-	it('populates ingredients.preFerment when poolish is selected', () => {
-		const r = computeSchedule(baseInputs({ preFerment: { type: 'poolish', flourPercent: 30 } }));
-		expect(r.ingredients.preFerment).not.toBeNull();
+	it('populates ingredients.preFerments when poolish is selected', () => {
+		const r = computeSchedule(baseInputs({ preFerments: [{ type: 'poolish', flourPercent: 30 }] }));
+		expect(r.ingredients.preFerments).toHaveLength(1);
 		// poolish is 100% hydration
-		expect(r.ingredients.preFerment!.water / r.ingredients.preFerment!.flour).toBeCloseTo(1, 6);
+		const pf = r.ingredients.preFerments[0];
+		expect(pf.water / pf.flour).toBeCloseTo(1, 6);
 	});
 
-	it('leaves ingredients.preFerment null when no pre-ferment is chosen', () => {
-		const r = computeSchedule(baseInputs({ preFerment: null }));
-		expect(r.ingredients.preFerment).toBeNull();
+	it('leaves ingredients.preFerments empty when no pre-ferment is chosen', () => {
+		const r = computeSchedule(baseInputs({ preFerments: [] }));
+		expect(r.ingredients.preFerments).toHaveLength(0);
 	});
 
 	it('schedules the preferment-mix step at or after startAt when night avoidance is not needed', () => {
@@ -229,7 +231,7 @@ describe('computeSchedule — pre-ferment', () => {
 		const startAt = new Date('2026-05-12T20:00:00Z');
 		const readyBy = new Date('2026-05-14T13:45:00Z');
 		const r = computeSchedule(
-			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+			baseInputs({ startAt, readyBy, preFerments: [{ type: 'biga', flourPercent: 30 }] })
 		);
 		expect(r.steps[0].kind).toBe('preferment-mix');
 		expect(r.steps[0].at.getTime()).toBeGreaterThanOrEqual(startAt.getTime());
@@ -237,9 +239,9 @@ describe('computeSchedule — pre-ferment', () => {
 	});
 
 	it('keeps mass balance with a pre-ferment (main + preferment sums to total)', () => {
-		const r = computeSchedule(baseInputs({ preFerment: { type: 'biga', flourPercent: 30 } }));
+		const r = computeSchedule(baseInputs({ preFerments: [{ type: 'biga', flourPercent: 30 }] }));
 		const ing = r.ingredients;
-		const pf = ing.preFerment!;
+		const pf = ing.preFerments[0];
 		const sum = ing.flour + ing.water + ing.salt + ing.yeast + pf.flour + pf.water + pf.yeast;
 		expect(sum).toBeCloseTo(ing.totalDough, 6);
 	});
@@ -272,7 +274,7 @@ describe('computeSchedule — night-window avoidance', () => {
 			baseInputs({
 				startAt: new Date('2026-05-10T19:00:00Z'),
 				readyBy: new Date('2026-05-12T19:00:00Z'),
-				preFerment: { type: 'biga', flourPercent: 30 }
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			})
 		);
 		expect(r.mode).toBe('cold');
@@ -342,10 +344,10 @@ describe('computeSchedule — sourdough ignores pre-ferment', () => {
 				readyBy: new Date('2026-05-12T19:00:00Z'),
 				yeastType: 'sourdough',
 				starterHydration: 100,
-				preFerment: { type: 'biga', flourPercent: 30 }
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			})
 		);
-		expect(r.ingredients.preFerment).toBeNull();
+		expect(r.ingredients.preFerments).toHaveLength(0);
 		expect(r.steps.some((s) => s.kind === 'preferment-mix')).toBe(false);
 	});
 
@@ -356,7 +358,7 @@ describe('computeSchedule — sourdough ignores pre-ferment', () => {
 				readyBy: new Date('2026-05-12T19:00:00Z'),
 				yeastType: 'sourdough',
 				starterHydration: 100,
-				preFerment: { type: 'biga', flourPercent: 30 }
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			})
 		);
 		const ing = r.ingredients;
@@ -374,7 +376,7 @@ describe('computeSchedule — room mode with pre-ferment', () => {
 		const startAt = new Date('2026-05-11T01:00:00Z');
 		const readyBy = new Date('2026-05-11T19:00:00Z');
 		const r = computeSchedule(
-			baseInputs({ startAt, readyBy, preFerment: { type: 'poolish', flourPercent: 30 } })
+			baseInputs({ startAt, readyBy, preFerments: [{ type: 'poolish', flourPercent: 30 }] })
 		);
 		expect(r.mode).toBe('room');
 		const preferment = findStep(r, 'preferment-mix');
@@ -386,17 +388,145 @@ describe('computeSchedule — room mode with pre-ferment', () => {
 	});
 });
 
+describe('computeSchedule — combined biga + poolish', () => {
+	const combined = [
+		{ type: 'biga', flourPercent: 30 },
+		{ type: 'poolish', flourPercent: 20 }
+	] satisfies DoughInputs['preFerments'];
+	const window = {
+		startAt: new Date('2026-05-11T07:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+
+	it('emits one preferment-mix step per pre-ferment, both ending at prep', () => {
+		const r = computeSchedule(baseInputs({ ...window, preFerments: combined }));
+		const pfSteps = r.steps.filter((s) => s.kind === 'preferment-mix');
+		expect(pfSteps.map((s) => s.preFermentType)).toEqual(['biga', 'poolish']);
+		const prep = findStep(r, 'prep');
+		for (const s of pfSteps) {
+			expect(s.at.getTime() + s.durationMinutes * 60_000).toBe(prep.at.getTime());
+		}
+	});
+
+	it('starts the longer biga before the shorter poolish (forward time order)', () => {
+		const r = computeSchedule(baseInputs({ ...window, preFerments: combined }));
+		const [biga, poolish] = r.steps.filter((s) => s.kind === 'preferment-mix');
+		expect(biga.at.getTime()).toBeLessThan(poolish.at.getTime());
+		expect(biga.durationMinutes).toBeGreaterThan(poolish.durationMinutes);
+	});
+
+	it('keeps the single-pre-ferment yeast solve independent of the flour share (w = 1)', () => {
+		// Pre-v4 the pre-ferment's full duration entered the solve regardless of
+		// flourPercent. A single pre-ferment has weight 1, so that must still
+		// hold — every old share-link reproduces its yeast % exactly.
+		const at30 = computeSchedule(
+			baseInputs({ ...window, preFerments: [{ type: 'biga', flourPercent: 30 }] })
+		);
+		const at60 = computeSchedule(
+			baseInputs({ ...window, preFerments: [{ type: 'biga', flourPercent: 60 }] })
+		);
+		expect(at60.yeastPercent).toBeCloseTo(at30.yeastPercent, 12);
+	});
+
+	it('solves the yeast from flour-share-weighted equivalent hours: % = target / Σ(wᵢ·hᵢ·f(T))', () => {
+		// Rebuild the solve analytically from the emitted geometry. The yeast in
+		// each pre-ferment (split by flour share: biga 30/50, poolish 20/50)
+		// ferments for its own wall-clock leg; the whole dough then shares the
+		// initial bulk, cold leg and final proof.
+		const r = computeSchedule(baseInputs({ ...window, preFerments: combined }));
+		expect(r.mode).toBe('cold');
+		const [biga, poolish] = r.steps.filter((s) => s.kind === 'preferment-mix');
+		const f = (tempC: number) => Math.pow(2, (tempC - 22) / 10);
+		const eq =
+			(0.6 * (biga.durationMinutes / 60) + 0.4 * (poolish.durationMinutes / 60)) * f(22) +
+			((findStep(r, 'bulk-room').durationMinutes + findStep(r, 'final-proof').durationMinutes) /
+				60) *
+				f(22) +
+			(findStep(r, 'bulk-cold').durationMinutes / 60) * f(4);
+		expect(r.yeastPercent).toBeCloseTo(1.6 / eq, 12);
+	});
+
+	it('needs more yeast than a biga-only recipe on the same reserved window', () => {
+		// Combined and biga-only both reserve the 14 h biga leg, but the poolish
+		// fraction of the yeast only works 12 of those hours — fewer credited
+		// equivalent hours, more yeast.
+		const bigaOnly = computeSchedule(
+			baseInputs({ ...window, preFerments: [{ type: 'biga', flourPercent: 30 }] })
+		);
+		const both = computeSchedule(baseInputs({ ...window, preFerments: combined }));
+		expect(both.yeastPercent).toBeGreaterThan(bigaOnly.yeastPercent);
+	});
+
+	it('reserves only the longest pre-ferment on the schedule (first step is the biga mix)', () => {
+		const r = computeSchedule(baseInputs({ ...window, preFerments: combined }));
+		expect(r.steps[0].kind).toBe('preferment-mix');
+		expect(r.steps[0].preFermentType).toBe('biga');
+		expect(r.steps[0].at.getTime()).toBeGreaterThanOrEqual(window.startAt.getTime());
+	});
+
+	it('exposes one naturalPreferments entry per pre-ferment', () => {
+		const r = computeSchedule(baseInputs({ ...window, preFerments: combined }));
+		expect(r.naturalPreferments.map((n) => n.type)).toEqual(['biga', 'poolish']);
+		for (const n of r.naturalPreferments) {
+			expect(n.naturalHours).toBeGreaterThan(0);
+		}
+	});
+
+	it('shrinks both pre-ferments to the wall budget when the window is too tight', () => {
+		// 6 h window in room mode: both naturals (14 h / 12 h) overflow the
+		// budget, so both cap at totalAvailable − prep/mix/divide and start at
+		// the same minute — never before startAt.
+		const startAt = new Date('2026-05-12T08:00:00Z');
+		const readyBy = new Date('2026-05-12T14:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt, readyBy, preFerments: combined }));
+		expect(r.mode).toBe('room');
+		const pfSteps = r.steps.filter((s) => s.kind === 'preferment-mix');
+		expect(pfSteps).toHaveLength(2);
+		expect(pfSteps[0].durationMinutes).toBe(pfSteps[1].durationMinutes);
+		expect(pfSteps[0].at.getTime()).toBe(pfSteps[1].at.getTime());
+		for (const s of r.steps) {
+			expect(s.at.getTime()).toBeGreaterThanOrEqual(startAt.getTime());
+		}
+	});
+
+	it('drops both pre-ferments under sourdough', () => {
+		const r = computeSchedule(
+			baseInputs({ ...window, yeastType: 'sourdough', preFerments: combined })
+		);
+		expect(r.steps.some((s) => s.kind === 'preferment-mix')).toBe(false);
+		expect(r.ingredients.preFerments).toHaveLength(0);
+		expect(r.preFerments).toHaveLength(0);
+	});
+
+	it('keeps every action step out of the night window with two pre-ferment offsets', () => {
+		// Same scenario as the single-pre-ferment night test — adding the second
+		// (shorter) pre-ferment must not reintroduce a night start.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-09T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				preFerments: combined
+			})
+		);
+		expect(r.mode).toBe('cold');
+		for (const s of r.steps.filter((s) => ACTIVE_NIGHT_KINDS.has(s.kind))) {
+			expect(inDayWindow(s.at), `${s.kind} at ${s.at.toISOString()} fell in the night`).toBe(true);
+		}
+		expect(r.warnings).not.toContain('night-step');
+	});
+});
+
 describe('computeSchedule — pre-ferment carries all the yeast', () => {
 	it('puts the full yeast mass in the pre-ferment and zeroes the main-dough yeast', () => {
 		const r = computeSchedule(
 			baseInputs({
 				startAt: new Date('2026-05-11T07:00:00Z'),
 				readyBy: new Date('2026-05-12T19:00:00Z'),
-				preFerment: { type: 'biga', flourPercent: 30 }
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			})
 		);
 		expect(r.ingredients.yeast).toBe(0);
-		expect(r.ingredients.preFerment!.yeast).toBeGreaterThan(0);
+		expect(r.ingredients.preFerments[0].yeast).toBeGreaterThan(0);
 	});
 
 	it('uses less yeast overall with a pre-ferment than without (the pre-ferment phase adds equivalent-hours)', () => {
@@ -404,7 +534,7 @@ describe('computeSchedule — pre-ferment carries all the yeast', () => {
 		const readyBy = new Date('2026-05-12T19:00:00Z');
 		const direct = computeSchedule(baseInputs({ startAt, readyBy }));
 		const withBiga = computeSchedule(
-			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+			baseInputs({ startAt, readyBy, preFerments: [{ type: 'biga', flourPercent: 30 }] })
 		);
 		expect(withBiga.yeastPercent).toBeLessThan(direct.yeastPercent);
 	});
@@ -499,7 +629,7 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		const startAt = new Date('2026-05-11T11:00:00Z');
 		const readyBy = new Date('2026-05-12T18:00:00Z');
 		const r = computeSchedule(
-			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+			baseInputs({ startAt, readyBy, preFerments: [{ type: 'biga', flourPercent: 30 }] })
 		);
 		expect(r.mode).toBe('cold');
 		expect(r.steps[0].kind).toBe('preferment-mix');
@@ -510,7 +640,7 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		const startAt = new Date('2026-05-11T11:00:00Z');
 		const readyBy = new Date('2026-05-12T16:00:00Z');
 		const r = computeSchedule(
-			baseInputs({ startAt, readyBy, preFerment: { type: 'poolish', flourPercent: 30 } })
+			baseInputs({ startAt, readyBy, preFerments: [{ type: 'poolish', flourPercent: 30 }] })
 		);
 		expect(r.steps[0].kind).toBe('preferment-mix');
 		expect(firstStepAt(r).getTime()).toBeGreaterThanOrEqual(startAt.getTime());
@@ -530,7 +660,7 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		const startAt = new Date('2026-05-12T08:00:00Z');
 		const readyBy = new Date('2026-05-12T18:00:00Z');
 		const r = computeSchedule(
-			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+			baseInputs({ startAt, readyBy, preFerments: [{ type: 'biga', flourPercent: 30 }] })
 		);
 		expect(r.mode).toBe('room');
 		const pf = findStep(r, 'preferment-mix');
@@ -576,7 +706,7 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		const startAt = new Date('2026-05-12T01:00:00Z');
 		const readyBy = new Date('2026-05-13T08:00:00Z');
 		const r = computeSchedule(
-			baseInputs({ startAt, readyBy, preFerment: { type: 'biga', flourPercent: 30 } })
+			baseInputs({ startAt, readyBy, preFerments: [{ type: 'biga', flourPercent: 30 }] })
 		);
 		expect(r.mode).toBe('cold');
 		expect(r.warnings).toContain('night-step');
