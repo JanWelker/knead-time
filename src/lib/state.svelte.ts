@@ -1,5 +1,6 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
+import { clampInput, clampPreFermentShares, clampShareInput } from './dough/inputBounds';
 import { computeSchedule } from './dough/schedule';
 import type {
 	BallProof,
@@ -35,36 +36,69 @@ export class FormState {
 	preFermentTempEnabled: boolean = $state(false);
 	preFermentTempValue: number = $state(18);
 	bigaEnabled: boolean = $state(false);
-	bigaFlourPercent: number = $state(30);
 	poolishEnabled: boolean = $state(false);
-	poolishFlourPercent: number = $state(20);
 	startAt: Date = $state(new SvelteDate());
 
+	// The share being typed clamps live against the other enabled share so
+	// the sum can never pass the cap (issue #193); sub-minimum values survive
+	// mid-typing and the derived inputs raise them to the band minimum.
+	#bigaFlourPercent = $state(30);
+	#poolishFlourPercent = $state(20);
+
+	get bigaFlourPercent(): number {
+		return this.#bigaFlourPercent;
+	}
+
+	set bigaFlourPercent(value: number) {
+		this.#bigaFlourPercent = clampShareInput(
+			value,
+			this.poolishEnabled ? this.#poolishFlourPercent : 0,
+			this.#bigaFlourPercent
+		);
+	}
+
+	get poolishFlourPercent(): number {
+		return this.#poolishFlourPercent;
+	}
+
+	set poolishFlourPercent(value: number) {
+		this.#poolishFlourPercent = clampShareInput(
+			value,
+			this.bigaEnabled ? this.#bigaFlourPercent : 0,
+			this.#poolishFlourPercent
+		);
+	}
+
+	// The raw fields mirror the input boxes; the recipe always sees
+	// band-clamped values so a typed outlier or an emptied field can never
+	// reach the math (issues #193/#194).
 	readonly inputs: DoughInputs = $derived({
 		readyBy: this.readyBy,
 		startAt: this.startAt,
-		pizzaCount: this.pizzaCount,
-		ballWeight: this.ballWeight,
-		hydration: this.hydration,
-		saltPercent: this.saltPercent,
-		oilPercent: this.oilPercent,
-		sugarPercent: this.sugarPercent,
+		pizzaCount: clampInput('pizzaCount', this.pizzaCount),
+		ballWeight: clampInput('ballWeight', this.ballWeight),
+		hydration: clampInput('hydration', this.hydration),
+		saltPercent: clampInput('saltPercent', this.saltPercent),
+		oilPercent: clampInput('oilPercent', this.oilPercent),
+		sugarPercent: clampInput('sugarPercent', this.sugarPercent),
 		yeastType: this.yeastType,
-		starterHydration: this.starterHydration,
-		roomTempC: this.roomTempC,
-		fridgeTempC: this.fridgeTempC,
+		starterHydration: clampInput('starterHydration', this.starterHydration),
+		roomTempC: clampInput('roomTempC', this.roomTempC),
+		fridgeTempC: clampInput('fridgeTempC', this.fridgeTempC),
 		mixingMethod: this.mixingMethod,
 		ballProof: this.ballProof,
-		preFermentTempC: this.preFermentTempEnabled ? this.preFermentTempValue : null,
+		preFermentTempC: this.preFermentTempEnabled
+			? clampInput('preFermentTempC', this.preFermentTempValue)
+			: null,
 		// Canonical biga-first order — the encoder and decoder preserve it.
-		preFerments: [
+		preFerments: clampPreFermentShares([
 			...(this.bigaEnabled
-				? [{ type: 'biga', flourPercent: this.bigaFlourPercent } satisfies PreFermentSpec]
+				? [{ type: 'biga', flourPercent: this.#bigaFlourPercent } satisfies PreFermentSpec]
 				: []),
 			...(this.poolishEnabled
-				? [{ type: 'poolish', flourPercent: this.poolishFlourPercent } satisfies PreFermentSpec]
+				? [{ type: 'poolish', flourPercent: this.#poolishFlourPercent } satisfies PreFermentSpec]
 				: [])
-		]
+		])
 	});
 
 	readonly schedule: ComputedSchedule = $derived(computeSchedule(this.inputs));
@@ -74,15 +108,18 @@ export class FormState {
 	}
 
 	roundBallWeight() {
+		// Read the clamped inputs, not the raw fields — a typed outlier (e.g. 0
+		// pizzas) must not push NaN through the flour division.
+		const inputs = this.inputs;
 		this.ballWeight = roundBallWeight({
-			pizzaCount: this.pizzaCount,
-			ballWeight: this.ballWeight,
-			hydration: this.hydration,
-			saltPercent: this.saltPercent,
-			oilPercent: this.oilPercent,
-			sugarPercent: this.sugarPercent,
+			pizzaCount: inputs.pizzaCount,
+			ballWeight: inputs.ballWeight,
+			hydration: inputs.hydration,
+			saltPercent: inputs.saltPercent,
+			oilPercent: inputs.oilPercent,
+			sugarPercent: inputs.sugarPercent,
 			yeastPercent: this.schedule.yeastPercent,
-			yeastType: this.yeastType
+			yeastType: inputs.yeastType
 		});
 	}
 
@@ -109,9 +146,11 @@ export class FormState {
 			const biga = partial.preFerments.find((pf) => pf.type === 'biga');
 			const poolish = partial.preFerments.find((pf) => pf.type === 'poolish');
 			this.bigaEnabled = biga !== undefined;
-			if (biga) this.bigaFlourPercent = biga.flourPercent;
 			this.poolishEnabled = poolish !== undefined;
-			if (poolish) this.poolishFlourPercent = poolish.flourPercent;
+			// Decoded shares are already clamped as a set — write the backing
+			// fields directly; the setters would re-clamp against outgoing values.
+			if (biga) this.#bigaFlourPercent = biga.flourPercent;
+			if (poolish) this.#poolishFlourPercent = poolish.flourPercent;
 		}
 	}
 }
