@@ -114,10 +114,16 @@ export function stepDescription(
 			return prefermentType ? msgs.steps.prep_desc_with_preferment : template;
 		case 'mix': {
 			const waterTemp = { water_temp: schedule.idealWaterTempC };
-			if (prefermentType === 'biga') return interpolate(msgs.steps.mix_desc_with_biga, waterTemp);
-			if (prefermentType === 'poolish')
-				return interpolate(msgs.steps.mix_desc_with_poolish, waterTemp);
-			return interpolate(template, waterTemp);
+			// The base descriptions are method-neutral; the how-to-knead sentence
+			// is appended per mixing method so the copy matrix stays small.
+			const technique =
+				schedule.mixingMethod === 'hand'
+					? msgs.steps.mix_technique_hand
+					: msgs.steps.mix_technique_machine;
+			let base = template;
+			if (prefermentType === 'biga') base = msgs.steps.mix_desc_with_biga;
+			if (prefermentType === 'poolish') base = msgs.steps.mix_desc_with_poolish;
+			return `${interpolate(base, waterTemp)} ${technique}`;
 		}
 		default:
 			return template;

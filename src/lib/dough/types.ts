@@ -1,5 +1,7 @@
 export type YeastType = 'fresh' | 'sourdough';
 
+export type MixingMethod = 'hand' | 'machine';
+
 export type PreFermentType = 'none' | 'biga' | 'poolish';
 
 export interface PreFermentSpec {
@@ -23,6 +25,7 @@ export interface DoughInputs {
 	starterHydration: number;
 	roomTempC: number;
 	fridgeTempC: number;
+	mixingMethod: MixingMethod;
 	preFerment: PreFermentSpec | null;
 }
 
@@ -73,6 +76,7 @@ export interface ComputedSchedule {
 	warnings: ScheduleWarning[];
 	pizzaCount: number;
 	ballWeight: number;
+	mixingMethod: MixingMethod;
 	idealWaterTempC: number;
 	// Pre-clamp / pre-shift values used by the recipe fit-score metric. A
 	// "perfect" schedule keeps the actual durations equal to these naturals;

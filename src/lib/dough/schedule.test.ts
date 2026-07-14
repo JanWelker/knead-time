@@ -103,6 +103,32 @@ describe('computeSchedule — backwards anchoring', () => {
 	});
 });
 
+describe('computeSchedule — mixing method', () => {
+	it('gives the mix step 15 min on the machine and 25 min by hand', () => {
+		expect(findStep(computeSchedule(baseInputs()), 'mix').durationMinutes).toBe(15);
+		expect(
+			findStep(computeSchedule(baseInputs({ mixingMethod: 'hand' })), 'mix').durationMinutes
+		).toBe(25);
+	});
+
+	it('keeps the schedule anchored to readyBy — hand mixing eats ferment time, not bake time', () => {
+		const machine = computeSchedule(baseInputs());
+		const hand = computeSchedule(baseInputs({ mixingMethod: 'hand' }));
+		expect(findStep(hand, 'ready').at.getTime()).toBe(findStep(machine, 'ready').at.getTime());
+		// The 10 extra mix minutes come out of the room-ferment budget, so the
+		// yeast solve sees slightly fewer hours and lands slightly higher.
+		expect(hand.yeastPercent).toBeGreaterThan(machine.yeastPercent);
+	});
+
+	it('recommends warmer water for hand kneading', () => {
+		const machine = computeSchedule(baseInputs());
+		const hand = computeSchedule(baseInputs({ mixingMethod: 'hand' }));
+		expect(hand.idealWaterTempC).toBeGreaterThan(machine.idealWaterTempC);
+		expect(hand.mixingMethod).toBe('hand');
+		expect(machine.mixingMethod).toBe('machine');
+	});
+});
+
 describe('computeSchedule — yeast selection', () => {
 	it('uses much less yeast for cold ferment than for a short room ferment', () => {
 		const short = computeSchedule(baseInputs());

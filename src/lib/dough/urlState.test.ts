@@ -14,6 +14,7 @@ const base: SerializableInputs = {
 	starterHydration: 100,
 	roomTempC: 22,
 	fridgeTempC: 4,
+	mixingMethod: 'machine',
 	preFerment: null
 };
 
@@ -104,7 +105,7 @@ describe('urlState round-trip', () => {
 
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=3');
+		expect(encodeInputs(base)).toContain('v=4');
 	});
 
 	it('decodes legacy links that predate the v parameter as v1', () => {
@@ -147,6 +148,29 @@ describe('urlState versioning', () => {
 		const out = decodeInputs(encodeInputs({ ...base, oilPercent: 5, sugarPercent: 2 }));
 		expect(out.oilPercent).toBe(5);
 		expect(out.sugarPercent).toBe(2);
+	});
+
+	it('v=3 links omit the mixing method so FormState defaults (machine) fill in', () => {
+		// Every share-link issued before v=4 was computed against the fixed
+		// 15-min machine mix. The decoder must leave mixingMethod undefined so
+		// state.apply preserves the form default.
+		const out = decodeInputs('?v=3&r=2026-05-12T19:00:00.000Z&n=4&b=280&h=70&y=f&t=22&ft=4');
+		expect(out.mixingMethod).toBeUndefined();
+	});
+
+	it('round-trips hand mixing on v=4', () => {
+		const out = decodeInputs(encodeInputs({ ...base, mixingMethod: 'hand' }));
+		expect(out.mixingMethod).toBe('hand');
+	});
+
+	it('omits the mixing method from the encoded URL when machine', () => {
+		expect(encodeInputs(base)).not.toContain('mm=');
+	});
+
+	it('accepts an explicit mm=m as machine', () => {
+		// encode never emits it, but hand-crafted URLs should still resolve.
+		const out = decodeInputs('?v=4&n=4&b=280&h=70&y=f&t=22&mm=m');
+		expect(out.mixingMethod).toBe('machine');
 	});
 
 	it('omits oil & sugar from the encoded URL when both are 0', () => {

@@ -97,6 +97,24 @@ describe('stepDescription — prep / mix method copy', () => {
 		expect(stepDescription(findStep(r, 'mix'), MESSAGES.en)).toBe(MESSAGES.en.steps.mix_desc);
 	});
 
+	it('appends the machine kneading technique to the mix method by default', () => {
+		const r = computeSchedule(inputs());
+		const desc = stepDescription(findStep(r, 'mix'), MESSAGES.en, r);
+		expect(desc).toContain(MESSAGES.en.steps.mix_technique_machine);
+		expect(desc).not.toContain(MESSAGES.en.steps.mix_technique_hand);
+	});
+
+	it('appends the hand kneading technique when mixing by hand, also under a pre-ferment', () => {
+		const plain = computeSchedule(inputs({ mixingMethod: 'hand' }));
+		expect(stepDescription(findStep(plain, 'mix'), MESSAGES.en, plain)).toContain(
+			MESSAGES.en.steps.mix_technique_hand
+		);
+		const withBiga = computeSchedule(prefermentInputs('biga', { mixingMethod: 'hand' }));
+		const desc = stepDescription(findStep(withBiga, 'mix'), MESSAGES.en, withBiga);
+		expect(desc).toContain(MESSAGES.en.steps.mix_desc_with_biga.split('{')[0]);
+		expect(desc).toContain(MESSAGES.en.steps.mix_technique_hand);
+	});
+
 	it('uses the with-preferment prep copy and notes the yeast lives in the pre-dough', () => {
 		const r = computeSchedule(prefermentInputs('poolish'));
 		const desc = stepDescription(findStep(r, 'prep'), MESSAGES.en, r);

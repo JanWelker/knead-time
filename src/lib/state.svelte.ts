@@ -1,7 +1,7 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
 import { computeSchedule } from './dough/schedule';
-import type { ComputedSchedule, DoughInputs, YeastType } from './dough/types';
+import type { ComputedSchedule, DoughInputs, MixingMethod, YeastType } from './dough/types';
 import type { SerializableInputs } from './dough/urlState';
 
 export type PreFermentChoice = 'none' | 'biga' | 'poolish';
@@ -25,6 +25,7 @@ export class FormState {
 	starterHydration: number = $state(100);
 	roomTempC: number = $state(22);
 	fridgeTempC: number = $state(4);
+	mixingMethod: MixingMethod = $state('machine');
 	preFermentType: PreFermentChoice = $state('none');
 	preFermentFlour: number = $state(30);
 	startAt: Date = $state(new SvelteDate());
@@ -42,6 +43,7 @@ export class FormState {
 		starterHydration: this.starterHydration,
 		roomTempC: this.roomTempC,
 		fridgeTempC: this.fridgeTempC,
+		mixingMethod: this.mixingMethod,
 		preFerment:
 			this.preFermentType === 'none'
 				? null
@@ -80,6 +82,7 @@ export class FormState {
 		if (partial.starterHydration !== undefined) this.starterHydration = partial.starterHydration;
 		if (partial.roomTempC !== undefined) this.roomTempC = partial.roomTempC;
 		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
+		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
 		if (partial.preFerment !== undefined) {
 			if (partial.preFerment === null) {
 				this.preFermentType = 'none';

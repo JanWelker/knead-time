@@ -202,6 +202,10 @@ function matchesRecipe(a: Partial<SerializableInputs>, b: DoughInputs): boolean 
 	if (a.roomTempC !== b.roomTempC) return false;
 	if (a.fridgeTempC !== b.fridgeTempC) return false;
 	if (a.yeastType === 'sourdough' && a.starterHydration !== b.starterHydration) return false;
+	// Pre-v=4 share URLs omit the mixing method; the parser leaves it
+	// undefined, the form supplies 'machine'. Treat unset === machine so
+	// legacy entries keep matching.
+	if ((a.mixingMethod ?? 'machine') !== b.mixingMethod) return false;
 	const aPf = a.preFerment ?? null;
 	const bPf = b.preFerment ?? null;
 	if (aPf === null && bPf === null) return true;

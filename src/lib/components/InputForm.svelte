@@ -156,6 +156,19 @@
 
 		<label class="block">
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.mixingMethod}
+			</span>
+			<select class={selectClass} bind:value={state.mixingMethod}>
+				<option value="machine">{t.form.mixing_machine}</option>
+				<option value="hand">{t.form.mixing_hand}</option>
+			</select>
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.mixingMethod_help}
+			</span>
+		</label>
+
+		<label class="block">
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.yeastType}
 			</span>
 			<select class={selectClass} bind:value={state.yeastType}>
