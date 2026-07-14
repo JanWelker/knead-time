@@ -10,7 +10,7 @@
 	"labels": ["dependencies"],
 	"constraints": {
 		"node": "24",
-		"npm": "12"
+		"npm": "11"
 	},
 	"automerge": true,
 	"platformAutomerge": true,
@@ -47,6 +47,7 @@
 			"groupName": "lint"
 		},
 		{
+			"description": "Types track the engines floor (Node >=22), not CI's Node 24 runtime — keeps Node-23+/24-only APIs out of code that must still run on 22.",
 			"matchPackageNames": ["@types/node"],
 			"allowedVersions": "<23"
 		},

@@ -4,6 +4,9 @@
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
+	"engines": {
+		"node": ">=22"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
