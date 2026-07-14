@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeInputs, encodeInputs, type SerializableInputs } from './urlState';
+import { decodeInputs, decodeUiMode, encodeInputs, type SerializableInputs } from './urlState';
 
 const base: SerializableInputs = {
 	readyBy: new Date('2026-05-12T19:00:00Z'),
@@ -238,5 +238,33 @@ describe('urlState versioning', () => {
 	it('treats a non-numeric v as the current version', () => {
 		const out = decodeInputs('?v=garbage&n=4');
 		expect(out.pizzaCount).toBe(4);
+	});
+});
+
+describe('view mode in the URL', () => {
+	it('stamps md=b when encoding in beginner mode and omits it in expert mode', () => {
+		expect(encodeInputs(base, { mode: 'beginner' })).toContain('md=b');
+		expect(encodeInputs(base, { mode: 'expert' })).not.toContain('md=');
+		expect(encodeInputs(base)).not.toContain('md=');
+	});
+
+	it('resolves an explicit md param in either direction', () => {
+		expect(decodeUiMode('?md=b&n=4')).toBe('beginner');
+		expect(decodeUiMode('?md=e&n=4')).toBe('expert');
+	});
+
+	it('resolves any recipe link without md as expert — pre-v4 links were made in the full view', () => {
+		expect(decodeUiMode('?v=3&n=4&b=280&h=70&y=f&t=22')).toBe('expert');
+		// Legacy links predate the v param but still carry recipe keys.
+		expect(decodeUiMode('?r=2026-05-12T19:00:00.000Z&n=4')).toBe('expert');
+	});
+
+	it('returns null for a fresh visit so the caller can fall back to the stored preference', () => {
+		expect(decodeUiMode('')).toBeNull();
+		expect(decodeUiMode('?')).toBeNull();
+	});
+
+	it('round-trips beginner mode through encode and decode', () => {
+		expect(decodeUiMode(`?${encodeInputs(base, { mode: 'beginner' })}`)).toBe('beginner');
 	});
 });

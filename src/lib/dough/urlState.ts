@@ -1,3 +1,4 @@
+import type { UiMode } from '../storedMode';
 import type { DoughInputs, PreFermentSpec } from './types';
 
 export type SerializableInputs = DoughInputs;
@@ -37,9 +38,16 @@ const KEYS_V4 = {
 	preFerment: 'p'
 } as const;
 
-export function encodeInputs(inputs: SerializableInputs): string {
+// Beginner/expert view mode travels in the share URL so a link opens the way
+// its sender saw it. Only beginner is stamped ('md=b'); absence means expert
+// for any link carrying recipe params (everything shared before v4 was made
+// in today's full — now "expert" — view).
+const MODE_KEY = 'md';
+
+export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }): string {
 	const params = new URLSearchParams();
 	params.set(VERSION_KEY, String(CURRENT_VERSION));
+	if (ui?.mode === 'beginner') params.set(MODE_KEY, 'b');
 	params.set(KEYS_V4.readyBy, inputs.readyBy.toISOString());
 	params.set(KEYS_V4.startAt, inputs.startAt.toISOString());
 	params.set(KEYS_V4.pizzaCount, String(inputs.pizzaCount));
@@ -95,6 +103,19 @@ function parsePreFerments(encoded: string): PreFermentSpec[] {
 		out.push({ type, flourPercent: pct2 });
 	}
 	return [...out.filter((pf) => pf.type === 'biga'), ...out.filter((pf) => pf.type === 'poolish')];
+}
+
+// Resolves the view mode a URL asks for, or null when it doesn't say.
+// An explicit md param wins; any other non-empty query is a recipe link and
+// means expert; an empty query is a fresh visit — the caller falls back to
+// the stored preference and finally to beginner.
+export function decodeUiMode(query: string): UiMode | null {
+	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	const md = params.get(MODE_KEY);
+	if (md === 'b') return 'beginner';
+	if (md === 'e') return 'expert';
+	// URLSearchParams.size is too new for some supported browsers.
+	return params.toString() !== '' ? 'expert' : null;
 }
 
 export function decodeInputs(query: string): Partial<SerializableInputs> {

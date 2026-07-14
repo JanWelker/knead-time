@@ -4,7 +4,9 @@
 	import { onMount } from 'svelte';
 
 	import { buildIcs } from '$lib/dough/ics';
-	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
+	import { decodeInputs, decodeUiMode, encodeInputs } from '$lib/dough/urlState';
+	import { uiMode } from '$lib/mode.svelte';
+	import { loadStoredMode } from '$lib/storedMode';
 	import Community from '$lib/components/Community.svelte';
 	import Pizzerias from '$lib/components/Pizzerias.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
@@ -37,12 +39,18 @@
 	onMount(() => {
 		const parsed = decodeInputs(window.location.search);
 		form.apply(parsed);
+		// View mode: the URL's word wins (a shared link opens the way its
+		// sender saw it), then the visitor's stored preference, and a truly
+		// fresh visit starts in the beginner view. Set directly (not via
+		// uiMode.set) so a link never overwrites the stored preference.
+		uiMode.current =
+			decodeUiMode(window.location.search) ?? loadStoredMode(localStorage) ?? 'beginner';
 		hydrated = true;
 	});
 
 	$effect(() => {
 		if (!browser || !hydrated) return;
-		const qs = encodeInputs(form.serializable());
+		const qs = encodeInputs(form.serializable(), { mode: uiMode.current });
 		const next = `${window.location.pathname}?${qs}`;
 		if (next !== window.location.pathname + window.location.search) {
 			history.replaceState({}, '', next);
@@ -62,7 +70,9 @@
 	function downloadIcs() {
 		const ics = buildIcs(form.schedule.steps, (step) => ({
 			summary: stepTitle(step, t),
-			description: stepDetailText(step, t, form.schedule)
+			description: stepDetailText(step, t, form.schedule, {
+				includeDetail: uiMode.current === 'beginner'
+			})
 		}));
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
@@ -204,7 +214,11 @@
 
 			<Warnings warnings={form.schedule.warnings} />
 			<div class="mt-4">
-				<ScheduleTable schedule={form.schedule} sourceTiming={activePizzeria?.timing} />
+				<ScheduleTable
+					schedule={form.schedule}
+					sourceTiming={activePizzeria?.timing}
+					mode={uiMode.current}
+				/>
 			</div>
 		</div>
 

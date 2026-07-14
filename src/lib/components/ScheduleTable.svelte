@@ -2,15 +2,19 @@
 	import { onMount } from 'svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { formatDuration, formatShortDate, formatTime } from '$lib/format';
-	import { stepDescription, stepIngredients, stepTitle } from '$lib/stepCopy';
+	import { stepDescription, stepDetail, stepIngredients, stepTitle } from '$lib/stepCopy';
 	import { isActiveStep } from '$lib/dough/scheduleStatus';
 	import { stepQualityFlags, type StepQualityFlag } from '$lib/dough/quality';
 	import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from '$lib/dough/types';
 	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
+	import type { UiMode } from '$lib/storedMode';
 	import { interpolate } from '$lib/i18n/interpolate';
 
-	let { schedule, sourceTiming }: { schedule: ComputedSchedule; sourceTiming?: SourceTiming } =
-		$props();
+	let {
+		schedule,
+		sourceTiming,
+		mode = 'expert'
+	}: { schedule: ComputedSchedule; sourceTiming?: SourceTiming; mode?: UiMode } = $props();
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
 
@@ -231,6 +235,14 @@
 						<p class="mt-2 text-sm leading-snug text-stone-500 dark:text-stone-400">
 							{stepDescription(step, t, schedule)}
 						</p>
+
+						{#if mode === 'beginner'}
+							<p
+								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-500 italic dark:border-stone-600 dark:text-stone-400"
+							>
+								{stepDetail(step, t)}
+							</p>
+						{/if}
 
 						{#if sourceTiming?.[step.kind] && step.durationMinutes > 0 && outsideSourceRange(step.durationMinutes, sourceTiming[step.kind]!.minMinutes, sourceTiming[step.kind]!.maxMinutes)}
 							<div class="text-accent mt-1.5 text-xs font-medium">

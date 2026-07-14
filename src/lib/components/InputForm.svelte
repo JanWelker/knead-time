@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
+	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import FormField from './FormField.svelte';
 
@@ -107,196 +108,215 @@
 			bind:value={state.ballWeight}
 		/>
 
-		<FormField
-			label={t.form.hydration}
-			min={50}
-			max={90}
-			step={1}
-			help={t.form.hydration_help}
-			bind:value={state.hydration}
-		/>
-
-		<FormField label={t.form.salt} min={0} max={5} step={0.1} bind:value={state.saltPercent} />
-
-		<FormField
-			label={t.form.oil}
-			min={0}
-			max={15}
-			step={0.1}
-			help={t.form.oil_help}
-			bind:value={state.oilPercent}
-		/>
-
-		<FormField
-			label={t.form.sugar}
-			min={0}
-			max={5}
-			step={0.1}
-			help={t.form.sugar_help}
-			bind:value={state.sugarPercent}
-		/>
-
-		<FormField
-			label={t.form.roomTemp}
-			min={10}
-			max={35}
-			step={0.5}
-			help={t.form.roomTemp_help}
-			bind:value={state.roomTempC}
-		/>
-
-		<FormField
-			label={t.form.fridgeTemp}
-			min={0}
-			max={12}
-			step={0.5}
-			help={t.form.fridgeTemp_help}
-			bind:value={state.fridgeTempC}
-		/>
-
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.mixingMethod}
-			</span>
-			<select class={selectClass} bind:value={state.mixingMethod}>
-				<option value="machine">{t.form.mixing_machine}</option>
-				<option value="hand">{t.form.mixing_hand}</option>
-			</select>
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.mixingMethod_help}
-			</span>
-		</label>
-
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.yeastType}
-			</span>
-			<select class={selectClass} bind:value={state.yeastType}>
-				<option value="fresh">{t.form.yeast_fresh}</option>
-				<option value="sourdough">{t.form.yeast_sourdough}</option>
-			</select>
-		</label>
-
-		{#if state.yeastType === 'sourdough'}
+		{#if uiMode.current === 'expert'}
 			<FormField
-				label={t.form.starterHydration}
-				min={40}
-				max={150}
-				step={5}
-				help={t.form.starterHydration_help}
-				bind:value={state.starterHydration}
+				label={t.form.hydration}
+				min={50}
+				max={90}
+				step={1}
+				help={t.form.hydration_help}
+				bind:value={state.hydration}
 			/>
-		{:else}
-			<fieldset class="space-y-2">
-				<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-					{t.form.preFerment}
-				</legend>
-				<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-					<input type="checkbox" class="accent-tomato-500" bind:checked={state.bigaEnabled} />
-					{t.form.preFerment_biga}
-				</label>
-				{#if state.bigaEnabled}
-					<FormField
-						label={t.form.preFermentFlour_biga}
-						min={5}
-						max={80 - (state.poolishEnabled ? state.poolishFlourPercent : 0)}
-						step={5}
-						bind:value={state.bigaFlourPercent}
-					/>
-				{/if}
-				<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-					<input type="checkbox" class="accent-tomato-500" bind:checked={state.poolishEnabled} />
-					{t.form.preFerment_poolish}
-				</label>
-				{#if state.poolishEnabled}
-					<FormField
-						label={t.form.preFermentFlour_poolish}
-						min={5}
-						max={80 - (state.bigaEnabled ? state.bigaFlourPercent : 0)}
-						step={5}
-						bind:value={state.poolishFlourPercent}
-					/>
-				{/if}
-				{#if state.bigaEnabled && state.poolishEnabled}
-					<span class="block text-xs text-stone-500 dark:text-stone-400">
-						{t.form.preFerment_sum_help}
-					</span>
-				{/if}
-			</fieldset>
+
+			<FormField label={t.form.salt} min={0} max={5} step={0.1} bind:value={state.saltPercent} />
+
+			<FormField
+				label={t.form.oil}
+				min={0}
+				max={15}
+				step={0.1}
+				help={t.form.oil_help}
+				bind:value={state.oilPercent}
+			/>
+
+			<FormField
+				label={t.form.sugar}
+				min={0}
+				max={5}
+				step={0.1}
+				help={t.form.sugar_help}
+				bind:value={state.sugarPercent}
+			/>
+
+			<FormField
+				label={t.form.roomTemp}
+				min={10}
+				max={35}
+				step={0.5}
+				help={t.form.roomTemp_help}
+				bind:value={state.roomTempC}
+			/>
+
+			<FormField
+				label={t.form.fridgeTemp}
+				min={0}
+				max={12}
+				step={0.5}
+				help={t.form.fridgeTemp_help}
+				bind:value={state.fridgeTempC}
+			/>
+
+			<label class="block">
+				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+					{t.form.mixingMethod}
+				</span>
+				<select class={selectClass} bind:value={state.mixingMethod}>
+					<option value="machine">{t.form.mixing_machine}</option>
+					<option value="hand">{t.form.mixing_hand}</option>
+				</select>
+				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					{t.form.mixingMethod_help}
+				</span>
+			</label>
+
+			<label class="block">
+				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+					{t.form.yeastType}
+				</span>
+				<select class={selectClass} bind:value={state.yeastType}>
+					<option value="fresh">{t.form.yeast_fresh}</option>
+					<option value="sourdough">{t.form.yeast_sourdough}</option>
+				</select>
+			</label>
+
+			{#if state.yeastType === 'sourdough'}
+				<FormField
+					label={t.form.starterHydration}
+					min={40}
+					max={150}
+					step={5}
+					help={t.form.starterHydration_help}
+					bind:value={state.starterHydration}
+				/>
+			{:else}
+				<fieldset class="space-y-2">
+					<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+						{t.form.preFerment}
+					</legend>
+					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+						<input type="checkbox" class="accent-tomato-500" bind:checked={state.bigaEnabled} />
+						{t.form.preFerment_biga}
+					</label>
+					{#if state.bigaEnabled}
+						<FormField
+							label={t.form.preFermentFlour_biga}
+							min={5}
+							max={80 - (state.poolishEnabled ? state.poolishFlourPercent : 0)}
+							step={5}
+							bind:value={state.bigaFlourPercent}
+						/>
+					{/if}
+					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+						<input type="checkbox" class="accent-tomato-500" bind:checked={state.poolishEnabled} />
+						{t.form.preFerment_poolish}
+					</label>
+					{#if state.poolishEnabled}
+						<FormField
+							label={t.form.preFermentFlour_poolish}
+							min={5}
+							max={80 - (state.bigaEnabled ? state.bigaFlourPercent : 0)}
+							step={5}
+							bind:value={state.poolishFlourPercent}
+						/>
+					{/if}
+					{#if state.bigaEnabled && state.poolishEnabled}
+						<span class="block text-xs text-stone-500 dark:text-stone-400">
+							{t.form.preFerment_sum_help}
+						</span>
+					{/if}
+				</fieldset>
+			{/if}
 		{/if}
 	</fieldset>
 
-	<details
-		class="border-dough-300 bg-dough-50/60 group min-w-0 rounded-lg border border-dashed p-3 text-xs text-stone-700 open:bg-white/70 dark:border-stone-600 dark:bg-stone-800/40 dark:text-stone-300 dark:open:bg-stone-900/60"
-	>
-		<summary
-			class="text-accent flex cursor-pointer list-none items-center gap-2 font-medium select-none"
+	<div>
+		<button
+			type="button"
+			class="text-accent cursor-pointer text-sm font-medium underline-offset-2 hover:underline"
+			onclick={() => uiMode.set(uiMode.current === 'beginner' ? 'expert' : 'beginner')}
 		>
-			<span
-				class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
-				aria-hidden="true">▶</span
+			{uiMode.current === 'beginner' ? t.form.mode_expert : t.form.mode_beginner}
+		</button>
+		{#if uiMode.current === 'beginner'}
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.mode_help}
+			</span>
+		{/if}
+	</div>
+
+	{#if uiMode.current === 'expert'}
+		<details
+			class="border-dough-300 bg-dough-50/60 group min-w-0 rounded-lg border border-dashed p-3 text-xs text-stone-700 open:bg-white/70 dark:border-stone-600 dark:bg-stone-800/40 dark:text-stone-300 dark:open:bg-stone-900/60"
+		>
+			<summary
+				class="text-accent flex cursor-pointer list-none items-center gap-2 font-medium select-none"
 			>
-			<span>{t.form.info_heading}</span>
-		</summary>
-		<div class="mt-3 min-w-0 space-y-4 leading-relaxed">
-			<p>{t.form.info_intro}</p>
+				<span
+					class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
+					aria-hidden="true">▶</span
+				>
+				<span>{t.form.info_heading}</span>
+			</summary>
+			<div class="mt-3 min-w-0 space-y-4 leading-relaxed">
+				<p>{t.form.info_intro}</p>
 
-			<div class="min-w-0">
-				<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_q10_title}</p>
-				<p class="mt-1">{t.form.info_q10_caption}</p>
-				<pre
-					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">f(T) = 2^((T − 22) / 10)</pre>
-			</div>
+				<div class="min-w-0">
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_q10_title}</p>
+					<p class="mt-1">{t.form.info_q10_caption}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">f(T) = 2^((T − 22) / 10)</pre>
+				</div>
 
-			<div class="min-w-0">
-				<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_units_title}</p>
-				<p class="mt-1">{t.form.info_units_body}</p>
-				<ul class="mt-1 list-disc space-y-0.5 pl-5">
-					<li>{t.form.info_units_fresh}</li>
-					<li>{t.form.info_units_sourdough}</li>
-				</ul>
-				<p class="mt-2">{t.form.info_units_solve}</p>
-				<pre
-					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">yeast% = target / Σ (hours · f(T))</pre>
-			</div>
+				<div class="min-w-0">
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_units_title}</p>
+					<p class="mt-1">{t.form.info_units_body}</p>
+					<ul class="mt-1 list-disc space-y-0.5 pl-5">
+						<li>{t.form.info_units_fresh}</li>
+						<li>{t.form.info_units_sourdough}</li>
+					</ul>
+					<p class="mt-2">{t.form.info_units_solve}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">yeast% = target / Σ (hours · f(T))</pre>
+				</div>
 
-			<div class="min-w-0">
-				<p class="font-semibold text-stone-900 dark:text-stone-100">
-					{t.form.info_preferment_title}
-				</p>
-				<p class="mt-1">{t.form.info_preferment_body}</p>
-				<ul class="mt-1 list-disc space-y-0.5 pl-5">
-					<li>{t.form.info_preferment_biga}</li>
-					<li>{t.form.info_preferment_poolish}</li>
-				</ul>
-				<p class="mt-2">{t.form.info_preferment_wall}</p>
-				<pre
-					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">wallHours = refHours / f(roomTempC),  8 ≤ wallHours ≤ 24</pre>
-				<p class="mt-2">{t.form.info_preferment_yeast}</p>
-			</div>
+				<div class="min-w-0">
+					<p class="font-semibold text-stone-900 dark:text-stone-100">
+						{t.form.info_preferment_title}
+					</p>
+					<p class="mt-1">{t.form.info_preferment_body}</p>
+					<ul class="mt-1 list-disc space-y-0.5 pl-5">
+						<li>{t.form.info_preferment_biga}</li>
+						<li>{t.form.info_preferment_poolish}</li>
+					</ul>
+					<p class="mt-2">{t.form.info_preferment_wall}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">wallHours = refHours / f(roomTempC),  8 ≤ wallHours ≤ 24</pre>
+					<p class="mt-2">{t.form.info_preferment_yeast}</p>
+				</div>
 
-			<div>
-				<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_switch_title}</p>
-				<p class="mt-1">{t.form.info_switch_body}</p>
-			</div>
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_switch_title}</p>
+					<p class="mt-1">{t.form.info_switch_body}</p>
+				</div>
 
-			<div class="min-w-0">
-				<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_mass_title}</p>
-				<p class="mt-1">{t.form.info_mass_body}</p>
-				<pre
-					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">flour = total / pctSum</pre>
-				<p class="mt-2">{t.form.info_mass_caption_fresh}</p>
-				<pre
-					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">pctSum = 100 + hydration + salt% + yeast% + oil% + sugar%</pre>
-				<p class="mt-2">{t.form.info_mass_caption_sourdough}</p>
-				<pre
-					class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">pctSum = 100 + hydration + salt% + oil% + sugar%</pre>
-			</div>
+				<div class="min-w-0">
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_mass_title}</p>
+					<p class="mt-1">{t.form.info_mass_body}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">flour = total / pctSum</pre>
+					<p class="mt-2">{t.form.info_mass_caption_fresh}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">pctSum = 100 + hydration + salt% + yeast% + oil% + sugar%</pre>
+					<p class="mt-2">{t.form.info_mass_caption_sourdough}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">pctSum = 100 + hydration + salt% + oil% + sugar%</pre>
+				</div>
 
-			<div>
-				<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_night_title}</p>
-				<p class="mt-1">{t.form.info_night_body}</p>
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_night_title}</p>
+					<p class="mt-1">{t.form.info_night_body}</p>
+				</div>
 			</div>
-		</div>
-	</details>
+		</details>
+	{/if}
 </form>

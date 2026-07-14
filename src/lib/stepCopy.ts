@@ -25,6 +25,24 @@ const DESC: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['
 	ready: 'ready_desc'
 };
 
+// Beginner-mode explanations: the why behind each step, shown as an extra
+// paragraph under the method copy. One generic entry covers both pre-ferment
+// types — the what-is-a-pre-ferment story is the same for biga and poolish.
+const DETAIL: Record<ScheduleStepKind, keyof Messages['steps']> = {
+	'preferment-mix': 'preferment_mix_detail',
+	prep: 'prep_detail',
+	mix: 'mix_detail',
+	'bulk-room': 'bulk_room_detail',
+	'bulk-cold': 'bulk_cold_detail',
+	divide: 'divide_detail',
+	'final-proof': 'final_proof_detail',
+	ready: 'ready_detail'
+};
+
+export function stepDetail(step: ScheduleStep, msgs: Messages): string {
+	return msgs.steps[DETAIL[step.kind]];
+}
+
 // One weighed ingredient for a step, split into amount and name so the UI can
 // render it as a scannable table row instead of burying it in prose.
 export interface StepIngredient {
@@ -143,13 +161,17 @@ export function stepDescription(
 }
 
 // Flat text form (ingredient lines + method) for the .ics export, so a
-// calendar event carries the same detail the on-page step shows.
+// calendar event carries the same detail the on-page step shows. In beginner
+// mode the caller opts into the explanatory paragraph as well — calendars
+// have no page budget, and the beginner is exactly who reads them mid-bake.
 export function stepDetailText(
 	step: ScheduleStep,
 	msgs: Messages,
-	schedule: ComputedSchedule
+	schedule: ComputedSchedule,
+	opts?: { includeDetail?: boolean }
 ): string {
 	const lines = stepIngredients(step, msgs, schedule).map((ing) => `${ing.amount} ${ing.name}`);
 	lines.push(stepDescription(step, msgs, schedule));
+	if (opts?.includeDetail) lines.push(stepDetail(step, msgs));
 	return lines.join('\n');
 }

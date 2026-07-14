@@ -4,7 +4,13 @@ import { defaultInputs, findStep } from './dough/testFixtures';
 import type { DoughInputs, PreFermentType } from './dough/types';
 import { formatGrams } from './format';
 import { MESSAGES } from './i18n/messages';
-import { stepDescription, stepDetailText, stepIngredients, stepTitle } from './stepCopy';
+import {
+	stepDescription,
+	stepDetail,
+	stepDetailText,
+	stepIngredients,
+	stepTitle
+} from './stepCopy';
 
 // stepCopy tests use the decimal ball weight (288.5 g) by default because
 // formatBallWeight's decimal-rendering is a regression worth covering.
@@ -344,5 +350,36 @@ describe('stepDetailText — flat .ics form', () => {
 		const r = computeSchedule(inputs());
 		const ready = findStep(r, 'ready');
 		expect(stepDetailText(ready, MESSAGES.en, r)).toBe(stepDescription(ready, MESSAGES.en, r));
+	});
+
+	it('appends the beginner explanation only when asked to', () => {
+		const r = computeSchedule(inputs());
+		const divide = findStep(r, 'divide');
+		const plain = stepDetailText(divide, MESSAGES.en, r);
+		const withDetail = stepDetailText(divide, MESSAGES.en, r, { includeDetail: true });
+		expect(plain).not.toContain(MESSAGES.en.steps.divide_detail);
+		expect(withDetail).toBe(`${plain}\n${MESSAGES.en.steps.divide_detail}`);
+	});
+});
+
+describe('stepDetail — beginner explanations', () => {
+	it('returns the per-kind explanation paragraph', () => {
+		const r = computeSchedule(inputs());
+		expect(stepDetail(findStep(r, 'mix'), MESSAGES.en)).toBe(MESSAGES.en.steps.mix_detail);
+		expect(stepDetail(findStep(r, 'ready'), MESSAGES.en)).toBe(MESSAGES.en.steps.ready_detail);
+	});
+
+	it('uses one shared explanation for both pre-ferment types', () => {
+		const r = computeSchedule(
+			prefermentInputs('biga', {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+		for (const step of r.steps.filter((s) => s.kind === 'preferment-mix')) {
+			expect(stepDetail(step, MESSAGES.en)).toBe(MESSAGES.en.steps.preferment_mix_detail);
+		}
 	});
 });

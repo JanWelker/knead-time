@@ -72,6 +72,9 @@ export interface Messages {
 		preFermentFlour_biga: string;
 		preFermentFlour_poolish: string;
 		preFerment_sum_help: string;
+		mode_beginner: string;
+		mode_expert: string;
+		mode_help: string;
 	};
 	mode: {
 		cold: string;
@@ -100,6 +103,14 @@ export interface Messages {
 		bulk_cold_desc: string;
 		divide: string;
 		divide_desc: string;
+		preferment_mix_detail: string;
+		prep_detail: string;
+		mix_detail: string;
+		bulk_room_detail: string;
+		bulk_cold_detail: string;
+		divide_detail: string;
+		final_proof_detail: string;
+		ready_detail: string;
 		final_proof: string;
 		final_proof_desc: string;
 		ready: string;
@@ -355,7 +366,11 @@ const en: Messages = {
 		preFerment_poolish: 'Poolish (loose, 100% hydration)',
 		preFermentFlour_biga: 'Biga flour (% of total)',
 		preFermentFlour_poolish: 'Poolish flour (% of total)',
-		preFerment_sum_help: 'Together the two pre-ferments may carry at most 80% of the flour.'
+		preFerment_sum_help: 'Together the two pre-ferments may carry at most 80% of the flour.',
+		mode_beginner: 'Back to the simple view',
+		mode_expert: 'Show all options (expert)',
+		mode_help:
+			'The simple view uses proven defaults for everything else: 70% hydration, 3% salt, fresh yeast, mixing by machine.'
 	},
 	mode: {
 		cold: 'Cold ferment',
@@ -393,6 +408,22 @@ const en: Messages = {
 		bulk_cold_desc: 'Move the covered dough to the fridge. Long, slow fermentation.',
 		divide: 'Divide & ball',
 		divide_desc: 'Cut the dough into {n} equal balls of {weight} g each and shape them tight.',
+		preferment_mix_detail:
+			'A pre-ferment is a small starter dough that ferments ahead of the main dough. It builds flavour and strength a same-day dough cannot develop — a flat or bubbly surface after the rest is exactly what ripe looks like.',
+		prep_detail:
+			'Weighing everything before you start keeps the recipe exact — dough is chemistry, and a scale beats guessing every time. Keep the salt away from the yeast until they meet in the mixing bowl.',
+		mix_detail:
+			'You are aiming for a smooth, elastic dough with no dry spots. If it feels sticky at first, resist adding extra flour — it comes together as the gluten develops. The water temperature matters: it sets the dough temperature for the whole fermentation.',
+		bulk_room_detail:
+			'This is the main fermentation: the yeast produces gas and the dough grows and builds flavour. Keep it covered so the surface does not dry out. Warmer kitchens speed it up — the schedule already accounts for your room temperature.',
+		bulk_cold_detail:
+			'The fridge slows fermentation right down, so flavour builds for hours without the dough overproofing. It will keep rising slowly in the cold — that is normal, and there is no need to check on it.',
+		divide_detail:
+			'Cut the dough with a scraper and shape each piece into a tight, smooth ball by tucking the edges underneath. Tight balls hold their shape and rise evenly. Set them seam-side down with room to grow, and cover.',
+		final_proof_detail:
+			'The balls relax and puff up one last time so they will stretch without tearing. They are ready when they look pillowy and a gentle poke springs back slowly.',
+		ready_detail:
+			'Stretch each ball from the centre outwards, leaving the rim untouched so it keeps its air. Heat the oven with its stone or steel well ahead — a home oven needs 45 to 60 minutes to reach full temperature.',
 		final_proof: 'Final proof',
 		final_proof_desc: 'Let the balls rest at room temperature until they look puffy and relaxed.',
 		ready: 'Shape & bake',
@@ -659,7 +690,11 @@ const de: Messages = {
 		preFerment_poolish: 'Poolish (flüssig, 100% Hydration)',
 		preFermentFlour_biga: 'Biga-Mehl (% vom Gesamtmehl)',
 		preFermentFlour_poolish: 'Poolish-Mehl (% vom Gesamtmehl)',
-		preFerment_sum_help: 'Zusammen dürfen die beiden Vorteige höchstens 80% des Mehls tragen.'
+		preFerment_sum_help: 'Zusammen dürfen die beiden Vorteige höchstens 80% des Mehls tragen.',
+		mode_beginner: 'Zurück zur einfachen Ansicht',
+		mode_expert: 'Alle Optionen anzeigen (Experten)',
+		mode_help:
+			'Die einfache Ansicht nutzt bewährte Standardwerte für alles Übrige: 70% Hydration, 3% Salz, Frischhefe, Kneten mit der Maschine.'
 	},
 	mode: {
 		cold: 'Kühlschrank-Gare',
@@ -698,6 +733,22 @@ const de: Messages = {
 		divide: 'Portionieren',
 		divide_desc:
 			'Den Teig in {n} gleich große Teiglinge zu je {weight} g teilen und straff rundwirken.',
+		preferment_mix_detail:
+			'Ein Vorteig ist ein kleiner Ansatzteig, der vor dem Hauptteig fermentiert. Er baut Aroma und Stärke auf, die ein Teig vom selben Tag nicht entwickeln kann — eine flache oder blasige Oberfläche nach dem Reifen ist genau das, wie reif aussieht.',
+		prep_detail:
+			'Wer alles vor dem Start abwiegt, hält das Rezept exakt — Teig ist Chemie, und eine Waage schlägt jedes Schätzen. Das Salz von der Hefe fernhalten, bis beide in der Rührschüssel zusammenkommen.',
+		mix_detail:
+			'Das Ziel ist ein glatter, elastischer Teig ohne trockene Stellen. Wirkt er anfangs klebrig, kein zusätzliches Mehl untermischen — er kommt zusammen, sobald sich das Gluten entwickelt. Die Wassertemperatur zählt: Sie bestimmt die Teigtemperatur für die gesamte Gare.',
+		bulk_room_detail:
+			'Das ist die Hauptgare: Die Hefe produziert Gas, der Teig wächst und entwickelt Aroma. Abgedeckt lassen, damit die Oberfläche nicht austrocknet. Wärmere Küchen beschleunigen die Gare — der Zeitplan berücksichtigt die Raumtemperatur bereits.',
+		bulk_cold_detail:
+			'Der Kühlschrank bremst die Gare stark ab, sodass sich das Aroma über Stunden entwickelt, ohne dass der Teig übergart. Er geht in der Kälte langsam weiter auf — das ist normal, nachsehen ist nicht nötig.',
+		divide_detail:
+			'Den Teig mit einer Teigkarte teilen und jedes Stück zu einer straffen, glatten Kugel formen, indem die Ränder nach unten eingeschlagen werden. Straffe Teiglinge halten ihre Form und gehen gleichmäßig auf. Mit dem Schluss nach unten und genügend Abstand absetzen und abdecken.',
+		final_proof_detail:
+			'Die Teiglinge entspannen sich und gehen ein letztes Mal auf, damit sie sich später ohne Reißen ausziehen lassen. Sie sind bereit, wenn sie kissenweich aussehen und ein sanfter Fingerdruck langsam zurückfedert.',
+		ready_detail:
+			'Jeden Teigling von der Mitte nach außen ausziehen und den Rand unberührt lassen, damit er seine Luft behält. Den Ofen mit Stein oder Stahl rechtzeitig vorheizen — ein Haushaltsofen braucht 45 bis 60 Minuten bis zur vollen Temperatur.',
 		final_proof: 'Stückgare',
 		final_proof_desc:
 			'Teiglinge bei Raumtemperatur ruhen lassen, bis sie aufgegangen und entspannt aussehen.',
@@ -968,7 +1019,12 @@ const it: Messages = {
 		preFerment_poolish: 'Poolish (liquido, 100% idratazione)',
 		preFermentFlour_biga: 'Farina nella biga (% del totale)',
 		preFermentFlour_poolish: 'Farina nel poolish (% del totale)',
-		preFerment_sum_help: 'Insieme i due preimpasti possono contenere al massimo l’80% della farina.'
+		preFerment_sum_help:
+			'Insieme i due preimpasti possono contenere al massimo l’80% della farina.',
+		mode_beginner: 'Torna alla vista semplice',
+		mode_expert: 'Mostra tutte le opzioni (esperto)',
+		mode_help:
+			"La vista semplice usa valori predefiniti collaudati per tutto il resto: 70% di idratazione, 3% di sale, lievito di birra fresco, impasto con l'impastatrice."
 	},
 	mode: {
 		cold: 'Maturazione in frigo',
@@ -1006,6 +1062,22 @@ const it: Messages = {
 		bulk_cold_desc: "Spostare l'impasto coperto in frigorifero — lievitazione lunga e lenta.",
 		divide: 'Staglio',
 		divide_desc: "Dividere l'impasto in {n} panetti da {weight} g e pirlarli stretti.",
+		preferment_mix_detail:
+			"Un preimpasto è un piccolo impasto di partenza che fermenta prima dell'impasto principale. Sviluppa sapore e forza che un impasto in giornata non può raggiungere — una superficie piatta o piena di bolle dopo il riposo è esattamente l'aspetto della giusta maturazione.",
+		prep_detail:
+			"Pesare tutto prima di iniziare mantiene la ricetta esatta — l'impasto è chimica, e una bilancia batte sempre le stime a occhio. Tenere il sale lontano dal lievito finché non si incontrano nella ciotola.",
+		mix_detail:
+			"L'obiettivo è un impasto liscio ed elastico, senza zone asciutte. Se all'inizio sembra appiccicoso, resistere alla tentazione di aggiungere farina — si compatta man mano che il glutine si sviluppa. La temperatura dell'acqua conta: determina la temperatura dell'impasto per tutta la fermentazione.",
+		bulk_room_detail:
+			"Questa è la fermentazione principale: il lievito produce gas e l'impasto cresce e sviluppa sapore. Tenerlo coperto perché la superficie non si secchi. Le cucine più calde la accelerano — il programma tiene già conto della temperatura ambiente.",
+		bulk_cold_detail:
+			"Il frigorifero rallenta molto la fermentazione, così il sapore si sviluppa per ore senza che l'impasto lieviti troppo. Continuerà a crescere lentamente al freddo — è normale, e non serve controllarlo.",
+		divide_detail:
+			"Tagliare l'impasto con un tarocco e formare con ogni pezzo un panetto stretto e liscio, ripiegando i bordi verso il basso. I panetti stretti mantengono la forma e lievitano in modo uniforme. Sistemarli con la chiusura verso il basso, con spazio per crescere, e coprirli.",
+		final_proof_detail:
+			"I panetti si rilassano e si gonfiano un'ultima volta, così si stenderanno senza strapparsi. Sono pronti quando sembrano soffici come cuscini e una leggera pressione del dito risale lentamente.",
+		ready_detail:
+			"Stendere ogni panetto dal centro verso l'esterno, lasciando intatto il cornicione perché conservi la sua aria. Scaldare il forno con la pietra o la piastra d'acciaio con largo anticipo — un forno di casa impiega da 45 a 60 minuti per raggiungere la piena temperatura.",
 		final_proof: 'Appretto',
 		final_proof_desc:
 			'Lasciare riposare i panetti a temperatura ambiente finché non risultano gonfi e rilassati.',
@@ -1281,7 +1353,11 @@ const fr: Messages = {
 		preFermentFlour_biga: 'Farine de la biga (% du total)',
 		preFermentFlour_poolish: 'Farine du poolish (% du total)',
 		preFerment_sum_help:
-			'Ensemble, les deux pré-ferments peuvent porter au maximum 80% de la farine.'
+			'Ensemble, les deux pré-ferments peuvent porter au maximum 80% de la farine.',
+		mode_beginner: 'Revenir à la vue simple',
+		mode_expert: 'Afficher toutes les options (expert)',
+		mode_help:
+			"La vue simple utilise des valeurs par défaut éprouvées pour tout le reste : 70% d'hydratation, 3% de sel, levure fraîche, pétrissage à la machine."
 	},
 	mode: {
 		cold: 'Maturation au froid',
@@ -1319,6 +1395,22 @@ const fr: Messages = {
 		bulk_cold_desc: 'Mettez la pâte couverte au frigo — fermentation longue et lente.',
 		divide: 'Diviser et bouler',
 		divide_desc: 'Coupez la pâte en {n} pâtons égaux de {weight} g chacun et boulez-les serrés.',
+		preferment_mix_detail:
+			"Un pré-ferment est une petite pâte de départ qui fermente avant la pâte principale. Il développe un arôme et une force qu'une pâte du jour ne peut pas atteindre — une surface plate ou couverte de bulles après le repos, c'est exactement l'aspect d'un pré-ferment mûr.",
+		prep_detail:
+			"Tout peser avant de commencer garde la recette exacte — la pâte, c'est de la chimie, et une balance vaut toujours mieux qu'une estimation. Gardez le sel loin de la levure jusqu'à ce qu'ils se rencontrent dans le bol.",
+		mix_detail:
+			"L'objectif est une pâte lisse et élastique, sans zones sèches. Si elle colle au début, résistez à l'envie d'ajouter de la farine — elle se rassemble à mesure que le gluten se développe. La température de l'eau compte : elle fixe la température de la pâte pour toute la fermentation.",
+		bulk_room_detail:
+			"C'est la fermentation principale : la levure produit du gaz, la pâte gonfle et développe son arôme. Gardez-la couverte pour que la surface ne sèche pas. Une cuisine plus chaude accélère la levée — le programme tient déjà compte de votre température ambiante.",
+		bulk_cold_detail:
+			"Le frigo ralentit fortement la fermentation : l'arôme se développe pendant des heures sans que la pâte ne surfermente. Elle continuera à lever lentement au froid — c'est normal, inutile d'aller la surveiller.",
+		divide_detail:
+			'Coupez la pâte avec un coupe-pâte et formez avec chaque morceau une boule serrée et lisse en repliant les bords dessous. Des pâtons serrés gardent leur forme et lèvent régulièrement. Posez-les soudure vers le bas, avec de la place pour gonfler, et couvrez.',
+		final_proof_detail:
+			"Les pâtons se détendent et gonflent une dernière fois pour pouvoir s'étirer sans se déchirer. Ils sont prêts quand ils semblent moelleux comme des coussins et qu'une légère pression du doigt remonte lentement.",
+		ready_detail:
+			"Étirez chaque pâton du centre vers l'extérieur en laissant le bord intact pour qu'il garde son air. Préchauffez le four avec sa pierre ou sa plaque d'acier bien à l'avance — un four domestique a besoin de 45 à 60 minutes pour atteindre sa pleine température.",
 		final_proof: 'Apprêt',
 		final_proof_desc:
 			"Laissez les pâtons reposer à température ambiante jusqu'à ce qu'ils soient gonflés et détendus.",
@@ -1590,7 +1682,11 @@ const nl: Messages = {
 		preFerment_poolish: 'Poolish (vloeibaar, 100% hydratatie)',
 		preFermentFlour_biga: 'Biga-bloem (% van totaal)',
 		preFermentFlour_poolish: 'Poolish-bloem (% van totaal)',
-		preFerment_sum_help: 'Samen mogen de twee voordegen maximaal 80% van de bloem bevatten.'
+		preFerment_sum_help: 'Samen mogen de twee voordegen maximaal 80% van de bloem bevatten.',
+		mode_beginner: 'Terug naar de eenvoudige weergave',
+		mode_expert: 'Alle opties tonen (expert)',
+		mode_help:
+			'De eenvoudige weergave gebruikt beproefde standaardwaarden voor al het andere: 70% hydratatie, 3% zout, verse gist, kneden met de machine.'
 	},
 	mode: {
 		cold: 'Koelkast-rijs',
@@ -1628,6 +1724,22 @@ const nl: Messages = {
 		bulk_cold_desc: 'Zet het afgedekte deeg in de koelkast — lange, langzame rijs.',
 		divide: 'Verdelen en bollen',
 		divide_desc: 'Verdeel het deeg in {n} gelijke bolletjes van {weight} g en bol ze strak op.',
+		preferment_mix_detail:
+			'Een voordeeg is een klein startdeeg dat vóór het hoofddeeg fermenteert. Het bouwt smaak en kracht op die een deeg van dezelfde dag niet kan ontwikkelen — een plat of bubbelig oppervlak na het rijpen is precies hoe rijp eruitziet.',
+		prep_detail:
+			'Alles afwegen voordat je begint houdt het recept exact — deeg is chemie, en een weegschaal wint het altijd van gokken. Houd het zout weg van de gist tot ze elkaar in de mengkom ontmoeten.',
+		mix_detail:
+			'Je mikt op een glad, elastisch deeg zonder droge plekken. Voelt het eerst plakkerig aan, voeg dan geen extra bloem toe — het komt samen naarmate de gluten zich ontwikkelen. De watertemperatuur doet ertoe: die bepaalt de deegtemperatuur voor de hele rijs.',
+		bulk_room_detail:
+			'Dit is de hoofdrijs: de gist produceert gas en het deeg groeit en bouwt smaak op. Houd het afgedekt zodat het oppervlak niet uitdroogt. In een warmere keuken gaat het sneller — het schema houdt al rekening met je kamertemperatuur.',
+		bulk_cold_detail:
+			'De koelkast vertraagt de rijs enorm, zodat de smaak urenlang opbouwt zonder dat het deeg doorschiet. Het blijft in de kou langzaam rijzen — dat is normaal, en je hoeft er niet naar om te kijken.',
+		divide_detail:
+			'Snijd het deeg met een deegsteker en vorm van elk stuk een strak, glad bolletje door de randen eronder te vouwen. Strakke bolletjes houden hun vorm en rijzen gelijkmatig. Zet ze met de naad naar beneden, met ruimte om te groeien, en dek ze af.',
+		final_proof_detail:
+			'De bolletjes ontspannen en zetten een laatste keer op, zodat ze straks uitrekken zonder te scheuren. Ze zijn klaar wanneer ze er kussenzacht uitzien en een zachte por langzaam terugveert.',
+		ready_detail:
+			'Rek elk bolletje vanuit het midden naar buiten uit en laat de rand ongemoeid, zodat die zijn lucht houdt. Verwarm de oven met steen of staal ruim van tevoren voor — een huisoven heeft 45 tot 60 minuten nodig om op volle temperatuur te komen.',
 		final_proof: 'Narijs',
 		final_proof_desc:
 			'Laat de bolletjes op kamertemperatuur rusten tot ze luchtig en ontspannen zijn.',
@@ -1896,7 +2008,11 @@ const jam: Messages = {
 		preFerment_poolish: 'Poolish (loose, 100% wata)',
 		preFermentFlour_biga: 'Biga flour (% a di total)',
 		preFermentFlour_poolish: 'Poolish flour (% a di total)',
-		preFerment_sum_help: 'Togedda di two befo-dough dem can carry 80% a di flour at di most.'
+		preFerment_sum_help: 'Togedda di two befo-dough dem can carry 80% a di flour at di most.',
+		mode_beginner: 'Go back to di simple view',
+		mode_expert: 'Show all a di option dem (expert)',
+		mode_help:
+			'Di simple view use tried-an-true settings fi everyting else: 70% wata, 3% salt, fresh ris-ting, knead wid di machine.'
 	},
 	mode: {
 		cold: 'Cold rise',
@@ -1934,6 +2050,22 @@ const jam: Messages = {
 		bulk_cold_desc: 'Carry di cova dough go a fridge — long, slow rise.',
 		divide: 'Split an roll up',
 		divide_desc: 'Cut up di dough inna {n} same-size ball, {weight} g each, an roll dem up tight.',
+		preferment_mix_detail:
+			'A befo-dough a one likkle starter dough weh ferment before di main dough. It build up flavour an strength weh a same-day dough nuh able fi reach — if di top look flat or full a bubble afta di res, dat a exactly how ripe look.',
+		prep_detail:
+			'Wen yu weigh out everyting before yu start, di recipe stay exact — dough a chemistry, an a scale beat guessing every time. Keep di salt away from di ris-ting till dem meet up inna di mixing bowl.',
+		mix_detail:
+			'Yu a aim fi one smood, stretchy dough wid no dry spot. If it feel sticky at first, nuh dash in more flour — it wi come togedda as di gluten build up. Di wata temperature matta: it set di dough temperature fi di whole rise.',
+		bulk_room_detail:
+			'Dis a di main rise: di ris-ting a mek gas an di dough grow an build flavour. Keep it cova so di top nuh dry out. Hot kitchen mek it go fasta — di schedule already count in yu room temperature.',
+		bulk_cold_detail:
+			'Di fridge slow down di rise plenty, so di flavour build fi hours widout di dough rise too far. It wi keep rise slow-slow inna di cold — dat normal, an yu nuh haffi check pon it.',
+		divide_detail:
+			'Cut di dough wid a scraper an shape each piece inna one tight, smood ball — tuck di edge dem unda it. Tight ball dem hold dem shape an rise even. Set dem down wid di seam unda, wid room fi grow, an cova dem.',
+		final_proof_detail:
+			'Di ball dem relax an puff up one las time so dem wi stretch widout tear up. Dem ready wen dem look soft like pillow an a gentle poke spring back slow.',
+		ready_detail:
+			'Stretch each ball from di middle go out, an lef di edge alone so it keep it air. Heat up di oven wid di stone or steel long before time — a home oven need 45 to 60 minit fi reach full heat.',
 		final_proof: 'Las rise',
 		final_proof_desc: 'Mek di ball dem res a room temperature till dem puff up an relax.',
 		ready: 'Stretch an bake',
