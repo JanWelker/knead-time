@@ -187,15 +187,14 @@ describe('stepIngredients — weighed amounts', () => {
 		expect(list[3].amount).toBe(formatGrams(r.ingredients.yeast));
 	});
 
-	it('lists the same weighed amounts for the no-preferment mix step', () => {
+	it('lists nothing for the no-preferment mix step — everything was weighed at prep', () => {
 		const r = computeSchedule(inputs());
-		const list = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r);
-		expect(list.map((i) => i.name)).toEqual(['Flour', 'Water', 'Salt', 'Fresh yeast']);
+		expect(stepIngredients(findStep(r, 'mix'), MESSAGES.en, r)).toEqual([]);
 	});
 
 	it('uses the sourdough-starter name when the yeast is sourdough', () => {
 		const r = computeSchedule(inputs({ yeastType: 'sourdough' }));
-		const list = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r);
+		const list = stepIngredients(findStep(r, 'prep'), MESSAGES.en, r);
 		expect(list.map((i) => i.name)).toContain('Sourdough starter');
 		expect(list.map((i) => i.name)).not.toContain('Fresh yeast');
 	});
@@ -206,18 +205,14 @@ describe('stepIngredients — weighed amounts', () => {
 		expect(list.map((i) => i.name)).toEqual(['Mehl', 'Wasser', 'Salz', 'Frischhefe']);
 	});
 
-	it('drops yeast from day-two prep and mix when a pre-ferment carries it', () => {
+	it('drops yeast from day-two prep when a pre-ferment carries it, and mix lists nothing', () => {
 		const r = computeSchedule(prefermentInputs('biga'));
 		expect(stepIngredients(findStep(r, 'prep'), MESSAGES.en, r).map((i) => i.name)).toEqual([
 			'Flour',
 			'Water',
 			'Salt'
 		]);
-		expect(stepIngredients(findStep(r, 'mix'), MESSAGES.en, r).map((i) => i.name)).toEqual([
-			'Flour',
-			'Water',
-			'Salt'
-		]);
+		expect(stepIngredients(findStep(r, 'mix'), MESSAGES.en, r)).toEqual([]);
 	});
 
 	it('lists the pre-ferment flour, water and yeast for the preferment-mix step', () => {
@@ -228,34 +223,34 @@ describe('stepIngredients — weighed amounts', () => {
 		expect(list[2].amount).toBe(formatGrams(r.ingredients.preFerment!.yeast));
 	});
 
-	it('appends an oil row to prep and mix when oilPercent > 0', () => {
+	it('appends an oil row to prep when oilPercent > 0, without repeating it at mix', () => {
 		const r = computeSchedule(inputs({ oilPercent: 5 }));
 		const prep = stepIngredients(findStep(r, 'prep'), MESSAGES.en, r);
-		const mix = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r);
 		expect(prep[prep.length - 1]).toEqual({ amount: formatGrams(r.ingredients.oil), name: 'Oil' });
-		expect(mix.map((i) => i.name)).toContain('Oil');
 		expect(prep.map((i) => i.name)).not.toContain('Sugar');
+		expect(stepIngredients(findStep(r, 'mix'), MESSAGES.en, r)).toEqual([]);
 	});
 
 	it('appends a sugar row when sugarPercent > 0', () => {
 		const r = computeSchedule(inputs({ sugarPercent: 2 }));
-		const mix = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r);
-		expect(mix.map((i) => i.name)).toContain('Sugar');
-		expect(mix.map((i) => i.name)).not.toContain('Oil');
+		const prep = stepIngredients(findStep(r, 'prep'), MESSAGES.en, r);
+		expect(prep.map((i) => i.name)).toContain('Sugar');
+		expect(prep.map((i) => i.name)).not.toContain('Oil');
 	});
 
 	it('appends both oil and sugar rows when both are present', () => {
 		const r = computeSchedule(inputs({ oilPercent: 5, sugarPercent: 2 }));
-		const names = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r).map((i) => i.name);
+		const names = stepIngredients(findStep(r, 'prep'), MESSAGES.en, r).map((i) => i.name);
 		expect(names).toContain('Oil');
 		expect(names).toContain('Sugar');
 	});
 
 	it('weighs oil and sugar at the mix step when a pre-ferment is set', () => {
 		const r = computeSchedule(prefermentInputs('biga', { oilPercent: 4, sugarPercent: 1.5 }));
-		const mix = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r).map((i) => i.name);
-		expect(mix).toContain('Oil');
-		expect(mix).toContain('Sugar');
+		expect(stepIngredients(findStep(r, 'mix'), MESSAGES.en, r).map((i) => i.name)).toEqual([
+			'Oil',
+			'Sugar'
+		]);
 		// ...but not at day-two prep, which only weighs the basics.
 		const prep = stepIngredients(findStep(r, 'prep'), MESSAGES.en, r).map((i) => i.name);
 		expect(prep).not.toContain('Oil');
@@ -272,10 +267,10 @@ describe('stepIngredients — weighed amounts', () => {
 describe('stepDetailText — flat .ics form', () => {
 	it('joins the ingredient list and the method into newline-separated text', () => {
 		const r = computeSchedule(inputs());
-		const text = stepDetailText(findStep(r, 'mix'), MESSAGES.en, r);
+		const text = stepDetailText(findStep(r, 'prep'), MESSAGES.en, r);
 		const lines = text.split('\n');
 		expect(lines[0]).toBe(`${formatGrams(r.ingredients.flour)} Flour`);
-		expect(lines[lines.length - 1]).toBe(stepDescription(findStep(r, 'mix'), MESSAGES.en, r));
+		expect(lines[lines.length - 1]).toBe(stepDescription(findStep(r, 'prep'), MESSAGES.en, r));
 	});
 
 	it('is just the method for a step with no weighed ingredients', () => {
