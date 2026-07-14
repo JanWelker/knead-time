@@ -1,7 +1,11 @@
 name: CI
 
+# Pushes to main are included so Codecov gets a main-branch baseline —
+# the README badge points at branch/main, which PR-only runs never feed.
 on:
   pull_request:
+  push:
+    branches: [main]
 
 permissions:
   contents: read
