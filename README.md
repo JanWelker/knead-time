@@ -13,7 +13,7 @@ Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, five langu
 
 ## Requirements
 
-- **Node.js 22+** and **npm** on the host.
+- **Node.js 22+** and **npm** on the host (enforced via `engines`; CI and deploys run Node 24).
 
 That's it. CI and deployment run on GitHub Actions; locally you just need Node.
 
@@ -72,7 +72,7 @@ src/
 └── app.html              ← shell
 
 .github/workflows/
-├── ci.yml                ← lint + check + test + build on every PR
+├── ci.yml                ← lint + check + coverage gate + build on PRs and pushes to main
 ├── deploy.yml            ← build + publish to GitHub Pages on main
 └── preview.yml           ← build + publish a per-PR preview, comment the URL, clean up on close
 
@@ -103,7 +103,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
 3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
-5. **Verify.** `npm test && npm run check && npm run build`. The CI workflow runs the same commands plus `npm run lint`.
+5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`.
 
 ### Print / PDF export
 
@@ -116,8 +116,6 @@ If you touch the printed layout, check it in your browser's print preview — do
 The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the schedule menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
 
 Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the setup walkthrough and the Liquid template are in `docs/trmnl-setup.md`. The payload uses 1–2 character keys to stay under the free tier's 2 KB cap in every locale — a regression test measures the wire size, so adding fields without measuring fails CI. There is **no `/trmnl` route** any more: the earlier screenshot-plugin approach failed because TRMNL's renderer doesn't reliably execute JS, so every capture showed build-time defaults.
-
-The payload builder reuses `computeSchedule` from the main app; the Now/Next/Done highlight is computed on the device by the Liquid template, comparing the pushed unix timestamps to the render time — no client-side helper is involved. Keep the styling reserved: no gradients or background fills beyond the solid-black current-row highlight, no 1 px light borders (they break up on e-ink), no external assets.
 
 ### The dough math, briefly
 
@@ -152,7 +150,7 @@ The workflow resolves the **base path** automatically: project repos (`<owner>/<
 
 The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
 
-A separate **`.github/workflows/ci.yml`** runs lint, type-check, tests, and build on every PR but doesn't deploy. It deliberately doesn't run on pushes to `main` — branch protection requires the PR check to be green before merge, so re-running it against the merge commit just duplicates the work `deploy.yml` is about to do.
+A separate **`.github/workflows/ci.yml`** runs lint, type-check, the coverage-gated test suite, and build on every PR and on pushes to `main`, but doesn't deploy. The `main` runs exist so Codecov gets a main-branch baseline (the badge at the top points at `branch/main`); branch protection already guarantees the PR check was green before merge.
 
 ---
 

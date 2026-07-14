@@ -5,7 +5,7 @@ Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; ev
 ## Stack & deploy
 
 - SvelteKit 5 + TS + Tailwind v4 + Vitest. Node 22+. Husky pre-commit runs format/lint/test.
-- Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`). CI on every push/PR; push to `main` deploys to GitHub Pages.
+- Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`). CI on every PR and on pushes to `main` (the latter feeds the Codecov main baseline); push to `main` deploys to GitHub Pages.
 - `BASE_PATH` env drives `svelte.config.js`. **All in-app links/assets must use `$app/paths` (`base`/`resolve()`) — never hard-code `/`.**
 
 ## Domain model
