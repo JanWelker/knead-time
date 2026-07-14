@@ -135,9 +135,12 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	// longest one; shorter ones start later inside that window. Durations may
 	// still be shrunk below the natural values if the wall-clock window can't
 	// accommodate them (see the room-mode overflow branch).
+	// Pre-ferments mature wherever the user says they do — a 17 °C cellar
+	// biga runs much longer than a countertop one. null follows the room.
+	const prefermentTempC = inputs.preFermentTempC ?? inputs.roomTempC;
 	let prefermentDurationsMin = preFerments.map((pf) => ({
 		type: pf.type,
-		min: Math.round(prefermentDurationHours(pf.type, inputs.roomTempC) * 60)
+		min: Math.round(prefermentDurationHours(pf.type, prefermentTempC) * 60)
 	}));
 	const naturalPrefermentMin = prefermentDurationsMin.reduce((max, d) => Math.max(max, d.min), 0);
 	// Yeast splits across the pre-ferments proportional to flour share, so
@@ -151,7 +154,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 				sum +
 				(preFerments[i].flourPercent / totalShare) *
 					(d.min / 60) *
-					temperatureFactor(inputs.roomTempC),
+					temperatureFactor(prefermentTempC),
 			0
 		);
 	const warnings: ScheduleWarning[] = [];
@@ -277,7 +280,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	// uses the gap between these and the actual step durations, matched by type.
 	const naturalPreferments = preFerments.map((pf) => ({
 		type: pf.type,
-		naturalHours: prefermentRefHours(pf.type) / temperatureFactor(inputs.roomTempC)
+		naturalHours: prefermentRefHours(pf.type) / temperatureFactor(prefermentTempC)
 	}));
 
 	return {
@@ -292,6 +295,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		pizzaCount: inputs.pizzaCount,
 		ballWeight: inputs.ballWeight,
 		mixingMethod: inputs.mixingMethod,
+		preFermentTempC: preFerments.length > 0 ? inputs.preFermentTempC : null,
 		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC, inputs.mixingMethod),
 		naturalColdBulkMin,
 		desiredColdBulkMin,

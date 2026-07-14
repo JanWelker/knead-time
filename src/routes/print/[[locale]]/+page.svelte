@@ -42,6 +42,7 @@
 		starterHydration: 100,
 		roomTempC: 22,
 		fridgeTempC: 4,
+		preFermentTempC: null,
 		mixingMethod: 'machine',
 		preFerments: []
 	};

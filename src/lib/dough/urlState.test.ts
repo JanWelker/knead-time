@@ -14,6 +14,7 @@ const base: SerializableInputs = {
 	starterHydration: 100,
 	roomTempC: 22,
 	fridgeTempC: 4,
+	preFermentTempC: null,
 	mixingMethod: 'machine',
 	preFerments: []
 };
@@ -36,6 +37,13 @@ describe('urlState round-trip', () => {
 	it('round-trips a non-default fridge temperature', () => {
 		const out = decodeInputs(encodeInputs({ ...base, fridgeTempC: 7 }));
 		expect(out.fridgeTempC).toBe(7);
+	});
+
+	it('round-trips the pre-ferment temperature and omits it when following the room', () => {
+		expect(encodeInputs(base)).not.toContain('pt=');
+		const out = decodeInputs(encodeInputs({ ...base, preFermentTempC: 17 }));
+		expect(out.preFermentTempC).toBe(17);
+		expect(decodeInputs(encodeInputs(base)).preFermentTempC).toBeUndefined();
 	});
 
 	it('round-trips the dry yeast types', () => {

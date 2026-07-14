@@ -27,6 +27,10 @@ export interface DoughInputs {
 	starterHydration: number;
 	roomTempC: number;
 	fridgeTempC: number;
+	// Where the pre-ferments mature. null = on the counter at roomTempC; a
+	// number means a cellar or wine fridge — durations and the yeast solve
+	// use it for the pre-ferment legs only.
+	preFermentTempC: number | null;
 	mixingMethod: MixingMethod;
 	// Pre-ferments mature in parallel, each ending at prep. Empty = none.
 	// Types are unique (the form exposes one toggle per type) and the list is
@@ -90,6 +94,9 @@ export interface ComputedSchedule {
 	pizzaCount: number;
 	ballWeight: number;
 	mixingMethod: MixingMethod;
+	// Effective maturation temperature of the pre-ferments, null when they
+	// simply follow roomTempC — copy renders a note only when it differs.
+	preFermentTempC: number | null;
 	idealWaterTempC: number;
 	// Pre-clamp / pre-shift values used by the recipe fit-score metric. A
 	// "perfect" schedule keeps the actual durations equal to these naturals;

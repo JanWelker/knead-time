@@ -259,6 +259,7 @@ describe('findMatchingPizzeria', () => {
 			starterHydration: 100,
 			roomTempC: 22,
 			fridgeTempC: 4,
+			preFermentTempC: null,
 			mixingMethod: 'machine',
 			preFerments: [],
 			...overrides
@@ -303,6 +304,8 @@ describe('findMatchingPizzeria', () => {
 		// Entries parsed from pre-v=4 share URLs carry no mixingMethod — they
 		// imply machine, so a hand-mixed form must not claim the source badge.
 		expect(findMatchingPizzeria(inputs({ mixingMethod: 'hand' }), [e])).toBeNull();
+		// Same for the pre-ferment temperature: unset means follows-the-room.
+		expect(findMatchingPizzeria(inputs({ preFermentTempC: 17 }), [e])).toBeNull();
 	});
 
 	it('compares starterHydration only when yeastType is sourdough', () => {
@@ -379,6 +382,7 @@ describe('findMatchingPizzeria', () => {
 			roomTempC: shipped.inputs.roomTempC!,
 			fridgeTempC: shipped.inputs.fridgeTempC!,
 			mixingMethod: shipped.inputs.mixingMethod ?? 'machine',
+			preFermentTempC: shipped.inputs.preFermentTempC ?? null,
 			preFerments: shipped.inputs.preFerments ?? []
 		};
 		expect(findMatchingPizzeria(dough)).toBe(shipped);

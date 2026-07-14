@@ -561,6 +561,66 @@ describe('computeSchedule — combined biga + poolish', () => {
 	});
 });
 
+describe('computeSchedule — pre-ferment temperature', () => {
+	const window = {
+		startAt: new Date('2026-05-10T07:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+	const biga = [{ type: 'biga', flourPercent: 30 }] satisfies DoughInputs['preFerments'];
+
+	it('stretches the pre-ferment in a 17 °C cellar (Q10 at its own temperature)', () => {
+		const counter = computeSchedule(baseInputs({ ...window, preFerments: biga }));
+		const cellar = computeSchedule(
+			baseInputs({ ...window, preFerments: biga, preFermentTempC: 17 })
+		);
+		const durOf = (s: typeof counter) => findStep(s, 'preferment-mix').durationMinutes;
+		expect(durOf(cellar)).toBeCloseTo(Math.round(prefermentDurationHours('biga', 17) * 60), 0);
+		expect(durOf(cellar)).toBeGreaterThan(durOf(counter));
+	});
+
+	it('feeds the pre-ferment leg into the yeast solve at its own temperature', () => {
+		// Inside the clamp band wall × f(T) = ref, so the equivalent hours —
+		// and therefore the yeast % — stay put while the wall-clock stretches.
+		const counter = computeSchedule(baseInputs({ ...window, preFerments: biga }));
+		const cellar = computeSchedule(
+			baseInputs({ ...window, preFerments: biga, preFermentTempC: 17 })
+		);
+		// The longer reservation leaves less cold-bulk, so solve differs only
+		// through the schedule geometry — sanity-check it stays in range.
+		expect(cellar.yeastPercent).toBeGreaterThan(0);
+		expect(
+			Math.abs(cellar.yeastPercent - counter.yeastPercent) / counter.yeastPercent
+		).toBeLessThan(0.5);
+	});
+
+	it('computes the quality naturals at the pre-ferment temperature', () => {
+		const cellar = computeSchedule(
+			baseInputs({ ...window, preFerments: biga, preFermentTempC: 17 })
+		);
+		expect(cellar.naturalPreferments[0].naturalHours).toBeCloseTo(
+			14 / Math.pow(2, (17 - 22) / 10),
+			6
+		);
+	});
+
+	it('follows the room temperature when preFermentTempC is null', () => {
+		const explicit = computeSchedule(
+			baseInputs({ ...window, preFerments: biga, preFermentTempC: 22 })
+		);
+		const implicit = computeSchedule(baseInputs({ ...window, preFerments: biga }));
+		expect(findStep(explicit, 'preferment-mix').durationMinutes).toBe(
+			findStep(implicit, 'preferment-mix').durationMinutes
+		);
+		expect(implicit.preFermentTempC).toBeNull();
+		expect(explicit.preFermentTempC).toBe(22);
+	});
+
+	it('exposes null when no pre-ferment is enabled, whatever the input says', () => {
+		const r = computeSchedule(baseInputs({ preFermentTempC: 17 }));
+		expect(r.preFermentTempC).toBeNull();
+	});
+});
+
 describe('computeSchedule — pre-ferment carries all the yeast', () => {
 	it('puts the full yeast mass in the pre-ferment and zeroes the main-dough yeast', () => {
 		const r = computeSchedule(

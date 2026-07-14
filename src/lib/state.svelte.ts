@@ -30,6 +30,8 @@ export class FormState {
 	roomTempC: number = $state(22);
 	fridgeTempC: number = $state(4);
 	mixingMethod: MixingMethod = $state('machine');
+	preFermentTempEnabled: boolean = $state(false);
+	preFermentTempValue: number = $state(18);
 	bigaEnabled: boolean = $state(false);
 	bigaFlourPercent: number = $state(30);
 	poolishEnabled: boolean = $state(false);
@@ -50,6 +52,7 @@ export class FormState {
 		roomTempC: this.roomTempC,
 		fridgeTempC: this.fridgeTempC,
 		mixingMethod: this.mixingMethod,
+		preFermentTempC: this.preFermentTempEnabled ? this.preFermentTempValue : null,
 		// Canonical biga-first order — the encoder and decoder preserve it.
 		preFerments: [
 			...(this.bigaEnabled
@@ -94,6 +97,10 @@ export class FormState {
 		if (partial.roomTempC !== undefined) this.roomTempC = partial.roomTempC;
 		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
 		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
+		if (partial.preFermentTempC !== undefined && partial.preFermentTempC !== null) {
+			this.preFermentTempEnabled = true;
+			this.preFermentTempValue = partial.preFermentTempC;
+		}
 		if (partial.preFerments !== undefined) {
 			const biga = partial.preFerments.find((pf) => pf.type === 'biga');
 			const poolish = partial.preFerments.find((pf) => pf.type === 'poolish');

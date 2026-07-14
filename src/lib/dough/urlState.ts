@@ -43,6 +43,7 @@ const KEYS_V4 = {
 	starterHydration: 'sh',
 	roomTempC: 't',
 	fridgeTempC: 'ft',
+	preFermentTempC: 'pt',
 	mixingMethod: 'mm',
 	preFerment: 'p'
 } as const;
@@ -73,6 +74,10 @@ export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }):
 	}
 	params.set(KEYS_V4.roomTempC, String(inputs.roomTempC));
 	params.set(KEYS_V4.fridgeTempC, String(inputs.fridgeTempC));
+	// Omitted when the pre-ferments simply follow the room temperature.
+	if (inputs.preFermentTempC !== null) {
+		params.set(KEYS_V4.preFermentTempC, String(inputs.preFermentTempC));
+	}
 	// Omitted for machine — the pre-v4 default every older link implies.
 	if (inputs.mixingMethod === 'hand') params.set(KEYS_V4.mixingMethod, 'h');
 	if (inputs.preFerments.length > 0) {
@@ -181,6 +186,9 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 
 	const ft = num(params.get(KEYS_V4.fridgeTempC));
 	if (ft !== null) out.fridgeTempC = ft;
+
+	const pt = num(params.get(KEYS_V4.preFermentTempC));
+	if (pt !== null) out.preFermentTempC = pt;
 
 	const mm = params.get(KEYS_V4.mixingMethod);
 	if (mm === 'h') out.mixingMethod = 'hand';

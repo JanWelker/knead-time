@@ -226,6 +226,26 @@
 							{t.form.preFerment_sum_help}
 						</span>
 					{/if}
+					{#if state.bigaEnabled || state.poolishEnabled}
+						<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+							<input
+								type="checkbox"
+								class="accent-tomato-500"
+								bind:checked={state.preFermentTempEnabled}
+							/>
+							{t.form.preFermentTemp_toggle}
+						</label>
+						{#if state.preFermentTempEnabled}
+							<FormField
+								label={t.form.preFermentTemp}
+								min={4}
+								max={35}
+								step={0.5}
+								help={t.form.preFermentTemp_help}
+								bind:value={state.preFermentTempValue}
+							/>
+						{/if}
+					{/if}
 				</fieldset>
 			{/if}
 		{/if}

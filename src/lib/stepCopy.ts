@@ -137,9 +137,18 @@ export function stepDescription(
 	// The step's own type carries everything the pre-ferment copy needs, so
 	// this works with or without schedule context.
 	if (step.kind === 'preferment-mix') {
-		return step.preFermentType === 'biga'
-			? msgs.steps.preferment_mix_desc_biga
-			: msgs.steps.preferment_mix_desc_poolish;
+		const base =
+			step.preFermentType === 'biga'
+				? msgs.steps.preferment_mix_desc_biga
+				: msgs.steps.preferment_mix_desc_poolish;
+		// The base copy says "at room temperature" — when the user parked the
+		// pre-ferment in a cellar or wine fridge, correct it explicitly.
+		if (schedule && schedule.preFermentTempC !== null) {
+			return `${base} ${interpolate(msgs.steps.preferment_temp_note, {
+				temp: schedule.preFermentTempC
+			})}`;
+		}
+		return base;
 	}
 
 	const template = msgs.steps[DESC[step.kind]];

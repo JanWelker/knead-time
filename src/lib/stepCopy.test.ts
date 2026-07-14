@@ -363,6 +363,20 @@ describe('stepDetailText — flat .ics form', () => {
 	});
 });
 
+describe('stepDescription — pre-ferment temperature note', () => {
+	it('appends the maturation-temperature note only when one is set', () => {
+		const plain = computeSchedule(prefermentInputs('biga'));
+		const cellar = computeSchedule(prefermentInputs('biga', { preFermentTempC: 17 }));
+		const step = findStep(cellar, 'preferment-mix');
+		const desc = stepDescription(step, MESSAGES.en, cellar);
+		expect(desc).toContain('17 °C');
+		expect(desc).not.toContain('{temp}');
+		expect(stepDescription(findStep(plain, 'preferment-mix'), MESSAGES.en, plain)).not.toContain(
+			'17 °C'
+		);
+	});
+});
+
 describe('yeastIngredientName', () => {
 	it.each([
 		{ type: 'fresh', key: 'fresh_yeast' },

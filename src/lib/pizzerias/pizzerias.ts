@@ -204,8 +204,10 @@ function matchesRecipe(a: Partial<SerializableInputs>, b: DoughInputs): boolean 
 	if (a.yeastType === 'sourdough' && a.starterHydration !== b.starterHydration) return false;
 	// Pre-v=4 share URLs omit the mixing method; the parser leaves it
 	// undefined, the form supplies 'machine'. Treat unset === machine so
-	// legacy entries keep matching.
+	// legacy entries keep matching. Same story for the pre-ferment
+	// temperature, whose unset value is null (follows the room).
 	if ((a.mixingMethod ?? 'machine') !== b.mixingMethod) return false;
+	if ((a.preFermentTempC ?? null) !== b.preFermentTempC) return false;
 	// Both sides are in canonical biga-first order (decode and the form both
 	// guarantee it), so element-wise comparison suffices.
 	const aPf = a.preFerments ?? [];

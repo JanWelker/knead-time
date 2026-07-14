@@ -83,6 +83,9 @@ export interface Messages {
 		preFermentFlour_biga: string;
 		preFermentFlour_poolish: string;
 		preFerment_sum_help: string;
+		preFermentTemp: string;
+		preFermentTemp_toggle: string;
+		preFermentTemp_help: string;
 		mode_beginner: string;
 		mode_expert: string;
 		mode_help: string;
@@ -97,6 +100,7 @@ export interface Messages {
 		preferment_mix_biga: string;
 		preferment_mix_poolish: string;
 		preferment_mix_desc_biga: string;
+		preferment_temp_note: string;
 		preferment_mix_desc_poolish: string;
 		prep: string;
 		prep_desc: string;
@@ -340,7 +344,7 @@ const en: Messages = {
 		info_preferment_biga: 'Biga: 14 h-equivalent at 22 °C',
 		info_preferment_poolish: 'Poolish: 12 h-equivalent at 22 °C',
 		info_preferment_wall:
-			'Wall-clock duration solves back from the reference load and is clamped to [8 h, 24 h]:',
+			'Wall-clock duration solves back from the reference load — at the pre-ferment temperature if you set one, otherwise at room temperature — and is clamped to [8 h, 24 h]:',
 		info_preferment_yeast:
 			"For yeast-carried recipes (fresh or dry), all of the recipe's yeast goes into the pre-ferments — split proportional to their flour shares, none on baking day. A biga is mixed stiff at 50% hydration, a poolish pourable at 100% — both drawn from the recipe's existing flour and water budget. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
 		info_switch_title: 'Cold ↔ room switch',
@@ -401,6 +405,10 @@ const en: Messages = {
 		preFermentFlour_biga: 'Biga flour (% of total)',
 		preFermentFlour_poolish: 'Poolish flour (% of total)',
 		preFerment_sum_help: 'Together the two pre-ferments may carry at most 80% of the flour.',
+		preFermentTemp: 'Pre-ferment temperature (°C)',
+		preFermentTemp_toggle: 'Matures somewhere cooler (cellar, wine fridge)',
+		preFermentTemp_help:
+			'Where the biga or poolish sits while it matures. Cooler places stretch the maturation — the schedule and the yeast amounts account for it.',
 		mode_beginner: 'Back to the simple view',
 		mode_expert: 'Show all options (expert)',
 		mode_help:
@@ -415,6 +423,8 @@ const en: Messages = {
 	steps: {
 		preferment_mix_biga: 'Mix biga',
 		preferment_mix_poolish: 'Mix poolish',
+		preferment_temp_note:
+			'This one matures at {temp} °C instead of room temperature — the schedule already accounts for it.',
 		preferment_mix_desc_biga:
 			'Stir the flour, water and yeast together just until shaggy — do not knead, the biga should stay crumbly. Cover and let it mature at room temperature.',
 		preferment_mix_desc_poolish:
@@ -687,7 +697,7 @@ const de: Messages = {
 		info_preferment_biga: 'Biga: 14 h-Äquivalent bei 22 °C',
 		info_preferment_poolish: 'Poolish: 12 h-Äquivalent bei 22 °C',
 		info_preferment_wall:
-			'Die Wanduhrzeit ergibt sich aus dem Referenzwert und wird auf [8 h, 24 h] begrenzt:',
+			'Die Wanduhrzeit ergibt sich aus dem Referenzwert — bei der Vorteig-Temperatur, falls gesetzt, sonst bei Raumtemperatur — und wird auf [8 h, 24 h] begrenzt:',
 		info_preferment_yeast:
 			'Bei Rezepten mit Hefe (frisch oder trocken) landet die gesamte Hefe in den Vorteigen — aufgeteilt nach ihren Mehlanteilen, am Backtag kommt keine mehr dazu. Eine Biga wird fest bei 50% Hydration angesetzt, ein Poolish gießfähig bei 100% — beide stammen aus dem vorhandenen Mehl- und Wasserbudget des Rezepts. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
 		info_switch_title: 'Wechsel Kühlschrank ↔ Raum',
@@ -748,6 +758,10 @@ const de: Messages = {
 		preFermentFlour_biga: 'Biga-Mehl (% vom Gesamtmehl)',
 		preFermentFlour_poolish: 'Poolish-Mehl (% vom Gesamtmehl)',
 		preFerment_sum_help: 'Zusammen dürfen die beiden Vorteige höchstens 80% des Mehls tragen.',
+		preFermentTemp: 'Vorteig-Temperatur (°C)',
+		preFermentTemp_toggle: 'Reift an einem kühleren Ort (Keller, Weinkühlschrank)',
+		preFermentTemp_help:
+			'Wo die Biga oder der Poolish während der Reife steht. Kühlere Orte strecken die Reife — Zeitplan und Hefemengen berücksichtigen das.',
 		mode_beginner: 'Zurück zur einfachen Ansicht',
 		mode_expert: 'Alle Optionen anzeigen (Experten)',
 		mode_help:
@@ -762,6 +776,8 @@ const de: Messages = {
 	steps: {
 		preferment_mix_biga: 'Biga ansetzen',
 		preferment_mix_poolish: 'Poolish ansetzen',
+		preferment_temp_note:
+			'Dieser reift bei {temp} °C statt bei Raumtemperatur — der Zeitplan berücksichtigt das bereits.',
 		preferment_mix_desc_biga:
 			'Mehl, Wasser und Hefe nur grob vermengen, nicht kneten — die Biga soll krümelig bleiben. Abgedeckt bei Raumtemperatur reifen lassen.',
 		preferment_mix_desc_poolish:
@@ -1041,7 +1057,7 @@ const it: Messages = {
 		info_preferment_biga: 'Biga: 14 h-equivalenti a 22 °C',
 		info_preferment_poolish: 'Poolish: 12 h-equivalenti a 22 °C',
 		info_preferment_wall:
-			'La durata reale si ricava dal carico di riferimento ed è limitata a [8 h, 24 h]:',
+			'La durata reale si ricava dal carico di riferimento — alla temperatura del preimpasto se impostata, altrimenti a temperatura ambiente — ed è limitata a [8 h, 24 h]:',
 		info_preferment_yeast:
 			'Per le ricette con lievito (fresco o secco), tutto il lievito va nei preimpasti — suddiviso in proporzione alle loro quote di farina, niente lievito il giorno della cottura. La biga si impasta soda al 50% di idratazione, il poolish colabile al 100% — entrambi attingono alla farina e all’acqua già previste dalla ricetta. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
 		info_switch_title: 'Passaggio frigo ↔ ambiente',
@@ -1103,6 +1119,10 @@ const it: Messages = {
 		preFermentFlour_poolish: 'Farina nel poolish (% del totale)',
 		preFerment_sum_help:
 			'Insieme i due preimpasti possono contenere al massimo l’80% della farina.',
+		preFermentTemp: 'Temperatura del preimpasto (°C)',
+		preFermentTemp_toggle: 'Matura in un luogo più fresco (cantina, cantinetta per il vino)',
+		preFermentTemp_help:
+			'Dove riposa la biga o il poolish durante la maturazione. Luoghi più freschi allungano la maturazione — il programma e le quantità di lievito ne tengono conto.',
 		mode_beginner: 'Torna alla vista semplice',
 		mode_expert: 'Mostra tutte le opzioni (esperto)',
 		mode_help:
@@ -1117,6 +1137,8 @@ const it: Messages = {
 	steps: {
 		preferment_mix_biga: 'Preparare la biga',
 		preferment_mix_poolish: 'Preparare il poolish',
+		preferment_temp_note:
+			'Questo matura a {temp} °C invece che a temperatura ambiente — il programma ne tiene già conto.',
 		preferment_mix_desc_biga:
 			'Mescolare farina, acqua e lievito appena fino a sbriciolare — non impastare, la biga deve restare grumosa. Coprire e far maturare a temperatura ambiente.',
 		preferment_mix_desc_poolish:
@@ -1395,7 +1417,7 @@ const fr: Messages = {
 		info_preferment_biga: 'Biga : 14 h-équivalent à 22 °C',
 		info_preferment_poolish: 'Poolish : 12 h-équivalent à 22 °C',
 		info_preferment_wall:
-			'La durée réelle se déduit de la charge de référence et est bornée à [8 h, 24 h] :',
+			'La durée réelle se déduit de la charge de référence — à la température du pré-ferment si vous en définissez une, sinon à température ambiante — et est bornée à [8 h, 24 h] :',
 		info_preferment_yeast:
 			"Pour les recettes avec levure (fraîche ou sèche), toute la levure va dans les pré-ferments — répartie au prorata de leur part de farine, aucune le jour de la cuisson. Une biga se mélange ferme à 50% d'hydratation, un poolish coulant à 100% — tous deux puisés dans le budget de farine et d'eau existant de la recette. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).",
 		info_switch_title: 'Bascule frigo ↔ ambiante',
@@ -1460,6 +1482,10 @@ const fr: Messages = {
 		preFermentFlour_poolish: 'Farine du poolish (% du total)',
 		preFerment_sum_help:
 			'Ensemble, les deux pré-ferments peuvent porter au maximum 80% de la farine.',
+		preFermentTemp: 'Température du pré-ferment (°C)',
+		preFermentTemp_toggle: 'Mûrit dans un endroit plus frais (cave, cave à vin)',
+		preFermentTemp_help:
+			'Là où repose la biga ou le poolish pendant la maturation. Les endroits plus frais allongent la maturation — le programme et les quantités de levure en tiennent compte.',
 		mode_beginner: 'Revenir à la vue simple',
 		mode_expert: 'Afficher toutes les options (expert)',
 		mode_help:
@@ -1474,6 +1500,8 @@ const fr: Messages = {
 	steps: {
 		preferment_mix_biga: 'Préparer la biga',
 		preferment_mix_poolish: 'Préparer le poolish',
+		preferment_temp_note:
+			'Celui-ci mûrit à {temp} °C au lieu de la température ambiante — le programme en tient déjà compte.',
 		preferment_mix_desc_biga:
 			"Mélangez la farine, l'eau et la levure juste assez pour former un mélange grumeleux — ne pétrissez pas, la biga doit rester sablée. Couvrez et laissez maturer à température ambiante.",
 		preferment_mix_desc_poolish:
@@ -1752,7 +1780,7 @@ const nl: Messages = {
 		info_preferment_biga: 'Biga: 14 u-equivalent bij 22 °C',
 		info_preferment_poolish: 'Poolish: 12 u-equivalent bij 22 °C',
 		info_preferment_wall:
-			'De werkelijke duur wordt afgeleid van de referentiebelasting en wordt begrensd op [8 u, 24 u]:',
+			'De werkelijke duur wordt afgeleid van de referentiebelasting — op de voordeegtemperatuur als je die instelt, anders op kamertemperatuur — en wordt begrensd op [8 u, 24 u]:',
 		info_preferment_yeast:
 			'Bij recepten met gist (vers of gedroogd) zit alle gist in de voordegen — verdeeld naar hun bloemaandeel, niets op de bakdag. Een biga wordt stijf aangemaakt op 50% hydratatie, een poolish gietbaar op 100% — beide komen uit het bestaande bloem- en waterbudget van het recept. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
 		info_switch_title: 'Wissel koelkast ↔ kamer',
@@ -1814,6 +1842,10 @@ const nl: Messages = {
 		preFermentFlour_biga: 'Biga-bloem (% van totaal)',
 		preFermentFlour_poolish: 'Poolish-bloem (% van totaal)',
 		preFerment_sum_help: 'Samen mogen de twee voordegen maximaal 80% van de bloem bevatten.',
+		preFermentTemp: 'Voordeegtemperatuur (°C)',
+		preFermentTemp_toggle: 'Rijpt op een koelere plek (kelder, wijnkoelkast)',
+		preFermentTemp_help:
+			'Waar de biga of poolish staat tijdens het rijpen. Koelere plekken rekken de rijping — het schema en de gisthoeveelheden houden er rekening mee.',
 		mode_beginner: 'Terug naar de eenvoudige weergave',
 		mode_expert: 'Alle opties tonen (expert)',
 		mode_help:
@@ -1828,6 +1860,8 @@ const nl: Messages = {
 	steps: {
 		preferment_mix_biga: 'Biga mengen',
 		preferment_mix_poolish: 'Poolish mengen',
+		preferment_temp_note:
+			'Deze rijpt op {temp} °C in plaats van op kamertemperatuur — het schema houdt er al rekening mee.',
 		preferment_mix_desc_biga:
 			'Meng bloem, water en gist net genoeg om kruimels te krijgen — niet kneden, de biga moet kruimelig blijven. Dek af en laat op kamertemperatuur rijpen.',
 		preferment_mix_desc_poolish:
