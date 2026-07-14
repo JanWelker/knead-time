@@ -36,10 +36,11 @@ export function stepTitle(step: ScheduleStep, msgs: Messages): string {
 	return msgs.steps[TITLE[step.kind]];
 }
 
-// The ingredients a step puts on the scale. Empty for steps that only wait or
-// shape (bulk, divide, proof, ready). The amounts are pulled straight from the
-// computed schedule so they always match the Ingredients table; oil and sugar
-// only appear when the recipe actually calls for them.
+// The ingredients a step newly puts on the scale. Empty for steps that only
+// wait or shape (bulk, divide, proof, ready) and for anything already weighed
+// at an earlier step. The amounts are pulled straight from the computed
+// schedule so they always match the Ingredients table; oil and sugar only
+// appear when the recipe actually calls for them.
 export function stepIngredients(
 	step: ScheduleStep,
 	msgs: Messages,
@@ -74,17 +75,12 @@ export function stepIngredients(
 			if (schedule.preFerment) return base;
 			return [...base, { amount: formatGrams(ingredients.yeast), name: yeastName }, ...extras];
 		}
-		case 'mix': {
-			const base: StepIngredient[] = [
-				{ amount: formatGrams(ingredients.flour), name: i.flour },
-				{ amount: formatGrams(ingredients.water), name: i.water },
-				{ amount: formatGrams(ingredients.salt), name: i.salt }
-			];
-			if (!schedule.preFerment) {
-				base.push({ amount: formatGrams(ingredients.yeast), name: yeastName });
-			}
-			return [...base, ...extras];
-		}
+		case 'mix':
+			// Everything else already went on the scale at prep — repeating it here
+			// would render the same table twice in a row. Only the extras are newly
+			// weighed at mix, and only under a pre-ferment (without one they're
+			// weighed at prep too).
+			return schedule.preFerment ? extras : [];
 		default:
 			return [];
 	}
