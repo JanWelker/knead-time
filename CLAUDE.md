@@ -10,7 +10,7 @@ Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; ev
 
 ## Domain model
 
-Schedule: `preferment-mix → prep → mix → bulk → divide → final-proof → ready`, computed backwards from `readyBy`. Cold-mode `final-proof` is a single 4 h "balls on the counter from fridge to bake" phase (`COLD_FINAL_PROOF_MIN = 240`) — the previous separate `warmup` step was folded in at v3 with no change to the equivalent-hours sum (both legs were at room temperature).
+Schedule: `preferment-mix → prep → mix → bulk → divide → final-proof → ready`, computed backwards from `readyBy` (with `ballProof: 'cold'` the cold leg becomes a `proof-cold` step after divide instead of `bulk-cold` before it). Cold-mode `final-proof` is a single 4 h "balls on the counter from fridge to bake" phase (`COLD_FINAL_PROOF_MIN = 240`) — the previous separate `warmup` step was folded in at v3 with no change to the equivalent-hours sum (both legs were at room temperature).
 
 - **Cold vs room is deterministic on available time, not a toggle.** Window ≥ 16 h → cold-bulk at `fridgeTempC`; else room.
 - **Pre-ferments are real fermentation phases, and biga + poolish can run together** (v4). `DoughInputs.preFerments` is a list (empty = none, canonical biga-first order, each flour share in [5, 80] %, Σ ≤ 80 %). Biga ~14 h / poolish ~12 h at 22 °C, Q10-scaled, clamped [8, 24] h (`prefermentDurationHours` in `fermentation.ts`). All pre-ferments mature **in parallel and end at `prep`**: the schedule reserves the longest and emits one `preferment-mix` step per entry (longest-first, stamped with `ScheduleStep.preFermentType` — copy, row keys and `.ics` UIDs all branch on it). For fresh-yeast recipes the pre-ferments carry **all the yeast**, split proportional to flour share — no fresh yeast on baking day.
@@ -24,7 +24,9 @@ Schedule: `preferment-mix → prep → mix → bulk → divide → final-proof �
 Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 
 - Ball weight accepts decimals (e.g. 288.5 g).
-- Yeast: fresh (cube) or sourdough starter (+ starter hydration).
+- Yeast: fresh (cube), instant dry, active dry, or sourdough starter (+ starter hydration). **The model always solves in fresh-equivalent percent**; `yeastMassFactor` in `fermentation.ts` converts to the carrier's mass at the end (fresh 1, instant ⅓, active-dry 0.4, sourdough 100 — the last is exactly `TARGET_UNITS_SOURDOUGH ÷ FRESH`). Sanity bands (`yeast-tiny`/`yeast-large` warnings, the fit score's `yeast-extreme`) are judged in fresh-equivalent terms — judging raw percent flagged every sourdough recipe as extreme (fixed in v4). Dry yeast can carry pre-ferments; sourdough still can't.
+- **Pre-ferment temperature** (`preFermentTempC: number | null`, null = follows `roomTempC`): where the biga/poolish matures (cellar, wine fridge). Durations, the pre-ferment legs of the yeast solve, and `naturalPreferments` all use it. Expert-only toggle+field, shown when a pre-ferment is enabled; the preferment step copy appends a `preferment_temp_note` when set.
+- **Ball proof** (`ballProof: 'room' | 'cold'`, default room = the classic pre-v4 shape): with 'cold' in cold mode the variable cold leg moves after divide — the balls ripen in the fridge (`proof-cold` step) and temper on the counter. Same leg length/temperature, so prep lands on the same minute and the yeast solve is untouched. Divide joins the pre-cold night cluster; nothing active remains after the fridge. Inert in room mode.
 - `roomTempC` and `fridgeTempC` are both user inputs. Fridge default 4 °C — matches the previous hardcoded value so v=1 share-links stay stable.
 - **Optional**: `oilPercent` and `sugarPercent` (both default 0). When > 0 they expand `pctSum` like salt — see the Math section. Form fields hide their effect when 0; old share-URLs decode to 0 so legacy recipes don't gain enriched-dough character.
 - `mixingMethod` defaults to `machine` — the value every pre-v4 link implies.
@@ -40,6 +42,11 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 - `ScheduleVerbosity = 'short' | 'descriptive'` (`src/lib/storedVerbosity.ts` pure helpers + `src/lib/verbosity.svelte.ts` runtime singleton), toggled by the pill switch in the schedule header. Descriptive shows a `steps.<kind>_detail` explanation paragraph under every step (`stepDetail` in `stepCopy.ts`) and appends it to `.ics` events via `stepDetailText(..., { includeDetail: true })`; short hides both. Print and TRMNL never carry the detail copy.
 - Device-level reading preference: **not in the share URL** and independent of the view mode. Default is descriptive; explicit toggles persist to `localStorage` `kneadtime:scheduleVerbosity`.
 - **Resolution order on mount**: URL `md` param (`md=b` = beginner; encode stamps it only for beginner) → any other non-empty query = expert (all pre-v4 links were made in the full view) → `localStorage` `kneadtime:mode` → **beginner** (the fresh-visit default that justified the v4 major bump). Only explicit toggles persist to localStorage — opening someone's beginner link never overwrites the local preference.
+
+### Recipe memory
+
+- Every recipe change mirrors the encoded share query to `localStorage` `kneadtime:lastRecipe`; a fresh visit with no URL params restores it — **recipe parameters only** (the stale `startAt`/`readyBy` are dropped so the dates keep today's defaults). Any link beats the memory.
+- Named recipe book in `kneadtime:recipes` (`src/lib/storedRecipes.ts`, pure + tested): "Save recipe" in the schedule menu (overwrite by name, newest first); a collapsed "My recipes" section above Community lists them with open (full-reload link like community rows) and delete. Device-local only.
 
 ### "Round numbers" action
 
@@ -112,7 +119,7 @@ The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private P
 
 - Form state → URL. **Keep encoding compact**: short keys, optional fields omitted.
 - **Versioned**: `encodeInputs` always stamps `CURRENT_VERSION`. Every published version only ever **adds** keys (never renames/repurposes), so one `decode()` in `src/lib/dough/urlState.ts` handles them all — branch on the retained `v` param the first time a version breaks that contract. Missing `v` = v1. Unknown `v` falls back to the current decoder.
-- **Current version is `v=4`** (adds `mm` = mixingMethod, omitted for machine; `md=b` view mode, stamped only for beginner; and extends `p` to an underscore-separated pre-ferment list, e.g. `p=b30_p20` — the old single token parses as a 1-element list, `,` is accepted in hand-written links, decode clamps each share to [5, 80] with Σ ≤ 80 and canonicalises biga-first). `v=3` added `o`/`sg`; `v=2` added `ft`; older links decode those fields as `undefined` and the form defaults fill in — every pre-v=4 share-link reproduces its original recipe, yeast % included.
+- **Current version is `v=4`** (adds `mm` = mixingMethod, omitted for machine; `md=b` view mode, stamped only for beginner; `y` gains `i`/`a` for the dry yeasts; `pt` = preFermentTempC, omitted when following the room; `bp=c` = cold ball proof, omitted for the classic shape; and extends `p` to an underscore-separated pre-ferment list, e.g. `p=b30_p20` — the old single token parses as a 1-element list, `,` is accepted in hand-written links, decode clamps each share to [5, 80] with Σ ≤ 80 and canonicalises biga-first). `v=3` added `o`/`sg`; `v=2` added `ft`; older links decode those fields as `undefined` and the form defaults fill in — every pre-v=4 share-link reproduces its original recipe, yeast % included.
 - **Schema-change protocol**: bump `CURRENT_VERSION`, keep `decode()` understanding every published key shape. **Never break an old key** — old bookmarks and community rows must keep resolving.
 - URL schema version is **independent** from app version.
 
