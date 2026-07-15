@@ -7,28 +7,35 @@
 		<meta name="theme-color" content="#c8401a" />
 		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
 		<script>
+			// Theme boot: apply dark before first paint. The legacy bare 'theme'
+			// slot is read as a fallback until loadStoredTheme migrates it to
+			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
+			// cookies") — only the reads are guarded so a blocked storage still
+			// honours the system preference.
 			(function () {
+				var stored = null;
 				try {
-					var stored = localStorage.getItem('theme');
-					var dark =
-						stored === 'dark' ||
-						((stored === null || stored === 'system') &&
-							window.matchMedia('(prefers-color-scheme: dark)').matches);
-					if (dark) document.documentElement.classList.add('dark');
+					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
 				} catch (e) {}
+				if (
+					stored === 'dark' ||
+					(stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+				) {
+					document.documentElement.classList.add('dark');
+				}
 			})();
 		</script>
-		<link href="/knead-time/_app/immutable/entry/start.DVdhuNSI.js" rel="modulepreload">
-		<link href="/knead-time/_app/immutable/chunks/yPSYnXWZ.js" rel="modulepreload">
+		<link href="/knead-time/_app/immutable/entry/start.DSKWmRIf.js" rel="modulepreload">
+		<link href="/knead-time/_app/immutable/chunks/DiapdN8u.js" rel="modulepreload">
 		<link href="/knead-time/_app/immutable/chunks/DyLDtTY5.js" rel="modulepreload">
-		<link href="/knead-time/_app/immutable/entry/app.BFGWl0TF.js" rel="modulepreload">
+		<link href="/knead-time/_app/immutable/entry/app.BUmWPcZ8.js" rel="modulepreload">
 		<link href="/knead-time/_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
-		<link href="/knead-time/_app/immutable/nodes/0.CEVKzT1C.js" rel="modulepreload">
-		<link href="/knead-time/_app/immutable/chunks/CWw-uXti.js" rel="modulepreload">
-		<link href="/knead-time/_app/immutable/chunks/CcJcc9o_.js" rel="modulepreload">
-		<link href="/knead-time/_app/immutable/chunks/C_PRPyl8.js" rel="modulepreload">
+		<link href="/knead-time/_app/immutable/nodes/0.CyQkC7u5.js" rel="modulepreload">
+		<link href="/knead-time/_app/immutable/chunks/BcTFR_MU.js" rel="modulepreload">
+		<link href="/knead-time/_app/immutable/chunks/C8NvfdFC.js" rel="modulepreload">
+		<link href="/knead-time/_app/immutable/chunks/DhKurRug.js" rel="modulepreload">
 		
-		<link href="/knead-time/_app/immutable/assets/0.BP3Ynosk.css" rel="stylesheet">
+		<link href="/knead-time/_app/immutable/assets/0.DsnWy4ij.css" rel="stylesheet">
 	</head>
 	<body
 		data-sveltekit-preload-data="hover"
@@ -37,7 +44,7 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_1gjy1zx = {
+					__sveltekit_kxdyvv = {
 						base: "/knead-time",
 						assets: "/knead-time"
 					};
@@ -45,8 +52,8 @@
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("/knead-time/_app/immutable/entry/start.DVdhuNSI.js"),
-						import("/knead-time/_app/immutable/entry/app.BFGWl0TF.js")
+						import("/knead-time/_app/immutable/entry/start.DSKWmRIf.js"),
+						import("/knead-time/_app/immutable/entry/app.BUmWPcZ8.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element);
 					});
