@@ -4,6 +4,8 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 
+	import { ingredientTotals } from '$lib/dough/bakers';
+	import { defaultInputs } from '$lib/dough/defaults';
 	import { computeSchedule } from '$lib/dough/schedule';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
@@ -27,26 +29,11 @@
 		return typeof s === 'string' && (LOCALES as readonly string[]).includes(s);
 	}
 	const pageLocale: Locale = isLocale(page.params.locale) ? page.params.locale : 'en';
-	i18n.set(pageLocale);
+	// persist: false — this route owns its locale via the URL path; opening a
+	// foreign-language print link must not overwrite the stored app language.
+	i18n.set(pageLocale, { persist: false });
 
-	const DEFAULT_INPUTS: DoughInputs = {
-		readyBy: new Date(Date.now() + 24 * 60 * 60 * 1000),
-		startAt: new Date(),
-		pizzaCount: 6,
-		ballWeight: 280,
-		hydration: 70,
-		saltPercent: 3,
-		oilPercent: 0,
-		sugarPercent: 0,
-		yeastType: 'fresh',
-		starterHydration: 100,
-		roomTempC: 22,
-		fridgeTempC: 4,
-		preFermentTempC: null,
-		ballProof: 'room',
-		mixingMethod: 'spiral',
-		preFerments: []
-	};
+	const DEFAULT_INPUTS: DoughInputs = defaultInputs();
 
 	// Decode synchronously on the client so the first paint after hydration
 	// already shows the user's recipe. SSR'd HTML ships with DEFAULT_INPUTS as
@@ -73,22 +60,7 @@
 					.join(' + ')
 			: null
 	);
-	const totals = $derived(
-		schedule.ingredients.preFerments.length > 0
-			? {
-					flour:
-						schedule.ingredients.flour +
-						schedule.ingredients.preFerments.reduce((sum, pf) => sum + pf.flour, 0),
-					water:
-						schedule.ingredients.water +
-						schedule.ingredients.preFerments.reduce((sum, pf) => sum + pf.water, 0),
-					salt: schedule.ingredients.salt,
-					yeast:
-						schedule.ingredients.yeast +
-						schedule.ingredients.preFerments.reduce((sum, pf) => sum + pf.yeast, 0)
-				}
-			: null
-	);
+	const totals = $derived(ingredientTotals(schedule.ingredients));
 
 	onMount(() => {
 		// Auto-trigger the print dialog so the Print button → new tab → dialog
@@ -117,7 +89,6 @@
 		}
 		.printpage {
 			font-family:
-				'Inter',
 				ui-sans-serif,
 				system-ui,
 				-apple-system,
@@ -332,6 +303,19 @@
 							>
 							<tr><th>{t.ingredients.salt}</th><td>{formatGrams(schedule.ingredients.salt)}</td></tr
 							>
+							{#if schedule.ingredients.oil > 0}
+								<tr><th>{t.ingredients.oil}</th><td>{formatGrams(schedule.ingredients.oil)}</td></tr
+								>
+							{/if}
+							{#if schedule.ingredients.sugar > 0}
+								<tr
+									><th>{t.ingredients.sugar}</th><td>{formatGrams(schedule.ingredients.sugar)}</td
+									></tr
+								>
+							{/if}
+							{#if schedule.ingredients.yeast > 0}
+								<tr><th>{yeastLabel}</th><td>{formatGrams(schedule.ingredients.yeast)}</td></tr>
+							{/if}
 						</tbody>
 					</table>
 				</section>
@@ -339,12 +323,18 @@
 					<h3>{t.ingredients.totals_heading}</h3>
 					<table class="printpage-ingredients">
 						<tbody>
-							<tr><th>{t.ingredients.flour}</th><td>{formatGrams(totals!.flour)}</td></tr>
-							<tr><th>{t.ingredients.water}</th><td>{formatGrams(totals!.water)}</td></tr>
-							<tr><th>{t.ingredients.salt}</th><td>{formatGrams(totals!.salt)}</td></tr>
+							<tr><th>{t.ingredients.flour}</th><td>{formatGrams(totals.flour)}</td></tr>
+							<tr><th>{t.ingredients.water}</th><td>{formatGrams(totals.water)}</td></tr>
+							<tr><th>{t.ingredients.salt}</th><td>{formatGrams(totals.salt)}</td></tr>
+							{#if totals.oil > 0}
+								<tr><th>{t.ingredients.oil}</th><td>{formatGrams(totals.oil)}</td></tr>
+							{/if}
+							{#if totals.sugar > 0}
+								<tr><th>{t.ingredients.sugar}</th><td>{formatGrams(totals.sugar)}</td></tr>
+							{/if}
 							<tr
 								><th>{yeastLabel} ({formatPercent(schedule.yeastPercent)})</th><td
-									>{formatGrams(totals!.yeast)}</td
+									>{formatGrams(totals.yeast)}</td
 								></tr
 							>
 							<tr class="printpage-total"
@@ -363,6 +353,15 @@
 						<tr><th>{t.ingredients.water}</th><td>{formatGrams(schedule.ingredients.water)}</td></tr
 						>
 						<tr><th>{t.ingredients.salt}</th><td>{formatGrams(schedule.ingredients.salt)}</td></tr>
+						{#if schedule.ingredients.oil > 0}
+							<tr><th>{t.ingredients.oil}</th><td>{formatGrams(schedule.ingredients.oil)}</td></tr>
+						{/if}
+						{#if schedule.ingredients.sugar > 0}
+							<tr
+								><th>{t.ingredients.sugar}</th><td>{formatGrams(schedule.ingredients.sugar)}</td
+								></tr
+							>
+						{/if}
 						<tr
 							><th>{yeastLabel} ({formatPercent(schedule.yeastPercent)})</th><td
 								>{formatGrams(schedule.ingredients.yeast)}</td
@@ -389,7 +388,9 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each schedule.steps as step (step.kind + '-' + step.at.getTime())}
+				<!-- preFermentType disambiguates the two parallel pre-ferment mixes,
+				     which can share a start time when both shrink to the wall budget. -->
+				{#each schedule.steps as step (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
 					{@const isReady = step.kind === 'ready'}
 					{@const ingredients = stepIngredients(step, t, schedule)}
 					<tr class:printpage-ready={isReady}>
@@ -422,7 +423,9 @@
 		{#if qr}
 			<div class="printpage-qr">
 				<svg viewBox="0 0 {qr.size} {qr.size}" aria-hidden="true">
-					<path d={qr.path} fill="currentColor" />
+					<!-- Explicit black: currentColor would inherit the footer's #333
+					     and cost scan contrast on faded B&W printouts. -->
+					<path d={qr.path} fill="#000" />
 				</svg>
 				<p class="printpage-qr-caption">{t.print.scan_to_open}</p>
 			</div>
