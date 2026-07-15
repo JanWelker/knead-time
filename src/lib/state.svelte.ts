@@ -1,5 +1,6 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
+import { RECIPE_DEFAULTS, toDefaultReadyBy } from './dough/defaults';
 import { clampInput, clampPreFermentShares, clampShareInput } from './dough/inputBounds';
 import { computeSchedule } from './dough/schedule';
 import type {
@@ -12,27 +13,20 @@ import type {
 } from './dough/types';
 import type { SerializableInputs } from './dough/urlState';
 
-function defaultReadyBy(): Date {
-	const d = new SvelteDate();
-	d.setDate(d.getDate() + 1);
-	d.setHours(19, 0, 0, 0);
-	return d;
-}
-
 export class FormState {
-	readyBy: Date = $state(defaultReadyBy());
-	pizzaCount: number = $state(6);
-	ballWeight: number = $state(280);
-	hydration: number = $state(70);
-	saltPercent: number = $state(3);
-	oilPercent: number = $state(0);
-	sugarPercent: number = $state(0);
-	yeastType: YeastType = $state('fresh');
-	starterHydration: number = $state(100);
-	roomTempC: number = $state(22);
-	fridgeTempC: number = $state(4);
-	mixingMethod: MixingMethod = $state('spiral');
-	ballProof: BallProof = $state('room');
+	readyBy: Date = $state(toDefaultReadyBy(new SvelteDate()));
+	pizzaCount: number = $state(RECIPE_DEFAULTS.pizzaCount);
+	ballWeight: number = $state(RECIPE_DEFAULTS.ballWeight);
+	hydration: number = $state(RECIPE_DEFAULTS.hydration);
+	saltPercent: number = $state(RECIPE_DEFAULTS.saltPercent);
+	oilPercent: number = $state(RECIPE_DEFAULTS.oilPercent);
+	sugarPercent: number = $state(RECIPE_DEFAULTS.sugarPercent);
+	yeastType: YeastType = $state(RECIPE_DEFAULTS.yeastType);
+	starterHydration: number = $state(RECIPE_DEFAULTS.starterHydration);
+	roomTempC: number = $state(RECIPE_DEFAULTS.roomTempC);
+	fridgeTempC: number = $state(RECIPE_DEFAULTS.fridgeTempC);
+	mixingMethod: MixingMethod = $state(RECIPE_DEFAULTS.mixingMethod);
+	ballProof: BallProof = $state(RECIPE_DEFAULTS.ballProof);
 	preFermentTempEnabled: boolean = $state(false);
 	preFermentTempValue: number = $state(18);
 	bigaEnabled: boolean = $state(false);

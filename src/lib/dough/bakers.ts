@@ -105,6 +105,32 @@ export function computeIngredients(args: BakerArgs): Ingredients {
 	};
 }
 
+export interface IngredientTotals {
+	flour: number;
+	water: number;
+	salt: number;
+	yeast: number;
+	oil: number;
+	sugar: number;
+	total: number;
+}
+
+// Folds the pre-dough sections back into whole-recipe totals. Shared by the
+// screen ingredients table and the print route so the two renderings always
+// sum identically (issue #191). With no pre-ferments it's the identity view
+// of the flat ingredient list.
+export function ingredientTotals(ingredients: Ingredients): IngredientTotals {
+	return {
+		flour: ingredients.flour + ingredients.preFerments.reduce((sum, pf) => sum + pf.flour, 0),
+		water: ingredients.water + ingredients.preFerments.reduce((sum, pf) => sum + pf.water, 0),
+		salt: ingredients.salt,
+		yeast: ingredients.yeast + ingredients.preFerments.reduce((sum, pf) => sum + pf.yeast, 0),
+		oil: ingredients.oil,
+		sugar: ingredients.sugar,
+		total: ingredients.totalDough
+	};
+}
+
 export interface RoundBallWeightArgs {
 	pizzaCount: number;
 	ballWeight: number;

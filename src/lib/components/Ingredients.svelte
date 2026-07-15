@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { ingredientTotals } from '$lib/dough/bakers';
 	import { formatGrams, formatPercent } from '$lib/format';
 	import { yeastIngredientName } from '$lib/stepCopy';
 	import type { Ingredients, YeastType } from '$lib/dough/types';
@@ -20,16 +21,7 @@
 			ingredients.preFerments.some((pf) => pf.yeast > 0 && pf.yeast < 2)
 	);
 
-	const totals = $derived(
-		ingredients.preFerments.length > 0
-			? {
-					flour: ingredients.flour + ingredients.preFerments.reduce((sum, pf) => sum + pf.flour, 0),
-					water: ingredients.water + ingredients.preFerments.reduce((sum, pf) => sum + pf.water, 0),
-					salt: ingredients.salt,
-					yeast: ingredients.yeast + ingredients.preFerments.reduce((sum, pf) => sum + pf.yeast, 0)
-				}
-			: null
-	);
+	const totals = $derived(ingredientTotals(ingredients));
 </script>
 
 {#snippet row(label: string, value: number, hint: string | null = null)}
@@ -108,11 +100,11 @@
 			</header>
 			<table class="w-full border-collapse tabular-nums">
 				<tbody>
-					{@render row(t.ingredients.flour, totals!.flour)}
-					{@render row(t.ingredients.water, totals!.water)}
-					{@render row(t.ingredients.salt, totals!.salt)}
+					{@render row(t.ingredients.flour, totals.flour)}
+					{@render row(t.ingredients.water, totals.water)}
+					{@render row(t.ingredients.salt, totals.salt)}
 					{@render extras()}
-					{@render row(yeastLabel, totals!.yeast, formatPercent(yeastPercent))}
+					{@render row(yeastLabel, totals.yeast, formatPercent(yeastPercent))}
 					{@render totalRow()}
 				</tbody>
 			</table>
