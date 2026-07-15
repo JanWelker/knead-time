@@ -3,6 +3,8 @@
 // Both store encoded share-URL query strings — the same format links use, so
 // decodeInputs is the single reader.
 
+import { safeGet, safeSet } from './safeStorage';
+
 export const LAST_RECIPE_KEY = 'kneadtime:lastRecipe';
 export const RECIPES_KEY = 'kneadtime:recipes';
 
@@ -15,14 +17,12 @@ export interface SavedRecipe {
 }
 
 export function loadLastRecipe(storage: Storage | null | undefined): string | null {
-	if (!storage) return null;
-	const raw = storage.getItem(LAST_RECIPE_KEY);
+	const raw = safeGet(storage, LAST_RECIPE_KEY);
 	return raw ? raw : null;
 }
 
 export function saveLastRecipe(storage: Storage | null | undefined, search: string): void {
-	if (!storage) return;
-	storage.setItem(LAST_RECIPE_KEY, search);
+	safeSet(storage, LAST_RECIPE_KEY, search);
 }
 
 function isSavedRecipe(value: unknown): value is SavedRecipe {
@@ -34,8 +34,7 @@ function isSavedRecipe(value: unknown): value is SavedRecipe {
 }
 
 export function loadRecipes(storage: Storage | null | undefined): SavedRecipe[] {
-	if (!storage) return [];
-	const raw = storage.getItem(RECIPES_KEY);
+	const raw = safeGet(storage, RECIPES_KEY);
 	if (!raw) return [];
 	try {
 		const parsed: unknown = JSON.parse(raw);
@@ -55,12 +54,12 @@ export function saveRecipe(
 	recipe: SavedRecipe
 ): SavedRecipe[] {
 	const next = [recipe, ...loadRecipes(storage).filter((r) => r.name !== recipe.name)];
-	if (storage) storage.setItem(RECIPES_KEY, JSON.stringify(next));
+	safeSet(storage, RECIPES_KEY, JSON.stringify(next));
 	return next;
 }
 
 export function deleteRecipe(storage: Storage | null | undefined, name: string): SavedRecipe[] {
 	const next = loadRecipes(storage).filter((r) => r.name !== name);
-	if (storage) storage.setItem(RECIPES_KEY, JSON.stringify(next));
+	safeSet(storage, RECIPES_KEY, JSON.stringify(next));
 	return next;
 }

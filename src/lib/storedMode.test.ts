@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeStorage } from './storageFixtures';
+import { makeStorage, makeThrowingStorage } from './storageFixtures';
 import { isUiMode, loadStoredMode, MODE_STORAGE_KEY, saveStoredMode } from './storedMode';
 
 describe('isUiMode', () => {
@@ -29,6 +29,10 @@ describe('loadStoredMode', () => {
 		expect(loadStoredMode(null)).toBeNull();
 		expect(loadStoredMode(undefined)).toBeNull();
 	});
+
+	it('returns null when storage throws on access', () => {
+		expect(loadStoredMode(makeThrowingStorage())).toBeNull();
+	});
 });
 
 describe('saveStoredMode', () => {
@@ -40,5 +44,9 @@ describe('saveStoredMode', () => {
 
 	it('is a no-op when storage is unavailable', () => {
 		expect(() => saveStoredMode(null, 'expert')).not.toThrow();
+	});
+
+	it('swallows a throwing write', () => {
+		expect(() => saveStoredMode(makeThrowingStorage(), 'expert')).not.toThrow();
 	});
 });

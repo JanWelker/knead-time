@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeStorage } from './storageFixtures';
+import { makeStorage, makeThrowingStorage } from './storageFixtures';
 import {
 	deleteRecipe,
 	LAST_RECIPE_KEY,
@@ -29,6 +29,11 @@ describe('last recipe', () => {
 		expect(loadLastRecipe(makeStorage({ [LAST_RECIPE_KEY]: '' }))).toBeNull();
 		expect(loadLastRecipe(null)).toBeNull();
 		expect(() => saveLastRecipe(null, 'v=4')).not.toThrow();
+	});
+
+	it('degrades to a no-op when storage throws on access', () => {
+		expect(loadLastRecipe(makeThrowingStorage())).toBeNull();
+		expect(() => saveLastRecipe(makeThrowingStorage(), 'v=4')).not.toThrow();
 	});
 });
 
@@ -69,5 +74,11 @@ describe('recipe book', () => {
 		expect(loadRecipes(null)).toEqual([]);
 		expect(saveRecipe(null, recipe('A'))).toHaveLength(1);
 		expect(deleteRecipe(undefined, 'A')).toEqual([]);
+	});
+
+	it('still returns the in-memory list when storage throws on access', () => {
+		expect(loadRecipes(makeThrowingStorage())).toEqual([]);
+		expect(saveRecipe(makeThrowingStorage(), recipe('A'))).toHaveLength(1);
+		expect(deleteRecipe(makeThrowingStorage(), 'A')).toEqual([]);
 	});
 });

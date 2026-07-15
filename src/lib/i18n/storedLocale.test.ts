@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeStorage } from '../storageFixtures';
+import { makeStorage, makeThrowingStorage } from '../storageFixtures';
 import { LOCALE_STORAGE_KEY, loadStoredLocale, saveStoredLocale } from './storedLocale';
 
 describe('loadStoredLocale', () => {
@@ -22,6 +22,10 @@ describe('loadStoredLocale', () => {
 	it('returns the stored locale when supported', () => {
 		expect(loadStoredLocale(makeStorage({ [LOCALE_STORAGE_KEY]: 'de' }))).toBe('de');
 		expect(loadStoredLocale(makeStorage({ [LOCALE_STORAGE_KEY]: 'nl' }))).toBe('nl');
+	});
+
+	it('returns null when storage throws on access', () => {
+		expect(loadStoredLocale(makeThrowingStorage())).toBeNull();
 	});
 });
 
@@ -62,6 +66,10 @@ describe('saveStoredLocale', () => {
 
 	it('is a no-op when storage is undefined', () => {
 		expect(() => saveStoredLocale(undefined, 'en')).not.toThrow();
+	});
+
+	it('swallows a throwing write', () => {
+		expect(() => saveStoredLocale(makeThrowingStorage(), 'en')).not.toThrow();
 	});
 
 	it('round-trips through load', () => {

@@ -1,3 +1,4 @@
+import { safeLocalStorage } from '../safeStorage';
 import { MESSAGES, type Locale, type Messages } from './messages';
 import { saveStoredLocale } from './storedLocale';
 
@@ -8,9 +9,7 @@ class I18n {
 
 	set(locale: Locale) {
 		this.locale = locale;
-		if (typeof localStorage !== 'undefined') {
-			saveStoredLocale(localStorage, locale);
-		}
+		saveStoredLocale(safeLocalStorage(), locale);
 	}
 }
 

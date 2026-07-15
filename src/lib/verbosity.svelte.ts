@@ -1,3 +1,4 @@
+import { safeLocalStorage } from './safeStorage';
 import { saveStoredVerbosity, type ScheduleVerbosity } from './storedVerbosity';
 
 // Schedule verbosity — whether each step shows its explanatory paragraph.
@@ -10,7 +11,7 @@ class Verbosity {
 
 	set(verbosity: ScheduleVerbosity) {
 		this.current = verbosity;
-		if (typeof localStorage !== 'undefined') saveStoredVerbosity(localStorage, verbosity);
+		saveStoredVerbosity(safeLocalStorage(), verbosity);
 	}
 }
 
