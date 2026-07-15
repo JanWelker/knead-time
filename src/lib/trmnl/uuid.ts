@@ -1,3 +1,5 @@
+import { safeGet, safeRemove, safeSet } from '../safeStorage';
+
 export const TRMNL_UUID_STORAGE_KEY = 'kneadtime:trmnlUuid';
 // Pre-rename key (project was once called 'doughcalc'). loadTrmnlUuid
 // migrates any value left over from that era on first read and clears the
@@ -14,14 +16,13 @@ export function isTrmnlUuid(value: unknown): value is string {
 }
 
 export function loadTrmnlUuid(storage: Storage | null | undefined): string | null {
-	if (!storage) return null;
-	let raw = storage.getItem(TRMNL_UUID_STORAGE_KEY);
+	let raw = safeGet(storage, TRMNL_UUID_STORAGE_KEY);
 	if (raw === null) {
-		const legacy = storage.getItem(LEGACY_TRMNL_UUID_KEY);
+		const legacy = safeGet(storage, LEGACY_TRMNL_UUID_KEY);
 		if (legacy !== null) {
-			storage.removeItem(LEGACY_TRMNL_UUID_KEY);
+			safeRemove(storage, LEGACY_TRMNL_UUID_KEY);
 			if (isTrmnlUuid(legacy)) {
-				storage.setItem(TRMNL_UUID_STORAGE_KEY, legacy);
+				safeSet(storage, TRMNL_UUID_STORAGE_KEY, legacy);
 				raw = legacy;
 			}
 		}
@@ -30,11 +31,9 @@ export function loadTrmnlUuid(storage: Storage | null | undefined): string | nul
 }
 
 export function saveTrmnlUuid(storage: Storage | null | undefined, uuid: string): void {
-	if (!storage) return;
-	storage.setItem(TRMNL_UUID_STORAGE_KEY, uuid);
+	safeSet(storage, TRMNL_UUID_STORAGE_KEY, uuid);
 }
 
 export function clearTrmnlUuid(storage: Storage | null | undefined): void {
-	if (!storage) return;
-	storage.removeItem(TRMNL_UUID_STORAGE_KEY);
+	safeRemove(storage, TRMNL_UUID_STORAGE_KEY);
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeStorage } from '../storageFixtures';
+import { makeStorage, makeThrowingStorage } from '../storageFixtures';
 import {
 	clearTrmnlUuid,
 	isTrmnlUuid,
@@ -52,6 +52,10 @@ describe('loadTrmnlUuid', () => {
 		const uuid = '123e4567-e89b-12d3-a456-426614174000';
 		expect(loadTrmnlUuid(makeStorage({ [TRMNL_UUID_STORAGE_KEY]: uuid }))).toBe(uuid);
 	});
+
+	it('returns null when storage throws on access', () => {
+		expect(loadTrmnlUuid(makeThrowingStorage())).toBeNull();
+	});
 });
 
 describe('loadTrmnlUuid — legacy doughcalc:* migration', () => {
@@ -96,6 +100,12 @@ describe('saveTrmnlUuid', () => {
 		expect(() => saveTrmnlUuid(undefined, '123e4567-e89b-12d3-a456-426614174000')).not.toThrow();
 	});
 
+	it('swallows a throwing write', () => {
+		expect(() =>
+			saveTrmnlUuid(makeThrowingStorage(), '123e4567-e89b-12d3-a456-426614174000')
+		).not.toThrow();
+	});
+
 	it('round-trips through load', () => {
 		const storage = makeStorage();
 		const uuid = '123e4567-e89b-12d3-a456-426614174000';
@@ -119,5 +129,9 @@ describe('clearTrmnlUuid', () => {
 
 	it('is a no-op when storage is undefined', () => {
 		expect(() => clearTrmnlUuid(undefined)).not.toThrow();
+	});
+
+	it('swallows a throwing removal', () => {
+		expect(() => clearTrmnlUuid(makeThrowingStorage())).not.toThrow();
 	});
 });

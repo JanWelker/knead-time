@@ -18,11 +18,9 @@ export default defineConfig({
 				'src/lib/i18n/messages.ts'
 			],
 			reporter: ['text', 'json-summary', 'html', 'lcov'],
-			// CLAUDE.md commits to 100 % lines/functions/statements and ≥ 98 %
-			// branches across every instrumented file. Hitting 100 % branches today
-			// — pin it. If a future change can't keep this, delete the unreachable
-			// branch (preferred) or relax the threshold deliberately with a comment
-			// explaining which file and why.
+			// CLAUDE.md commits to 100 % lines/functions/branches/statements across
+			// every instrumented file. If a future change can't keep this, delete
+			// the unreachable branch (preferred) — don't relax the threshold.
 			thresholds: {
 				lines: 100,
 				functions: 100,

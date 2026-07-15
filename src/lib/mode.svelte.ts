@@ -1,3 +1,4 @@
+import { safeLocalStorage } from './safeStorage';
 import { saveStoredMode, type UiMode } from './storedMode';
 
 // Beginner/expert view mode. The main page resolves the initial value on
@@ -9,7 +10,7 @@ class Mode {
 
 	set(mode: UiMode) {
 		this.current = mode;
-		if (typeof localStorage !== 'undefined') saveStoredMode(localStorage, mode);
+		saveStoredMode(safeLocalStorage(), mode);
 	}
 }
 

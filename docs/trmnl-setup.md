@@ -7,7 +7,7 @@ the current recipe to your device.
 
 ## One-time TRMNL setup
 
-1. Sign in at [usetrmnl.com](https://usetrmnl.com/) and create a **Private Plugin**.
+1. Sign in at [trmnl.com](https://trmnl.com/) and create a **Private Plugin**.
 2. Set the **Strategy** to **Webhook** and pick whatever refresh cadence you like.
    The webhook URL TRMNL gives you ends in a UUID — that's the only thing
    Knead Time needs.
@@ -172,8 +172,9 @@ time the recipe changes, click **Send to TRMNL** again from the menu.
   on the plugin is empty. The template above must go there, not into
   Shared Markup or a half/quadrant tab.
 - **Webhook returns "Large payload received"** — your recipe exceeds the
-  free-tier 2 KB cap. The encoder targets ≤ 1.6 KB for a worst-case
-  cold-mode + biga recipe; if you're seeing this anyway, open an issue.
+  free-tier 2 KB cap. A regression test keeps the worst case — cold mode
+  with biga + poolish (9 step rows) — under 2 KB in every locale; if
+  you're seeing this anyway, open an issue.
 - **Webhook returns "Private Plugin not found"** — the UUID is wrong.
   Copy it again from `/api/custom_plugins/<uuid>` in the plugin's webhook
   URL.
@@ -181,7 +182,7 @@ time the recipe changes, click **Send to TRMNL** again from the menu.
 ## Payload shape
 
 Field names are kept short on purpose — TRMNL's free tier caps webhook
-payloads at 2 KB and a cold-mode recipe with a pre-ferment otherwise blows
+payloads at 2 KB and a cold-mode recipe with biga + poolish otherwise blows
 past that with verbose JSON keys. The Liquid template above uses these names
 verbatim. Step descriptions (the long paragraph rendered in the web app)
 are intentionally omitted — they cost ~80 bytes × 8 steps in German and
@@ -212,8 +213,9 @@ the default template doesn't render them.
 ## Limits
 
 - **Payload size**: free tier ≤ 2 KB, TRMNL+ ≤ 5 KB. Knead Time targets the
-  free tier — a cold-mode + biga recipe (the worst case) sits around 1.6 KB
-  with the short-key encoding above.
+  free tier — a cold-mode + biga + poolish recipe (the worst case, 9 step
+  rows) stays under 2 KB in every locale with the short-key encoding above,
+  enforced by a regression test in `webhook.test.ts`.
 - **Rate**: free tier 12 POST/h, TRMNL+ 30/h. You're well under unless you
   click Send dozens of times in an hour.
 

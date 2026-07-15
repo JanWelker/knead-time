@@ -5,7 +5,7 @@ Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; ev
 ## Stack & deploy
 
 - SvelteKit 5 + TS + Tailwind v4 + Vitest. Node 22+. Husky pre-commit runs format/lint/test.
-- Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`). CI on every push/PR; push to `main` deploys to GitHub Pages.
+- Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`). CI on every PR and on pushes to `main` (the latter feeds the Codecov main baseline); push to `main` deploys to GitHub Pages.
 - `BASE_PATH` env drives `svelte.config.js`. **All in-app links/assets must use `$app/paths` (`base`/`resolve()`) — never hard-code `/`.**
 
 ## Domain model
@@ -41,11 +41,11 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 
 - `ScheduleVerbosity = 'short' | 'descriptive'` (`src/lib/storedVerbosity.ts` pure helpers + `src/lib/verbosity.svelte.ts` runtime singleton), toggled by the pill switch in the schedule header. Descriptive shows a `steps.<kind>_detail` explanation paragraph under every step (`stepDetail` in `stepCopy.ts`) and appends it to `.ics` events via `stepDetailText(..., { includeDetail: true })`; short hides both. Print and TRMNL never carry the detail copy.
 - Device-level reading preference: **not in the share URL** and independent of the view mode. Default is descriptive; explicit toggles persist to `localStorage` `kneadtime:scheduleVerbosity`.
-- **Resolution order on mount**: URL `md` param (`md=b` = beginner; encode stamps it only for beginner) → any other non-empty query = expert (all pre-v4 links were made in the full view) → `localStorage` `kneadtime:mode` → **beginner** (the fresh-visit default that justified the v4 major bump). Only explicit toggles persist to localStorage — opening someone's beginner link never overwrites the local preference.
+- **Resolution order on mount**: URL `md` param (`md=b` = beginner; encode stamps it only for beginner) → any other query carrying known recipe keys = expert (`hasRecipeParams` in `urlState.ts`; stray `utm_*`/`fbclid`-only URLs don't count — they behave like a bare visit) → `localStorage` `kneadtime:mode` → **beginner** (the fresh-visit default that justified the v4 major bump). Only explicit toggles persist to localStorage — opening someone's beginner link never overwrites the local preference.
 
 ### Recipe memory
 
-- Every recipe change mirrors the encoded share query to `localStorage` `kneadtime:lastRecipe`; a fresh visit with no URL params restores it — **recipe parameters only** (the stale `startAt`/`readyBy` are dropped so the dates keep today's defaults). Any link beats the memory.
+- Recipe changes mirror the encoded share query to `localStorage` `kneadtime:lastRecipe` — but **only after a user edit** (issue #201): the recipe-only encoding is snapshotted at hydration and the save effect skips while it still matches, so merely _opening_ someone else's link never overwrites the memory. A fresh visit with no recipe URL params restores it — **recipe parameters only** (the stale `startAt`/`readyBy` are dropped so the dates keep today's defaults). Any recipe link beats the memory; `hasRecipeParams` decides what counts as one.
 - Named recipe book in `kneadtime:recipes` (`src/lib/storedRecipes.ts`, pure + tested): "Save recipe" in the schedule menu (overwrite by name, newest first); a collapsed "My recipes" section above Community lists them with open (full-reload link like community rows) and delete. Device-local only.
 
 ### "Round numbers" action
@@ -160,6 +160,7 @@ Math/schedule bugs are silent until a dough overproofs. **Coverage is a hard gat
 
 ## Conventions
 
+- **All `localStorage` access goes through `src/lib/safeStorage.ts`** — `safeLocalStorage()` for acquisition, `safeGet`/`safeSet`/`safeRemove` inside the stored\* helpers. Chrome's "Block all cookies" makes even the `localStorage` _getter_ throw (`typeof` doesn't protect), so never touch the global directly; persistence degrades to a no-op instead of killing the mount. The `app.html` theme boot script guards its own reads. Theme persists under `kneadtime:theme` — the legacy bare `theme` slot (shared `*.github.io` origin) migrates one-shot like the `doughcalc:` keys.
 - Comments explain **why** when non-obvious (e.g. citing a fermentation magic number). Otherwise none.
 - Minimal dependencies. Prefer hand-rolled utilities (`.ics` generator is hand-written) over large libs.
 - **Keep `README.md` in sync** with npm scripts, CI/deploy, structure — anything a contributor hits in their first hour.

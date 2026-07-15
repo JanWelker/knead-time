@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { makeStorage } from './storageFixtures';
+import { makeStorage, makeThrowingStorage } from './storageFixtures';
 import {
 	isScheduleVerbosity,
 	loadStoredVerbosity,
@@ -34,6 +34,10 @@ describe('loadStoredVerbosity', () => {
 		expect(loadStoredVerbosity(null)).toBeNull();
 		expect(loadStoredVerbosity(undefined)).toBeNull();
 	});
+
+	it('returns null when storage throws on access', () => {
+		expect(loadStoredVerbosity(makeThrowingStorage())).toBeNull();
+	});
 });
 
 describe('saveStoredVerbosity', () => {
@@ -45,5 +49,9 @@ describe('saveStoredVerbosity', () => {
 
 	it('is a no-op when storage is unavailable', () => {
 		expect(() => saveStoredVerbosity(null, 'descriptive')).not.toThrow();
+	});
+
+	it('swallows a throwing write', () => {
+		expect(() => saveStoredVerbosity(makeThrowingStorage(), 'short')).not.toThrow();
 	});
 });

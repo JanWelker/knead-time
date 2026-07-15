@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeIngredients, roundBallWeight } from './bakers';
+import { computeIngredients, ingredientTotals, roundBallWeight } from './bakers';
 
 const baseArgs = {
 	pizzaCount: 4,
@@ -342,6 +342,72 @@ describe('roundBallWeight', () => {
 		const newFlour = (withExtras.pizzaCount * newBw * 100) / pctSum;
 		// Flour should still snap to a 50 g multiple.
 		expect(distToMultiple(newFlour, 50)).toBeLessThan(0.5);
+	});
+});
+
+describe('ingredientTotals', () => {
+	it('is the identity view of a flat recipe (no pre-ferments)', () => {
+		const r = computeIngredients(baseArgs);
+		const t = ingredientTotals(r);
+		expect(t).toEqual({
+			flour: r.flour,
+			water: r.water,
+			salt: r.salt,
+			yeast: r.yeast,
+			oil: r.oil,
+			sugar: r.sugar,
+			total: r.totalDough
+		});
+	});
+
+	it('folds a single pre-dough back into whole-recipe totals', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
+		});
+		const t = ingredientTotals(r);
+		const pf = r.preFerments[0];
+		expect(t.flour).toBeCloseTo(r.flour + pf.flour, 6);
+		expect(t.water).toBeCloseTo(r.water + pf.water, 6);
+		expect(t.yeast).toBeCloseTo(r.yeast + pf.yeast, 6);
+		expect(t.salt).toBe(r.salt);
+		expect(t.total).toBe(r.totalDough);
+	});
+
+	it('sums both parallel pre-doughs (biga + poolish)', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		});
+		const t = ingredientTotals(r);
+		const [biga, poolish] = r.preFerments;
+		expect(t.flour).toBeCloseTo(r.flour + biga.flour + poolish.flour, 6);
+		expect(t.water).toBeCloseTo(r.water + biga.water + poolish.water, 6);
+		expect(t.yeast).toBeCloseTo(biga.yeast + poolish.yeast, 6);
+	});
+
+	it('rows sum to the total for an enriched recipe with pre-ferments', () => {
+		const r = computeIngredients({
+			...baseArgs,
+			oilPercent: 5,
+			sugarPercent: 2,
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		});
+		const t = ingredientTotals(r);
+		expect(t.flour + t.water + t.salt + t.yeast + t.oil + t.sugar).toBeCloseTo(t.total, 6);
+	});
+
+	it('carries oil & sugar through unchanged', () => {
+		const r = computeIngredients({ ...baseArgs, oilPercent: 4, sugarPercent: 1.5 });
+		const t = ingredientTotals(r);
+		expect(t.oil).toBe(r.oil);
+		expect(t.sugar).toBe(r.sugar);
 	});
 });
 

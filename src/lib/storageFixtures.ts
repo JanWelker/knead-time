@@ -1,6 +1,24 @@
 // In-memory Storage stand-in for unit tests that don't run in a browser
 // environment. Excluded from coverage by vitest.config.
 
+// A Storage whose every member throws — models Chrome's "Block all cookies"
+// mode (SecurityError on any access) and a full quota (throw on write).
+export function makeThrowingStorage(): Storage {
+	const throwing = (): never => {
+		throw new Error('SecurityError: storage is blocked');
+	};
+	return {
+		get length(): number {
+			return throwing();
+		},
+		clear: throwing,
+		getItem: throwing,
+		key: throwing,
+		removeItem: throwing,
+		setItem: throwing
+	};
+}
+
 export function makeStorage(initial: Record<string, string> = {}): Storage {
 	const map = new Map(Object.entries(initial));
 	return {

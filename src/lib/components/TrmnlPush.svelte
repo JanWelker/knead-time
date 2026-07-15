@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { safeLocalStorage } from '$lib/safeStorage';
 	import { clearTrmnlUuid, isTrmnlUuid, loadTrmnlUuid, saveTrmnlUuid } from '$lib/trmnl/uuid';
 	import { buildMergeVariables, sendToTrmnl } from '$lib/trmnl/webhook';
 	import type { ComputedSchedule, DoughInputs } from '$lib/dough/types';
@@ -27,7 +28,7 @@
 	let errorMessage: string = $state('');
 
 	onMount(() => {
-		savedUuid = loadTrmnlUuid(localStorage);
+		savedUuid = loadTrmnlUuid(safeLocalStorage());
 		uuidInput = savedUuid ?? '';
 	});
 
@@ -58,7 +59,7 @@
 			errorMessage = t.trmnl_push.error_invalid_uuid;
 			return;
 		}
-		if (browser) saveTrmnlUuid(localStorage, trimmed);
+		if (browser) saveTrmnlUuid(safeLocalStorage(), trimmed);
 		savedUuid = trimmed;
 		status = 'sending';
 		errorMessage = '';
@@ -73,7 +74,7 @@
 	}
 
 	function disconnect(): void {
-		if (browser) clearTrmnlUuid(localStorage);
+		if (browser) clearTrmnlUuid(safeLocalStorage());
 		savedUuid = null;
 		uuidInput = '';
 		status = 'idle';

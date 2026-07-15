@@ -117,17 +117,33 @@ function parsePreFerments(encoded: string): PreFermentSpec[] {
 	return [...out.filter((pf) => pf.type === 'biga'), ...out.filter((pf) => pf.type === 'poolish')];
 }
 
+// Every key any published URL version has ever written (the single decode()
+// keeps understanding all of them, so the union is exactly v + md + KEYS_V4).
+const KNOWN_KEYS: ReadonlySet<string> = new Set([VERSION_KEY, MODE_KEY, ...Object.values(KEYS_V4)]);
+
+// True when the query carries at least one key Knead Time has ever encoded —
+// the test for "is this a recipe link". Foreign params alone (utm_source,
+// fbclid, …) must behave like a bare visit: they suppress neither the
+// last-recipe restore nor the stored beginner preference (issue #201).
+export function hasRecipeParams(query: string): boolean {
+	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	for (const key of params.keys()) {
+		if (KNOWN_KEYS.has(key)) return true;
+	}
+	return false;
+}
+
 // Resolves the view mode a URL asks for, or null when it doesn't say.
-// An explicit md param wins; any other non-empty query is a recipe link and
-// means expert; an empty query is a fresh visit — the caller falls back to
-// the stored preference and finally to beginner.
+// An explicit md param wins; any other query carrying recipe keys is a
+// recipe link and means expert (everything shared before v4 was made in
+// today's full view); otherwise the caller falls back to the stored
+// preference and finally to beginner.
 export function decodeUiMode(query: string): UiMode | null {
 	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
 	const md = params.get(MODE_KEY);
 	if (md === 'b') return 'beginner';
 	if (md === 'e') return 'expert';
-	// URLSearchParams.size is too new for some supported browsers.
-	return params.toString() !== '' ? 'expert' : null;
+	return hasRecipeParams(query) ? 'expert' : null;
 }
 
 export function decodeInputs(query: string): Partial<SerializableInputs> {

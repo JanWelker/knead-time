@@ -1,9 +1,12 @@
 {
 	"name": "knead-time",
-	"version": "4.1.2",
+	"version": "4.1.3",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
+	"engines": {
+		"node": ">=22"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",

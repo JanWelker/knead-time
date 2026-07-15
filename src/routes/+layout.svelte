@@ -4,6 +4,7 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { detectLocale } from '$lib/i18n/messages';
 	import { loadStoredLocale } from '$lib/i18n/storedLocale';
+	import { safeLocalStorage } from '$lib/safeStorage';
 	import { theme } from '$lib/theme.svelte';
 	import { onMount } from 'svelte';
 
@@ -18,7 +19,7 @@
 		if (!ownsLocale) {
 			// A persisted user choice wins over navigator detect so a full
 			// reload (e.g. via a community Open link) doesn't snap back.
-			const stored = loadStoredLocale(localStorage);
+			const stored = loadStoredLocale(safeLocalStorage());
 			i18n.set(stored ?? detectLocale(navigator.languages));
 		}
 		theme.init();

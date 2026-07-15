@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { decodeInputs, decodeUiMode, encodeInputs, type SerializableInputs } from './urlState';
+import {
+	decodeInputs,
+	decodeUiMode,
+	encodeInputs,
+	hasRecipeParams,
+	type SerializableInputs
+} from './urlState';
 
 const base: SerializableInputs = {
 	readyBy: new Date('2026-05-12T19:00:00Z'),
@@ -404,7 +410,75 @@ describe('view mode in the URL', () => {
 		expect(decodeUiMode('?')).toBeNull();
 	});
 
+	it('treats a foreign-params-only URL as a fresh visit — utm tags must not force expert', () => {
+		expect(decodeUiMode('?utm_source=newsletter&utm_medium=email')).toBeNull();
+		expect(decodeUiMode('?fbclid=IwAR0abc')).toBeNull();
+	});
+
 	it('round-trips beginner mode through encode and decode', () => {
 		expect(decodeUiMode(`?${encodeInputs(base, { mode: 'beginner' })}`)).toBe('beginner');
+	});
+});
+
+describe('hasRecipeParams', () => {
+	it('is false for empty and bare queries', () => {
+		expect(hasRecipeParams('')).toBe(false);
+		expect(hasRecipeParams('?')).toBe(false);
+	});
+
+	it('is false when the URL only carries foreign params', () => {
+		expect(hasRecipeParams('?utm_source=x&utm_campaign=y&fbclid=z')).toBe(false);
+	});
+
+	it('recognises every key the encoder writes', () => {
+		// Force every optional key onto the wire, then check each in isolation.
+		const full = encodeInputs(
+			{
+				...base,
+				oilPercent: 2,
+				sugarPercent: 1,
+				yeastType: 'sourdough',
+				preFermentTempC: 16,
+				ballProof: 'cold',
+				mixingMethod: 'hand',
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
+			},
+			{ mode: 'beginner' }
+		);
+		const keys = [...new URLSearchParams(full).keys()];
+		expect(keys.sort()).toEqual(
+			[
+				'v',
+				'md',
+				'r',
+				'sa',
+				'n',
+				'b',
+				'h',
+				's',
+				'o',
+				'sg',
+				'y',
+				'sh',
+				't',
+				'ft',
+				'pt',
+				'bp',
+				'mm',
+				'p'
+			].sort()
+		);
+		for (const key of keys) {
+			expect(hasRecipeParams(`?${key}=1`)).toBe(true);
+		}
+	});
+
+	it('is true when a recipe key hides between foreign params', () => {
+		expect(hasRecipeParams('?utm_source=x&n=4&fbclid=z')).toBe(true);
+	});
+
+	it('accepts the query with or without the leading question mark', () => {
+		expect(hasRecipeParams('v=4&n=6')).toBe(true);
+		expect(hasRecipeParams('?v=4&n=6')).toBe(true);
 	});
 });

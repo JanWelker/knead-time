@@ -21,6 +21,10 @@ env:
 
 jobs:
   preview:
+    # Fork PRs get a read-only GITHUB_TOKEN regardless of the permissions
+    # block above, so the gh-pages push would fail with a red X on every
+    # external contribution. Skip the job cleanly for forks.
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

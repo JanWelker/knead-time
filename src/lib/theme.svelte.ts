@@ -1,3 +1,4 @@
+import { safeLocalStorage } from './safeStorage';
 import { loadStoredTheme, saveStoredTheme } from './storedTheme';
 
 export type ThemeChoice = 'system' | 'light' | 'dark';
@@ -14,7 +15,7 @@ class Theme {
 
 	init() {
 		if (typeof window === 'undefined') return;
-		this.choice = loadStoredTheme(localStorage);
+		this.choice = loadStoredTheme(safeLocalStorage());
 		this.apply();
 
 		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -24,7 +25,7 @@ class Theme {
 
 	set(choice: ThemeChoice) {
 		this.choice = choice;
-		if (typeof localStorage !== 'undefined') saveStoredTheme(localStorage, choice);
+		saveStoredTheme(safeLocalStorage(), choice);
 		this.apply();
 	}
 
