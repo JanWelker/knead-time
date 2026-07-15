@@ -4,7 +4,8 @@
 	import { onMount } from 'svelte';
 
 	import { buildIcs } from '$lib/dough/ics';
-	import { decodeInputs, decodeUiMode, encodeInputs } from '$lib/dough/urlState';
+	import { decodeInputs, decodeUiMode, encodeInputs, hasRecipeParams } from '$lib/dough/urlState';
+	import { safeLocalStorage } from '$lib/safeStorage';
 	import { uiMode } from '$lib/mode.svelte';
 	import { loadStoredMode } from '$lib/storedMode';
 	import { scheduleVerbosity } from '$lib/verbosity.svelte';
@@ -50,14 +51,24 @@
 
 	let savedRecipes = $state<SavedRecipe[]>([]);
 
+	// Recipe-only encoding of the form as it left hydration. The save effect
+	// below compares against it so recipe memory only updates after a real
+	// user edit — merely opening someone else's share link must not overwrite
+	// kneadtime:lastRecipe (issue #201). Deliberately mode-less: toggling
+	// beginner/expert is a view preference, not a recipe edit.
+	let hydratedRecipeQs = '';
+
 	onMount(() => {
-		if (window.location.search && window.location.search !== '?') {
+		const storage = safeLocalStorage();
+		// Only keys Knead Time has ever encoded make a URL a recipe link —
+		// foreign params alone (utm_source, fbclid, …) behave like a bare visit.
+		if (hasRecipeParams(window.location.search)) {
 			form.apply(decodeInputs(window.location.search));
 		} else {
 			// Fresh visit: restore the last recipe this device worked on. Its
 			// bake window is stale by definition, so the date fields keep
 			// today's defaults — only the recipe parameters come back.
-			const last = loadLastRecipe(localStorage);
+			const last = loadLastRecipe(storage);
 			if (last) {
 				const recipeOnly = { ...decodeInputs(last) };
 				delete recipeOnly.readyBy;
@@ -65,14 +76,14 @@
 				form.apply(recipeOnly);
 			}
 		}
-		savedRecipes = loadRecipes(localStorage);
+		savedRecipes = loadRecipes(storage);
 		// View mode: the URL's word wins (a shared link opens the way its
 		// sender saw it), then the visitor's stored preference, and a truly
 		// fresh visit starts in the beginner view. Set directly (not via
 		// uiMode.set) so a link never overwrites the stored preference.
-		uiMode.current =
-			decodeUiMode(window.location.search) ?? loadStoredMode(localStorage) ?? 'beginner';
-		scheduleVerbosity.current = loadStoredVerbosity(localStorage) ?? 'descriptive';
+		uiMode.current = decodeUiMode(window.location.search) ?? loadStoredMode(storage) ?? 'beginner';
+		scheduleVerbosity.current = loadStoredVerbosity(storage) ?? 'descriptive';
+		hydratedRecipeQs = encodeInputs(form.serializable());
 		hydrated = true;
 	});
 
@@ -84,14 +95,16 @@
 			history.replaceState({}, '', next);
 		}
 		// Remember the working recipe so a fresh visit picks up where the
-		// baker left off.
-		saveLastRecipe(localStorage, qs);
+		// baker left off — but only once the user actually changed something.
+		if (encodeInputs(form.serializable()) !== hydratedRecipeQs) {
+			saveLastRecipe(safeLocalStorage(), qs);
+		}
 	});
 
 	function saveCurrentRecipe() {
 		const name = window.prompt(t.actions.save_recipe_prompt)?.trim();
 		if (!name) return;
-		savedRecipes = saveRecipe(localStorage, {
+		savedRecipes = saveRecipe(safeLocalStorage(), {
 			name,
 			search: encodeInputs(form.serializable()),
 			savedAt: new Date().toISOString()
@@ -360,7 +373,7 @@
 	<section class="card mt-8">
 		<MyRecipes
 			recipes={savedRecipes}
-			onDelete={(name) => (savedRecipes = deleteRecipe(localStorage, name))}
+			onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
 		/>
 	</section>
 
