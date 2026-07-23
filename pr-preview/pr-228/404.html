@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/knead-time/pr-preview/pr-228/favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#c8401a" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+		<script>
+			// Theme boot: apply dark before first paint. The legacy bare 'theme'
+			// slot is read as a fallback until loadStoredTheme migrates it to
+			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
+			// cookies") — only the reads are guarded so a blocked storage still
+			// honours the system preference.
+			(function () {
+				var stored = null;
+				try {
+					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+				} catch (e) {}
+				if (
+					stored === 'dark' ||
+					(stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+				) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/entry/start.KJ_B8sWY.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/chunks/DNEIv-b1.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/chunks/DmU-cQAs.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/entry/app.D6iWzvjL.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/nodes/0.CCIVKgfD.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/chunks/CiamPwnN.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/chunks/Bo4_AJpn.js" rel="modulepreload">
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/chunks/DGUNTd2c.js" rel="modulepreload">
+		
+		<link href="/knead-time/pr-preview/pr-228/_app/immutable/assets/0.DsnWy4ij.css" rel="stylesheet">
+	</head>
+	<body
+		data-sveltekit-preload-data="hover"
+		class="bg-dough-50 min-h-screen text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100"
+	>
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_1kqs2lu = {
+						base: "/knead-time/pr-preview/pr-228",
+						assets: "/knead-time/pr-preview/pr-228"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/knead-time/pr-preview/pr-228/_app/immutable/entry/start.KJ_B8sWY.js"),
+						import("/knead-time/pr-preview/pr-228/_app/immutable/entry/app.D6iWzvjL.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
