@@ -39,6 +39,8 @@ export interface Messages {
 		info_switch_body: string;
 		info_budget_title: string;
 		info_budget_body: string;
+		info_autolyse_title: string;
+		info_autolyse_body: string;
 		info_water_title: string;
 		info_water_body: string;
 		info_mass_title: string;
@@ -90,6 +92,8 @@ export interface Messages {
 		preFermentTemp_help: string;
 		ballProof_toggle: string;
 		ballProof_help: string;
+		autolyse_toggle: string;
+		autolyse_help: string;
 		mode_beginner: string;
 		mode_expert: string;
 		mode_help: string;
@@ -109,11 +113,15 @@ export interface Messages {
 		prep: string;
 		prep_desc: string;
 		prep_desc_with_preferment: string;
+		prep_desc_autolyse: string;
+		autolyse: string;
+		autolyse_desc: string;
 		mix: string;
 		mix_desc: string;
 		mix_desc_with_biga: string;
 		mix_desc_with_poolish: string;
 		mix_desc_with_both: string;
+		mix_desc_autolyse: string;
 		mix_technique_spiral: string;
 		mix_technique_stand: string;
 		mix_technique_hand: string;
@@ -127,6 +135,7 @@ export interface Messages {
 		proof_cold_desc: string;
 		preferment_mix_detail: string;
 		prep_detail: string;
+		autolyse_detail: string;
 		mix_detail: string;
 		bulk_room_detail: string;
 		bulk_cold_detail: string;
@@ -370,6 +379,9 @@ const en: Messages = {
 		info_budget_title: 'How the window is divided',
 		info_budget_body:
 			'Fixed handwork comes off the top: 15 min prep + 15 min mix (20 in a stand mixer, 25 by hand) + 15 min divide, plus a 60 min settle and the fixed 4 h final proof in cold mode. Room mode gives a third of the remaining budget to the final proof (capped at 90 min) and the rest to bulk. Cold mode sends the whole remainder to the fridge leg, capped at 48 h. When even that does not fit, the cold leg shrinks first, then the pre-ferments — the first step never lands before your start time. With a cold ball proof the same cold leg simply moves to the other side of divide: the balls ripen in the fridge instead of the bulk.',
+		info_autolyse_title: 'Autolyse rest',
+		info_autolyse_body:
+			'With no pre-ferment the schedule inserts a 30 min flour-and-water rest between prep and mix (a biga or poolish already rests the flour, so it is skipped there). Because no yeast is present yet, the rest is not a fermentation phase — it comes off the ferment budget like the fixed handwork does, so the solved yeast rises very slightly to keep the same total fermentation. Experts can switch it off; it stays on in beginner mode.',
 		info_water_title: 'Mix-water temperature',
 		info_water_body:
 			'The desired-dough-temperature rule targets 23 °C after kneading, with flour assumed at room temperature. Friction is the heat the mixing adds: about 24 °C on a spiral mixer, about 18 °C in a stand mixer, about 5 °C by hand. The recommendation is clamped to [4, 35] °C:',
@@ -432,6 +444,9 @@ const en: Messages = {
 		ballProof_toggle: 'Proof the balls in the fridge',
 		ballProof_help:
 			'Divide before the cold phase: the balls ripen in the fridge and temper on the counter before baking. Only applies when the plan has a cold phase.',
+		autolyse_toggle: 'Autolyse rest before mixing',
+		autolyse_help:
+			'Rest flour and water for 30 min before the salt and yeast go in — less kneading, a more extensible dough. Only when no pre-ferment is used.',
 		mode_beginner: 'Back to the simple view',
 		mode_expert: 'Show all options (expert)',
 		mode_help:
@@ -456,6 +471,11 @@ const en: Messages = {
 		prep_desc: 'Weigh out each amount listed below — a scale beats measuring cups every time.',
 		prep_desc_with_preferment:
 			'Weigh out the remaining flour, water and salt — the pre-ferment already carries all the yeast.',
+		prep_desc_autolyse:
+			'Weigh the flour and water (about {water_temp} °C — chill it with ice cubes if your kitchen is warm) and mix them into a shaggy, lumpy mass with no dry flour left. No kneading yet, and keep the salt and yeast aside.',
+		autolyse: 'Autolyse rest',
+		autolyse_desc:
+			'Cover the bowl and let the flour and water rest. The flour hydrates fully and gluten begins to form on its own, so the dough needs less kneading and stretches more easily later.',
 		mix: 'Mix dough',
 		mix_desc:
 			'Combine the weighed ingredients with the water at about {water_temp} °C — chill it with ice cubes if your kitchen is warm.',
@@ -465,6 +485,8 @@ const en: Messages = {
 			'Pour the ripe poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
 		mix_desc_with_both:
 			'Tear the ripe biga into small pieces and pour the poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
+		mix_desc_autolyse:
+			'Add the salt and yeast to the rested dough and bring everything together into a cohesive dough.',
 		mix_technique_spiral:
 			'Knead in the spiral mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.',
 		mix_technique_stand:
@@ -485,6 +507,8 @@ const en: Messages = {
 			'A pre-ferment is a small starter dough that ferments ahead of the main dough. It builds flavour and strength a same-day dough cannot develop — a flat or bubbly surface after the rest is exactly what ripe looks like.',
 		prep_detail:
 			'Weighing everything before you start keeps the recipe exact — dough is chemistry, and a scale beats guessing every time. Keep the salt away from the yeast until they meet in the mixing bowl.',
+		autolyse_detail:
+			'This hands-off rest lets the flour drink up the water and start building gluten with no work from you. It makes the dough smoother, more stretchy and quicker to knead — all you do is wait.',
 		mix_detail:
 			'You are aiming for a smooth, elastic dough with no dry spots. If it feels sticky at first, resist adding extra flour — it comes together as the gluten develops. The water temperature matters: it sets the dough temperature for the whole fermentation.',
 		bulk_room_detail:
@@ -744,6 +768,9 @@ const de: Messages = {
 		info_budget_title: 'Wie das Fenster aufgeteilt wird',
 		info_budget_body:
 			'Feste Handarbeit geht vorab ab: 15 min Vorbereiten + 15 min Mischen (20 in der Küchenmaschine, 25 von Hand) + 15 min Portionieren, dazu 60 min Ruhe und im Kühlmodus die feste Stückgare von 4 h. Im Raummodus bekommt die Stückgare ein Drittel des verbleibenden Budgets (höchstens 90 min), der Rest geht an die Stockgare. Im Kühlmodus wandert der gesamte Rest in die Kühlphase, begrenzt auf 48 h. Passt selbst das nicht, schrumpft zuerst die Kühlphase, dann die Vorteige — der erste Schritt liegt nie vor deiner Startzeit. Bei kalter Stückgare wandert dieselbe Kühlphase einfach auf die andere Seite des Portionierens: statt des Teigs reifen die Teiglinge im Kühlschrank.',
+		info_autolyse_title: 'Autolyse-Ruhe',
+		info_autolyse_body:
+			'Ohne Vorteig schiebt der Zeitplan zwischen Vorbereiten und Mischen eine 30-minütige Ruhe aus Mehl und Wasser ein (eine Biga oder ein Poolish ruht das Mehl bereits, dort entfällt sie). Da noch keine Hefe im Spiel ist, ist die Ruhe keine Gärphase — sie geht wie die feste Handarbeit vom Gärbudget ab, sodass die berechnete Hefe minimal steigt, um dieselbe Gesamtgare zu halten. Profis können sie abschalten; im Einsteigermodus bleibt sie an.',
 		info_water_title: 'Temperatur des Knetwassers',
 		info_water_body:
 			'Die Regel der gewünschten Teigtemperatur zielt auf 23 °C nach dem Kneten; das Mehl wird bei Raumtemperatur angenommen. Die Reibung ist die Wärme, die das Kneten einbringt: etwa 24 °C im Spiralkneter, etwa 18 °C in der Küchenmaschine, etwa 5 °C von Hand. Die Empfehlung ist auf [4, 35] °C begrenzt:',
@@ -806,6 +833,9 @@ const de: Messages = {
 		ballProof_toggle: 'Teiglinge im Kühlschrank gehen lassen',
 		ballProof_help:
 			'Portionieren vor der Kühlphase: die Teiglinge reifen im Kühlschrank und temperieren vor dem Backen auf der Arbeitsfläche. Wirkt nur, wenn der Plan eine Kühlphase hat.',
+		autolyse_toggle: 'Autolyse-Ruhe vor dem Mischen',
+		autolyse_help:
+			'Mehl und Wasser 30 min ruhen lassen, bevor Salz und Hefe dazukommen — weniger Kneten, dehnbarerer Teig. Nur ohne Vorteig.',
 		mode_beginner: 'Zurück zur einfachen Ansicht',
 		mode_expert: 'Alle Optionen anzeigen (Experten)',
 		mode_help:
@@ -830,6 +860,11 @@ const de: Messages = {
 		prep_desc: 'Jede unten aufgeführte Menge abwiegen — eine Waage schlägt jeden Messbecher.',
 		prep_desc_with_preferment:
 			'Das restliche Mehl, Wasser und Salz abwiegen — die gesamte Hefe steckt bereits im Vorteig.',
+		prep_desc_autolyse:
+			'Mehl und Wasser (etwa {water_temp} °C — bei warmer Küche mit Eiswürfeln kühlen) abwiegen und zu einer groben, klumpigen Masse ohne trockenes Mehl vermengen. Noch nicht kneten, Salz und Hefe beiseitelassen.',
+		autolyse: 'Autolyse-Ruhe',
+		autolyse_desc:
+			'Die Schüssel abdecken und Mehl und Wasser ruhen lassen. Das Mehl quillt vollständig aus und das Gluten beginnt sich von selbst zu bilden, sodass der Teig weniger Kneten braucht und sich später leichter dehnen lässt.',
 		mix: 'Teig mischen',
 		mix_desc:
 			'Die abgewogenen Zutaten mit dem Wasser bei etwa {water_temp} °C vermengen — bei warmer Küche mit Eiswürfeln kühlen.',
@@ -839,6 +874,8 @@ const de: Messages = {
 			'Den reifen Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
 		mix_desc_with_both:
 			'Die reife Biga in kleine Stücke zupfen und den Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
+		mix_desc_autolyse:
+			'Salz und Hefe zum geruhten Teig geben und alles zu einem zusammenhängenden Teig vermengen.',
 		mix_technique_spiral:
 			'Im Spiralkneter etwa 10 Minuten glatt und elastisch kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		mix_technique_stand:
@@ -861,6 +898,8 @@ const de: Messages = {
 			'Ein Vorteig ist ein kleiner Ansatzteig, der vor dem Hauptteig fermentiert. Er baut Aroma und Stärke auf, die ein Teig vom selben Tag nicht entwickeln kann — eine flache oder blasige Oberfläche nach dem Reifen ist genau das, wie reif aussieht.',
 		prep_detail:
 			'Wer alles vor dem Start abwiegt, hält das Rezept exakt — Teig ist Chemie, und eine Waage schlägt jedes Schätzen. Das Salz von der Hefe fernhalten, bis beide in der Rührschüssel zusammenkommen.',
+		autolyse_detail:
+			'Diese Ruhephase ohne Handarbeit lässt das Mehl das Wasser aufnehmen und Gluten aufbauen, ganz ohne Zutun. Der Teig wird glatter, dehnbarer und schneller zu kneten — man muss nur warten.',
 		mix_detail:
 			'Das Ziel ist ein glatter, elastischer Teig ohne trockene Stellen. Wirkt er anfangs klebrig, kein zusätzliches Mehl untermischen — er kommt zusammen, sobald sich das Gluten entwickelt. Die Wassertemperatur zählt: Sie bestimmt die Teigtemperatur für die gesamte Gare.',
 		bulk_room_detail:
@@ -1126,6 +1165,9 @@ const it: Messages = {
 		info_budget_title: 'Come si divide la finestra',
 		info_budget_body:
 			'Il lavoro manuale fisso si toglie subito: 15 min di preparazione + 15 min di impasto (20 con la planetaria, 25 a mano) + 15 min di staglio, più 60 min di riposo e, in modalità frigo, l’appretto fisso di 4 h. In modalità ambiente un terzo del budget rimanente va all’appretto (al massimo 90 min) e il resto alla puntata. In modalità frigo tutto il resto va alla fase in frigo, limitata a 48 h. Se nemmeno così ci sta, si accorcia prima la fase in frigo, poi i preimpasti — il primo passo non cade mai prima dell’ora di inizio. Con l’appretto a freddo la stessa fase si sposta semplicemente dall’altra parte dello staglio: in frigorifero maturano i panetti invece dell’impasto.',
+		info_autolyse_title: 'Riposo di autolisi',
+		info_autolyse_body:
+			'Senza preimpasto il programma inserisce un riposo di 30 min di sola farina e acqua tra la preparazione e l’impasto (una biga o un poolish fa già riposare la farina, quindi lì si salta). Poiché non c’è ancora lievito, il riposo non è una fase di fermentazione: viene sottratto dal budget di fermentazione come il lavoro manuale fisso, così il lievito calcolato sale di pochissimo per mantenere la stessa fermentazione totale. Gli esperti possono disattivarlo; nella vista semplice resta attivo.',
 		info_water_title: 'Temperatura dell’acqua d’impasto',
 		info_water_body:
 			"La regola della temperatura desiderata dell'impasto punta a 23 °C dopo l'impastamento, con la farina considerata a temperatura ambiente. L'attrito è il calore aggiunto dall'impastare: circa 24 °C con la spirale, circa 18 °C con la planetaria, circa 5 °C a mano. Il consiglio è limitato a [4, 35] °C:",
@@ -1189,6 +1231,9 @@ const it: Messages = {
 		ballProof_toggle: 'Appretto dei panetti in frigorifero',
 		ballProof_help:
 			'Staglio prima della fase a freddo: i panetti maturano in frigorifero e si acclimatano sul banco prima della cottura. Vale solo quando il programma prevede una fase a freddo.',
+		autolyse_toggle: 'Riposo di autolisi prima dell’impasto',
+		autolyse_help:
+			'Far riposare farina e acqua per 30 min prima di aggiungere sale e lievito — meno lavoro, impasto più estensibile. Solo senza preimpasto.',
 		mode_beginner: 'Torna alla vista semplice',
 		mode_expert: 'Mostra tutte le opzioni (esperto)',
 		mode_help:
@@ -1213,6 +1258,11 @@ const it: Messages = {
 		prep_desc: 'Pesare ogni quantità indicata sotto — la bilancia batte sempre i misurini.',
 		prep_desc_with_preferment:
 			'Pesare la farina, l’acqua e il sale rimanenti — tutto il lievito è già nel preimpasto.',
+		prep_desc_autolyse:
+			'Pesare la farina e l’acqua (circa {water_temp} °C — raffreddarla con cubetti di ghiaccio se la cucina è calda) e mescolarle in una massa grezza e grumosa senza farina asciutta. Ancora niente impasto: tenere da parte sale e lievito.',
+		autolyse: 'Autolisi (riposo)',
+		autolyse_desc:
+			'Coprire la ciotola e lasciar riposare farina e acqua. La farina si idrata completamente e il glutine inizia a formarsi da solo, così l’impasto richiede meno lavoro e si stende più facilmente in seguito.',
 		mix: 'Impastare',
 		mix_desc:
 			"Unire gli ingredienti pesati con l'acqua a circa {water_temp} °C — raffreddarla con cubetti di ghiaccio se la cucina è calda.",
@@ -1222,6 +1272,8 @@ const it: Messages = {
 			"Versare il poolish maturo sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
 		mix_desc_with_both:
 			"Spezzettare la biga matura in piccoli pezzi e versare il poolish sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
+		mix_desc_autolyse:
+			'Aggiungere il sale e il lievito all’impasto riposato e amalgamare il tutto in un impasto coeso.',
 		mix_technique_spiral:
 			"Impastare nella spirale per circa 10 minuti finché liscio ed elastico, tenendo l'impasto sotto i 24 °C.",
 		mix_technique_stand:
@@ -1243,6 +1295,8 @@ const it: Messages = {
 			"Un preimpasto è un piccolo impasto di partenza che fermenta prima dell'impasto principale. Sviluppa sapore e forza che un impasto in giornata non può raggiungere — una superficie piatta o piena di bolle dopo il riposo è esattamente l'aspetto della giusta maturazione.",
 		prep_detail:
 			"Pesare tutto prima di iniziare mantiene la ricetta esatta — l'impasto è chimica, e una bilancia batte sempre le stime a occhio. Tenere il sale lontano dal lievito finché non si incontrano nella ciotola.",
+		autolyse_detail:
+			'Questo riposo senza lavoro lascia che la farina assorba l’acqua e inizi a formare glutine da sola. Rende l’impasto più liscio, più estensibile e più veloce da lavorare — basta aspettare.',
 		mix_detail:
 			"L'obiettivo è un impasto liscio ed elastico, senza zone asciutte. Se all'inizio sembra appiccicoso, resistere alla tentazione di aggiungere farina — si compatta man mano che il glutine si sviluppa. La temperatura dell'acqua conta: determina la temperatura dell'impasto per tutta la fermentazione.",
 		bulk_room_detail:
@@ -1508,6 +1562,9 @@ const fr: Messages = {
 		info_budget_title: 'Comment la fenêtre se répartit',
 		info_budget_body:
 			"Le travail manuel fixe est retiré d'emblée : 15 min de préparation + 15 min de pétrissage (20 au robot pâtissier, 25 à la main) + 15 min de division, plus 60 min de repos et, en mode frigo, l'apprêt fixe de 4 h. En mode ambiant, un tiers du budget restant va à l'apprêt (plafonné à 90 min) et le reste au pointage. En mode frigo, tout le reste part dans la phase au frigo, plafonnée à 48 h. Si même cela ne rentre pas, la phase au frigo raccourcit d'abord, puis les pré-ferments — la première étape ne tombe jamais avant votre heure de départ. Avec un apprêt à froid, la même phase froide passe simplement de l'autre côté de la division : ce sont les pâtons qui mûrissent au réfrigérateur, et non la masse.",
+		info_autolyse_title: 'Repos d’autolyse',
+		info_autolyse_body:
+			"Sans pré-ferment, le programme insère un repos de 30 min de farine et d'eau entre la préparation et le pétrissage (une biga ou un poolish repose déjà la farine, il est donc ignoré là). Comme il n'y a pas encore de levure, ce repos n'est pas une phase de fermentation : il est prélevé sur le budget de fermentation comme le travail manuel fixe, si bien que la levure calculée monte très légèrement pour garder la même fermentation totale. Les experts peuvent le désactiver ; il reste actif en vue simple.",
 		info_water_title: "Température de l'eau de pétrissage",
 		info_water_body:
 			'La règle de la température de pâte désirée vise 23 °C après pétrissage, la farine étant supposée à température ambiante. La friction est la chaleur ajoutée par le pétrissage : environ 24 °C au pétrin à spirale, environ 18 °C au robot pâtissier, environ 5 °C à la main. La recommandation est bornée à [4, 35] °C :',
@@ -1574,6 +1631,9 @@ const fr: Messages = {
 		ballProof_toggle: 'Apprêt des pâtons au réfrigérateur',
 		ballProof_help:
 			"Division avant la phase froide : les pâtons mûrissent au réfrigérateur et reviennent à température sur le plan de travail avant la cuisson. Ne s'applique que si le programme comporte une phase froide.",
+		autolyse_toggle: 'Repos d’autolyse avant le pétrissage',
+		autolyse_help:
+			"Laissez reposer la farine et l'eau 30 min avant d'ajouter le sel et la levure — moins de pétrissage, une pâte plus extensible. Uniquement sans pré-ferment.",
 		mode_beginner: 'Revenir à la vue simple',
 		mode_expert: 'Afficher toutes les options (expert)',
 		mode_help:
@@ -1599,6 +1659,11 @@ const fr: Messages = {
 			'Pesez chaque quantité indiquée ci-dessous — la balance bat toujours les verres doseurs.',
 		prep_desc_with_preferment:
 			"Pesez la farine, l'eau et le sel restants — toute la levure est déjà dans le pré-ferment.",
+		prep_desc_autolyse:
+			"Pesez la farine et l'eau (environ {water_temp} °C — rafraîchissez-la avec des glaçons si votre cuisine est chaude) et mélangez-les en une masse grossière et grumeleuse, sans farine sèche. Ne pétrissez pas encore, et réservez le sel et la levure.",
+		autolyse: 'Autolyse (repos)',
+		autolyse_desc:
+			"Couvrez le bol et laissez reposer la farine et l'eau. La farine s'hydrate complètement et le gluten commence à se former tout seul, si bien que la pâte demande moins de pétrissage et s'étire plus facilement ensuite.",
 		mix: 'Pétrir la pâte',
 		mix_desc:
 			"Mélangez les ingrédients pesés avec l'eau à environ {water_temp} °C — rafraîchissez-la avec des glaçons si votre cuisine est chaude.",
@@ -1608,6 +1673,8 @@ const fr: Messages = {
 			"Versez le poolish mûr sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
 		mix_desc_with_both:
 			"Émiettez la biga mûre en petits morceaux et versez le poolish sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
+		mix_desc_autolyse:
+			'Ajoutez le sel et la levure à la pâte reposée et amalgamez le tout en une pâte cohérente.',
 		mix_technique_spiral:
 			"Pétrissez au pétrin à spirale environ 10 minutes jusqu'à une pâte lisse et élastique, en gardant la pâte sous 24 °C.",
 		mix_technique_stand:
@@ -1629,6 +1696,8 @@ const fr: Messages = {
 			"Un pré-ferment est une petite pâte de départ qui fermente avant la pâte principale. Il développe un arôme et une force qu'une pâte du jour ne peut pas atteindre — une surface plate ou couverte de bulles après le repos, c'est exactement l'aspect d'un pré-ferment mûr.",
 		prep_detail:
 			"Tout peser avant de commencer garde la recette exacte — la pâte, c'est de la chimie, et une balance vaut toujours mieux qu'une estimation. Gardez le sel loin de la levure jusqu'à ce qu'ils se rencontrent dans le bol.",
+		autolyse_detail:
+			"Ce repos sans effort laisse la farine absorber l'eau et commencer à former du gluten toute seule. La pâte devient plus lisse, plus extensible et plus rapide à pétrir — il suffit d'attendre.",
 		mix_detail:
 			"L'objectif est une pâte lisse et élastique, sans zones sèches. Si elle colle au début, résistez à l'envie d'ajouter de la farine — elle se rassemble à mesure que le gluten se développe. La température de l'eau compte : elle fixe la température de la pâte pour toute la fermentation.",
 		bulk_room_detail:
@@ -1894,6 +1963,9 @@ const nl: Messages = {
 		info_budget_title: 'Hoe het venster wordt verdeeld',
 		info_budget_body:
 			'Vast handwerk gaat er eerst af: 15 min voorbereiden + 15 min mengen (20 in de keukenmachine, 25 met de hand) + 15 min verdelen, plus 60 min rust en in de koelmodus de vaste narijs van 4 u. In de kamermodus krijgt de narijs een derde van het resterende budget (hoogstens 90 min) en de rest gaat naar de bulkrijs. In de koelmodus gaat de hele rest naar de koelfase, begrensd op 48 u. Past zelfs dat niet, dan krimpt eerst de koelfase en daarna de voordegen — de eerste stap valt nooit vóór je starttijd. Bij koude narijs verschuift dezelfde koude fase gewoon naar de andere kant van het verdelen: de bollen rijpen in de koelkast in plaats van het deeg.',
+		info_autolyse_title: 'Autolyse-rust',
+		info_autolyse_body:
+			'Zonder voordeeg voegt het schema tussen het voorbereiden en het kneden een rust van 30 min met alleen bloem en water in (een biga of poolish laat de bloem al rusten, daar vervalt hij). Omdat er nog geen gist bij is, is de rust geen rijsfase: hij gaat net als het vaste handwerk van het rijsbudget af, zodat de berekende gist heel licht stijgt om dezelfde totale rijs te houden. Experts kunnen hem uitzetten; in de eenvoudige weergave blijft hij aan.',
 		info_water_title: 'Temperatuur van het kneedwater',
 		info_water_body:
 			'De regel van de gewenste deegtemperatuur mikt op 23 °C na het kneden, met de bloem verondersteld op kamertemperatuur. De wrijving is de warmte die het kneden toevoegt: ongeveer 24 °C in de spiraalkneder, ongeveer 18 °C in de keukenmachine, ongeveer 5 °C met de hand. De aanbeveling is begrensd op [4, 35] °C:',
@@ -1957,6 +2029,9 @@ const nl: Messages = {
 		ballProof_toggle: 'Deegbollen in de koelkast laten rijzen',
 		ballProof_help:
 			'Verdelen vóór de koude fase: de bollen rijpen in de koelkast en komen voor het bakken op temperatuur op het aanrecht. Geldt alleen als het schema een koude fase heeft.',
+		autolyse_toggle: 'Autolyse-rust voor het kneden',
+		autolyse_help:
+			'Laat bloem en water 30 min rusten voordat het zout en de gist erbij gaan — minder kneden, een rekbaarder deeg. Alleen zonder voordeeg.',
 		mode_beginner: 'Terug naar de eenvoudige weergave',
 		mode_expert: 'Alle opties tonen (expert)',
 		mode_help:
@@ -1982,6 +2057,11 @@ const nl: Messages = {
 			'Weeg elke hieronder vermelde hoeveelheid af — een weegschaal wint het altijd van maatbekers.',
 		prep_desc_with_preferment:
 			'Weeg de resterende bloem, water en zout af — de gist zit volledig in het voordeeg.',
+		prep_desc_autolyse:
+			'Weeg de bloem en het water af (ongeveer {water_temp} °C — koel het met ijsblokjes als je keuken warm is) en meng ze tot een ruwe, klonterige massa zonder droge bloem. Nog niet kneden, en houd het zout en de gist apart.',
+		autolyse: 'Autolyse (rust)',
+		autolyse_desc:
+			'Dek de kom af en laat de bloem en het water rusten. De bloem neemt het water volledig op en de gluten beginnen zich vanzelf te vormen, zodat het deeg minder kneden nodig heeft en later makkelijker uitrekt.',
 		mix: 'Deeg kneden',
 		mix_desc:
 			'Meng de afgewogen ingrediënten met het water van ongeveer {water_temp} °C — koel het met ijsblokjes als je keuken warm is.',
@@ -1991,6 +2071,8 @@ const nl: Messages = {
 			'Giet de rijpe poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
 		mix_desc_with_both:
 			'Scheur de rijpe biga in kleine stukjes en giet de poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
+		mix_desc_autolyse:
+			'Voeg het zout en de gist toe aan het geruste deeg en meng alles tot een samenhangend deeg.',
 		mix_technique_spiral:
 			'Kneed in de spiraalkneder ongeveer 10 minuten tot een glad en elastisch deeg en houd de deegtemperatuur onder 24 °C.',
 		mix_technique_stand:
@@ -2012,6 +2094,8 @@ const nl: Messages = {
 			'Een voordeeg is een klein startdeeg dat vóór het hoofddeeg fermenteert. Het bouwt smaak en kracht op die een deeg van dezelfde dag niet kan ontwikkelen — een plat of bubbelig oppervlak na het rijpen is precies hoe rijp eruitziet.',
 		prep_detail:
 			'Alles afwegen voordat je begint houdt het recept exact — deeg is chemie, en een weegschaal wint het altijd van gokken. Houd het zout weg van de gist tot ze elkaar in de mengkom ontmoeten.',
+		autolyse_detail:
+			'Deze rust zonder werk laat de bloem het water opnemen en zelf gluten opbouwen. Het maakt het deeg gladder, rekbaarder en sneller te kneden — je hoeft alleen te wachten.',
 		mix_detail:
 			'Je mikt op een glad, elastisch deeg zonder droge plekken. Voelt het eerst plakkerig aan, voeg dan geen extra bloem toe — het komt samen naarmate de gluten zich ontwikkelen. De watertemperatuur doet ertoe: die bepaalt de deegtemperatuur voor de hele rijs.',
 		bulk_room_detail:

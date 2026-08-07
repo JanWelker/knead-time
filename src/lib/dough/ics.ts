@@ -14,6 +14,8 @@ export type EventDescriptorFn = (step: ScheduleStep) => IcsEventDescriptor;
 // VEVENT runs through the maturation, so it's free time for calendar purposes.
 const FREE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'preferment-mix',
+	// Autolyse is a passive flour+water rest — the baker walks away.
+	'autolyse',
 	'bulk-room',
 	'bulk-cold',
 	'proof-cold',

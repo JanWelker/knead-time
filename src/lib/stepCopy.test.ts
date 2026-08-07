@@ -422,3 +422,72 @@ describe('stepDetail — beginner explanations', () => {
 		}
 	});
 });
+
+describe('autolyse', () => {
+	// Default window is short → room mode, no pre-ferment → autolyse applies.
+	const auto = () => computeSchedule(inputs({ autolyse: true }));
+
+	it('prep weighs only flour and water — salt and yeast are held back', () => {
+		const r = auto();
+		const rows = stepIngredients(findStep(r, 'prep'), MESSAGES.en, r);
+		expect(rows.map((row) => row.name)).toEqual([
+			MESSAGES.en.ingredients.flour,
+			MESSAGES.en.ingredients.water
+		]);
+	});
+
+	it('mix weighs the held-back salt and yeast', () => {
+		const r = auto();
+		const rows = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r);
+		expect(rows.map((row) => row.name)).toEqual([
+			MESSAGES.en.ingredients.salt,
+			yeastIngredientName(r.yeastType, MESSAGES.en)
+		]);
+	});
+
+	it('mix also carries oil and sugar when the recipe calls for them', () => {
+		const r = computeSchedule(inputs({ autolyse: true, oilPercent: 2, sugarPercent: 1 }));
+		const names = stepIngredients(findStep(r, 'mix'), MESSAGES.en, r).map((row) => row.name);
+		expect(names).toContain(MESSAGES.en.ingredients.oil);
+		expect(names).toContain(MESSAGES.en.ingredients.sugar);
+		// ...and prep does not — everything but flour+water is held back.
+		const prepNames = stepIngredients(findStep(r, 'prep'), MESSAGES.en, r).map((row) => row.name);
+		expect(prepNames).toEqual([MESSAGES.en.ingredients.flour, MESSAGES.en.ingredients.water]);
+	});
+
+	it('the rest step itself puts nothing new on the scale', () => {
+		const r = auto();
+		expect(stepIngredients(findStep(r, 'autolyse'), MESSAGES.en, r)).toEqual([]);
+	});
+
+	it('prep copy describes combining flour and water at the mix-water temperature', () => {
+		const r = auto();
+		const desc = stepDescription(findStep(r, 'prep'), MESSAGES.en, r);
+		expect(desc).toContain(`${r.idealWaterTempC} °C`);
+		expect(desc).not.toContain('{water_temp}');
+	});
+
+	it('mix copy folds in the held-back salt and yeast, then the knead technique', () => {
+		const r = auto();
+		const desc = stepDescription(findStep(r, 'mix'), MESSAGES.en, r);
+		expect(desc).toContain(MESSAGES.en.steps.mix_desc_autolyse);
+		expect(desc).toContain(MESSAGES.en.steps.mix_technique_spiral);
+	});
+
+	it('titles and detail resolve for the autolyse step', () => {
+		const r = auto();
+		const step = findStep(r, 'autolyse');
+		expect(stepTitle(step, MESSAGES.en)).toBe(MESSAGES.en.steps.autolyse);
+		expect(stepDescription(step, MESSAGES.en, r)).toBe(MESSAGES.en.steps.autolyse_desc);
+		expect(stepDetail(step, MESSAGES.en)).toBe(MESSAGES.en.steps.autolyse_detail);
+	});
+
+	it('the .ics detail text for the rest is its method copy, plus detail on request', () => {
+		const r = auto();
+		const step = findStep(r, 'autolyse');
+		expect(stepDetailText(step, MESSAGES.en, r)).toBe(MESSAGES.en.steps.autolyse_desc);
+		expect(stepDetailText(step, MESSAGES.en, r, { includeDetail: true })).toContain(
+			MESSAGES.en.steps.autolyse_detail
+		);
+	});
+});

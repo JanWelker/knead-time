@@ -293,6 +293,7 @@ describe('findMatchingPizzeria', () => {
 			preFermentTempC: null,
 			ballProof: 'room',
 			mixingMethod: 'spiral',
+			autolyse: true,
 			preFerments: [],
 			...overrides
 		};
@@ -418,6 +419,7 @@ describe('findMatchingPizzeria', () => {
 			mixingMethod: shipped.inputs.mixingMethod ?? 'spiral',
 			preFermentTempC: shipped.inputs.preFermentTempC ?? null,
 			ballProof: shipped.inputs.ballProof ?? 'room',
+			autolyse: shipped.inputs.autolyse ?? true,
 			preFerments: shipped.inputs.preFerments ?? []
 		};
 		expect(findMatchingPizzeria(dough)).toBe(shipped);

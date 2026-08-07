@@ -7,6 +7,7 @@ import type { Messages } from './i18n/messages';
 // preFermentType picks the biga or poolish copy, so both maps exclude it.
 const TITLE: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['steps']> = {
 	prep: 'prep',
+	autolyse: 'autolyse',
 	mix: 'mix',
 	'bulk-room': 'bulk_room',
 	'bulk-cold': 'bulk_cold',
@@ -18,6 +19,7 @@ const TITLE: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages[
 
 const DESC: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['steps']> = {
 	prep: 'prep_desc',
+	autolyse: 'autolyse_desc',
 	mix: 'mix_desc',
 	'bulk-room': 'bulk_room_desc',
 	'bulk-cold': 'bulk_cold_desc',
@@ -33,6 +35,7 @@ const DESC: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['
 const DETAIL: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'preferment-mix': 'preferment_mix_detail',
 	prep: 'prep_detail',
+	autolyse: 'autolyse_detail',
 	mix: 'mix_detail',
 	'bulk-room': 'bulk_room_detail',
 	'bulk-cold': 'bulk_cold_detail',
@@ -65,6 +68,14 @@ export function yeastIngredientName(type: YeastType, msgs: Messages): string {
 		case 'sourdough':
 			return msgs.ingredients.sourdough_starter;
 	}
+}
+
+// True when this schedule carries a flour+water autolyse rest — only happens
+// with no pre-ferment. Copy and ingredient attribution branch on it: prep then
+// weighs flour+water alone and the salt/yeast (and any oil/sugar) are held back
+// to the mix, which is the whole point of an autolyse.
+function hasAutolyse(schedule: ComputedSchedule): boolean {
+	return schedule.steps.some((s) => s.kind === 'autolyse');
 }
 
 export function stepTitle(step: ScheduleStep, msgs: Messages): string {
@@ -108,17 +119,34 @@ export function stepIngredients(
 			];
 		}
 		case 'prep': {
-			const base: StepIngredient[] = [
+			const flourWater: StepIngredient[] = [
 				{ amount: formatGrams(ingredients.flour), name: i.flour },
-				{ amount: formatGrams(ingredients.water), name: i.water },
-				{ amount: formatGrams(ingredients.salt), name: i.salt }
+				{ amount: formatGrams(ingredients.water), name: i.water }
 			];
+			const salt = { amount: formatGrams(ingredients.salt), name: i.salt };
+			// Autolyse: only flour and water go on the scale now; salt, yeast and
+			// any oil/sugar are held back and weighed at the mix.
+			if (hasAutolyse(schedule)) return flourWater;
 			// With a pre-ferment the yeast is already in the pre-dough, and oil/sugar
 			// are weighed at the mix step — so day-two prep only weighs the basics.
-			if (schedule.preFerments.length > 0) return base;
-			return [...base, { amount: formatGrams(ingredients.yeast), name: yeastName }, ...extras];
+			if (schedule.preFerments.length > 0) return [...flourWater, salt];
+			return [
+				...flourWater,
+				salt,
+				{ amount: formatGrams(ingredients.yeast), name: yeastName },
+				...extras
+			];
 		}
 		case 'mix':
+			// Autolyse held back the salt and yeast (and any oil/sugar) — they're
+			// weighed here, onto the rested flour-water dough.
+			if (hasAutolyse(schedule)) {
+				return [
+					{ amount: formatGrams(ingredients.salt), name: i.salt },
+					{ amount: formatGrams(ingredients.yeast), name: yeastName },
+					...extras
+				];
+			}
 			// Everything else already went on the scale at prep — repeating it here
 			// would render the same table twice in a row. Only the extras are newly
 			// weighed at mix, and only under a pre-ferment (without one they're
@@ -167,7 +195,12 @@ export function stepDescription(
 				weight: formatBallWeight(schedule.ballWeight)
 			});
 		case 'prep':
-			return prefermentTypes.length > 0 ? msgs.steps.prep_desc_with_preferment : template;
+			if (prefermentTypes.length > 0) return msgs.steps.prep_desc_with_preferment;
+			// Autolyse: prep combines flour and water (where the water temperature is
+			// set, so it carries the {water_temp} note) into a shaggy mass.
+			return hasAutolyse(schedule)
+				? interpolate(msgs.steps.prep_desc_autolyse, { water_temp: schedule.idealWaterTempC })
+				: template;
 		case 'mix': {
 			const waterTemp = { water_temp: schedule.idealWaterTempC };
 			// The base descriptions are method-neutral; the how-to-knead sentence
@@ -182,6 +215,9 @@ export function stepDescription(
 			if (prefermentTypes.length > 1) base = msgs.steps.mix_desc_with_both;
 			else if (prefermentTypes[0] === 'biga') base = msgs.steps.mix_desc_with_biga;
 			else if (prefermentTypes[0] === 'poolish') base = msgs.steps.mix_desc_with_poolish;
+			// No pre-ferment but an autolyse rest: the mix now folds in the
+			// held-back salt and yeast before kneading.
+			else if (hasAutolyse(schedule)) base = msgs.steps.mix_desc_autolyse;
 			return `${interpolate(base, waterTemp)} ${technique}`;
 		}
 		default:

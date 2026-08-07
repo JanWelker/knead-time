@@ -5,6 +5,7 @@ import type { ScheduleStepKind } from './types';
 describe('isActiveStep', () => {
 	const active: ScheduleStepKind[] = ['preferment-mix', 'prep', 'mix', 'divide'];
 	const passive: ScheduleStepKind[] = [
+		'autolyse',
 		'bulk-room',
 		'bulk-cold',
 		'proof-cold',

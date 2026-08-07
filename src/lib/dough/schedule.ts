@@ -28,6 +28,13 @@ export const MIX_MIN_SPIRAL = 15;
 export const MIX_MIN_STAND = 20;
 export const MIX_MIN_HAND = 25;
 export const DIVIDE_MIN = 15;
+// Flour + water rest before salt and yeast go in. 30 min is the conventional
+// short autolyse — long enough for the flour to hydrate and gluten to start
+// linking passively, short enough that the fixed rest barely dents the ferment
+// budget. Only inserted when no pre-ferment is used (a biga/poolish already
+// rests the flour). It carries no yeast, so it is NOT a fermentation leg — it
+// shifts the ferment budget deterministically, exactly like the mix minutes do.
+export const AUTOLYSE_MIN = 30;
 
 export function mixMin(method: MixingMethod): number {
 	switch (method) {
@@ -59,11 +66,18 @@ export const NIGHT_START_HOUR = 22;
 export const NIGHT_END_HOUR = 8;
 
 // Sum of every fixed-duration step around the variable bulk-cold leg
-// (prep + mix + initial bulk-room + divide + final proof). Lets the
+// (prep + autolyse + mix + initial bulk-room + divide + final proof). Lets the
 // night-window adjuster map a candidate coldMin back to a prepAt without
-// rebuilding the step list.
-function coldPrePostOffsetMin(mixDurationMin: number): number {
-	return COLD_FINAL_PROOF_MIN + DIVIDE_MIN + COLD_INITIAL_BULK_MIN + mixDurationMin + PREP_MIN;
+// rebuilding the step list. autolyseMin is 0 whenever no autolyse is scheduled.
+function coldPrePostOffsetMin(mixDurationMin: number, autolyseMin: number): number {
+	return (
+		COLD_FINAL_PROOF_MIN +
+		DIVIDE_MIN +
+		COLD_INITIAL_BULK_MIN +
+		mixDurationMin +
+		autolyseMin +
+		PREP_MIN
+	);
 }
 
 // Steps that require the baker to be active. 'final-proof' is passive (balls
@@ -94,19 +108,23 @@ function clusterClean(
 	prepAt: Date,
 	prefermentOffsetsMin: number[],
 	mixDurationMin: number,
+	autolyseMin: number,
 	ballProofCold: boolean
 ): boolean {
+	// The autolyse rest sits between prep and mix, so it pushes mix and
+	// everything after it later by autolyseMin (0 when no autolyse).
+	const preMix = PREP_MIN + autolyseMin;
 	const offsets = [
 		...prefermentOffsetsMin.map((m) => -m),
 		0,
-		PREP_MIN,
-		PREP_MIN + mixDurationMin,
-		PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN
+		preMix,
+		preMix + mixDurationMin,
+		preMix + mixDurationMin + COLD_INITIAL_BULK_MIN
 	];
 	// With a cold ball proof, divide and the fridge-loading moment both sit in
 	// the pre-cold cluster (nothing active remains after the cold leg).
 	if (ballProofCold) {
-		offsets.push(PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN + DIVIDE_MIN);
+		offsets.push(preMix + mixDurationMin + COLD_INITIAL_BULK_MIN + DIVIDE_MIN);
 	}
 	for (const o of offsets) {
 		if (isAtNight(new Date(prepAt.getTime() + o * 60_000))) return false;
@@ -124,15 +142,19 @@ function adjustColdMinForNight(
 	naturalColdMin: number,
 	prefermentOffsetsMin: number[],
 	mixDurationMin: number,
+	autolyseMin: number,
 	ballProofCold: boolean
 ): number {
 	// The fixed minutes around the variable cold leg sum identically for both
 	// cold-leg positions — only the order of divide and the leg differs.
 	const prepAtFor = (cm: number) =>
-		new Date(readyBy.getTime() - (coldPrePostOffsetMin(mixDurationMin) + cm) * 60_000);
+		new Date(readyBy.getTime() - (coldPrePostOffsetMin(mixDurationMin, autolyseMin) + cm) * 60_000);
 
 	for (let cm = naturalColdMin; cm >= 0; cm--) {
-		if (clusterClean(prepAtFor(cm), prefermentOffsetsMin, mixDurationMin, ballProofCold)) return cm;
+		if (
+			clusterClean(prepAtFor(cm), prefermentOffsetsMin, mixDurationMin, autolyseMin, ballProofCold)
+		)
+			return cm;
 	}
 	return naturalColdMin;
 }
@@ -149,6 +171,11 @@ function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
 export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const preFerments = effectivePreFerments(inputs);
 	const mixDurationMin = mixMin(inputs.mixingMethod);
+	// Autolyse applies only with no pre-ferment (a biga/poolish already rests
+	// the flour). It's a fixed non-fermenting rest between prep and mix, so like
+	// the mix minutes it reduces the ferment budget deterministically — the
+	// yeast solve compensates. 0 means no autolyse step is emitted.
+	const autolyseMin = preFerments.length === 0 && inputs.autolyse ? AUTOLYSE_MIN : 0;
 	const totalAvailableMin = Math.floor(
 		(inputs.readyBy.getTime() - inputs.startAt.getTime()) / 60_000
 	);
@@ -198,7 +225,12 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 
 	if (mode === 'cold') {
 		const fixedMin =
-			PREP_MIN + mixDurationMin + COLD_INITIAL_BULK_MIN + DIVIDE_MIN + COLD_FINAL_PROOF_MIN;
+			PREP_MIN +
+			autolyseMin +
+			mixDurationMin +
+			COLD_INITIAL_BULK_MIN +
+			DIVIDE_MIN +
+			COLD_FINAL_PROOF_MIN;
 		// Cold mode is only entered when totalAvailable − naturalPreferment ≥
 		// 16 h, so this is always ≥ ~10 h — the pre-ferment-overflow branch
 		// can only fire in room mode.
@@ -215,6 +247,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			naturalColdMin,
 			prefermentDurationsMin.map((d) => d.min),
 			mixDurationMin,
+			autolyseMin,
 			inputs.ballProof === 'cold'
 		);
 
@@ -230,10 +263,11 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			bulkRoomMin: COLD_INITIAL_BULK_MIN,
 			bulkColdMin: coldMin,
 			ballProofCold: inputs.ballProof === 'cold',
-			finalProofMin: COLD_FINAL_PROOF_MIN
+			finalProofMin: COLD_FINAL_PROOF_MIN,
+			autolyseMin
 		});
 	} else {
-		const roomFixedMin = PREP_MIN + mixDurationMin + DIVIDE_MIN;
+		const roomFixedMin = PREP_MIN + autolyseMin + mixDurationMin + DIVIDE_MIN;
 		const fermentBudget = totalAvailableMin - roomFixedMin - naturalPrefermentMin;
 		let bulkMin: number;
 		let finalProofMin: number;
@@ -275,7 +309,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 			bulkRoomMin: bulkMin,
 			bulkColdMin: null,
 			ballProofCold: false,
-			finalProofMin
+			finalProofMin,
+			autolyseMin
 		});
 	}
 
@@ -346,6 +381,8 @@ interface BuildArgs {
 	bulkColdMin: number | null;
 	ballProofCold: boolean;
 	finalProofMin: number;
+	// Flour + water rest between prep and mix. 0 ⇒ no autolyse step is emitted.
+	autolyseMin: number;
 }
 
 function buildSteps({
@@ -355,7 +392,8 @@ function buildSteps({
 	bulkRoomMin,
 	bulkColdMin,
 	ballProofCold,
-	finalProofMin
+	finalProofMin,
+	autolyseMin
 }: BuildArgs): ScheduleStep[] {
 	const finalProofAt = subMin(readyBy, finalProofMin);
 	// Cold ball proof slides the cold leg to the other side of divide; every
@@ -367,7 +405,9 @@ function buildSteps({
 	const bulkColdAt = bulkColdMin !== null && !ballProofCold ? subMin(divideAt, bulkColdMin) : null;
 	const bulkRoomAt = subMin(bulkColdAt ?? divideAt, bulkRoomMin);
 	const mixAt = subMin(bulkRoomAt, mixDurationMin);
-	const prepAt = subMin(mixAt, PREP_MIN);
+	// Autolyse rests between prep and mix; prep slides earlier to make room.
+	const autolyseAt = autolyseMin > 0 ? subMin(mixAt, autolyseMin) : mixAt;
+	const prepAt = subMin(autolyseAt, PREP_MIN);
 
 	const steps: ScheduleStep[] = [];
 	// One row per pre-ferment covers the brief active mixing plus the long
@@ -384,6 +424,9 @@ function buildSteps({
 		});
 	}
 	steps.push({ kind: 'prep', at: prepAt, durationMinutes: PREP_MIN });
+	if (autolyseMin > 0) {
+		steps.push({ kind: 'autolyse', at: autolyseAt, durationMinutes: autolyseMin });
+	}
 	steps.push({ kind: 'mix', at: mixAt, durationMinutes: mixDurationMin });
 	steps.push({ kind: 'bulk-room', at: bulkRoomAt, durationMinutes: bulkRoomMin });
 	if (bulkColdAt !== null && bulkColdMin !== null) {

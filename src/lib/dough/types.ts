@@ -44,6 +44,12 @@ export interface DoughInputs {
 	preFermentTempC: number | null;
 	ballProof: BallProof;
 	mixingMethod: MixingMethod;
+	// Rest flour and water before salt and yeast go in — a short passive
+	// gluten-development phase. Applies only when no pre-ferment is used (a
+	// biga/poolish already gives the flour an extended hydrating rest); the
+	// schedule ignores it while a pre-ferment is enabled, but the choice is
+	// retained so toggling a pre-ferment off restores it.
+	autolyse: boolean;
 	// Pre-ferments mature in parallel, each ending at prep. Empty = none.
 	// Types are unique (the form exposes one toggle per type) and the list is
 	// kept in canonical biga-first order. Σ flourPercent ≤ 80.
@@ -73,6 +79,9 @@ export interface Ingredients {
 export type ScheduleStepKind =
 	| 'preferment-mix'
 	| 'prep'
+	// Flour + water rest between prep and mix; only present with no pre-ferment
+	// and inputs.autolyse. Passive — carries no ingredients and no yeast.
+	| 'autolyse'
 	| 'mix'
 	| 'bulk-room'
 	| 'bulk-cold'

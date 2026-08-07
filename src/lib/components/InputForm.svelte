@@ -269,6 +269,20 @@
 					{/if}
 				</fieldset>
 			{/if}
+
+			<!-- Autolyse applies only with no pre-ferment (sourdough always
+			     qualifies — its starter is not a schedule pre-ferment). -->
+			{#if state.yeastType === 'sourdough' || !(state.bigaEnabled || state.poolishEnabled)}
+				<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+					<input type="checkbox" class="accent-tomato-500" bind:checked={state.autolyse} />
+					<span>
+						{t.form.autolyse_toggle}
+						<span class="block text-xs font-normal text-stone-500 dark:text-stone-400">
+							{t.form.autolyse_help}
+						</span>
+					</span>
+				</label>
+			{/if}
 		{/if}
 	</fieldset>
 
@@ -346,6 +360,13 @@
 				<div>
 					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_budget_title}</p>
 					<p class="mt-1">{t.form.info_budget_body}</p>
+				</div>
+
+				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">
+						{t.form.info_autolyse_title}
+					</p>
+					<p class="mt-1">{t.form.info_autolyse_body}</p>
 				</div>
 
 				<div class="min-w-0">

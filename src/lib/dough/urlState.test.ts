@@ -23,6 +23,7 @@ const base: SerializableInputs = {
 	preFermentTempC: null,
 	ballProof: 'room',
 	mixingMethod: 'spiral',
+	autolyse: true,
 	preFerments: []
 };
 
@@ -291,7 +292,7 @@ describe('legacy encoder-produced links keep their exact meaning', () => {
 
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=4');
+		expect(encodeInputs(base)).toContain('v=5');
 	});
 
 	it('decodes legacy links that predate the v parameter as v1', () => {
@@ -441,6 +442,9 @@ describe('hasRecipeParams', () => {
 				preFermentTempC: 16,
 				ballProof: 'cold',
 				mixingMethod: 'hand',
+				// autolyse is stamped only on the opt-out ('al=0'), so force it off
+				// to put the key on the wire.
+				autolyse: false,
 				preFerments: [{ type: 'biga', flourPercent: 30 }]
 			},
 			{ mode: 'beginner' }
@@ -465,6 +469,7 @@ describe('hasRecipeParams', () => {
 				'pt',
 				'bp',
 				'mm',
+				'al',
 				'p'
 			].sort()
 		);
@@ -480,5 +485,36 @@ describe('hasRecipeParams', () => {
 	it('accepts the query with or without the leading question mark', () => {
 		expect(hasRecipeParams('v=4&n=6')).toBe(true);
 		expect(hasRecipeParams('?v=4&n=6')).toBe(true);
+	});
+});
+
+describe('autolyse (al)', () => {
+	it('omits al when autolyse is on (the v=5 default)', () => {
+		expect(encodeInputs({ ...base, autolyse: true })).not.toContain('al=');
+	});
+
+	it('stamps al=0 for the expert opt-out', () => {
+		expect(encodeInputs({ ...base, autolyse: false })).toContain('al=0');
+	});
+
+	it('decodes al=0 as off and any other value as on', () => {
+		expect(decodeInputs('?v=5&al=0').autolyse).toBe(false);
+		expect(decodeInputs('?v=5&al=1').autolyse).toBe(true);
+	});
+
+	it('leaves autolyse undefined on a v=5 link with no al, so the default (on) fills in', () => {
+		expect(decodeInputs('?v=5&r=2026-05-12T19:00:00.000Z&n=4').autolyse).toBeUndefined();
+	});
+
+	it('decodes a pre-v5 link with no al as OFF — old links predate autolyse', () => {
+		// v=4 and older were computed without an autolyse rest; they must keep
+		// reproducing that schedule, so the missing key resolves to off.
+		expect(decodeInputs('?v=4&r=2026-05-12T19:00:00.000Z&n=4').autolyse).toBe(false);
+		expect(decodeInputs('?r=2026-05-12T19:00:00.000Z&n=4').autolyse).toBe(false);
+	});
+
+	it('round-trips the opt-out; the default recipe decodes to undefined (form default on)', () => {
+		expect(decodeInputs(encodeInputs({ ...base, autolyse: false })).autolyse).toBe(false);
+		expect(decodeInputs(encodeInputs({ ...base, autolyse: true })).autolyse).toBeUndefined();
 	});
 });
