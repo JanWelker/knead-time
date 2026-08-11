@@ -17,7 +17,10 @@ export const RECIPE_DEFAULTS: Omit<DoughInputs, 'readyBy' | 'startAt' | 'preFerm
 	fridgeTempC: 4,
 	preFermentTempC: null,
 	ballProof: 'room',
-	mixingMethod: 'spiral'
+	mixingMethod: 'spiral',
+	// On by default: a no-pre-ferment recipe gets an autolyse rest unless the
+	// user (expert view) or an old-schema share-link opts out.
+	autolyse: true
 };
 
 // Mutates the given date to the default bake time: tomorrow at 19:00 local.

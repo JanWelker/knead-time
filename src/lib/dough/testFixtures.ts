@@ -20,6 +20,11 @@ export function defaultInputs(overrides: Partial<DoughInputs> = {}): DoughInputs
 		preFermentTempC: null,
 		ballProof: 'room',
 		mixingMethod: 'spiral',
+		// The app default is autolyse ON (RECIPE_DEFAULTS), but the shared fixture
+		// opts OUT so the large existing schedule/yeast matrix keeps pinning the
+		// classic no-autolyse shape — which is exactly what a decoded pre-v5
+		// share-link produces. The autolyse-on behaviour has its own suites.
+		autolyse: false,
 		preFerments: [],
 		...overrides
 	};

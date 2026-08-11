@@ -27,6 +27,7 @@ export class FormState {
 	fridgeTempC: number = $state(RECIPE_DEFAULTS.fridgeTempC);
 	mixingMethod: MixingMethod = $state(RECIPE_DEFAULTS.mixingMethod);
 	ballProof: BallProof = $state(RECIPE_DEFAULTS.ballProof);
+	autolyse: boolean = $state(RECIPE_DEFAULTS.autolyse);
 	preFermentTempEnabled: boolean = $state(false);
 	preFermentTempValue: number = $state(18);
 	bigaEnabled: boolean = $state(false);
@@ -81,6 +82,7 @@ export class FormState {
 		fridgeTempC: clampInput('fridgeTempC', this.fridgeTempC),
 		mixingMethod: this.mixingMethod,
 		ballProof: this.ballProof,
+		autolyse: this.autolyse,
 		preFermentTempC: this.preFermentTempEnabled
 			? clampInput('preFermentTempC', this.preFermentTempValue)
 			: null,
@@ -132,6 +134,7 @@ export class FormState {
 		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
 		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
 		if (partial.ballProof !== undefined) this.ballProof = partial.ballProof;
+		if (partial.autolyse !== undefined) this.autolyse = partial.autolyse;
 		if (partial.preFermentTempC !== undefined && partial.preFermentTempC !== null) {
 			this.preFermentTempEnabled = true;
 			this.preFermentTempValue = partial.preFermentTempC;

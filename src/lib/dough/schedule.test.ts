@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { prefermentDurationHours } from './fermentation';
 import {
 	ACTIVE_NIGHT_KINDS,
+	AUTOLYSE_MIN,
 	computeSchedule,
 	COLD_MODE_THRESHOLD_MIN,
 	DIVIDE_MIN,
@@ -1077,5 +1078,82 @@ describe('computeSchedule — fridge temperature', () => {
 		const warm = computeSchedule(baseInputs({ startAt, readyBy, fridgeTempC: 8 }));
 		expect(cold.mode).toBe('room');
 		expect(warm.yeastPercent).toBeCloseTo(cold.yeastPercent, 10);
+	});
+});
+
+describe('autolyse', () => {
+	// A 12 h window stays in room mode (< 16 h); the fridge temp is irrelevant.
+	const roomWindow = {
+		startAt: new Date('2026-05-12T07:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+	// A ~36 h window enters cold mode with the cold-bulk well below the 48 h
+	// ceiling, so a 30 min autolyse actually shortens the ferment (vs a window
+	// so wide that cold-bulk saturates the cap and autolyse changes nothing).
+	const coldWindow = {
+		startAt: new Date('2026-05-11T07:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+
+	it('inserts a flour+water rest between prep and mix in room mode', () => {
+		const s = computeSchedule(defaultInputs({ ...roomWindow, autolyse: true }));
+		expect(s.mode).toBe('room');
+		const autolyse = findStep(s, 'autolyse');
+		const prep = findStep(s, 'prep');
+		const mix = findStep(s, 'mix');
+		expect(autolyse.durationMinutes).toBe(AUTOLYSE_MIN);
+		// prep → autolyse → mix, back to back.
+		expect(autolyse.at.getTime()).toBe(prep.at.getTime() + PREP_MIN * 60_000);
+		expect(mix.at.getTime()).toBe(autolyse.at.getTime() + AUTOLYSE_MIN * 60_000);
+	});
+
+	it('is omitted when the expert opts out', () => {
+		const s = computeSchedule(defaultInputs({ ...roomWindow, autolyse: false }));
+		expect(s.steps.some((step) => step.kind === 'autolyse')).toBe(false);
+	});
+
+	it('keeps the first step at startAt (the hard floor holds)', () => {
+		const s = computeSchedule(defaultInputs({ ...roomWindow, autolyse: true }));
+		expect(s.steps[0].at.getTime()).toBe(roomWindow.startAt.getTime());
+	});
+
+	it('raises the solved yeast % — the rest is non-fermenting, shrinking the ferment budget', () => {
+		const on = computeSchedule(defaultInputs({ ...roomWindow, autolyse: true }));
+		const off = computeSchedule(defaultInputs({ ...roomWindow, autolyse: false }));
+		expect(on.yeastPercent).toBeGreaterThan(off.yeastPercent);
+	});
+
+	it('applies in cold mode too, and there raises the yeast %', () => {
+		const on = computeSchedule(defaultInputs({ ...coldWindow, autolyse: true }));
+		const off = computeSchedule(defaultInputs({ ...coldWindow, autolyse: false }));
+		expect(on.mode).toBe('cold');
+		expect(on.steps.some((step) => step.kind === 'autolyse')).toBe(true);
+		expect(on.yeastPercent).toBeGreaterThan(off.yeastPercent);
+	});
+
+	it('applies with a cold ball proof', () => {
+		const s = computeSchedule(defaultInputs({ ...coldWindow, autolyse: true, ballProof: 'cold' }));
+		expect(s.mode).toBe('cold');
+		const autolyse = findStep(s, 'autolyse');
+		const prep = findStep(s, 'prep');
+		expect(autolyse.at.getTime()).toBe(prep.at.getTime() + PREP_MIN * 60_000);
+	});
+
+	it('is suppressed while a pre-ferment is enabled (the biga already rests the flour)', () => {
+		const s = computeSchedule(
+			defaultInputs({
+				...coldWindow,
+				autolyse: true,
+				preFerments: [{ type: 'biga', flourPercent: 30 }]
+			})
+		);
+		expect(s.steps.some((step) => step.kind === 'autolyse')).toBe(false);
+	});
+
+	it('applies to sourdough (no pre-ferment)', () => {
+		const s = computeSchedule(
+			defaultInputs({ ...roomWindow, autolyse: true, yeastType: 'sourdough' })
+		);
+		expect(s.steps.some((step) => step.kind === 'autolyse')).toBe(true);
 	});
 });

@@ -17,9 +17,15 @@ export type SerializableInputs = DoughInputs;
 // (rename/remove a field, change a unit, change defaults that links should
 // preserve). Keep decode() understanding every published key shape so links
 // shared before the change still resolve to a working recipe.
-const CURRENT_VERSION = 4;
+const CURRENT_VERSION = 5;
 const VERSION_KEY = 'v';
 
+// v=5 adds 'al' (autolyse). Autolyse defaults ON for no-pre-ferment recipes,
+// so a v=5 link OMITS 'al' when on and stamps 'al=0' only for the expert
+// opt-out. Pre-v5 links never carried it and were computed WITHOUT an autolyse
+// rest, so they must decode to OFF — the decoder version-gates the default
+// (missing 'al': on when v ≥ 5, off when v < 5) to keep every old share-link,
+// community and pizzeria row reproducing its original schedule and yeast %.
 // v=4 adds 'mm' (mixing method; omitted = machine, which matches the fixed
 // 15-min mix every older link was computed against) and extends 'p' to an
 // underscore-separated list so biga and poolish can run in parallel — the
@@ -47,6 +53,7 @@ const KEYS_V4 = {
 	preFermentTempC: 'pt',
 	ballProof: 'bp',
 	mixingMethod: 'mm',
+	autolyse: 'al',
 	preFerment: 'p'
 } as const;
 
@@ -85,6 +92,8 @@ export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }):
 	if (inputs.mixingMethod === 'stand') params.set(KEYS_V4.mixingMethod, 'st');
 	// Omitted for the classic room-temperature ball proof.
 	if (inputs.ballProof === 'cold') params.set(KEYS_V4.ballProof, 'c');
+	// Autolyse defaults on for no-pre-ferment recipes — stamp only the opt-out.
+	if (!inputs.autolyse) params.set(KEYS_V4.autolyse, '0');
 	if (inputs.preFerments.length > 0) {
 		params.set(KEYS_V4.preFerment, inputs.preFerments.map(formatPreFerment).join('_'));
 	}
@@ -214,6 +223,15 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	const bp = params.get(KEYS_V4.ballProof);
 	if (bp === 'c') out.ballProof = 'cold';
 	if (bp === 'r') out.ballProof = 'room';
+
+	// Autolyse: 'al=0' is the expert opt-out, any other value means on. When the
+	// key is absent we version-gate the default — v ≥ 5 links were computed with
+	// autolyse on (the new default, so it's simply omitted), while pre-v5 links
+	// predate the feature and must reproduce their original no-autolyse schedule.
+	// Missing v = v1 (legacy), so it falls to the off side.
+	const al = params.get(KEYS_V4.autolyse);
+	if (al !== null) out.autolyse = al !== '0';
+	else if ((Number(params.get(VERSION_KEY)) || 1) < 5) out.autolyse = false;
 
 	const p = params.get(KEYS_V4.preFerment);
 	if (p) {

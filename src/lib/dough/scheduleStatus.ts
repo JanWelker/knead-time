@@ -12,6 +12,8 @@ export function isActiveStep(kind: ScheduleStepKind): boolean {
 		case 'mix':
 		case 'divide':
 			return true;
+		// Autolyse is a passive flour+water rest — the baker walks away.
+		case 'autolyse':
 		case 'bulk-room':
 		case 'bulk-cold':
 		case 'proof-cold':

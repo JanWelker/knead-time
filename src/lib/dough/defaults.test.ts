@@ -16,7 +16,8 @@ describe('RECIPE_DEFAULTS', () => {
 			fridgeTempC: 4,
 			preFermentTempC: null,
 			ballProof: 'room',
-			mixingMethod: 'spiral'
+			mixingMethod: 'spiral',
+			autolyse: true
 		});
 	});
 });

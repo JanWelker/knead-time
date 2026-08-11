@@ -34,6 +34,8 @@
 	// dashed so the eye reads "nothing to do here, time just passes".
 	const WAIT_KINDS = new Set<ScheduleStepKind>([
 		'preferment-mix',
+		// The flour+water autolyse is a passive rest — dashed rail, hollow node.
+		'autolyse',
 		'bulk-room',
 		'bulk-cold',
 		'proof-cold',
