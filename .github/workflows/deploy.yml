@@ -33,8 +33,9 @@ jobs:
         run: |
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           OWNER="${GITHUB_REPOSITORY%%/*}"
-          # User/org site (<owner>.github.io) is served from root; project sites are served from /<repo>/.
-          if [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
+          # A custom domain (static/CNAME) or a user/org site (<owner>.github.io) is
+          # served from root; bare project sites are served from /<repo>/.
+          if [ -f static/CNAME ] || [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
             echo "value=" >> "$GITHUB_OUTPUT"
           else
             echo "value=/${REPO_NAME}" >> "$GITHUB_OUTPUT"
