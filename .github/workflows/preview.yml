@@ -45,7 +45,9 @@ jobs:
           REPO_NAME="${GITHUB_REPOSITORY#*/}"
           OWNER="${GITHUB_REPOSITORY%%/*}"
           PR="${{ github.event.number }}"
-          if [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
+          # A custom domain (static/CNAME) or a user/org site (<owner>.github.io) is
+          # served from root; bare project sites are served from /<repo>/.
+          if [ -f static/CNAME ] || [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
             echo "value=/pr-preview/pr-${PR}" >> "$GITHUB_OUTPUT"
           else
             echo "value=/${REPO_NAME}/pr-preview/pr-${PR}" >> "$GITHUB_OUTPUT"

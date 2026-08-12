@@ -3,7 +3,7 @@
 [![CI](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml/badge.svg)](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/JanWelker/knead-time/branch/main/graph/badge.svg)](https://codecov.io/gh/JanWelker/knead-time)
 
-A time-anchored Neapolitan pizza dough calculator — [try it live](https://janwelker.github.io/knead-time/). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
+A time-anchored Neapolitan pizza dough calculator — [try it live](https://kneadtime.pizza). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
 New in v5: an **autolyse rest** — when you're not using a pre-ferment, the app rests flour and water for 30 min before the salt and yeast go in (less kneading, a more extensible dough). It's on by default (including the beginner view); experts can switch it off. Old share-links predate it and reproduce their original schedule unchanged.
 
@@ -141,7 +141,9 @@ Deployment is fully automated by **`.github/workflows/deploy.yml`**. Every push 
 3. GitHub Pages serves the `gh-pages` branch.
 4. Tags the commit `v<version>` (from `package.json`) and pushes the tag. The step is idempotent — pushes that don't bump the version skip the tag because it already exists on `origin`. This is what backs the `v<version>` release links in the screen and print footers.
 
-The workflow resolves the **base path** automatically: project repos (`<owner>/<repo>`) are served from `/<repo>/`, so the build is run with `BASE_PATH=/<repo>`. User/org sites (`<owner>.github.io`) are served from the root, so `BASE_PATH` stays empty. If you point a custom domain at the Pages site, unset `BASE_PATH` in the workflow (or override it).
+The workflow resolves the **base path** automatically. A **custom domain** (a `static/CNAME` file — the app is live at [kneadtime.pizza](https://kneadtime.pizza)) or a user/org site (`<owner>.github.io`) is served from the root, so `BASE_PATH` stays empty; a bare project repo (`<owner>/<repo>`) is served from `/<repo>/`, so the build runs with `BASE_PATH=/<repo>`. To move the app onto (or off) a custom domain, add or remove `static/CNAME` — both `deploy.yml` and `preview.yml` branch on its presence.
+
+`static/CNAME` is committed so it survives the `clean: true` gh-pages deploy (which would otherwise delete the file GitHub writes when you set the domain in the Pages UI, un-setting the domain on the next push).
 
 `svelte.config.js` reads `BASE_PATH` from the env. SvelteKit also serves a `404.html` fallback so deep links and refreshes resolve to the SPA shell, and a `static/.nojekyll` file disables GH Pages' Jekyll processing.
 
@@ -163,9 +165,9 @@ The bottom of the page lists recipes other bakers have shared. Each entry is a
 single row in [`src/lib/community/community.md`](src/lib/community/community.md):
 
 ```md
-| Name      | Date       | Recipe                                        |
-| --------- | ---------- | --------------------------------------------- |
-| Your name | 2026-05-13 | https://janwelker.github.io/knead-time/?r=... |
+| Name      | Date       | Recipe                         |
+| --------- | ---------- | ------------------------------ |
+| Your name | 2026-05-13 | https://kneadtime.pizza/?r=... |
 ```
 
 To add yours: dial in the recipe in the app, click **Share** to copy the URL,
@@ -185,9 +187,9 @@ recipes are publicly documented. The data lives in
 has seven columns:
 
 ```md
-| Pizzeria                                                      | Location       | Rankings                            | Recipe                                        | Timing                         | Notes                           | Source                        |
-| ------------------------------------------------------------- | -------------- | ----------------------------------- | --------------------------------------------- | ------------------------------ | ------------------------------- | ----------------------------- |
-| [Pepe in Grani](https://www.50toppizza.it/.../pepe-in-grani/) | Caiazzo, Italy | 2018-it:1, 2019-it:1, 2022-w:26 ... | https://janwelker.github.io/knead-time/?v=3&… | bulk-room:4-5h, final-proof:2h | Source also adds ~1.9 % starter | https://youngandfoodish.com/… |
+| Pizzeria                                                      | Location       | Rankings                            | Recipe                         | Timing                         | Notes                           | Source                        |
+| ------------------------------------------------------------- | -------------- | ----------------------------------- | ------------------------------ | ------------------------------ | ------------------------------- | ----------------------------- |
+| [Pepe in Grani](https://www.50toppizza.it/.../pepe-in-grani/) | Caiazzo, Italy | 2018-it:1, 2019-it:1, 2022-w:26 ... | https://kneadtime.pizza/?v=3&… | bulk-room:4-5h, final-proof:2h | Source also adds ~1.9 % starter | https://youngandfoodish.com/… |
 ```
 
 - **Pizzeria** name is a markdown link to the pizzeria's 50 Top Pizza profile.
