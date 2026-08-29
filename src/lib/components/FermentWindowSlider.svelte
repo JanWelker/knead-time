@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { flourZones } from '$lib/dough/flour';
 	import { COLD_MODE_THRESHOLD_MIN } from '$lib/dough/schedule';
+	import {
+		nearestWindowStopIndex,
+		WINDOW_STOPS,
+		windowAxisPercent
+	} from '$lib/dough/windowPresets';
 	import { formatDateTime, formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import type { FormState } from '$lib/state.svelte';
@@ -9,33 +14,19 @@
 
 	const t = $derived(i18n.t);
 
-	// Track span. The floor is the shortest window the schedule calls feasible
-	// (ROOM_MIN_TOTAL_MIN). The ceiling is set by where the schedule stops
-	// using extra time: cold-bulk caps at COLD_BULK_CEIL_MIN (48 h), so the
-	// longest window the app can still spend is ~54 h without a pre-ferment
-	// and ~78 h with a 24 h one — past that every extra hour is just idle time
-	// before the first step, and the schedule is identical. 80 h covers that
-	// worst case and still leaves 8 h of headroom past the strongest flour's
-	// 72 h band, so the "too long" warning stays reachable from the slider.
-	const MIN_H = 3;
-	const MAX_H = 80;
-	// 15 min — the granularity the schedule itself works in.
-	const STEP_H = 0.25;
-
-	const pct = (h: number) => ((h - MIN_H) / (MAX_H - MIN_H)) * 100;
-	// Zones are clipped to the track so a band running past the ceiling (a
-	// 72 h cold tolerance is well inside it, but a hand-typed W 400 is not)
-	// renders as "continues off the end" rather than overflowing the rail.
-	const clampPct = (p: number) => Math.max(0, Math.min(100, p));
-
+	// The slider moves between the canonical Neapolitan windows rather than
+	// freely: its value IS a stop index, so dragging and the arrow keys both
+	// land on a real plan, and every stop gets the same target size on a phone.
+	// windowAxisPercent maps hours onto that same index rail, which is what
+	// keeps the tolerance zones and tick labels aligned with the thumb.
 	const zones = $derived(
 		state.flourW === null ? null : flourZones(state.flourW, COLD_MODE_THRESHOLD_MIN / 60)
 	);
 
 	const windowHours = $derived(state.fermentWindowHours);
-	// The slider reflects the true window even when the date fields put it
-	// outside the track, but the thumb itself has to stay on the rail.
-	const sliderValue = $derived(Math.max(MIN_H, Math.min(MAX_H, windowHours)));
+	// A window set from the date fields need not be on a stop; the thumb shows
+	// the nearest one while the readout above keeps the true duration.
+	const sliderIndex = $derived(nearestWindowStopIndex(windowHours));
 
 	const band = $derived(
 		state.schedule.mode === 'cold' ? (zones?.cold ?? null) : (zones?.room ?? null)
@@ -52,7 +43,10 @@
 	// one is a time the user actually picked.
 	const formatBandEdge = (hours: number) => formatWindow(Math.round(hours));
 
-	const ticks = [6, 12, 24, 48, 72];
+	// Labelled stops. Every stop gets a notch; only these carry text, so the
+	// rail stays readable at phone widths. The extremes are left unlabelled —
+	// a centred label at 0 % or 100 % would hang off the rail.
+	const labelledStops = [8, 24, 48, 72];
 </script>
 
 <div
@@ -77,26 +71,38 @@
 			{#if zones?.room}
 				<div
 					class="bg-basil-300 dark:bg-basil-700 absolute inset-y-0"
-					style="left:{clampPct(pct(zones.room.min))}%;width:{clampPct(pct(zones.room.max)) -
-						clampPct(pct(zones.room.min))}%"
+					style="left:{windowAxisPercent(zones.room.min)}%;width:{windowAxisPercent(
+						zones.room.max
+					) - windowAxisPercent(zones.room.min)}%"
 				></div>
 			{/if}
 			{#if zones?.cold}
 				<div
 					class="bg-basil-400 dark:bg-basil-600 absolute inset-y-0"
-					style="left:{clampPct(pct(zones.cold.min))}%;width:{clampPct(pct(zones.cold.max)) -
-						clampPct(pct(zones.cold.min))}%"
+					style="left:{windowAxisPercent(zones.cold.min)}%;width:{windowAxisPercent(
+						zones.cold.max
+					) - windowAxisPercent(zones.cold.min)}%"
 				></div>
 			{/if}
+			<!-- A notch per stop, so the snap points are visible even where the
+			     rail carries no label. -->
+			{#each WINDOW_STOPS as stop, i (stop)}
+				{#if i > 0 && i < WINDOW_STOPS.length - 1}
+					<div
+						class="absolute inset-y-0 w-px bg-white/70 dark:bg-stone-900/50"
+						style="left:{windowAxisPercent(stop)}%"
+					></div>
+				{/if}
+			{/each}
 		</div>
 
 		<input
 			type="range"
-			min={MIN_H}
-			max={MAX_H}
-			step={STEP_H}
-			value={sliderValue}
-			oninput={(e) => (state.fermentWindowHours = e.currentTarget.valueAsNumber)}
+			min="0"
+			max={WINDOW_STOPS.length - 1}
+			step="1"
+			value={sliderIndex}
+			oninput={(e) => (state.fermentWindowHours = WINDOW_STOPS[e.currentTarget.valueAsNumber])}
 			class="absolute inset-0 w-full cursor-pointer appearance-none bg-transparent"
 			aria-label={t.schedule.window_label}
 			aria-valuetext={formatWindow(windowHours)}
@@ -104,10 +110,10 @@
 	</div>
 
 	<div class="relative mt-1 h-4" aria-hidden="true">
-		{#each ticks as tick (tick)}
+		{#each labelledStops as stop (stop)}
 			<span
 				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-400 dark:text-stone-500"
-				style="left:{pct(tick)}%">{formatWindow(tick)}</span
+				style="left:{windowAxisPercent(stop)}%">{formatWindow(stop)}</span
 			>
 		{/each}
 	</div>
