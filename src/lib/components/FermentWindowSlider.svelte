@@ -10,10 +10,15 @@
 	const t = $derived(i18n.t);
 
 	// Track span. The floor is the shortest window the schedule calls feasible
-	// (ROOM_MIN_TOTAL_MIN); the ceiling covers the strongest flour's tolerance
-	// with room to spare, so the good zone is never flush against the end.
+	// (ROOM_MIN_TOTAL_MIN). The ceiling is set by where the schedule stops
+	// using extra time: cold-bulk caps at COLD_BULK_CEIL_MIN (48 h), so the
+	// longest window the app can still spend is ~54 h without a pre-ferment
+	// and ~78 h with a 24 h one — past that every extra hour is just idle time
+	// before the first step, and the schedule is identical. 80 h covers that
+	// worst case and still leaves 8 h of headroom past the strongest flour's
+	// 72 h band, so the "too long" warning stays reachable from the slider.
 	const MIN_H = 3;
-	const MAX_H = 96;
+	const MAX_H = 80;
 	// 15 min — the granularity the schedule itself works in.
 	const STEP_H = 0.25;
 

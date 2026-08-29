@@ -1246,8 +1246,9 @@ describe('computeSchedule — night guard holds across the window slider', () =>
 	// The schedule's fermentation-window slider only rewrites startAt, so every
 	// value it can produce has to keep the night-window contract: no baker
 	// action inside [22:00, 08:00) unless the schedule admits defeat with a
-	// 'night-step' warning. Sweeping the slider's whole range at its own 15-min
-	// step, against a readyBy at every hour of the day, is the regression net.
+	// 'night-step' warning. Sweeping the slider's range (3–80 h) plus headroom
+	// at its own 15-min step, against a readyBy at every hour of the day, is
+	// the regression net.
 	it('never hides an unflagged night action at any slider position', () => {
 		for (let readyHour = 0; readyHour < 24; readyHour++) {
 			for (let hours = 3; hours <= 96; hours += 0.25) {
