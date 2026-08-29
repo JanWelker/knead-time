@@ -33,6 +33,13 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 - `mixingMethod` defaults to `spiral` — the calibration every pre-v4 (and v4.0 "machine") link implies.
 - **Autolyse** (`autolyse: boolean`, default `true`): flour+water rest before the mix, active only with no pre-ferment (see Domain model). **UI-level opt-out is expert-only, but the flag is a real `DoughInputs` field** (it enters the math — unlike view mode). Retained through a pre-ferment toggle so turning the pre-ferment off restores it.
 - Defaults: 280 g / 70 % / 3 % salt / 0 % oil / 0 % sugar / spiral mixing / autolyse on. No AVPN enforcement.
+- **Flour strength** (`flourW: number | null`, default 265 = Caputo Pizzeria; null = "no flour stated", what every pre-v6 link decodes to). `src/lib/dough/flour.ts` holds the presets and the W→tolerance anchors. **Advisory only** — W is deformation energy, not absorption, so it never enters `computeIngredients` or the yeast solve; it only paints the good fermentation window, raises `flour-window-{short,long}` warnings and feeds the fit score's `flour-window-off`. Bands interpolate in log-hours between three anchors and **clamp rather than extrapolate**; `flourZones` clips each band to its own regime, so a flour too weak to reach the 16 h cold switch offers no cold zone at all.
+
+### Fermentation window slider
+
+- `src/lib/dough/windowPresets.ts` (pure) + `FermentWindowSlider.svelte`. The slider's value **is a stop index** into `WINDOW_STOPS` (6, 8, 12, 16, 18, 24, 36, 48, 72, 80 h — canonical Neapolitan windows, except 80 h which is the schedule's own ceiling), and the rail is linear in that index so every stop gets the same target size on a phone. It writes `FormState.fermentWindowHours`, which moves `startAt` — `readyBy` stays the anchor, so the night-window guard, the cold/room switch and the yeast solve all re-run on it normally.
+- **Nothing may ferment past the bake time.** `reachableStopIndex` bounds the slider at the time still left; longer stops are greyed, refused on input, and the deadline itself is drawn as a labelled flag on the rail.
+- **Editing the bake time re-picks the window**: `bestWindowStopIndex` returns the longest stop that both fits before the bake and sits inside the flour's zones (`FormState.setReadyBy`, wired only to the form's readyBy inputs). No flour stated or nothing reachable → no recommendation, the window is left alone. A flour too weak for any stop (a supermarket 00's 2–4 h band closes before the 6 h shortest stop) falls back to the shortest stop. **`apply()` never re-picks** — a decoded share link must reproduce its own window verbatim.
 
 ### Beginner / expert view mode
 

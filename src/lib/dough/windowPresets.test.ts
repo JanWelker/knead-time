@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { COLD_MODE_THRESHOLD_MIN, ROOM_MIN_TOTAL_MIN } from './schedule';
+import { flourWindowHours, flourZones } from './flour';
 import {
 	BENEFIT_LONG_FROM_H,
+	bestWindowStopIndex,
 	BENEFIT_MEDIUM_FROM_H,
 	fermentationBenefitTier,
 	nearestWindowStopIndex,
@@ -166,6 +168,132 @@ describe('reachableStopIndex', () => {
 			const i = reachableStopIndex(h);
 			expect(i).toBeGreaterThanOrEqual(prev);
 			prev = i;
+		}
+	});
+});
+
+describe('bestWindowStopIndex', () => {
+	const COLD_THRESHOLD_H = COLD_MODE_THRESHOLD_MIN / 60;
+	const zonesFor = (w: number) => flourZones(w, COLD_THRESHOLD_H);
+	const hoursAt = (i: number | null) => (i === null ? null : WINDOW_STOPS[i]);
+
+	it('picks the longest stop the flour tolerates when time is no object', () => {
+		// Caputo Pizzeria's cold band tops out at 40 h, so 36 h is the longest
+		// stop inside it — not the 48 h the remaining time would allow.
+		expect(hoursAt(bestWindowStopIndex(1000, zonesFor(265)))).toBe(36);
+		// La Napoletana reaches 72 h.
+		expect(hoursAt(bestWindowStopIndex(1000, zonesFor(310)))).toBe(72);
+	});
+
+	it('never recommends a window past the flour’s tolerance', () => {
+		for (const w of [180, 265, 280, 310, 380]) {
+			const zones = zonesFor(w);
+			const i = bestWindowStopIndex(1000, zones);
+			const band = flourWindowHours(w, 'cold');
+			expect(WINDOW_STOPS[i as number]).toBeLessThanOrEqual(band.max);
+		}
+	});
+
+	it('never recommends a window that would have to start in the past', () => {
+		for (const w of [180, 265, 310, 380]) {
+			for (let h = 0; h <= 100; h += 0.25) {
+				const i = bestWindowStopIndex(h, zonesFor(w));
+				if (i !== null) expect(WINDOW_STOPS[i]).toBeLessThanOrEqual(h);
+			}
+		}
+	});
+
+	it('falls back to the deadline when the tolerance outruns the time left', () => {
+		// La Napoletana would happily go 72 h, but the bake is 30 h away.
+		expect(hoursAt(bestWindowStopIndex(30, zonesFor(310)))).toBe(24);
+	});
+
+	it('lands on the stop nearest the tolerance when no stop sits inside it', () => {
+		// Supermarket 00 can only ferment at room temperature here (its cold
+		// band ends below the cold switch), and that band — 2–4 h — closes
+		// before the 6 h shortest stop. So the weakest flour gets the shortest
+		// window on the rail rather than a long one it cannot survive.
+		expect(hoursAt(bestWindowStopIndex(1000, zonesFor(180)))).toBe(6);
+	});
+
+	it('stays inside a regime it can actually run — no room/cold contradiction', () => {
+		for (const w of [180, 265, 280, 310, 380]) {
+			const zones = zonesFor(w);
+			const i = bestWindowStopIndex(1000, zones);
+			const hours = WINDOW_STOPS[i as number];
+			const zone = hours >= COLD_THRESHOLD_H ? zones.cold : zones.room;
+			// Either the pick is inside the zone for the regime it will run in,
+			// or the flour has no such zone and it is the nearest-edge fallback.
+			if (zone !== null && hours >= zone.min && hours <= zone.max) continue;
+			expect(zones.cold).toBeNull();
+		}
+	});
+
+	it('has no opinion without a flour — the window is the user’s', () => {
+		expect(bestWindowStopIndex(1000, null)).toBeNull();
+		expect(bestWindowStopIndex(0, null)).toBeNull();
+	});
+
+	it('has no opinion when even the shortest window no longer fits', () => {
+		expect(bestWindowStopIndex(WINDOW_STOPS[0] - 0.01, zonesFor(265))).toBeNull();
+		expect(bestWindowStopIndex(-10, zonesFor(310))).toBeNull();
+	});
+
+	it('never sends a flour too weak for the cold switch into cold territory', () => {
+		expect(zonesFor(180).cold).toBeNull();
+		expect(WINDOW_STOPS[bestWindowStopIndex(1000, zonesFor(180)) as number]).toBeLessThan(
+			COLD_THRESHOLD_H
+		);
+	});
+
+	it('handles zones with no room side', () => {
+		// A 1 h cold threshold swallows the room band entirely.
+		const zones = flourZones(310, 1);
+		expect(zones.room).toBeNull();
+		expect(hoursAt(bestWindowStopIndex(1000, zones))).toBe(72);
+	});
+
+	it('is monotonic in the time left — more time never means a shorter window', () => {
+		let prev = -1;
+		for (let h = 0; h <= 100; h += 0.25) {
+			const i = bestWindowStopIndex(h, zonesFor(310));
+			if (i === null) continue;
+			expect(i).toBeGreaterThanOrEqual(prev);
+			prev = i;
+		}
+	});
+
+	it('always finds a stop inside the band for any flour that can run cold', () => {
+		// The shortest-stop fallback exists only for flours too weak to reach
+		// the cold switch. Pin that: everything with a cold zone lands inside
+		// one of its bands at every deadline that fits a window at all.
+		for (const w of [265, 280, 310, 380]) {
+			const zones = zonesFor(w);
+			expect(zones.cold).not.toBeNull();
+			for (let h = 6; h <= 100; h += 0.25) {
+				const hours = WINDOW_STOPS[bestWindowStopIndex(h, zones) as number];
+				const inZone = [zones.room, zones.cold].some(
+					(b) => b !== null && hours >= b.min && hours <= b.max
+				);
+				expect(inZone).toBe(true);
+			}
+		}
+	});
+
+	it('falls back to the shortest stop for a flour the rail cannot serve', () => {
+		// Supermarket 00's only usable band is 2–4 h at room temperature,
+		// which closes before the 6 h shortest stop.
+		for (let h = 6; h <= 100; h += 0.25) {
+			expect(bestWindowStopIndex(h, zonesFor(180))).toBe(0);
+		}
+	});
+
+	it('never lands on a window the schedule calls infeasible', () => {
+		for (const w of [180, 265, 280, 310, 380]) {
+			for (let h = 6; h <= 100; h += 0.5) {
+				const i = bestWindowStopIndex(h, zonesFor(w));
+				expect(WINDOW_STOPS[i as number] * 60).toBeGreaterThanOrEqual(ROOM_MIN_TOTAL_MIN);
+			}
 		}
 	});
 });

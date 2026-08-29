@@ -28,7 +28,7 @@
 
 	function setReadyBy(datePart: string, timePart: string) {
 		const d = combineDateTimeInputs(datePart, timePart);
-		if (d) state.readyBy = d;
+		if (d) state.setReadyBy(d);
 	}
 
 	function resetStartAtToNow() {

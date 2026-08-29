@@ -1,8 +1,9 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { roundBallWeight } from './dough/bakers';
+import { flourZones } from './dough/flour';
 import { RECIPE_DEFAULTS, toDefaultReadyBy } from './dough/defaults';
 import { clampInput, clampPreFermentShares, clampShareInput } from './dough/inputBounds';
-import { computeSchedule } from './dough/schedule';
+import { computeSchedule, COLD_MODE_THRESHOLD_MIN } from './dough/schedule';
 import type {
 	BallProof,
 	ComputedSchedule,
@@ -12,6 +13,7 @@ import type {
 	YeastType
 } from './dough/types';
 import type { SerializableInputs } from './dough/urlState';
+import { bestWindowStopIndex, WINDOW_STOPS } from './dough/windowPresets';
 
 export class FormState {
 	readyBy: Date = $state(toDefaultReadyBy(new SvelteDate()));
@@ -115,6 +117,25 @@ export class FormState {
 		// SvelteDate, like the initial value: the schedule reads startAt's
 		// getters, so a plain Date here would not re-trigger them.
 		this.startAt = new SvelteDate(this.readyBy.getTime() - hours * 3_600_000);
+	}
+
+	// A user edit of the bake time, as opposed to `apply()` writing readyBy
+	// from a decoded link. Picking when to bake is the app's primary action,
+	// so it re-answers the follow-up question too: the window jumps to the
+	// longest one the flour handles well that still fits before the new
+	// deadline. The slider stays free to shorten it afterwards — but leaving a
+	// window sized for the old bake time would silently hand back a worse
+	// plan than the new time allows.
+	//
+	// Only from an explicit edit: decoding a share link must reproduce its
+	// recipe verbatim, so `apply()` deliberately writes readyBy directly.
+	setReadyBy(next: Date) {
+		this.readyBy = next;
+		const best = bestWindowStopIndex(
+			(next.getTime() - Date.now()) / 3_600_000,
+			this.flourW === null ? null : flourZones(this.flourW, COLD_MODE_THRESHOLD_MIN / 60)
+		);
+		if (best !== null) this.fermentWindowHours = WINDOW_STOPS[best];
 	}
 
 	serializable(): SerializableInputs {

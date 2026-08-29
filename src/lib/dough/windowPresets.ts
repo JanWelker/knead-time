@@ -1,3 +1,5 @@
+import type { FermentWindowBand } from './flour';
+
 // The fermentation windows the schedule slider snaps to.
 //
 // These are the totals Neapolitan practice actually talks about, so dragging
@@ -82,4 +84,51 @@ export function reachableStopIndex(hoursUntilBake: number): number {
 		if (WINDOW_STOPS[i] <= hoursUntilBake) return i;
 	}
 	return -1;
+}
+
+// The stop to land on when the bake time moves: the longest window the flour
+// still handles well that also fits before the bake.
+//
+// Picking when to bake is the app's primary action, so the schedule should
+// answer it with the best plan available rather than keeping whatever window
+// happened to be set for the old time. "Best" is the longest one, because
+// fermentation time is what buys flavour — bounded on one side by the
+// deadline (reachableStopIndex) and on the other by the flour's own tolerance
+// (the zones), which is exactly the pair of limits the rail already paints.
+//
+// Zones are used rather than a raw band because each one is already clipped
+// to its own regime, so a stop inside the cold zone is necessarily long
+// enough to run cold and a stop inside the room zone necessarily short enough
+// to run at room temperature — the choice can't contradict the mode the
+// schedule will then pick for it.
+//
+// Returns null when there is nothing to recommend: no flour stated (without
+// one there is no notion of "good", so the window is left as the user set it)
+// or a bake so close that not even the shortest window fits.
+export function bestWindowStopIndex(
+	hoursUntilBake: number,
+	zones: { room: FermentWindowBand | null; cold: FermentWindowBand | null } | null
+): number | null {
+	if (zones === null) return null;
+	const reachable = reachableStopIndex(hoursUntilBake);
+	if (reachable < 0) return null;
+
+	const inZone = (hours: number) =>
+		(zones.room !== null && hours >= zones.room.min && hours <= zones.room.max) ||
+		(zones.cold !== null && hours >= zones.cold.min && hours <= zones.cold.max);
+
+	for (let i = reachable; i >= 0; i--) {
+		if (inZone(WINDOW_STOPS[i])) return i;
+	}
+
+	// No stop lands inside the tolerance at all. The only flours this happens
+	// to are the weak ones: their room band closes before the shortest stop
+	// (a supermarket 00 wants 2–4 h; the rail starts at 6 h) and their cold
+	// band never survives the clip to the cold regime. A flour strong enough
+	// to have a cold zone always has stops inside one band or the other, at
+	// any deadline that fits a window at all. So the answer here is the
+	// shortest window the rail offers — as close to that flour's limit as it
+	// can get, and the direction that errs toward under- rather than
+	// over-fermenting.
+	return 0;
 }
