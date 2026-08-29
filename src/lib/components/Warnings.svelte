@@ -23,15 +23,17 @@
 		'yeast-tiny': 'info',
 		'yeast-large': 'info',
 		'night-step': 'danger',
-		// Advisory, not a spoiled dough: 'long' risks gluten breakdown but the
-		// tolerance table is a broad reference, and 'short' only wastes flour.
+		// Overrunning the flour's tolerance is a spoiled dough — the gluten
+		// degrades and the bake is lost — so it gets the same red as 'too-short'
+		// and 'night-step'. Falling short of it only means a weaker flour would
+		// have done, which is advice, not a problem.
 		'flour-window-short': 'info',
-		'flour-window-long': 'info'
+		'flour-window-long': 'danger'
 	};
 </script>
 
 {#if warnings.length > 0}
-	<ul class="space-y-2" aria-live="polite">
+	<ul class="mt-4 space-y-2" aria-live="polite">
 		{#each warnings as w (w)}
 			<li
 				class="rounded-lg border px-3 py-2 text-sm {SEVERITY[w] === 'danger'
