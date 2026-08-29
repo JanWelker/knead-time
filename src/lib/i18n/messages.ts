@@ -181,7 +181,6 @@ export interface Messages {
 		window_out_of_band: string;
 		window_no_band: string;
 		window_no_flour: string;
-		window_start_note: string;
 		now: string;
 	};
 	quality: {
@@ -583,7 +582,6 @@ const en: Messages = {
 		window_out_of_band: 'Outside what this flour tolerates',
 		window_no_band: 'This flour is too weak for a cold ferment.',
 		window_no_flour: 'Pick a flour to see its fermentation tolerance.',
-		window_start_note: 'Starts',
 		now: 'Now'
 	},
 	quality: {
@@ -1000,7 +998,6 @@ const de: Messages = {
 		window_out_of_band: 'Außerhalb dieser Mehlstärke',
 		window_no_band: 'Dieses Mehl ist zu schwach für eine Kühlgare.',
 		window_no_flour: 'Wähle ein Mehl, um seine Garetoleranz zu sehen.',
-		window_start_note: 'Beginnt',
 		now: 'Jetzt'
 	},
 	quality: {
@@ -1423,7 +1420,6 @@ const it: Messages = {
 		window_out_of_band: 'Oltre la tolleranza di questa farina',
 		window_no_band: 'Questa farina è troppo debole per una lievitazione in frigo.',
 		window_no_flour: 'Scegli una farina per vederne la tolleranza.',
-		window_start_note: 'Inizia',
 		now: 'Ora'
 	},
 	quality: {
@@ -1851,7 +1847,6 @@ const fr: Messages = {
 		window_out_of_band: 'Hors de la tolérance de cette farine',
 		window_no_band: 'Cette farine est trop faible pour une fermentation au froid.',
 		window_no_flour: 'Choisis une farine pour voir sa tolérance.',
-		window_start_note: 'Débute',
 		now: 'Maintenant'
 	},
 	quality: {
@@ -2277,7 +2272,6 @@ const nl: Messages = {
 		window_out_of_band: 'Buiten wat dit meel verdraagt',
 		window_no_band: 'Dit meel is te zwak voor een koude rijs.',
 		window_no_flour: 'Kies een meel om de rijstolerantie te zien.',
-		window_start_note: 'Begint',
 		now: 'Nu'
 	},
 	quality: {

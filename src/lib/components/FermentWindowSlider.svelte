@@ -6,7 +6,7 @@
 		WINDOW_STOPS,
 		windowAxisPercent
 	} from '$lib/dough/windowPresets';
-	import { formatDateTime, formatDuration } from '$lib/format';
+	import { formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import type { FormState } from '$lib/state.svelte';
 
@@ -129,12 +129,6 @@
 		{:else}
 			{t.schedule.window_no_flour}
 		{/if}
-	</p>
-	<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-		{t.schedule.window_start_note}
-		<span class="font-medium text-stone-700 dark:text-stone-200">
-			{formatDateTime(state.startAt, i18n.locale)}
-		</span>
 	</p>
 </div>
 
