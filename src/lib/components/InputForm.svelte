@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
+	import { DEFAULT_FLOUR_W, FLOUR_PRESETS, flourPresetForW } from '$lib/dough/flour';
 	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import FormField from './FormField.svelte';
@@ -32,6 +33,24 @@
 
 	function resetStartAtToNow() {
 		state.startAt = new Date();
+	}
+
+	// The select has no state of its own — it reads back off flourW, so typing
+	// a strength no preset matches simply lands on "custom".
+	const flourChoice = $derived(
+		state.flourW === null ? 'none' : (flourPresetForW(state.flourW) ?? 'custom')
+	);
+
+	function setFlourChoice(choice: string) {
+		if (choice === 'none') {
+			state.flourW = null;
+			return;
+		}
+		if (choice === 'custom') {
+			state.flourW ??= DEFAULT_FLOUR_W;
+			return;
+		}
+		state.flourW = FLOUR_PRESETS.find((p) => p.id === choice)?.w ?? DEFAULT_FLOUR_W;
 	}
 </script>
 
@@ -151,6 +170,37 @@
 				help={t.form.sugar_help}
 				bind:value={state.sugarPercent}
 			/>
+
+			<label class="block">
+				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+					{t.form.flour}
+				</span>
+				<select
+					class={selectClass}
+					value={flourChoice}
+					onchange={(e) => setFlourChoice(e.currentTarget.value)}
+				>
+					{#each FLOUR_PRESETS as preset (preset.id)}
+						<option value={preset.id}>{t.form[`flour_${preset.id}`]} (W {preset.w})</option>
+					{/each}
+					<option value="custom">{t.form.flour_custom}</option>
+					<option value="none">{t.form.flour_none}</option>
+				</select>
+				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					{t.form.flour_help}
+				</span>
+			</label>
+
+			{#if state.flourW !== null}
+				<FormField
+					label={t.form.flourW}
+					min={150}
+					max={400}
+					step={5}
+					help={t.form.flourW_help}
+					bind:value={state.flourW}
+				/>
+			{/if}
 
 			<FormField
 				label={t.form.roomTemp}
@@ -397,6 +447,13 @@
 				<div>
 					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_fit_title}</p>
 					<p class="mt-1">{t.form.info_fit_body}</p>
+				</div>
+
+				<div class="min-w-0">
+					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_flour_title}</p>
+					<p class="mt-1">{t.form.info_flour_body}</p>
+					<pre
+						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">hours(W) = lo · (hi/lo)^((W − Wlo) / (Whi − Wlo))</pre>
 				</div>
 
 				<div>

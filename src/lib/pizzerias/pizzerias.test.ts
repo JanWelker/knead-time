@@ -280,6 +280,7 @@ describe('findMatchingPizzeria', () => {
 		return {
 			readyBy: new Date('2026-06-13T17:00:00.000Z'),
 			startAt: new Date('2026-06-13T08:00:00.000Z'),
+			flourW: null,
 			pizzaCount: 7,
 			ballWeight: 250,
 			hydration: 62,
@@ -406,6 +407,7 @@ describe('findMatchingPizzeria', () => {
 		const dough: DoughInputs = {
 			readyBy: new Date(),
 			startAt: new Date(),
+			flourW: shipped.inputs.flourW ?? null,
 			pizzaCount: shipped.inputs.pizzaCount!,
 			ballWeight: shipped.inputs.ballWeight!,
 			hydration: shipped.inputs.hydration!,

@@ -28,6 +28,7 @@ export class FormState {
 	mixingMethod: MixingMethod = $state(RECIPE_DEFAULTS.mixingMethod);
 	ballProof: BallProof = $state(RECIPE_DEFAULTS.ballProof);
 	autolyse: boolean = $state(RECIPE_DEFAULTS.autolyse);
+	flourW: number | null = $state(RECIPE_DEFAULTS.flourW);
 	preFermentTempEnabled: boolean = $state(false);
 	preFermentTempValue: number = $state(18);
 	bigaEnabled: boolean = $state(false);
@@ -83,6 +84,7 @@ export class FormState {
 		mixingMethod: this.mixingMethod,
 		ballProof: this.ballProof,
 		autolyse: this.autolyse,
+		flourW: this.flourW === null ? null : clampInput('flourW', this.flourW),
 		preFermentTempC: this.preFermentTempEnabled
 			? clampInput('preFermentTempC', this.preFermentTempValue)
 			: null,
@@ -98,6 +100,22 @@ export class FormState {
 	});
 
 	readonly schedule: ComputedSchedule = $derived(computeSchedule(this.inputs));
+
+	// The schedule's fermentation-window slider works in whole hours of
+	// readyBy − startAt. readyBy is the app's anchor ("pick when to bake"), so
+	// widening the window can only move startAt earlier — and because the value
+	// flows back through computeSchedule like any other edit, the night-window
+	// guard, the cold/room switch and the yeast solve all re-run on it.
+	get fermentWindowHours(): number {
+		return (this.readyBy.getTime() - this.startAt.getTime()) / 3_600_000;
+	}
+
+	set fermentWindowHours(hours: number) {
+		if (!Number.isFinite(hours)) return;
+		// SvelteDate, like the initial value: the schedule reads startAt's
+		// getters, so a plain Date here would not re-trigger them.
+		this.startAt = new SvelteDate(this.readyBy.getTime() - hours * 3_600_000);
+	}
 
 	serializable(): SerializableInputs {
 		return this.inputs;
@@ -135,6 +153,9 @@ export class FormState {
 		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
 		if (partial.ballProof !== undefined) this.ballProof = partial.ballProof;
 		if (partial.autolyse !== undefined) this.autolyse = partial.autolyse;
+		// null is a real value here ("no flour stated", what every pre-v6 link
+		// decodes to), so this checks undefined rather than truthiness.
+		if (partial.flourW !== undefined) this.flourW = partial.flourW;
 		if (partial.preFermentTempC !== undefined && partial.preFermentTempC !== null) {
 			this.preFermentTempEnabled = true;
 			this.preFermentTempValue = partial.preFermentTempC;

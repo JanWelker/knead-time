@@ -1,4 +1,5 @@
 import { computeIngredients } from './bakers';
+import { flourWindowHours } from './flour';
 import {
 	freshEquivalentPercent,
 	idealMixWaterTempC,
@@ -217,6 +218,17 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const mode: FermentMode = useCold ? 'cold' : 'room';
 	const feasible = totalAvailableMin >= ROOM_MIN_TOTAL_MIN;
 	if (!feasible) warnings.push('too-short');
+
+	// Flour-strength tolerance. Advisory: the band is compared against the
+	// window the user already chose and never feeds back into the solve, so
+	// the schedule (and every gram of every ingredient) is identical whether a
+	// flour is stated or not. null = no flour stated, no opinion.
+	if (inputs.flourW !== null) {
+		const band = flourWindowHours(inputs.flourW, mode);
+		const windowHours = totalAvailableMin / 60;
+		if (windowHours > band.max) warnings.push('flour-window-long');
+		else if (windowHours < band.min) warnings.push('flour-window-short');
+	}
 
 	let yeastPct: number;
 	let steps: ScheduleStep[];

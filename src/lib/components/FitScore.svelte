@@ -43,6 +43,8 @@
 				return t.quality.factor_fridge_temp_off;
 			case 'yeast-extreme':
 				return t.quality.factor_yeast_extreme;
+			case 'flour-window-off':
+				return t.quality.factor_flour_window_off;
 		}
 	}
 

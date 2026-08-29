@@ -17,7 +17,9 @@ describe('RECIPE_DEFAULTS', () => {
 			preFermentTempC: null,
 			ballProof: 'room',
 			mixingMethod: 'spiral',
-			autolyse: true
+			autolyse: true,
+			// Caputo Pizzeria — W 260-270.
+			flourW: 265
 		});
 	});
 });

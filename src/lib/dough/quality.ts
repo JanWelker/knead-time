@@ -1,4 +1,5 @@
 import { freshEquivalentPercent, PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
+import { flourWindowHours } from './flour';
 import { ACTIVE_NIGHT_KINDS, COLD_BULK_CEIL_MIN, COLD_BULK_FLOOR_MIN, isAtNight } from './schedule';
 import type { ComputedSchedule, DoughInputs, ScheduleStep } from './types';
 
@@ -46,6 +47,13 @@ const FRIDGE_TEMP_HIGH = 8;
 const FRIDGE_TEMP_PCT_PER_DEGREE = 1.5;
 const FRIDGE_TEMP_MAX_DEDUCT = 8;
 
+// Hours of window outside what the stated flour strength tolerates. Rated
+// below the temperature factors: the tolerance table its anchors come from is
+// itself "a very broad and general reference", so a couple of hours over the
+// edge should not cost a star on its own. Null flourW skips the factor.
+const FLOUR_WINDOW_PCT_PER_HOUR = 1.5;
+const FLOUR_WINDOW_MAX_DEDUCT = 12;
+
 const YEAST_PCT_LOW = 0.05;
 const YEAST_PCT_HIGH = 1.5;
 const YEAST_EXTREME_PENALTY = 8;
@@ -81,7 +89,8 @@ export type FitFactor =
 	| 'ball-weight-off'
 	| 'room-temp-off'
 	| 'fridge-temp-off'
-	| 'yeast-extreme';
+	| 'yeast-extreme'
+	| 'flour-window-off';
 
 export interface FitFactorDetail {
 	factor: FitFactor;
@@ -240,6 +249,16 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 	const fridgeT = outsideBand(inputs.fridgeTempC, FRIDGE_TEMP_LOW, FRIDGE_TEMP_HIGH);
 	if (fridgeT > 0) factors.push({ factor: 'fridge-temp-off', delta: fridgeT });
 
+	// Band is picked for the mode the schedule actually resolved to, so the
+	// same flour is judged against its cold tolerance on a 24 h plan and its
+	// room tolerance on a same-day one.
+	if (inputs.flourW !== null) {
+		const band = flourWindowHours(inputs.flourW, schedule.mode);
+		const windowHours = (inputs.readyBy.getTime() - inputs.startAt.getTime()) / 3_600_000;
+		const flourOff = outsideBand(windowHours, band.min, band.max);
+		if (flourOff > 0) factors.push({ factor: 'flour-window-off', delta: flourOff });
+	}
+
 	// The band is calibrated for fresh yeast; other carriers convert to
 	// fresh-equivalent first (0.5% IDY is a normal 1.5% fresh, and a 20%
 	// sourdough starter is a modest 0.2% — without the conversion every
@@ -284,6 +303,9 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 				break;
 			case 'yeast-extreme':
 				deduction += YEAST_EXTREME_PENALTY;
+				break;
+			case 'flour-window-off':
+				deduction += Math.min(FLOUR_WINDOW_MAX_DEDUCT, f.delta * FLOUR_WINDOW_PCT_PER_HOUR);
 				break;
 		}
 	}

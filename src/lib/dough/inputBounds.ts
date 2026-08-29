@@ -16,7 +16,10 @@ export const INPUT_BOUNDS = {
 	starterHydration: { min: 40, max: 150 },
 	roomTempC: { min: 10, max: 35 },
 	fridgeTempC: { min: 0, max: 12 },
-	preFermentTempC: { min: 4, max: 35 }
+	preFermentTempC: { min: 4, max: 35 },
+	// Soft biscuit flour to strong manitoba. The tolerance model clamps rather
+	// than extrapolates past its anchors, so the band edges stay meaningful.
+	flourW: { min: 150, max: 400 }
 } as const;
 
 export type BoundedInput = keyof typeof INPUT_BOUNDS;

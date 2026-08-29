@@ -4,7 +4,13 @@
 	import { onMount } from 'svelte';
 
 	import { buildIcs } from '$lib/dough/ics';
-	import { decodeInputs, decodeUiMode, encodeInputs, hasRecipeParams } from '$lib/dough/urlState';
+	import {
+		decodeInputs,
+		decodeStoredRecipe,
+		decodeUiMode,
+		encodeInputs,
+		hasRecipeParams
+	} from '$lib/dough/urlState';
 	import { safeLocalStorage } from '$lib/safeStorage';
 	import { uiMode } from '$lib/mode.svelte';
 	import { loadStoredMode } from '$lib/storedMode';
@@ -26,6 +32,7 @@
 	import InputForm from '$lib/components/InputForm.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
+	import FermentWindowSlider from '$lib/components/FermentWindowSlider.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import TrmnlPush from '$lib/components/TrmnlPush.svelte';
@@ -70,7 +77,7 @@
 			// today's defaults — only the recipe parameters come back.
 			const last = loadLastRecipe(storage);
 			if (last) {
-				const recipeOnly = { ...decodeInputs(last) };
+				const recipeOnly = { ...decodeStoredRecipe(last) };
 				delete recipeOnly.readyBy;
 				delete recipeOnly.startAt;
 				form.apply(recipeOnly);
@@ -357,6 +364,10 @@
 						{/each}
 					</fieldset>
 				</div>
+			</div>
+
+			<div class="mt-4">
+				<FermentWindowSlider state={form} />
 			</div>
 
 			<Warnings warnings={form.schedule.warnings} />

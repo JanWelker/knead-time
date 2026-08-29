@@ -1157,3 +1157,115 @@ describe('autolyse', () => {
 		expect(s.steps.some((step) => step.kind === 'autolyse')).toBe(true);
 	});
 });
+
+describe('computeSchedule — flour-strength tolerance', () => {
+	// A 24 h window: cold mode, and squarely inside Caputo Pizzeria's band.
+	const window24h = {
+		startAt: new Date('2026-05-11T19:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+
+	it('stays quiet when the window sits inside the flour band', () => {
+		const r = computeSchedule(baseInputs({ ...window24h, flourW: 265 }));
+		expect(r.mode).toBe('cold');
+		expect(r.warnings).not.toContain('flour-window-long');
+		expect(r.warnings).not.toContain('flour-window-short');
+	});
+
+	it('has no opinion at all when no flour is stated', () => {
+		const r = computeSchedule(baseInputs({ ...window24h, flourW: null }));
+		expect(r.warnings).not.toContain('flour-window-long');
+		expect(r.warnings).not.toContain('flour-window-short');
+	});
+
+	it('warns when the window outruns a weak flour', () => {
+		// Supermarket 00 tolerates ~12 h cold; 24 h breaks it down.
+		const r = computeSchedule(baseInputs({ ...window24h, flourW: 180 }));
+		expect(r.warnings).toContain('flour-window-long');
+	});
+
+	it('warns when a strong flour is spent on too short a window', () => {
+		// W 310 wants ≥ 24 h cold; a 17 h window is still cold mode but short.
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T02:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z'),
+				flourW: 310
+			})
+		);
+		expect(r.mode).toBe('cold');
+		expect(r.warnings).toContain('flour-window-short');
+	});
+
+	it('judges against the room band in room mode', () => {
+		// 6 h room window: fine for W 265 (band 4–10 h), too long for W 180 (2–4 h).
+		const short = {
+			startAt: new Date('2026-05-12T13:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		};
+		expect(computeSchedule(baseInputs({ ...short, flourW: 265 })).mode).toBe('room');
+		expect(computeSchedule(baseInputs({ ...short, flourW: 265 })).warnings).not.toContain(
+			'flour-window-long'
+		);
+		expect(computeSchedule(baseInputs({ ...short, flourW: 180 })).warnings).toContain(
+			'flour-window-long'
+		);
+	});
+
+	it('never reports the window as both too long and too short', () => {
+		for (let hours = 3; hours <= 96; hours += 0.25) {
+			const readyBy = new Date('2026-05-14T19:00:00Z');
+			const r = computeSchedule(
+				baseInputs({
+					readyBy,
+					startAt: new Date(readyBy.getTime() - hours * 3_600_000),
+					flourW: 265
+				})
+			);
+			const long = r.warnings.includes('flour-window-long');
+			const short = r.warnings.includes('flour-window-short');
+			expect(long && short).toBe(false);
+		}
+	});
+
+	it('leaves the recipe and every step time untouched (advisory only)', () => {
+		// The whole design rests on this: stating a flour must not move a
+		// single minute or a single gram, only add advice.
+		const withoutFlour = computeSchedule(baseInputs({ ...window24h, flourW: null }));
+		for (const w of [150, 180, 265, 310, 400]) {
+			const withFlour = computeSchedule(baseInputs({ ...window24h, flourW: w }));
+			expect(withFlour.ingredients).toEqual(withoutFlour.ingredients);
+			expect(withFlour.yeastPercent).toBe(withoutFlour.yeastPercent);
+			expect(withFlour.mode).toBe(withoutFlour.mode);
+			expect(withFlour.steps).toEqual(withoutFlour.steps);
+		}
+	});
+});
+
+describe('computeSchedule — night guard holds across the window slider', () => {
+	// The schedule's fermentation-window slider only rewrites startAt, so every
+	// value it can produce has to keep the night-window contract: no baker
+	// action inside [22:00, 08:00) unless the schedule admits defeat with a
+	// 'night-step' warning. Sweeping the slider's whole range at its own 15-min
+	// step, against a readyBy at every hour of the day, is the regression net.
+	it('never hides an unflagged night action at any slider position', () => {
+		for (let readyHour = 0; readyHour < 24; readyHour++) {
+			for (let hours = 3; hours <= 96; hours += 0.25) {
+				const readyBy = new Date(2026, 4, 20, readyHour, 0, 0, 0);
+				const r = computeSchedule(
+					baseInputs({
+						readyBy,
+						startAt: new Date(readyBy.getTime() - hours * 3_600_000),
+						flourW: 265
+					})
+				);
+				const nightSteps = r.steps.filter(
+					(s) => ACTIVE_NIGHT_KINDS.has(s.kind) && !inDayWindow(s.at)
+				);
+				if (nightSteps.length > 0) {
+					expect(r.warnings).toContain('night-step');
+				}
+			}
+		}
+	});
+});

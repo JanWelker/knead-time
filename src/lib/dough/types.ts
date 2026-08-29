@@ -44,6 +44,12 @@ export interface DoughInputs {
 	preFermentTempC: number | null;
 	ballProof: BallProof;
 	mixingMethod: MixingMethod;
+	// Chopin alveograph strength of the flour. null = not stated (every
+	// pre-v6 share-link), which switches the tolerance check off entirely.
+	// Advisory only: W predicts how long the gluten survives fermenting, not
+	// how much water it takes, so it never enters the ingredient math or the
+	// yeast solve — it only bounds the sensible window (issue #260).
+	flourW: number | null;
 	// Rest flour and water before salt and yeast go in — a short passive
 	// gluten-development phase. Applies only when no pre-ferment is used (a
 	// biga/poolish already gives the flour an extended hydrating rest); the
@@ -134,4 +140,14 @@ export interface ComputedSchedule {
 }
 
 export type ScheduleWarning =
-	'too-short' | 'too-cold' | 'too-warm' | 'yeast-tiny' | 'yeast-large' | 'night-step';
+	| 'too-short'
+	| 'too-cold'
+	| 'too-warm'
+	| 'yeast-tiny'
+	| 'yeast-large'
+	| 'night-step'
+	// The window sits outside what the stated flour strength tolerates.
+	// 'long' is the one that spoils dough (gluten breaks down); 'short' just
+	// means the flour is stronger than this bake needs.
+	| 'flour-window-short'
+	| 'flour-window-long';

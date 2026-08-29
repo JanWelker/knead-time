@@ -11,7 +11,9 @@
 		'too-warm': 'too_warm',
 		'yeast-tiny': 'yeast_tiny',
 		'yeast-large': 'yeast_large',
-		'night-step': 'night_step'
+		'night-step': 'night_step',
+		'flour-window-short': 'flour_window_short',
+		'flour-window-long': 'flour_window_long'
 	};
 
 	const SEVERITY: Record<ScheduleWarning, 'danger' | 'info'> = {
@@ -20,7 +22,11 @@
 		'too-warm': 'info',
 		'yeast-tiny': 'info',
 		'yeast-large': 'info',
-		'night-step': 'danger'
+		'night-step': 'danger',
+		// Advisory, not a spoiled dough: 'long' risks gluten breakdown but the
+		// tolerance table is a broad reference, and 'short' only wastes flour.
+		'flour-window-short': 'info',
+		'flour-window-long': 'info'
 	};
 </script>
 

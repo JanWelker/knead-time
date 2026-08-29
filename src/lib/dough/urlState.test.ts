@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
 	decodeInputs,
+	decodeStoredRecipe,
 	decodeUiMode,
 	encodeInputs,
 	hasRecipeParams,
@@ -23,6 +24,7 @@ const base: SerializableInputs = {
 	preFermentTempC: null,
 	ballProof: 'room',
 	mixingMethod: 'spiral',
+	flourW: null,
 	autolyse: true,
 	preFerments: []
 };
@@ -292,7 +294,7 @@ describe('legacy encoder-produced links keep their exact meaning', () => {
 
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=5');
+		expect(encodeInputs(base)).toContain('v=6');
 	});
 
 	it('decodes legacy links that predate the v parameter as v1', () => {
@@ -470,6 +472,7 @@ describe('hasRecipeParams', () => {
 				'bp',
 				'mm',
 				'al',
+				'fw',
 				'p'
 			].sort()
 		);
@@ -516,5 +519,86 @@ describe('autolyse (al)', () => {
 	it('round-trips the opt-out; the default recipe decodes to undefined (form default on)', () => {
 		expect(decodeInputs(encodeInputs({ ...base, autolyse: false })).autolyse).toBe(false);
 		expect(decodeInputs(encodeInputs({ ...base, autolyse: true })).autolyse).toBeUndefined();
+	});
+});
+
+describe('urlState — flour strength (fw, v=6)', () => {
+	it('omits fw for the default flour', () => {
+		expect(encodeInputs({ ...base, flourW: 265 })).not.toContain('fw=');
+	});
+
+	it('stamps fw=0 for "no flour stated"', () => {
+		expect(encodeInputs({ ...base, flourW: null })).toContain('fw=0');
+	});
+
+	it('stamps the number for any other strength', () => {
+		expect(encodeInputs({ ...base, flourW: 310 })).toContain('fw=310');
+	});
+
+	it('round-trips every non-default strength', () => {
+		for (const w of [180, 310, 342]) {
+			expect(decodeInputs(`?${encodeInputs({ ...base, flourW: w })}`).flourW).toBe(w);
+		}
+		expect(decodeInputs(`?${encodeInputs({ ...base, flourW: null })}`).flourW).toBeNull();
+	});
+
+	it('round-trips the default flour through omission', () => {
+		// The default is omitted from the URL and left undefined by the decoder,
+		// so FormState's own default supplies it — the same trick 'al' uses.
+		const encoded = encodeInputs({ ...base, flourW: 265 });
+		expect(decodeInputs(`?${encoded}`).flourW).toBeUndefined();
+	});
+
+	it('clamps a hand-crafted out-of-band strength', () => {
+		expect(decodeInputs('?v=6&fw=9000').flourW).toBe(400);
+		expect(decodeInputs('?v=6&fw=1').flourW).toBe(150);
+	});
+
+	it('leaves flourW undefined on a v=6 link with no fw, so the default fills in', () => {
+		expect(decodeInputs('?v=6&r=2026-05-12T19:00:00.000Z&n=4').flourW).toBeUndefined();
+	});
+
+	it('decodes pre-v6 links as "no flour stated"', () => {
+		// Every link shared before v6 predates the field — it must not
+		// retroactively claim a flour it was never made with.
+		for (const v of ['', 'v=1&', 'v=2&', 'v=3&', 'v=4&', 'v=5&']) {
+			expect(decodeInputs(`?${v}r=2026-05-12T19:00:00.000Z&n=4`).flourW).toBeNull();
+		}
+	});
+
+	it('still honours an explicit fw on a pre-v6 link', () => {
+		// Hand-written links are allowed to opt in early; the version gate only
+		// supplies the default when the key is absent.
+		expect(decodeInputs('?v=4&fw=310').flourW).toBe(310);
+	});
+});
+
+describe('decodeStoredRecipe', () => {
+	it('matches decodeInputs for everything but the flour gate', () => {
+		const q = encodeInputs({ ...base, flourW: 310, hydration: 65 });
+		expect(decodeStoredRecipe(q)).toEqual(decodeInputs(q));
+	});
+
+	it('lets the default flour fill in when the stored recipe predates the field', () => {
+		// A v=5 memory is this device's own last recipe, not a stranger's link —
+		// pinning it to "no flour" forever would hide the feature from every
+		// returning user.
+		const stored = 'v=5&r=2026-05-12T19:00:00.000Z&n=4&al=0';
+		expect(decodeInputs(stored).flourW).toBeNull();
+		expect(decodeStoredRecipe(stored).flourW).toBeUndefined();
+		expect('flourW' in decodeStoredRecipe(stored)).toBe(false);
+	});
+
+	it('still honours an explicit "no flour" choice', () => {
+		expect(decodeStoredRecipe('v=6&fw=0&n=4').flourW).toBeNull();
+	});
+
+	it('honours a stored strength', () => {
+		expect(decodeStoredRecipe('v=6&fw=310&n=4').flourW).toBe(310);
+	});
+
+	it('accepts a query with or without the leading "?"', () => {
+		expect(decodeStoredRecipe('?v=6&fw=310&n=4')).toEqual(decodeStoredRecipe('v=6&fw=310&n=4'));
+		expect(decodeStoredRecipe('?v=5&n=4').flourW).toBeUndefined();
 	});
 });
