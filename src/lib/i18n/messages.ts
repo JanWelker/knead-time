@@ -181,6 +181,7 @@ export interface Messages {
 		window_out_of_band: string;
 		window_no_band: string;
 		window_no_flour: string;
+		window_started_ago: string;
 		window_benefit_short: string;
 		window_benefit_medium: string;
 		window_benefit_long: string;
@@ -585,6 +586,8 @@ const en: Messages = {
 		window_out_of_band: 'Outside what this flour tolerates',
 		window_no_band: 'This flour is too weak for a cold ferment.',
 		window_no_flour: 'Pick a flour to see its fermentation tolerance.',
+		window_started_ago:
+			'This window started {ago} ago — move the bake time later, or pick a shorter window.',
 		window_benefit_short:
 			'Under 12 hours the yeast is mostly making gas. Give the dough longer and the flour’s own enzymes get time to work: starch breaks down into sugar, and the gluten relaxes.',
 		window_benefit_medium:
@@ -1007,6 +1010,8 @@ const de: Messages = {
 		window_out_of_band: 'Außerhalb dieser Mehlstärke',
 		window_no_band: 'Dieses Mehl ist zu schwach für eine Kühlgare.',
 		window_no_flour: 'Wähle ein Mehl, um seine Garetoleranz zu sehen.',
+		window_started_ago:
+			'Dieses Fenster hat vor {ago} begonnen — verschiebe die Backzeit nach hinten oder wähle ein kürzeres Fenster.',
 		window_benefit_short:
 			'Unter 12 Stunden erzeugt die Hefe vor allem Gas. Mit mehr Zeit kommen die Enzyme des Mehls zum Zug: Stärke wird zu Zucker abgebaut, und das Klebergerüst entspannt sich.',
 		window_benefit_medium:
@@ -1435,6 +1440,8 @@ const it: Messages = {
 		window_out_of_band: 'Oltre la tolleranza di questa farina',
 		window_no_band: 'Questa farina è troppo debole per una lievitazione in frigo.',
 		window_no_flour: 'Scegli una farina per vederne la tolleranza.',
+		window_started_ago:
+			'Questa finestra è iniziata {ago} fa — sposta più tardi l’orario di cottura o scegli una finestra più breve.',
 		window_benefit_short:
 			'Sotto le 12 ore il lievito produce soprattutto gas. Dando più tempo all’impasto entrano in gioco gli enzimi della farina: l’amido si scompone in zuccheri e la maglia glutinica si rilassa.',
 		window_benefit_medium:
@@ -1868,6 +1875,8 @@ const fr: Messages = {
 		window_out_of_band: 'Hors de la tolérance de cette farine',
 		window_no_band: 'Cette farine est trop faible pour une fermentation au froid.',
 		window_no_flour: 'Choisis une farine pour voir sa tolérance.',
+		window_started_ago:
+			'Cette fenêtre a commencé il y a {ago} — décale l’heure de cuisson ou choisis une fenêtre plus courte.',
 		window_benefit_short:
 			'En dessous de 12 heures, la levure produit surtout du gaz. Laisse plus de temps à la pâte et les enzymes de la farine entrent en jeu : l’amidon se transforme en sucre et le gluten se détend.',
 		window_benefit_medium:
@@ -2299,6 +2308,8 @@ const nl: Messages = {
 		window_out_of_band: 'Buiten wat dit meel verdraagt',
 		window_no_band: 'Dit meel is te zwak voor een koude rijs.',
 		window_no_flour: 'Kies een meel om de rijstolerantie te zien.',
+		window_started_ago:
+			'Dit venster begon {ago} geleden — verschuif de baktijd naar later of kies een korter venster.',
 		window_benefit_short:
 			'Onder de 12 uur maakt de gist vooral gas. Geef het deeg meer tijd en de enzymen van het meel komen aan bod: zetmeel wordt afgebroken tot suiker en het gluten ontspant.',
 		window_benefit_medium:

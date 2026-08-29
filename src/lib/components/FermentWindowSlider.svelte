@@ -9,10 +9,14 @@
 	} from '$lib/dough/windowPresets';
 	import { formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { interpolate } from '$lib/i18n/interpolate';
+	import { onMount } from 'svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import type { ScheduleVerbosity } from '$lib/storedVerbosity';
 
-	let { state, verbosity }: { state: FormState; verbosity: ScheduleVerbosity } = $props();
+	// Named `form`, not `state`: a local binding called `state` makes Svelte
+	// read the `$state` rune below as a store subscription.
+	let { form, verbosity }: { form: FormState; verbosity: ScheduleVerbosity } = $props();
 
 	const t = $derived(i18n.t);
 
@@ -22,16 +26,35 @@
 	// windowAxisPercent maps hours onto that same index rail, which is what
 	// keeps the tolerance zones and tick labels aligned with the thumb.
 	const zones = $derived(
-		state.flourW === null ? null : flourZones(state.flourW, COLD_MODE_THRESHOLD_MIN / 60)
+		form.flourW === null ? null : flourZones(form.flourW, COLD_MODE_THRESHOLD_MIN / 60)
 	);
 
-	const windowHours = $derived(state.fermentWindowHours);
+	// Same minute tick as the schedule table, so an open tab notices when the
+	// window slips into the past rather than holding its mount value.
+	let now = $state(new Date());
+	onMount(() => {
+		const id = setInterval(() => (now = new Date()), 60_000);
+		return () => clearInterval(id);
+	});
+
+	// Fires once the opening step is wholly behind us — the same test the table
+	// used to grey steps with, so the card now states what the fade only hinted.
+	// A step still running is not "missed", which also stops a freshly loaded
+	// page from accusing the baker of being late the moment a minute passes.
+	const startedAgoMin = $derived.by(() => {
+		const first = form.schedule.steps[0];
+		const ended = first.at.getTime() + first.durationMinutes * 60_000;
+		if (ended >= now.getTime()) return null;
+		return (now.getTime() - first.at.getTime()) / 60_000;
+	});
+
+	const windowHours = $derived(form.fermentWindowHours);
 	// A window set from the date fields need not be on a stop; the thumb shows
 	// the nearest one while the readout above keeps the true duration.
 	const sliderIndex = $derived(nearestWindowStopIndex(windowHours));
 
 	const band = $derived(
-		state.schedule.mode === 'cold' ? (zones?.cold ?? null) : (zones?.room ?? null)
+		form.schedule.mode === 'cold' ? (zones?.cold ?? null) : (zones?.room ?? null)
 	);
 	const inBand = $derived(band !== null && windowHours >= band.min && windowHours <= band.max);
 
@@ -115,7 +138,7 @@
 			max={WINDOW_STOPS.length - 1}
 			step="1"
 			value={sliderIndex}
-			oninput={(e) => (state.fermentWindowHours = WINDOW_STOPS[e.currentTarget.valueAsNumber])}
+			oninput={(e) => (form.fermentWindowHours = WINDOW_STOPS[e.currentTarget.valueAsNumber])}
 			class="absolute inset-0 w-full cursor-pointer appearance-none bg-transparent"
 			aria-label={t.schedule.window_label}
 			aria-valuetext={formatWindow(windowHours)}
@@ -137,12 +160,20 @@
 			<span class="whitespace-nowrap">
 				({formatBandEdge(band.min)} – {formatBandEdge(band.max)})
 			</span>
-		{:else if state.flourW !== null}
+		{:else if form.flourW !== null}
 			{t.schedule.window_no_band}
 		{:else}
 			{t.schedule.window_no_flour}
 		{/if}
 	</p>
+
+	{#if startedAgoMin !== null}
+		<p class="text-tomato-700 dark:text-tomato-300 mt-2 text-xs font-medium">
+			{interpolate(t.schedule.window_started_ago, {
+				ago: formatDuration(startedAgoMin, i18n.locale)
+			})}
+		</p>
+	{/if}
 
 	{#if verbosity === 'descriptive'}
 		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>

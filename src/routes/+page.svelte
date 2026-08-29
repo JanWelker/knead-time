@@ -367,7 +367,7 @@
 			</div>
 
 			<div class="mt-4">
-				<FermentWindowSlider state={form} verbosity={scheduleVerbosity.current} />
+				<FermentWindowSlider {form} verbosity={scheduleVerbosity.current} />
 			</div>
 
 			<Warnings warnings={form.schedule.warnings} />
