@@ -59,6 +59,20 @@
 	// so the rail shows exactly where the deadline falls.
 	const unreachableFromPct = $derived(windowAxisPercent(hoursUntilBake));
 
+	// The bake flag is centred on the deadline, except near the ends where a
+	// centred label would hang off the rail — there it pivots to sit inside,
+	// with the arrow itself staying on the exact spot either way.
+	const markerAnchor = $derived(
+		unreachableFromPct < 12 ? 'start' : unreachableFromPct > 88 ? 'end' : 'center'
+	);
+	const markerShift = $derived(
+		markerAnchor === 'start'
+			? 'translateX(0)'
+			: markerAnchor === 'end'
+				? 'translateX(-100%)'
+				: 'translateX(-50%)'
+	);
+
 	const windowHours = $derived(form.fermentWindowHours);
 	// A window set from the date fields need not be on a stop; the thumb shows
 	// the nearest one while the readout above keeps the true duration.
@@ -110,13 +124,43 @@
 
 	<!-- The bake time anchors everything here: the window is measured back from
 	     it, and it is where the rail's greyed-out stretch begins. Reuses the
-	     form's own label so the two can never word it differently. -->
-	<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-		{t.form.readyBy}:
-		<span class="font-medium text-stone-700 dark:text-stone-200">
-			{formatDateTime(form.readyBy, i18n.locale)}
-		</span>
-	</p>
+	     form's own label so the two can never word it differently. When the
+	     deadline lands inside the rail it becomes a flag pointing at the spot;
+	     with the bake days off there is nothing to point at, so it falls back
+	     to a plain line. -->
+	{#if unreachableFromPct < 100}
+		<div class="relative mt-2 h-9" aria-hidden="true">
+			<div
+				class="absolute bottom-0 flex flex-col {markerAnchor === 'start'
+					? 'items-start'
+					: markerAnchor === 'end'
+						? 'items-end'
+						: 'items-center'}"
+				style="left:{unreachableFromPct}%;transform:{markerShift}"
+			>
+				<span
+					class="text-tomato-700 dark:text-tomato-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
+				>
+					{t.form.readyBy}
+				</span>
+				<span
+					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
+				>
+					{formatDateTime(form.readyBy, i18n.locale)}
+				</span>
+				<svg class="fill-tomato-500 mt-0.5" width="9" height="6" viewBox="0 0 10 6">
+					<path d="M5 6 0 0h10z" />
+				</svg>
+			</div>
+		</div>
+	{:else}
+		<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+			{t.form.readyBy}:
+			<span class="font-medium text-stone-700 dark:text-stone-200">
+				{formatDateTime(form.readyBy, i18n.locale)}
+			</span>
+		</p>
+	{/if}
 
 	<div class="relative mt-3 h-6">
 		<!-- Rail + the flour's tolerance zones behind the thumb. aria-hidden:
@@ -162,7 +206,7 @@
 				     have had to start before now. Drawn last so it stays visible
 				     on top of the grey. -->
 				<div
-					class="bg-tomato-500 absolute inset-y-0 w-0.5 -translate-x-1/2"
+					class="bg-tomato-500 absolute inset-y-0 w-[3px] -translate-x-1/2 rounded-full"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
