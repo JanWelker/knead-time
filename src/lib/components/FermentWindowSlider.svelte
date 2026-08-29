@@ -4,6 +4,7 @@
 	import {
 		fermentationBenefitTier,
 		nearestWindowStopIndex,
+		reachableStopIndex,
 		WINDOW_STOPS,
 		windowAxisPercent
 	} from '$lib/dough/windowPresets';
@@ -47,6 +48,16 @@
 		if (ended >= now.getTime()) return null;
 		return (now.getTime() - first.at.getTime()) / 60_000;
 	});
+
+	// Fermentation is measured back from "ready to bake", so the time still
+	// left before it is a hard ceiling: a longer window would have had to start
+	// before now. Stops past it are greyed and refused rather than offered as a
+	// plan that is already lost.
+	const hoursUntilBake = $derived((form.readyBy.getTime() - now.getTime()) / 3_600_000);
+	const reachableIndex = $derived(reachableStopIndex(hoursUntilBake));
+	// Grey starts at the true remaining time, not at the last reachable stop,
+	// so the rail shows exactly where the deadline falls.
+	const unreachableFromPct = $derived(windowAxisPercent(hoursUntilBake));
 
 	const windowHours = $derived(form.fermentWindowHours);
 	// A window set from the date fields need not be on a stop; the thumb shows
@@ -130,6 +141,14 @@
 					></div>
 				{/if}
 			{/each}
+			<!-- Everything past the bake deadline, drawn over the zones and
+			     notches so an unreachable stretch cannot look available. -->
+			{#if unreachableFromPct < 100}
+				<div
+					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
+					style="left:{unreachableFromPct}%"
+				></div>
+			{/if}
 		</div>
 
 		<input
@@ -138,8 +157,14 @@
 			max={WINDOW_STOPS.length - 1}
 			step="1"
 			value={sliderIndex}
-			oninput={(e) => (form.fermentWindowHours = WINDOW_STOPS[e.currentTarget.valueAsNumber])}
-			class="absolute inset-0 w-full cursor-pointer appearance-none bg-transparent"
+			disabled={reachableIndex < 0}
+			oninput={(e) =>
+				(form.fermentWindowHours =
+					WINDOW_STOPS[Math.min(e.currentTarget.valueAsNumber, reachableIndex)])}
+			class="absolute inset-0 w-full appearance-none bg-transparent disabled:cursor-not-allowed {reachableIndex <
+			0
+				? ''
+				: 'cursor-pointer'}"
 			aria-label={t.schedule.window_label}
 			aria-valuetext={formatWindow(windowHours)}
 		/>
@@ -166,6 +191,15 @@
 			{t.schedule.window_no_flour}
 		{/if}
 	</p>
+
+	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
+		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+			{interpolate(t.schedule.window_capped_by_bake, {
+				max: formatBandEdge(WINDOW_STOPS[reachableIndex]),
+				band: formatBandEdge(band.max)
+			})}
+		</p>
+	{/if}
 
 	{#if startedAgoMin !== null}
 		<p class="text-tomato-700 dark:text-tomato-300 mt-2 text-xs font-medium">

@@ -5,6 +5,7 @@ import {
 	BENEFIT_MEDIUM_FROM_H,
 	fermentationBenefitTier,
 	nearestWindowStopIndex,
+	reachableStopIndex,
 	WINDOW_STOPS,
 	windowAxisPercent
 } from './windowPresets';
@@ -123,6 +124,48 @@ describe('fermentationBenefitTier', () => {
 			const rank = order[fermentationBenefitTier(stop)];
 			expect(rank).toBeGreaterThanOrEqual(prev);
 			prev = rank;
+		}
+	});
+});
+
+describe('reachableStopIndex', () => {
+	const lastIndex = WINDOW_STOPS.length - 1;
+
+	it('returns the exact stop when the time left lands on one', () => {
+		WINDOW_STOPS.forEach((stop, i) => {
+			expect(reachableStopIndex(stop)).toBe(i);
+		});
+	});
+
+	it('rounds down between stops — never offers a window that overshoots', () => {
+		expect(WINDOW_STOPS[reachableStopIndex(23.9)]).toBe(18);
+		expect(WINDOW_STOPS[reachableStopIndex(47.5)]).toBe(36);
+		expect(WINDOW_STOPS[reachableStopIndex(71.99)]).toBe(48);
+	});
+
+	it('never returns a stop longer than the time left', () => {
+		for (let h = -5; h <= 100; h += 0.25) {
+			const i = reachableStopIndex(h);
+			if (i >= 0) expect(WINDOW_STOPS[i]).toBeLessThanOrEqual(h);
+		}
+	});
+
+	it('reports -1 when even the shortest window no longer fits', () => {
+		expect(reachableStopIndex(WINDOW_STOPS[0] - 0.01)).toBe(-1);
+		expect(reachableStopIndex(0)).toBe(-1);
+		expect(reachableStopIndex(-10)).toBe(-1);
+	});
+
+	it('caps at the last stop however far off the bake is', () => {
+		expect(reachableStopIndex(1000)).toBe(lastIndex);
+	});
+
+	it('is monotonic in the time remaining', () => {
+		let prev = -1;
+		for (let h = 0; h <= 100; h += 0.25) {
+			const i = reachableStopIndex(h);
+			expect(i).toBeGreaterThanOrEqual(prev);
+			prev = i;
 		}
 	});
 });

@@ -71,3 +71,15 @@ export function fermentationBenefitTier(hours: number): FermentationBenefitTier 
 	if (hours < BENEFIT_LONG_FROM_H) return 'medium';
 	return 'long';
 }
+
+// Largest stop that still fits between now and the bake, or -1 when even the
+// shortest one overshoots. Fermentation cannot run past "ready to bake" — the
+// bake time is the anchor and the window is measured back from it — so any
+// stop longer than the time remaining would have had to start before now. The
+// slider greys those out rather than offering a plan that is already lost.
+export function reachableStopIndex(hoursUntilBake: number): number {
+	for (let i = WINDOW_STOPS.length - 1; i >= 0; i--) {
+		if (WINDOW_STOPS[i] <= hoursUntilBake) return i;
+	}
+	return -1;
+}

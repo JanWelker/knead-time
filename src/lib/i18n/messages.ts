@@ -181,6 +181,7 @@ export interface Messages {
 		window_out_of_band: string;
 		window_no_band: string;
 		window_no_flour: string;
+		window_capped_by_bake: string;
 		window_started_ago: string;
 		window_benefit_short: string;
 		window_benefit_medium: string;
@@ -586,6 +587,8 @@ const en: Messages = {
 		window_out_of_band: 'Outside what this flour tolerates',
 		window_no_band: 'This flour is too weak for a cold ferment.',
 		window_no_flour: 'Pick a flour to see its fermentation tolerance.',
+		window_capped_by_bake:
+			'Your bake time leaves room for {max}. This flour would take up to {band} — set a later bake time to use it.',
 		window_started_ago:
 			'This window started {ago} ago — move the bake time later, or pick a shorter window.',
 		window_benefit_short:
@@ -1010,6 +1013,8 @@ const de: Messages = {
 		window_out_of_band: 'Außerhalb dieser Mehlstärke',
 		window_no_band: 'Dieses Mehl ist zu schwach für eine Kühlgare.',
 		window_no_flour: 'Wähle ein Mehl, um seine Garetoleranz zu sehen.',
+		window_capped_by_bake:
+			'Bis zur Backzeit ist Platz für {max}. Dieses Mehl verträgt bis zu {band} — wähle eine spätere Backzeit, um das auszunutzen.',
 		window_started_ago:
 			'Dieses Fenster hat vor {ago} begonnen — verschiebe die Backzeit nach hinten oder wähle ein kürzeres Fenster.',
 		window_benefit_short:
@@ -1440,6 +1445,8 @@ const it: Messages = {
 		window_out_of_band: 'Oltre la tolleranza di questa farina',
 		window_no_band: 'Questa farina è troppo debole per una lievitazione in frigo.',
 		window_no_flour: 'Scegli una farina per vederne la tolleranza.',
+		window_capped_by_bake:
+			'Fino all’ora di cottura c’è spazio per {max}. Questa farina regge fino a {band} — imposta un orario più tardi per sfruttarla.',
 		window_started_ago:
 			'Questa finestra è iniziata {ago} fa — sposta più tardi l’orario di cottura o scegli una finestra più breve.',
 		window_benefit_short:
@@ -1875,6 +1882,8 @@ const fr: Messages = {
 		window_out_of_band: 'Hors de la tolérance de cette farine',
 		window_no_band: 'Cette farine est trop faible pour une fermentation au froid.',
 		window_no_flour: 'Choisis une farine pour voir sa tolérance.',
+		window_capped_by_bake:
+			'D’ici à la cuisson, il y a de la place pour {max}. Cette farine supporte jusqu’à {band} — choisis une heure de cuisson plus tardive pour en profiter.',
 		window_started_ago:
 			'Cette fenêtre a commencé il y a {ago} — décale l’heure de cuisson ou choisis une fenêtre plus courte.',
 		window_benefit_short:
@@ -2308,6 +2317,8 @@ const nl: Messages = {
 		window_out_of_band: 'Buiten wat dit meel verdraagt',
 		window_no_band: 'Dit meel is te zwak voor een koude rijs.',
 		window_no_flour: 'Kies een meel om de rijstolerantie te zien.',
+		window_capped_by_bake:
+			'Tot de baktijd is er ruimte voor {max}. Dit meel verdraagt tot {band} — kies een latere baktijd om dat te benutten.',
 		window_started_ago:
 			'Dit venster begon {ago} geleden — verschuif de baktijd naar later of kies een korter venster.',
 		window_benefit_short:
