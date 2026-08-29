@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { COLD_MODE_THRESHOLD_MIN, ROOM_MIN_TOTAL_MIN } from './schedule';
-import { nearestWindowStopIndex, WINDOW_STOPS, windowAxisPercent } from './windowPresets';
+import {
+	BENEFIT_LONG_FROM_H,
+	BENEFIT_MEDIUM_FROM_H,
+	fermentationBenefitTier,
+	nearestWindowStopIndex,
+	WINDOW_STOPS,
+	windowAxisPercent
+} from './windowPresets';
 
 describe('WINDOW_STOPS', () => {
 	it('pins the canonical Neapolitan windows', () => {
@@ -88,6 +95,34 @@ describe('windowAxisPercent', () => {
 			expect(p).toBeGreaterThanOrEqual(0);
 			expect(p).toBeLessThanOrEqual(100);
 			prev = p;
+		}
+	});
+});
+
+describe('fermentationBenefitTier', () => {
+	it('splits at the documented thresholds', () => {
+		expect(fermentationBenefitTier(0)).toBe('short');
+		expect(fermentationBenefitTier(11.99)).toBe('short');
+		expect(fermentationBenefitTier(BENEFIT_MEDIUM_FROM_H)).toBe('medium');
+		expect(fermentationBenefitTier(35.99)).toBe('medium');
+		expect(fermentationBenefitTier(BENEFIT_LONG_FROM_H)).toBe('long');
+		expect(fermentationBenefitTier(500)).toBe('long');
+	});
+
+	it('changes tier only on a stop, never mid-drag between two', () => {
+		// Both thresholds are themselves stops, so the copy swap always lines
+		// up with a notch on the rail.
+		expect(WINDOW_STOPS).toContain(BENEFIT_MEDIUM_FROM_H);
+		expect(WINDOW_STOPS).toContain(BENEFIT_LONG_FROM_H);
+	});
+
+	it('covers every stop with a tier, and never goes backwards', () => {
+		const order = { short: 0, medium: 1, long: 2 };
+		let prev = -1;
+		for (const stop of WINDOW_STOPS) {
+			const rank = order[fermentationBenefitTier(stop)];
+			expect(rank).toBeGreaterThanOrEqual(prev);
+			prev = rank;
 		}
 	});
 });

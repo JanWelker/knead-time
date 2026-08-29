@@ -181,6 +181,9 @@ export interface Messages {
 		window_out_of_band: string;
 		window_no_band: string;
 		window_no_flour: string;
+		window_benefit_short: string;
+		window_benefit_medium: string;
+		window_benefit_long: string;
 		now: string;
 	};
 	quality: {
@@ -582,6 +585,12 @@ const en: Messages = {
 		window_out_of_band: 'Outside what this flour tolerates',
 		window_no_band: 'This flour is too weak for a cold ferment.',
 		window_no_flour: 'Pick a flour to see its fermentation tolerance.',
+		window_benefit_short:
+			'Under 12 hours the yeast is mostly making gas. Give the dough longer and the flour’s own enzymes get time to work: starch breaks down into sugar, and the gluten relaxes.',
+		window_benefit_medium:
+			'Long enough for the enzymes to matter. Starch turns into sugars that deepen the flavour and colour the crust, and the gluten relaxes so the ball opens without fighting back. Long fermentation also breaks down some of the fructans in the flour, which is why many people find this dough easier to digest.',
+		window_benefit_long:
+			'The deep-flavour end: slow ripening builds aromas a short rise never reaches, the dough handles softly, and so little yeast is needed that nothing tastes of yeast. Returns flatten from here, and the flour’s own tolerance becomes the limit — that is what the band above is watching.',
 		now: 'Now'
 	},
 	quality: {
@@ -998,6 +1007,12 @@ const de: Messages = {
 		window_out_of_band: 'Außerhalb dieser Mehlstärke',
 		window_no_band: 'Dieses Mehl ist zu schwach für eine Kühlgare.',
 		window_no_flour: 'Wähle ein Mehl, um seine Garetoleranz zu sehen.',
+		window_benefit_short:
+			'Unter 12 Stunden erzeugt die Hefe vor allem Gas. Mit mehr Zeit kommen die Enzyme des Mehls zum Zug: Stärke wird zu Zucker abgebaut, und das Klebergerüst entspannt sich.',
+		window_benefit_medium:
+			'Lang genug, dass die Enzyme etwas bewirken. Stärke wird zu Zucker, der Geschmack vertieft und die Kruste färbt, und der Teig entspannt sich, sodass sich der Ballen mühelos öffnen lässt. Lange Gare baut außerdem einen Teil der Fruktane im Mehl ab — deshalb empfinden viele diesen Teig als bekömmlicher.',
+		window_benefit_long:
+			'Das Ende mit dem meisten Geschmack: langsame Reife bildet Aromen, die eine kurze Gare nie erreicht, der Teig lässt sich weich verarbeiten, und es braucht so wenig Hefe, dass nichts nach Hefe schmeckt. Ab hier flacht der Gewinn ab, und die Mehlstärke wird zur Grenze — genau darauf achtet das Band oben.',
 		now: 'Jetzt'
 	},
 	quality: {
@@ -1420,6 +1435,12 @@ const it: Messages = {
 		window_out_of_band: 'Oltre la tolleranza di questa farina',
 		window_no_band: 'Questa farina è troppo debole per una lievitazione in frigo.',
 		window_no_flour: 'Scegli una farina per vederne la tolleranza.',
+		window_benefit_short:
+			'Sotto le 12 ore il lievito produce soprattutto gas. Dando più tempo all’impasto entrano in gioco gli enzimi della farina: l’amido si scompone in zuccheri e la maglia glutinica si rilassa.',
+		window_benefit_medium:
+			'Abbastanza lungo perché gli enzimi contino davvero. L’amido diventa zucchero, che approfondisce il gusto e colora il cornicione, e il glutine si rilassa così il panetto si stende senza opporre resistenza. La lievitazione lunga scompone anche parte dei fruttani della farina: per questo molti trovano l’impasto più digeribile.',
+		window_benefit_long:
+			'L’estremo del gusto: la maturazione lenta sviluppa aromi che una lievitazione breve non raggiunge mai, l’impasto si lavora morbido e serve così poco lievito che nulla sa di lievito. Da qui i vantaggi si appiattiscono e il limite diventa la forza della farina — è quello che sorveglia la banda qui sopra.',
 		now: 'Ora'
 	},
 	quality: {
@@ -1847,6 +1868,12 @@ const fr: Messages = {
 		window_out_of_band: 'Hors de la tolérance de cette farine',
 		window_no_band: 'Cette farine est trop faible pour une fermentation au froid.',
 		window_no_flour: 'Choisis une farine pour voir sa tolérance.',
+		window_benefit_short:
+			'En dessous de 12 heures, la levure produit surtout du gaz. Laisse plus de temps à la pâte et les enzymes de la farine entrent en jeu : l’amidon se transforme en sucre et le gluten se détend.',
+		window_benefit_medium:
+			'Assez long pour que les enzymes comptent. L’amidon devient du sucre qui approfondit le goût et colore la croûte, et le gluten se détend : le pâton s’ouvre sans résister. Une fermentation longue dégrade aussi une partie des fructanes de la farine, ce qui explique pourquoi beaucoup trouvent cette pâte plus digeste.',
+		window_benefit_long:
+			'Le bout du spectre côté goût : la maturation lente développe des arômes qu’une pousse courte n’atteint jamais, la pâte se travaille tout en souplesse, et il faut si peu de levure que rien n’a le goût de levure. Au-delà, les gains s’aplatissent et c’est la force de la farine qui devient la limite — c’est ce que surveille la bande ci-dessus.',
 		now: 'Maintenant'
 	},
 	quality: {
@@ -2272,6 +2299,12 @@ const nl: Messages = {
 		window_out_of_band: 'Buiten wat dit meel verdraagt',
 		window_no_band: 'Dit meel is te zwak voor een koude rijs.',
 		window_no_flour: 'Kies een meel om de rijstolerantie te zien.',
+		window_benefit_short:
+			'Onder de 12 uur maakt de gist vooral gas. Geef het deeg meer tijd en de enzymen van het meel komen aan bod: zetmeel wordt afgebroken tot suiker en het gluten ontspant.',
+		window_benefit_medium:
+			'Lang genoeg om de enzymen te laten meetellen. Zetmeel wordt suiker die de smaak verdiept en de korst kleurt, en het gluten ontspant zodat de bol zich moeiteloos laat openen. Lange rijs breekt ook een deel van de fructanen in het meel af — daarom vinden veel mensen dit deeg beter verteerbaar.',
+		window_benefit_long:
+			'Het uiterste eind qua smaak: langzame rijping bouwt aroma’s op die een korte rijs nooit haalt, het deeg verwerkt zacht, en er is zo weinig gist nodig dat niets naar gist smaakt. Vanaf hier vlakt de winst af en wordt de meelsterkte de grens — daar let de band hierboven op.',
 		now: 'Nu'
 	},
 	quality: {

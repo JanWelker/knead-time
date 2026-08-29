@@ -2,6 +2,7 @@
 	import { flourZones } from '$lib/dough/flour';
 	import { COLD_MODE_THRESHOLD_MIN } from '$lib/dough/schedule';
 	import {
+		fermentationBenefitTier,
 		nearestWindowStopIndex,
 		WINDOW_STOPS,
 		windowAxisPercent
@@ -9,8 +10,9 @@
 	import { formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import type { FormState } from '$lib/state.svelte';
+	import type { ScheduleVerbosity } from '$lib/storedVerbosity';
 
-	let { state }: { state: FormState } = $props();
+	let { state, verbosity }: { state: FormState; verbosity: ScheduleVerbosity } = $props();
 
 	const t = $derived(i18n.t);
 
@@ -47,6 +49,17 @@
 	// rail stays readable at phone widths. The extremes are left unlabelled —
 	// a centred label at 0 % or 100 % would hang off the rail.
 	const labelledStops = [8, 24, 48, 72];
+
+	// What the chosen window actually buys the dough. Detailed view only, and
+	// keyed off the current length so it describes THIS plan rather than
+	// stating a general truth next to a control the reader is dragging.
+	const benefit = $derived(
+		{
+			short: t.schedule.window_benefit_short,
+			medium: t.schedule.window_benefit_medium,
+			long: t.schedule.window_benefit_long
+		}[fermentationBenefitTier(windowHours)]
+	);
 </script>
 
 <div
@@ -130,6 +143,10 @@
 			{t.schedule.window_no_flour}
 		{/if}
 	</p>
+
+	{#if verbosity === 'descriptive'}
+		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
+	{/if}
 </div>
 
 <style>

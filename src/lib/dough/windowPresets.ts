@@ -49,3 +49,25 @@ export function windowAxisPercent(hours: number): number {
 	const hi = WINDOW_STOPS[i + 1];
 	return ((i + (hours - lo) / (hi - lo)) / last) * 100;
 }
+
+// Which "what a longer ferment buys you" explanation the schedule shows in
+// its detailed view. Both thresholds are themselves stops, so the copy
+// changes exactly when the thumb crosses a labelled notch rather than at some
+// invisible point in between.
+//
+//   short  — under 12 h the yeast is mostly making gas; the enzymes have had
+//            little time to do anything
+//   medium — amylase has broken enough starch into sugar to matter for taste
+//            and crust colour, and protease has relaxed the gluten
+//   long   — the deep-flavour end, where returns flatten and the flour's own
+//            tolerance becomes the binding constraint
+export const BENEFIT_MEDIUM_FROM_H = 12;
+export const BENEFIT_LONG_FROM_H = 36;
+
+export type FermentationBenefitTier = 'short' | 'medium' | 'long';
+
+export function fermentationBenefitTier(hours: number): FermentationBenefitTier {
+	if (hours < BENEFIT_MEDIUM_FROM_H) return 'short';
+	if (hours < BENEFIT_LONG_FROM_H) return 'medium';
+	return 'long';
+}
