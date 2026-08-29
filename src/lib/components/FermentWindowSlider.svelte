@@ -45,6 +45,12 @@
 	// Reuse the schedule's own localised duration formatter — the window is a
 	// duration like any other, and this keeps unit copy out of the component.
 	const formatWindow = (hours: number) => formatDuration(hours * 60, i18n.locale);
+	// Band edges are rounded to the hour. They come from interpolating a
+	// tolerance table its own authors call "a very broad and general
+	// reference", so printing "18 h 19 min" would claim a precision the
+	// number does not have. The slider's own value keeps its minutes — that
+	// one is a time the user actually picked.
+	const formatBandEdge = (hours: number) => formatWindow(Math.round(hours));
 
 	const ticks = [6, 12, 24, 48, 72];
 </script>
@@ -110,7 +116,7 @@
 		{#if band}
 			{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
 			<span class="whitespace-nowrap">
-				({formatWindow(band.min)} – {formatWindow(band.max)})
+				({formatBandEdge(band.min)} – {formatBandEdge(band.max)})
 			</span>
 		{:else if state.flourW !== null}
 			{t.schedule.window_no_band}

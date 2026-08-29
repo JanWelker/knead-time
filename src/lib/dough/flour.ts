@@ -12,12 +12,19 @@ import type { FermentMode } from './types';
 // exactly the quantity a time-anchored calculator already works in.
 
 export type FlourPresetId =
-	'supermarket-00' | 'caputo-pizzeria' | 'dallagiovanna-napoletana' | 'dallagiovanna-uniqua-blu';
+	| 'supermarket-00'
+	| 'caputo-pizzeria'
+	| 'caputo-nuvola'
+	| 'dallagiovanna-napoletana'
+	| 'dallagiovanna-uniqua-blu';
 
-// The three flours the form offers, weakest first. W values are the
+// The flours the form offers, weakest first. W values are the
 // manufacturers'/retailer's own published figures:
 //   - a generic supermarket tipo 00 is a soft everyday flour around W 180
 //   - Caputo Pizzeria (blue) is stated W 260–270, "ideal for doughs under 24 h"
+//   - Caputo Nuvola is a tipo 0 at W 260–280 (12.5 % protein), sold for
+//     high-hydration airy crusts and long fermentation; we take the top of
+//     its published range, the figure quoted with that claim
 //   - Molino Dallagiovanna La Napoletana is stated W 310, built for 24–72 h
 //   - Molino Dallagiovanna Uniqua Blu is stated W 380, a tipo 1 sold for
 //     long-fermentation pizza and focaccia (and panettone). It sits above the
@@ -30,6 +37,7 @@ export type FlourPresetId =
 export const FLOUR_PRESETS: ReadonlyArray<{ id: FlourPresetId; w: number }> = [
 	{ id: 'supermarket-00', w: 180 },
 	{ id: 'caputo-pizzeria', w: 265 },
+	{ id: 'caputo-nuvola', w: 280 },
 	{ id: 'dallagiovanna-napoletana', w: 310 },
 	{ id: 'dallagiovanna-uniqua-blu', w: 380 }
 ];

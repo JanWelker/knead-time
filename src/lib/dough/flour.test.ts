@@ -11,10 +11,11 @@ import { COLD_MODE_THRESHOLD_MIN } from './schedule';
 const COLD_THRESHOLD_H = COLD_MODE_THRESHOLD_MIN / 60;
 
 describe('FLOUR_PRESETS', () => {
-	it('pins the four shipped flours to their published W values', () => {
+	it('pins the five shipped flours to their published W values', () => {
 		expect(FLOUR_PRESETS).toEqual([
 			{ id: 'supermarket-00', w: 180 },
 			{ id: 'caputo-pizzeria', w: 265 },
+			{ id: 'caputo-nuvola', w: 280 },
 			{ id: 'dallagiovanna-napoletana', w: 310 },
 			{ id: 'dallagiovanna-uniqua-blu', w: 380 }
 		]);
@@ -107,6 +108,10 @@ describe('flourWindowHours', () => {
 		const napoletana = flourWindowHours(310, 'cold');
 		expect(napoletana.min).toBeLessThanOrEqual(24);
 		expect(napoletana.max).toBeGreaterThanOrEqual(72);
+
+		// Nuvola publishes no hours, only "holds up a long leavening time" —
+		// so all we can assert is that it outlasts the weaker Pizzeria.
+		expect(flourWindowHours(280, 'cold').max).toBeGreaterThan(caputo.max);
 	});
 });
 
@@ -125,7 +130,7 @@ describe('flourZones', () => {
 	});
 
 	it('keeps both zones for the strong flours', () => {
-		for (const w of [265, 310, 380]) {
+		for (const w of [265, 280, 310, 380]) {
 			const zones = flourZones(w, COLD_THRESHOLD_H);
 			expect(zones.room).not.toBeNull();
 			expect(zones.cold).not.toBeNull();

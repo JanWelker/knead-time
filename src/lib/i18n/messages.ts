@@ -82,6 +82,7 @@ export interface Messages {
 		flour_help: string;
 		'flour_supermarket-00': string;
 		'flour_caputo-pizzeria': string;
+		'flour_caputo-nuvola': string;
 		'flour_dallagiovanna-napoletana': string;
 		'flour_dallagiovanna-uniqua-blu': string;
 		flour_custom: string;
@@ -454,6 +455,7 @@ const en: Messages = {
 			'Strength (W) sets how long the dough tolerates fermenting — not how much water it takes.',
 		'flour_supermarket-00': 'Supermarket tipo 00',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Custom strength',
@@ -867,6 +869,7 @@ const de: Messages = {
 			'Die Stärke (W-Wert) bestimmt, wie lange der Teig die Gare verträgt — nicht, wie viel Wasser er aufnimmt.',
 		'flour_supermarket-00': 'Supermarkt-Mehl Tipo 00',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigener W-Wert',
@@ -1288,6 +1291,7 @@ const it: Messages = {
 			'La forza (W) determina quanto a lungo l’impasto regge la lievitazione — non quanta acqua assorbe.',
 		'flour_supermarket-00': 'Farina tipo 00 da supermercato',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Forza personalizzata',
@@ -1714,6 +1718,7 @@ const fr: Messages = {
 			'La force (W) détermine combien de temps la pâte supporte la fermentation — pas la quantité d’eau qu’elle absorbe.',
 		'flour_supermarket-00': 'Farine type 00 de supermarché',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Force personnalisée',
@@ -2140,6 +2145,7 @@ const nl: Messages = {
 			'De sterkte (W-waarde) bepaalt hoe lang het deeg de rijs verdraagt — niet hoeveel water het opneemt.',
 		'flour_supermarket-00': 'Supermarktmeel tipo 00',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigen W-waarde',
