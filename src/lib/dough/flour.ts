@@ -11,19 +11,27 @@ import type { FermentMode } from './types';
 // tolerates fermenting before proteolysis wrecks the gluten — which is
 // exactly the quantity a time-anchored calculator already works in.
 
-export type FlourPresetId = 'supermarket-00' | 'caputo-pizzeria' | 'dallagiovanna-napoletana';
+export type FlourPresetId =
+	'supermarket-00' | 'caputo-pizzeria' | 'dallagiovanna-napoletana' | 'dallagiovanna-uniqua-blu';
 
 // The three flours the form offers, weakest first. W values are the
 // manufacturers'/retailer's own published figures:
 //   - a generic supermarket tipo 00 is a soft everyday flour around W 180
 //   - Caputo Pizzeria (blue) is stated W 260–270, "ideal for doughs under 24 h"
 //   - Molino Dallagiovanna La Napoletana is stated W 310, built for 24–72 h
+//   - Molino Dallagiovanna Uniqua Blu is stated W 380, a tipo 1 sold for
+//     long-fermentation pizza and focaccia (and panettone). It sits above the
+//     top tolerance anchor, so it shares La Napoletana's band: the mill
+//     publishes no total-window figure for it — only a 14–16 h biga at 18 °C,
+//     which is a pre-ferment leg the schedule already handles — and inventing
+//     a longer tolerance from two anchors is exactly what the clamp avoids.
 // Names are brand names, so they are not translated; only the generic
 // supermarket entry gets a localised label.
 export const FLOUR_PRESETS: ReadonlyArray<{ id: FlourPresetId; w: number }> = [
 	{ id: 'supermarket-00', w: 180 },
 	{ id: 'caputo-pizzeria', w: 265 },
-	{ id: 'dallagiovanna-napoletana', w: 310 }
+	{ id: 'dallagiovanna-napoletana', w: 310 },
+	{ id: 'dallagiovanna-uniqua-blu', w: 380 }
 ];
 
 // Caputo Pizzeria is the default flour for a fresh visit — the workhorse

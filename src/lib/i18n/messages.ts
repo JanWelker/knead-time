@@ -83,6 +83,7 @@ export interface Messages {
 		'flour_supermarket-00': string;
 		'flour_caputo-pizzeria': string;
 		'flour_dallagiovanna-napoletana': string;
+		'flour_dallagiovanna-uniqua-blu': string;
 		flour_custom: string;
 		flour_none: string;
 		flourW: string;
@@ -422,7 +423,7 @@ const en: Messages = {
 			'No active step is allowed between 22:00 and 08:00. The cold-bulk leg only ever shrinks (never grows — the first step must stay at or after your start time) until mixing and shaping land in waking hours; if no length works, the schedule keeps the natural timing and warns instead.',
 		info_flour_title: 'Flour strength (W)',
 		info_flour_body:
-			'W is the Chopin alveograph deformation energy — how much work the gluten takes before it tears. It does NOT tell you how much water the flour absorbs: that is a separate farinograph measurement driven by protein, damaged starch and pentosans. So W never touches hydration, the ingredient masses or the yeast solve here. What it does predict is fermentation tolerance. Knead Time interpolates a good window between three anchors — W 180: 2–4 h at room temperature / 6–12 h cold; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in log-hours, because tolerance grows geometrically with W, and clamps rather than extrapolates past the edges. The upper edges are calibrated against the preset flours’ published fermentation ranges; the lower edge is deliberately generous, since using a strong flour for a short bake wastes the flour rather than spoiling the dough. Each band is clipped to its own regime (the app switches to cold above a 16 h window), so a weak flour offers no cold zone at all. A window outside the band raises a warning and costs the fit score 1.5 points per hour, capped at 12.',
+			'W is the Chopin alveograph deformation energy — how much work the gluten takes before it tears. It does NOT tell you how much water the flour absorbs: that is a separate farinograph measurement driven by protein, damaged starch and pentosans. So W never touches hydration, the ingredient masses or the yeast solve here. What it does predict is fermentation tolerance. Knead Time interpolates a good window between three anchors — W 180: 2–4 h at room temperature / 6–12 h cold; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in log-hours, because tolerance grows geometrically with W, and clamps rather than extrapolates past the edges. The upper edges are calibrated against the preset flours’ published fermentation ranges; the lower edge is deliberately generous, since using a strong flour for a short bake wastes the flour rather than spoiling the dough. Each band is clipped to its own regime (the app switches to cold above a 16 h window), so a weak flour offers no cold zone at all. A window outside the band raises a warning and costs the fit score 1.5 points per hour, capped at 12. A flour stronger than the top anchor shares its band: without a published fermentation range to anchor on, we clamp rather than invent a longer tolerance.',
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Ball weight (g)',
 		ballWeight_round: 'Round numbers',
@@ -454,6 +455,7 @@ const en: Messages = {
 		'flour_supermarket-00': 'Supermarket tipo 00',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Custom strength',
 		flour_none: 'Not specified',
 		flourW: 'Flour strength (W)',
@@ -833,7 +835,7 @@ const de: Messages = {
 			'Kein aktiver Schritt zwischen 22:00 und 08:00. Die Kühlgare schrumpft nur (sie wächst nie — der erste Schritt muss auf oder nach deiner Startzeit bleiben), bis Kneten und Formen in der Wachzeit liegen; hilft keine Länge, behält der Zeitplan die natürlichen Zeiten bei und warnt stattdessen.',
 		info_flour_title: 'Mehlstärke (W-Wert)',
 		info_flour_body:
-			'Der W-Wert ist die Verformungsenergie aus dem Chopin-Alveographen — wie viel Arbeit das Klebergerüst aushält, bevor es reißt. Er sagt NICHT, wie viel Wasser das Mehl aufnimmt: das ist eine eigene Farinograph-Messung, bestimmt von Protein, beschädigter Stärke und Pentosanen. Deshalb berührt der W-Wert hier weder die Hydration noch die Zutatenmengen noch die Hefeberechnung. Er sagt die Garetoleranz voraus. Knead Time interpoliert ein gutes Zeitfenster zwischen drei Stützpunkten — W 180: 2–4 Std bei Raumtemperatur / 6–12 Std kalt; W 265: 4–10 Std / 16–40 Std; W 310: 6–18 Std / 24–72 Std — in logarithmischen Stunden, weil die Toleranz geometrisch mit dem W-Wert wächst, und begrenzt an den Rändern statt zu extrapolieren. Die Obergrenzen sind an den veröffentlichten Garezeiten der voreingestellten Mehle kalibriert; die Untergrenze ist bewusst großzügig, denn ein starkes Mehl für eine kurze Gare verschenkt das Mehl, verdirbt aber den Teig nicht. Jedes Band wird auf seinen eigenen Bereich beschnitten (ab 16 Std Fenster schaltet die App auf kalt), ein schwaches Mehl bietet also gar keine Kühlgare an. Ein Fenster außerhalb des Bandes löst eine Warnung aus und kostet 1,5 Punkte pro Stunde, gedeckelt bei 12.',
+			'Der W-Wert ist die Verformungsenergie aus dem Chopin-Alveographen — wie viel Arbeit das Klebergerüst aushält, bevor es reißt. Er sagt NICHT, wie viel Wasser das Mehl aufnimmt: das ist eine eigene Farinograph-Messung, bestimmt von Protein, beschädigter Stärke und Pentosanen. Deshalb berührt der W-Wert hier weder die Hydration noch die Zutatenmengen noch die Hefeberechnung. Er sagt die Garetoleranz voraus. Knead Time interpoliert ein gutes Zeitfenster zwischen drei Stützpunkten — W 180: 2–4 Std bei Raumtemperatur / 6–12 Std kalt; W 265: 4–10 Std / 16–40 Std; W 310: 6–18 Std / 24–72 Std — in logarithmischen Stunden, weil die Toleranz geometrisch mit dem W-Wert wächst, und begrenzt an den Rändern statt zu extrapolieren. Die Obergrenzen sind an den veröffentlichten Garezeiten der voreingestellten Mehle kalibriert; die Untergrenze ist bewusst großzügig, denn ein starkes Mehl für eine kurze Gare verschenkt das Mehl, verdirbt aber den Teig nicht. Jedes Band wird auf seinen eigenen Bereich beschnitten (ab 16 Std Fenster schaltet die App auf kalt), ein schwaches Mehl bietet also gar keine Kühlgare an. Ein Fenster außerhalb des Bandes löst eine Warnung aus und kostet 1,5 Punkte pro Stunde, gedeckelt bei 12. Ein Mehl, das stärker ist als der oberste Stützpunkt, teilt sich dessen Band: ohne veröffentlichte Garezeit als Anhaltspunkt begrenzen wir lieber, als eine längere Toleranz zu erfinden.',
 		pizzaCount: 'Pizzen',
 		ballWeight: 'Teigling (g)',
 		ballWeight_round: 'Runde Zahlen',
@@ -866,6 +868,7 @@ const de: Messages = {
 		'flour_supermarket-00': 'Supermarkt-Mehl Tipo 00',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigener W-Wert',
 		flour_none: 'Nicht angegeben',
 		flourW: 'Mehlstärke (W-Wert)',
@@ -1254,7 +1257,7 @@ const it: Messages = {
 			'Nessun passo attivo tra le 22:00 e le 08:00. La puntata in frigo può solo accorciarsi (mai allungarsi — il primo passo deve restare all’ora di inizio o dopo) finché impasto e staglio non cadono nelle ore di veglia; se nessuna durata funziona, il programma mantiene i tempi naturali e avvisa invece.',
 		info_flour_title: 'Forza della farina (W)',
 		info_flour_body:
-			'La W è l’energia di deformazione dell’alveografo Chopin — quanto lavoro regge il glutine prima di strapparsi. NON indica quanta acqua assorbe la farina: quella è una misura separata al farinografo, determinata da proteine, amido danneggiato e pentosani. Perciò qui la W non tocca né l’idratazione, né le masse degli ingredienti, né il calcolo del lievito. Quello che predice è la tolleranza alla lievitazione. Knead Time interpola una finestra ideale fra tre punti di riferimento — W 180: 2–4 h a temperatura ambiente / 6–12 h in frigo; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in ore logaritmiche, perché la tolleranza cresce in modo geometrico con la W, e ai bordi limita invece di estrapolare. I limiti superiori sono calibrati sulle durate di lievitazione dichiarate dalle farine preimpostate; quello inferiore è volutamente generoso, perché usare una farina forte per una lievitazione breve spreca la farina ma non rovina l’impasto. Ogni banda è ritagliata sul proprio regime (sopra le 16 h l’app passa al freddo), quindi una farina debole non offre alcuna zona in frigo. Una finestra fuori banda genera un avviso e costa 1,5 punti all’ora, con un tetto di 12.',
+			'La W è l’energia di deformazione dell’alveografo Chopin — quanto lavoro regge il glutine prima di strapparsi. NON indica quanta acqua assorbe la farina: quella è una misura separata al farinografo, determinata da proteine, amido danneggiato e pentosani. Perciò qui la W non tocca né l’idratazione, né le masse degli ingredienti, né il calcolo del lievito. Quello che predice è la tolleranza alla lievitazione. Knead Time interpola una finestra ideale fra tre punti di riferimento — W 180: 2–4 h a temperatura ambiente / 6–12 h in frigo; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in ore logaritmiche, perché la tolleranza cresce in modo geometrico con la W, e ai bordi limita invece di estrapolare. I limiti superiori sono calibrati sulle durate di lievitazione dichiarate dalle farine preimpostate; quello inferiore è volutamente generoso, perché usare una farina forte per una lievitazione breve spreca la farina ma non rovina l’impasto. Ogni banda è ritagliata sul proprio regime (sopra le 16 h l’app passa al freddo), quindi una farina debole non offre alcuna zona in frigo. Una finestra fuori banda genera un avviso e costa 1,5 punti all’ora, con un tetto di 12. Una farina più forte del punto di riferimento più alto ne condivide la banda: senza una durata di lievitazione pubblicata su cui ancorarsi, preferiamo limitare piuttosto che inventare una tolleranza più lunga.',
 		pizzaCount: 'Pizze',
 		ballWeight: 'Panetto (g)',
 		ballWeight_round: 'Arrotonda',
@@ -1286,6 +1289,7 @@ const it: Messages = {
 		'flour_supermarket-00': 'Farina tipo 00 da supermercato',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Forza personalizzata',
 		flour_none: 'Non specificata',
 		flourW: 'Forza della farina (W)',
@@ -1676,7 +1680,7 @@ const fr: Messages = {
 			"Aucune étape active n'est autorisée entre 22:00 et 08:00. La phase au frigo ne fait que raccourcir (jamais s'allonger — la première étape doit rester à votre heure de départ ou après) jusqu'à ce que pétrissage et façonnage tombent aux heures d'éveil ; si aucune durée ne convient, le programme garde les temps naturels et avertit à la place.",
 		info_flour_title: 'Force de la farine (W)',
 		info_flour_body:
-			'Le W est l’énergie de déformation mesurée à l’alvéographe Chopin — le travail que le gluten encaisse avant de se déchirer. Il n’indique PAS la quantité d’eau que la farine absorbe : c’est une mesure distincte, au farinographe, qui dépend des protéines, de l’amidon endommagé et des pentosanes. Le W ne touche donc ici ni l’hydratation, ni les masses d’ingrédients, ni le calcul de la levure. Ce qu’il prédit, c’est la tolérance à la fermentation. Knead Time interpole une bonne fenêtre entre trois points de référence — W 180 : 2–4 h à température ambiante / 6–12 h au froid ; W 265 : 4–10 h / 16–40 h ; W 310 : 6–18 h / 24–72 h — en heures logarithmiques, car la tolérance croît géométriquement avec le W, et borne au lieu d’extrapoler aux extrémités. Les bornes hautes sont calibrées sur les durées de fermentation publiées des farines proposées ; la borne basse est volontairement généreuse, car utiliser une farine forte pour une fermentation courte gaspille la farine sans abîmer la pâte. Chaque bande est découpée sur son propre régime (au-delà de 16 h, l’app passe au froid), une farine faible n’offre donc aucune zone au froid. Une fenêtre hors bande déclenche un avertissement et coûte 1,5 point par heure, plafonné à 12.',
+			'Le W est l’énergie de déformation mesurée à l’alvéographe Chopin — le travail que le gluten encaisse avant de se déchirer. Il n’indique PAS la quantité d’eau que la farine absorbe : c’est une mesure distincte, au farinographe, qui dépend des protéines, de l’amidon endommagé et des pentosanes. Le W ne touche donc ici ni l’hydratation, ni les masses d’ingrédients, ni le calcul de la levure. Ce qu’il prédit, c’est la tolérance à la fermentation. Knead Time interpole une bonne fenêtre entre trois points de référence — W 180 : 2–4 h à température ambiante / 6–12 h au froid ; W 265 : 4–10 h / 16–40 h ; W 310 : 6–18 h / 24–72 h — en heures logarithmiques, car la tolérance croît géométriquement avec le W, et borne au lieu d’extrapoler aux extrémités. Les bornes hautes sont calibrées sur les durées de fermentation publiées des farines proposées ; la borne basse est volontairement généreuse, car utiliser une farine forte pour une fermentation courte gaspille la farine sans abîmer la pâte. Chaque bande est découpée sur son propre régime (au-delà de 16 h, l’app passe au froid), une farine faible n’offre donc aucune zone au froid. Une fenêtre hors bande déclenche un avertissement et coûte 1,5 point par heure, plafonné à 12. Une farine plus forte que le point de référence le plus haut partage sa bande : faute d’une durée de fermentation publiée sur laquelle s’appuyer, nous bornons plutôt que d’inventer une tolérance plus longue.',
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Pâton (g)',
 		ballWeight_round: 'Arrondir',
@@ -1711,6 +1715,7 @@ const fr: Messages = {
 		'flour_supermarket-00': 'Farine type 00 de supermarché',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Force personnalisée',
 		flour_none: 'Non précisée',
 		flourW: 'Force de la farine (W)',
@@ -2103,7 +2108,7 @@ const nl: Messages = {
 			'Geen actieve stap toegestaan tussen 22:00 en 08:00. De koelfase krimpt alleen (groeit nooit — de eerste stap moet op of na je starttijd blijven) tot kneden en vormen in de wakkere uren vallen; werkt geen enkele lengte, dan houdt het schema de natuurlijke timing aan en waarschuwt in plaats daarvan.',
 		info_flour_title: 'Sterkte van het meel (W-waarde)',
 		info_flour_body:
-			'De W-waarde is de vervormingsenergie uit de Chopin-alveograaf — hoeveel arbeid het gluten verdraagt voordat het scheurt. Hij zegt NIET hoeveel water het meel opneemt: dat is een aparte farinograafmeting, bepaald door eiwit, beschadigd zetmeel en pentosanen. Daarom raakt de W-waarde hier niet aan de hydratatie, de ingrediëntmassa’s of de gistberekening. Wat hij wel voorspelt is de rijstolerantie. Knead Time interpoleert een goed venster tussen drie ankerpunten — W 180: 2–4 u op kamertemperatuur / 6–12 u koud; W 265: 4–10 u / 16–40 u; W 310: 6–18 u / 24–72 u — in logaritmische uren, omdat de tolerantie geometrisch met de W-waarde groeit, en begrenst aan de randen in plaats van te extrapoleren. De bovengrenzen zijn geijkt op de gepubliceerde rijstijden van de voorgestelde melen; de ondergrens is bewust ruim, want sterk meel voor een korte rijs verspilt het meel maar bederft het deeg niet. Elke band wordt op zijn eigen regime bijgesneden (boven een venster van 16 u schakelt de app naar koud), dus zwak meel biedt helemaal geen koude zone. Een venster buiten de band geeft een waarschuwing en kost 1,5 punt per uur, met een maximum van 12.',
+			'De W-waarde is de vervormingsenergie uit de Chopin-alveograaf — hoeveel arbeid het gluten verdraagt voordat het scheurt. Hij zegt NIET hoeveel water het meel opneemt: dat is een aparte farinograafmeting, bepaald door eiwit, beschadigd zetmeel en pentosanen. Daarom raakt de W-waarde hier niet aan de hydratatie, de ingrediëntmassa’s of de gistberekening. Wat hij wel voorspelt is de rijstolerantie. Knead Time interpoleert een goed venster tussen drie ankerpunten — W 180: 2–4 u op kamertemperatuur / 6–12 u koud; W 265: 4–10 u / 16–40 u; W 310: 6–18 u / 24–72 u — in logaritmische uren, omdat de tolerantie geometrisch met de W-waarde groeit, en begrenst aan de randen in plaats van te extrapoleren. De bovengrenzen zijn geijkt op de gepubliceerde rijstijden van de voorgestelde melen; de ondergrens is bewust ruim, want sterk meel voor een korte rijs verspilt het meel maar bederft het deeg niet. Elke band wordt op zijn eigen regime bijgesneden (boven een venster van 16 u schakelt de app naar koud), dus zwak meel biedt helemaal geen koude zone. Een venster buiten de band geeft een waarschuwing en kost 1,5 punt per uur, met een maximum van 12. Een meel dat sterker is dan het hoogste ankerpunt deelt diens band: zonder een gepubliceerde rijstijd om op te ankeren begrenzen we liever dan een langere tolerantie te verzinnen.',
 		pizzaCount: "Pizza's",
 		ballWeight: 'Bolletje (g)',
 		ballWeight_round: 'Ronde getallen',
@@ -2136,6 +2141,7 @@ const nl: Messages = {
 		'flour_supermarket-00': 'Supermarktmeel tipo 00',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigen W-waarde',
 		flour_none: 'Niet opgegeven',
 		flourW: 'Sterkte van het meel (W-waarde)',

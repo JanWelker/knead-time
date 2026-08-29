@@ -11,11 +11,12 @@ import { COLD_MODE_THRESHOLD_MIN } from './schedule';
 const COLD_THRESHOLD_H = COLD_MODE_THRESHOLD_MIN / 60;
 
 describe('FLOUR_PRESETS', () => {
-	it('pins the three shipped flours to their published W values', () => {
+	it('pins the four shipped flours to their published W values', () => {
 		expect(FLOUR_PRESETS).toEqual([
 			{ id: 'supermarket-00', w: 180 },
 			{ id: 'caputo-pizzeria', w: 265 },
-			{ id: 'dallagiovanna-napoletana', w: 310 }
+			{ id: 'dallagiovanna-napoletana', w: 310 },
+			{ id: 'dallagiovanna-uniqua-blu', w: 380 }
 		]);
 	});
 
@@ -40,6 +41,13 @@ describe('flourPresetForW', () => {
 	it('returns null for a hand-typed strength no preset matches', () => {
 		expect(flourPresetForW(266)).toBeNull();
 		expect(flourPresetForW(400)).toBeNull();
+	});
+
+	it('gives the above-anchor preset the top anchor band, not an invented one', () => {
+		// Uniqua Blu is W 380 with no published total-window figure, so it
+		// clamps onto La Napoletana's band rather than extrapolating past it.
+		expect(flourWindowHours(380, 'cold')).toEqual(flourWindowHours(310, 'cold'));
+		expect(flourWindowHours(380, 'room')).toEqual(flourWindowHours(310, 'room'));
 	});
 });
 
@@ -117,7 +125,7 @@ describe('flourZones', () => {
 	});
 
 	it('keeps both zones for the strong flours', () => {
-		for (const w of [265, 310]) {
+		for (const w of [265, 310, 380]) {
 			const zones = flourZones(w, COLD_THRESHOLD_H);
 			expect(zones.room).not.toBeNull();
 			expect(zones.cold).not.toBeNull();
