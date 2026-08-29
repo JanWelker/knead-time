@@ -8,7 +8,7 @@
 		WINDOW_STOPS,
 		windowAxisPercent
 	} from '$lib/dough/windowPresets';
-	import { formatDuration } from '$lib/format';
+	import { formatDateTime, formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { onMount } from 'svelte';
@@ -108,6 +108,16 @@
 		</span>
 	</div>
 
+	<!-- The bake time anchors everything here: the window is measured back from
+	     it, and it is where the rail's greyed-out stretch begins. Reuses the
+	     form's own label so the two can never word it differently. -->
+	<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+		{t.form.readyBy}:
+		<span class="font-medium text-stone-700 dark:text-stone-200">
+			{formatDateTime(form.readyBy, i18n.locale)}
+		</span>
+	</p>
+
 	<div class="relative mt-3 h-6">
 		<!-- Rail + the flour's tolerance zones behind the thumb. aria-hidden:
 		     the range input below carries the accessible value and description. -->
@@ -146,6 +156,13 @@
 			{#if unreachableFromPct < 100}
 				<div
 					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
+					style="left:{unreachableFromPct}%"
+				></div>
+				<!-- The bake deadline itself: everything right of this line would
+				     have had to start before now. Drawn last so it stays visible
+				     on top of the grey. -->
+				<div
+					class="bg-tomato-500 absolute inset-y-0 w-0.5 -translate-x-1/2"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
