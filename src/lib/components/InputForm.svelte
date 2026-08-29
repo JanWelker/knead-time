@@ -133,6 +133,41 @@
 			</span>
 		</label>
 
+		<!-- Flour sits with the mixing method, not down in the expert fields:
+		     which flour is in the cupboard is something every baker knows, and
+		     it decides the fermentation band the schedule paints. The W number
+		     behind it stays expert-only — the presets already carry it. -->
+		<label class="block">
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.flour}
+			</span>
+			<select
+				class={selectClass}
+				value={flourChoice}
+				onchange={(e) => setFlourChoice(e.currentTarget.value)}
+			>
+				{#each FLOUR_PRESETS as preset (preset.id)}
+					<option value={preset.id}>{t.form[`flour_${preset.id}`]} (W {preset.w})</option>
+				{/each}
+				<option value="custom">{t.form.flour_custom}</option>
+				<option value="none">{t.form.flour_none}</option>
+			</select>
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.flour_help}
+			</span>
+		</label>
+
+		{#if uiMode.current === 'expert' && state.flourW !== null}
+			<FormField
+				label={t.form.flourW}
+				min={150}
+				max={400}
+				step={5}
+				help={t.form.flourW_help}
+				bind:value={state.flourW}
+			/>
+		{/if}
+
 		{#if uiMode.current === 'expert'}
 			<FormField
 				label={t.form.ballWeight}
@@ -170,37 +205,6 @@
 				help={t.form.sugar_help}
 				bind:value={state.sugarPercent}
 			/>
-
-			<label class="block">
-				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-					{t.form.flour}
-				</span>
-				<select
-					class={selectClass}
-					value={flourChoice}
-					onchange={(e) => setFlourChoice(e.currentTarget.value)}
-				>
-					{#each FLOUR_PRESETS as preset (preset.id)}
-						<option value={preset.id}>{t.form[`flour_${preset.id}`]} (W {preset.w})</option>
-					{/each}
-					<option value="custom">{t.form.flour_custom}</option>
-					<option value="none">{t.form.flour_none}</option>
-				</select>
-				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-					{t.form.flour_help}
-				</span>
-			</label>
-
-			{#if state.flourW !== null}
-				<FormField
-					label={t.form.flourW}
-					min={150}
-					max={400}
-					step={5}
-					help={t.form.flourW_help}
-					bind:value={state.flourW}
-				/>
-			{/if}
 
 			<FormField
 				label={t.form.roomTemp}

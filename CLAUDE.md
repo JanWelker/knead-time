@@ -37,7 +37,7 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 ### Beginner / expert view mode
 
 - `UiMode = 'beginner' | 'expert'` (`src/lib/storedMode.ts` pure helpers + `src/lib/mode.svelte.ts` runtime singleton). **UI-level only — never enters `DoughInputs` or the math.**
-- Beginner shows startAt/readyBy/pizzaCount/mixingMethod plus a switch to expert; ball weight is fixed at the 280 g default and every other input keeps its default too. **The view mode only shapes the form — it never affects the schedule.**
+- Beginner shows startAt/readyBy/pizzaCount/mixingMethod/**flour** plus a switch to expert; ball weight is fixed at the 280 g default and every other input keeps its default too. The flour preset select sits next to mixingMethod in both views (which flour is in the cupboard is something every baker knows, and it sets the fermentation band the schedule paints); the raw `flourW` number field behind it stays expert-only, since the presets already carry it. **The view mode only shapes the form — it never affects the schedule.**
 
 ### Schedule verbosity (short / detailed)
 
