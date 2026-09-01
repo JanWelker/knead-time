@@ -12,6 +12,7 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { onMount } from 'svelte';
+	import Warnings from './Warnings.svelte';
 	import type { FormState } from '$lib/state.svelte';
 
 	// Named `form`, not `state`: a local binding called `state` makes Svelte
@@ -302,6 +303,13 @@
 			})}
 		</p>
 	{/if}
+
+	<!-- The schedule's own window warnings — too short, a step at night, past
+	     what the flour tolerates — read here, next to the control that both
+	     caused them and fixes them. -->
+	<div class="mt-2">
+		<Warnings warnings={form.schedule.warnings} place="window" />
+	</div>
 
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
 		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">

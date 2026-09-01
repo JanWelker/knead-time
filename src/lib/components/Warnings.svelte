@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import type { ScheduleWarning } from '$lib/dough/types';
+	import { warningsFor, type WarningSlot } from '$lib/warningSlots';
 
-	let { warnings }: { warnings: ScheduleWarning[] } = $props();
+	// Each mount point renders only its own warnings — see warningSlots.ts.
+	let { warnings, place }: { warnings: ScheduleWarning[]; place: WarningSlot } = $props();
 	const t = $derived(i18n.t);
+	const shown = $derived(warningsFor(place, warnings));
 
 	const COPY: Record<ScheduleWarning, keyof typeof t.warnings> = {
 		'too-short': 'too_short',
@@ -32,9 +35,9 @@
 	};
 </script>
 
-{#if warnings.length > 0}
-	<ul class="mt-4 space-y-2" aria-live="polite">
-		{#each warnings as w (w)}
+{#if shown.length > 0}
+	<ul class="space-y-2" aria-live="polite">
+		{#each shown as w (w)}
 			<li
 				class="rounded-lg border px-3 py-2 text-sm {SEVERITY[w] === 'danger'
 					? 'border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200'

@@ -30,6 +30,7 @@
 	import FitScore from '$lib/components/FitScore.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
 	import InputForm from '$lib/components/InputForm.svelte';
+	import Warnings from '$lib/components/Warnings.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
@@ -253,6 +254,13 @@
 				yeastType={form.yeastType}
 				yeastPercent={form.schedule.yeastPercent}
 			/>
+			<!-- The yeast warnings are about the number you weigh out ("measure
+			     carefully", "double-check the inputs"), so they belong with the
+			     weights. Visible in beginner view too, where the yeast field
+			     itself is hidden but the window can still reach both extremes. -->
+			<div class="mt-4">
+				<Warnings warnings={form.schedule.warnings} place="ingredients" />
+			</div>
 		</div>
 
 		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
