@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
 	decodeInputs,
@@ -600,5 +601,23 @@ describe('decodeStoredRecipe', () => {
 	it('accepts a query with or without the leading "?"', () => {
 		expect(decodeStoredRecipe('?v=6&fw=310&n=4')).toEqual(decodeStoredRecipe('v=6&fw=310&n=4'));
 		expect(decodeStoredRecipe('?v=5&n=4').flourW).toBeUndefined();
+	});
+});
+
+describe('version alignment', () => {
+	it('keeps the app major version in step with the URL schema version', () => {
+		// The two are kept equal on purpose: the schema version is the part of
+		// the app users carry around in bookmarks and community rows, so "which
+		// Knead Time wrote this link" should be answerable from the app version
+		// alone. A schema bump therefore forces a major bump, and this test is
+		// what stops the two drifting apart between releases.
+		const pkg = JSON.parse(
+			readFileSync(new URL('../../../package.json', import.meta.url), 'utf8')
+		) as { version: string };
+		const appMajor = Number(pkg.version.split('.')[0]);
+		const stamped = Number(new URLSearchParams(encodeInputs(base)).get('v'));
+
+		expect(Number.isNaN(appMajor)).toBe(false);
+		expect(appMajor).toBe(stamped);
 	});
 });

@@ -138,7 +138,7 @@ The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private P
 - **`v=5`** adds `al` = autolyse; **the first version whose decode was version-gated**. Autolyse defaults on, so `al` is **omitted when on** and stamped `al=0` only for the expert opt-out. Because autolyse changes the schedule (and yeast %) of a no-pre-ferment recipe, a **missing `al` is read differently by version**: `v ≥ 5` → on (the new default, simply omitted); `v < 5` (and missing-`v` legacy) → **off**, so every pre-v5 share-link, community row and pizzeria row reproduces its original no-autolyse recipe. This is the case the "branch on `v` when a version breaks the add-only contract" rule anticipated — `decode()` reads `VERSION_KEY` for the autolyse default only; all other keys stay add-only.
 - **`v=4`** adds `mm` = mixingMethod, omitted for spiral — v4.0 wrote `m` for "machine", still decoded as spiral; `md=b` view mode, stamped only for beginner; `y` gains `i`/`a` for the dry yeasts; `pt` = preFermentTempC, omitted when following the room; `bp=c` = cold ball proof, omitted for the classic shape; and extends `p` to an underscore-separated pre-ferment list, e.g. `p=b30_p20` — the old single token parses as a 1-element list, `,` is accepted in hand-written links, decode clamps each share to [5, 80] with Σ ≤ 80 and canonicalises biga-first. `v=3` added `o`/`sg`; `v=2` added `ft`; older links decode those fields as `undefined` and the form defaults fill in — every pre-v=4 share-link reproduces its original recipe, yeast % included.
 - **Schema-change protocol**: bump `CURRENT_VERSION`, keep `decode()` understanding every published key shape. **Never break an old key** — old bookmarks and community rows must keep resolving.
-- URL schema version is **independent** from app version.
+- **The app's major version tracks `CURRENT_VERSION`.** A schema bump is always a major bump, so `v=6` links are exactly the ones written by a 6.x app — see the App version section.
 
 ## App version
 
@@ -148,6 +148,9 @@ The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private P
   - **Patch**: fixes, docs, refactors, internal tweaks.
   - **Minor**: new user-facing features, backwards-compatible (new input, new locale, new UI).
   - **Major**: user contract breaks — default change that surprises returning users, or an old share-link no longer reproduces the same recipe.
+- **The major version is pinned to the URL schema version** (`CURRENT_VERSION` in `urlState.ts`): app 6.x stamps and is stamped `v=6`. The schema version is the piece of the app users carry around in bookmarks, community rows and pizzeria rows, so "which Knead Time wrote this link" has to be answerable from the app version alone.
+  - A schema bump therefore **forces a major bump**, whether or not the change would have earned one on its own. Going the other way is free: a major bump for an unrelated contract break may raise the schema version with it, even when no key changed.
+  - Pinned by a test in `urlState.test.ts` that reads `package.json` and compares against the `v` that `encodeInputs` stamps — the two drifted apart once already, silently, across a long feature branch.
 
 ## i18n
 
