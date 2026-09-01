@@ -32,7 +32,6 @@
 	import InputForm from '$lib/components/InputForm.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
-	import FermentWindowSlider from '$lib/components/FermentWindowSlider.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import TrmnlPush from '$lib/components/TrmnlPush.svelte';
@@ -364,10 +363,6 @@
 						{/each}
 					</fieldset>
 				</div>
-			</div>
-
-			<div class="mt-4">
-				<FermentWindowSlider {form} verbosity={scheduleVerbosity.current} />
 			</div>
 
 			<Warnings warnings={form.schedule.warnings} />

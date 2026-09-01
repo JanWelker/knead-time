@@ -5,6 +5,7 @@
 	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import FormField from './FormField.svelte';
+	import FermentWindowSlider from './FermentWindowSlider.svelte';
 
 	let { state }: { state: FormState } = $props();
 
@@ -61,6 +62,28 @@
 		</legend>
 		<label class="block">
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.readyBy}
+			</span>
+			<div class="mt-1 flex gap-2">
+				<input
+					type="date"
+					class={dateInputClass}
+					value={readyByDate}
+					oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
+				/>
+				<input
+					type="time"
+					class={timeInputClass}
+					value={readyByTime}
+					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
+				/>
+			</div>
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.readyBy_help}
+			</span>
+		</label>
+		<label class="block">
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.startAt}
 			</span>
 			<div class="mt-1 flex gap-2">
@@ -88,50 +111,28 @@
 				</button>
 			</div>
 		</label>
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.readyBy}
-			</span>
-			<div class="mt-1 flex gap-2">
-				<input
-					type="date"
-					class={dateInputClass}
-					value={readyByDate}
-					oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
-				/>
-				<input
-					type="time"
-					class={timeInputClass}
-					value={readyByTime}
-					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
-				/>
-			</div>
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.readyBy_help}
-			</span>
-		</label>
+		<!-- The window spans the two times above and rewrites startAt as you
+		     drag it, so it belongs with them rather than over in the schedule.
+		     Its own explanation always shows, like every other field's help
+		     text — the schedule's short/detailed toggle is in the other column
+		     and must not reach across into this one. -->
+		<FermentWindowSlider form={state} />
 	</fieldset>
 
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<legend class="font-display text-accent col-span-full text-lg">
 			{t.form.section_recipe}
 		</legend>
-
 		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={state.pizzaCount} />
-
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.mixingMethod}
-			</span>
-			<select class={selectClass} bind:value={state.mixingMethod}>
-				<option value="spiral">{t.form.mixing_spiral}</option>
-				<option value="stand">{t.form.mixing_stand}</option>
-				<option value="hand">{t.form.mixing_hand}</option>
-			</select>
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.mixingMethod_help}
-			</span>
-		</label>
+		{#if uiMode.current === 'expert'}
+			<FormField
+				label={t.form.ballWeight}
+				min={100}
+				max={600}
+				step={1}
+				bind:value={state.ballWeight}
+			/>
+		{/if}
 
 		<!-- Flour sits with the mixing method, not down in the expert fields:
 		     which flour is in the cupboard is something every baker knows, and
@@ -156,7 +157,6 @@
 				{t.form.flour_help}
 			</span>
 		</label>
-
 		{#if uiMode.current === 'expert' && state.flourW !== null}
 			<FormField
 				label={t.form.flourW}
@@ -167,16 +167,7 @@
 				bind:value={state.flourW}
 			/>
 		{/if}
-
 		{#if uiMode.current === 'expert'}
-			<FormField
-				label={t.form.ballWeight}
-				min={100}
-				max={600}
-				step={1}
-				bind:value={state.ballWeight}
-			/>
-
 			<FormField
 				label={t.form.hydration}
 				min={50}
@@ -205,40 +196,22 @@
 				help={t.form.sugar_help}
 				bind:value={state.sugarPercent}
 			/>
+		{/if}
 
-			<FormField
-				label={t.form.roomTemp}
-				min={10}
-				max={35}
-				step={0.5}
-				help={t.form.roomTemp_help}
-				bind:value={state.roomTempC}
-			/>
-
-			<FormField
-				label={t.form.fridgeTemp}
-				min={0}
-				max={12}
-				step={0.5}
-				help={t.form.fridgeTemp_help}
-				bind:value={state.fridgeTempC}
-			/>
-
-			<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-				<input
-					type="checkbox"
-					class="accent-tomato-500"
-					checked={state.ballProof === 'cold'}
-					onchange={(e) => (state.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
-				/>
-				<span>
-					{t.form.ballProof_toggle}
-					<span class="block text-xs font-normal text-stone-500 dark:text-stone-400">
-						{t.form.ballProof_help}
-					</span>
-				</span>
-			</label>
-
+		<label class="block">
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.mixingMethod}
+			</span>
+			<select class={selectClass} bind:value={state.mixingMethod}>
+				<option value="spiral">{t.form.mixing_spiral}</option>
+				<option value="stand">{t.form.mixing_stand}</option>
+				<option value="hand">{t.form.mixing_hand}</option>
+			</select>
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.mixingMethod_help}
+			</span>
+		</label>
+		{#if uiMode.current === 'expert'}
 			<label class="block">
 				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 					{t.form.yeastType}
@@ -337,6 +310,39 @@
 					</span>
 				</label>
 			{/if}
+
+			<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+				<input
+					type="checkbox"
+					class="accent-tomato-500"
+					checked={state.ballProof === 'cold'}
+					onchange={(e) => (state.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
+				/>
+				<span>
+					{t.form.ballProof_toggle}
+					<span class="block text-xs font-normal text-stone-500 dark:text-stone-400">
+						{t.form.ballProof_help}
+					</span>
+				</span>
+			</label>
+
+			<FormField
+				label={t.form.roomTemp}
+				min={10}
+				max={35}
+				step={0.5}
+				help={t.form.roomTemp_help}
+				bind:value={state.roomTempC}
+			/>
+
+			<FormField
+				label={t.form.fridgeTemp}
+				min={0}
+				max={12}
+				step={0.5}
+				help={t.form.fridgeTemp_help}
+				bind:value={state.fridgeTempC}
+			/>
 		{/if}
 	</fieldset>
 

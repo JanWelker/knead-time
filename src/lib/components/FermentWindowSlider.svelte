@@ -13,11 +13,10 @@
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { onMount } from 'svelte';
 	import type { FormState } from '$lib/state.svelte';
-	import type { ScheduleVerbosity } from '$lib/storedVerbosity';
 
 	// Named `form`, not `state`: a local binding called `state` makes Svelte
 	// read the `$state` rune below as a store subscription.
-	let { form, verbosity }: { form: FormState; verbosity: ScheduleVerbosity } = $props();
+	let { form }: { form: FormState } = $props();
 
 	const t = $derived(i18n.t);
 
@@ -98,9 +97,11 @@
 	// a centred label at 0 % or 100 % would hang off the rail.
 	const labelledStops = [8, 24, 48, 72];
 
-	// What the chosen window actually buys the dough. Detailed view only, and
-	// keyed off the current length so it describes THIS plan rather than
-	// stating a general truth next to a control the reader is dragging.
+	// What the chosen window actually buys the dough. Keyed off the current
+	// length, so it describes THIS plan rather than stating a general truth
+	// next to a control the reader is dragging. Always shown: this card lives
+	// in the form now, where every field carries its help text, and the
+	// schedule's short/detailed toggle must not reach into the other column.
 	const benefit = $derived(
 		{
 			short: t.schedule.window_benefit_short,
@@ -270,9 +271,7 @@
 		</p>
 	{/if}
 
-	{#if verbosity === 'descriptive'}
-		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
-	{/if}
+	<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
 </div>
 
 <style>
