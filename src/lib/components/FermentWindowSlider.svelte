@@ -163,8 +163,12 @@
 	     to a plain line. -->
 	{#if unreachableFromPct < 100}
 		<div class="relative mx-2.5 mt-2 h-9" aria-hidden="true">
+			<!-- Caption and arrow are placed separately on purpose: the caption
+			     pivots near the ends so it cannot hang off the rail, and the
+			     arrow never does, because pivoting it too would point it away
+			     from the moment it names. -->
 			<div
-				class="absolute bottom-0 flex flex-col {markerAnchor === 'start'
+				class="absolute top-0 flex flex-col {markerAnchor === 'start'
 					? 'items-start'
 					: markerAnchor === 'end'
 						? 'items-end'
@@ -181,10 +185,16 @@
 				>
 					{formatDateTime(form.readyBy, i18n.locale)}
 				</span>
-				<svg class="fill-tomato-500 mt-0.5" width="9" height="6" viewBox="0 0 10 6">
-					<path d="M5 6 0 0h10z" />
-				</svg>
 			</div>
+			<svg
+				class="fill-tomato-500 absolute bottom-0 -translate-x-1/2"
+				style="left:{unreachableFromPct}%"
+				width="9"
+				height="6"
+				viewBox="0 0 10 6"
+			>
+				<path d="M5 6 0 0h10z" />
+			</svg>
 		</div>
 	{:else}
 		<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
@@ -272,18 +282,24 @@
 	     deadline flagged from above. It is a real stop on the rail, so the
 	     arrow always sits on a position the thumb can land on. -->
 	{#if idealPct !== null}
-		<div class="relative mx-2.5 mt-1 h-8" aria-hidden="true">
+		<div class="relative mx-2.5 mt-1 h-9" aria-hidden="true">
+			<svg
+				class="fill-basil-500 absolute top-0 -translate-x-1/2"
+				style="left:{idealPct}%"
+				width="9"
+				height="6"
+				viewBox="0 0 10 6"
+			>
+				<path d="M5 0 0 6h10z" />
+			</svg>
 			<div
-				class="absolute top-0 flex flex-col {idealAnchor === 'start'
+				class="absolute top-2 flex flex-col {idealAnchor === 'start'
 					? 'items-start'
 					: idealAnchor === 'end'
 						? 'items-end'
 						: 'items-center'}"
 				style="left:{idealPct}%;transform:{idealShift}"
 			>
-				<svg class="fill-basil-500 mb-0.5" width="9" height="6" viewBox="0 0 10 6">
-					<path d="M5 0 0 6h10z" />
-				</svg>
 				<span
 					class="text-basil-700 dark:text-basil-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
 				>
