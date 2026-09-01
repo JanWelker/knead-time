@@ -70,28 +70,6 @@
 		</legend>
 		<label class="block">
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.readyBy}
-			</span>
-			<div class="mt-1 flex gap-2">
-				<input
-					type="date"
-					class={dateInputClass}
-					value={readyByDate}
-					oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
-				/>
-				<input
-					type="time"
-					class={timeInputClass}
-					value={readyByTime}
-					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
-				/>
-			</div>
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.readyBy_help}
-			</span>
-		</label>
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.startAt}
 			</span>
 			<div class="mt-1 flex gap-2">
@@ -127,6 +105,28 @@
 					{t.form.startAt_clamped}
 				</p>
 			{/if}
+		</label>
+		<label class="block">
+			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				{t.form.readyBy}
+			</span>
+			<div class="mt-1 flex gap-2">
+				<input
+					type="date"
+					class={dateInputClass}
+					value={readyByDate}
+					oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
+				/>
+				<input
+					type="time"
+					class={timeInputClass}
+					value={readyByTime}
+					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
+				/>
+			</div>
+			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+				{t.form.readyBy_help}
+			</span>
 		</label>
 		<!-- The window spans the two times above and rewrites startAt as you
 		     drag it, so it belongs with them rather than over in the schedule.
