@@ -81,6 +81,12 @@ export interface Messages {
 		fridgeTemp_help: string;
 		flour: string;
 		flour_help: string;
+		flour_band_weak: string;
+		flour_band_sameDay: string;
+		flour_band_day24: string;
+		flour_band_day48: string;
+		flour_band_day72: string;
+		flour_band_veryStrong: string;
 		'flour_supermarket-00': string;
 		'flour_caputo-doppio-zero': string;
 		'flour_5stagioni-napoletana': string;
@@ -472,6 +478,12 @@ const en: Messages = {
 		flour: 'Flour',
 		flour_help:
 			'Strength (W) sets how long the dough tolerates fermenting — not how much water it takes.',
+		flour_band_weak: 'Too weak for a long ferment',
+		flour_band_sameDay: 'Same day — up to 12 h',
+		flour_band_day24: 'Around 24 h',
+		flour_band_day48: 'Around 48 h',
+		flour_band_day72: 'Long — 48 to 72 h',
+		flour_band_veryStrong: 'Very strong — for biga and blends',
 		'flour_supermarket-00': 'Supermarket tipo 00',
 		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
 		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
@@ -911,6 +923,12 @@ const de: Messages = {
 		flour: 'Mehl',
 		flour_help:
 			'Die Stärke (W-Wert) bestimmt, wie lange der Teig die Gare verträgt — nicht, wie viel Wasser er aufnimmt.',
+		flour_band_weak: 'Zu schwach für lange Gare',
+		flour_band_sameDay: 'Gleicher Tag — bis 12 h',
+		flour_band_day24: 'Rund 24 h',
+		flour_band_day48: 'Rund 48 h',
+		flour_band_day72: 'Lang — 48 bis 72 h',
+		flour_band_veryStrong: 'Sehr stark — für Biga und Mischungen',
 		'flour_supermarket-00': 'Supermarkt-Mehl Tipo 00',
 		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
 		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
@@ -1358,6 +1376,12 @@ const it: Messages = {
 		flour: 'Farina',
 		flour_help:
 			'La forza (W) determina quanto a lungo l’impasto regge la lievitazione — non quanta acqua assorbe.',
+		flour_band_weak: 'Troppo debole per lunghe lievitazioni',
+		flour_band_sameDay: 'In giornata — fino a 12 h',
+		flour_band_day24: 'Circa 24 h',
+		flour_band_day48: 'Circa 48 h',
+		flour_band_day72: 'Lunga — da 48 a 72 h',
+		flour_band_veryStrong: 'Molto forte — per biga e tagli',
 		'flour_supermarket-00': 'Farina 00 da supermercato',
 		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
 		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
@@ -1810,6 +1834,12 @@ const fr: Messages = {
 		flour: 'Farine',
 		flour_help:
 			'La force (W) détermine combien de temps la pâte supporte la fermentation — pas la quantité d’eau qu’elle absorbe.',
+		flour_band_weak: 'Trop faible pour une longue fermentation',
+		flour_band_sameDay: 'Le jour même — jusqu’à 12 h',
+		flour_band_day24: 'Environ 24 h',
+		flour_band_day48: 'Environ 48 h',
+		flour_band_day72: 'Longue — 48 à 72 h',
+		flour_band_veryStrong: 'Très forte — pour biga et mélanges',
 		'flour_supermarket-00': 'Farine tipo 00 de supermarché',
 		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
 		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
@@ -2262,6 +2292,12 @@ const nl: Messages = {
 		flour: 'Meel',
 		flour_help:
 			'De sterkte (W-waarde) bepaalt hoe lang het deeg de rijs verdraagt — niet hoeveel water het opneemt.',
+		flour_band_weak: 'Te zwak voor een lange rijs',
+		flour_band_sameDay: 'Zelfde dag — tot 12 h',
+		flour_band_day24: 'Rond 24 h',
+		flour_band_day48: 'Rond 48 h',
+		flour_band_day72: 'Lang — 48 tot 72 h',
+		flour_band_veryStrong: 'Zeer sterk — voor biga en mengsels',
 		'flour_supermarket-00': 'Supermarkt tipo 00',
 		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
 		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',

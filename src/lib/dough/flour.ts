@@ -166,3 +166,49 @@ export function flourZones(
 		cold: cold.max > coldMin ? { min: coldMin, max: cold.max } : null
 	};
 }
+
+// Which shelf a flour sits on in the form's grouped select.
+//
+// These are W thresholds, NOT the tolerance bands above. The tolerance model
+// clamps at the W 310 anchor, so every flour stronger than that computes an
+// identical window and they could not be told apart on a shelf derived from it.
+// A baker choosing a bag wants "what is this strong enough for", which is a
+// property of the flour alone, so the shelves are cut on W and labelled with
+// the ferment length that strength is sold for.
+//
+// The outer edges are the AVPN disciplinare's, which specifies the dough as
+// "1800 g of flour (w220-380)": below 220 is outside the spec, and above it a
+// flour is stronger than a Neapolitan dough asks for — useful in a biga or cut
+// with a weaker flour, not on its own.
+export type FlourBandId = 'weak' | 'sameDay' | 'day24' | 'day48' | 'day72' | 'veryStrong';
+
+/** Render order, weakest first. */
+export const FLOUR_BANDS: readonly FlourBandId[] = [
+	'weak',
+	'sameDay',
+	'day24',
+	'day48',
+	'day72',
+	'veryStrong'
+];
+
+export function flourBand(w: number): FlourBandId {
+	if (w >= 350) return 'veryStrong';
+	if (w >= 310) return 'day72';
+	if (w >= 280) return 'day48';
+	if (w >= 250) return 'day24';
+	if (w >= 220) return 'sameDay';
+	return 'weak';
+}
+
+// Presets grouped for the select, in shelf order, skipping shelves nothing
+// lands on — an empty group heading is a promise of options that aren't there.
+export function flourPresetGroups(): Array<{
+	band: FlourBandId;
+	presets: Array<{ id: FlourPresetId; w: number }>;
+}> {
+	return FLOUR_BANDS.map((band) => ({
+		band,
+		presets: FLOUR_PRESETS.filter((p) => flourBand(p.w) === band)
+	})).filter((g) => g.presets.length > 0);
+}

@@ -91,3 +91,23 @@ test('the print route renders the same recipe as the screen', async ({ page }) =
 	await expect(page.locator('body')).toContainText('Salt');
 	await expect(page.locator('body')).toContainText('Weigh & prep');
 });
+
+test('the flour select is shelved by what each strength is for', async ({ page }) => {
+	// Twelve bag names in a flat list say nothing about which one suits the
+	// plan. The shelves are cut on W, labelled by ferment length, with the AVPN
+	// spec (w220-380) at the outer edges.
+	await openRecipe(page, `v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+
+	const groups = page.locator('form select').first().locator('optgroup');
+	await expect(groups).toHaveCount(6);
+	await expect(groups.first()).toHaveAttribute('label', /Too weak/);
+	await expect(groups.last()).toHaveAttribute('label', /Very strong/);
+
+	// the weakest shelf holds the supermarket flour and nothing else
+	await expect(groups.first().locator('option')).toHaveCount(1);
+	await expect(groups.first().locator('option')).toContainText('W 180');
+
+	// and every preset still lives on exactly one shelf
+	const inGroups = await groups.locator('option').count();
+	expect(inGroups).toBe(12);
+});

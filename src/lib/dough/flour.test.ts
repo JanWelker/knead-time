@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
 	DEFAULT_FLOUR_W,
+	FLOUR_BANDS,
 	FLOUR_PRESETS,
+	flourBand,
+	flourPresetGroups,
 	flourPresetForW,
 	flourWindowHours,
 	flourZones
@@ -178,5 +181,85 @@ describe('flourZones', () => {
 	it('lifts a cold band that starts below the threshold', () => {
 		// A 30 h threshold pushes W 310's cold band (natural min 24 h) up to it.
 		expect(flourZones(310, 30).cold).toEqual({ min: 30, max: 72 });
+	});
+});
+
+describe('flourBand', () => {
+	it('cuts on the AVPN spec at both outer edges', () => {
+		// The disciplinare states the dough as "1800 g of flour (w220-380)".
+		expect(flourBand(219)).toBe('weak');
+		expect(flourBand(220)).toBe('sameDay');
+		expect(flourBand(349)).toBe('day72');
+		expect(flourBand(350)).toBe('veryStrong');
+	});
+
+	it('pins every shelf boundary', () => {
+		expect(flourBand(249)).toBe('sameDay');
+		expect(flourBand(250)).toBe('day24');
+		expect(flourBand(279)).toBe('day24');
+		expect(flourBand(280)).toBe('day48');
+		expect(flourBand(309)).toBe('day48');
+		expect(flourBand(310)).toBe('day72');
+	});
+
+	it('never goes backwards as the flour gets stronger', () => {
+		let prev = -1;
+		for (let w = 150; w <= 400; w++) {
+			const rank = FLOUR_BANDS.indexOf(flourBand(w));
+			expect(rank).toBeGreaterThanOrEqual(prev);
+			prev = rank;
+		}
+	});
+
+	it('agrees with the tolerance model on which flours can ferment long', () => {
+		// The shelves are cut independently of flourWindowHours, so they could
+		// drift apart into telling the user two different stories. A flour on a
+		// 48 h-or-longer shelf must actually tolerate 48 h in the cold.
+		for (const preset of FLOUR_PRESETS) {
+			const band = flourBand(preset.w);
+			if (band === 'day48' || band === 'day72' || band === 'veryStrong') {
+				expect(flourWindowHours(preset.w, 'cold').max).toBeGreaterThanOrEqual(48);
+			}
+			if (band === 'weak') {
+				expect(flourWindowHours(preset.w, 'cold').max).toBeLessThan(24);
+			}
+		}
+	});
+});
+
+describe('flourPresetGroups', () => {
+	it('lists every preset exactly once, in shelf order', () => {
+		const groups = flourPresetGroups();
+		const flat = groups.flatMap((g) => g.presets.map((p) => p.id));
+		expect(flat).toEqual(FLOUR_PRESETS.map((p) => p.id));
+
+		const ranks = groups.map((g) => FLOUR_BANDS.indexOf(g.band));
+		expect([...ranks].sort((a, b) => a - b)).toEqual(ranks);
+	});
+
+	it('never emits an empty shelf — a heading promising nothing', () => {
+		for (const group of flourPresetGroups()) {
+			expect(group.presets.length).toBeGreaterThan(0);
+		}
+	});
+
+	it('puts the shipped flours on the shelves a baker would expect', () => {
+		const byBand = Object.fromEntries(
+			flourPresetGroups().map((g) => [g.band, g.presets.map((p) => p.id)])
+		);
+		expect(byBand.weak).toEqual(['supermarket-00']);
+		expect(byBand.sameDay).toEqual(['caputo-doppio-zero']);
+		expect(byBand.day24).toEqual(['5stagioni-napoletana', 'caputo-pizzeria', 'polselli-classica']);
+		expect(byBand.day48).toEqual([
+			'caputo-nuvola',
+			'caputo-saccorosso',
+			'dallagiovanna-classica-oro'
+		]);
+		expect(byBand.day72).toEqual([
+			'dallagiovanna-napoletana',
+			'caputo-cuoco',
+			'caputo-nuvola-super'
+		]);
+		expect(byBand.veryStrong).toEqual(['dallagiovanna-uniqua-blu']);
 	});
 });
