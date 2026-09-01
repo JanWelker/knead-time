@@ -14,3 +14,9 @@ dist
 coverage
 *.log
 .playwright-mcp/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/

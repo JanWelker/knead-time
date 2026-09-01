@@ -91,6 +91,8 @@ vitest.config.ts          ← Vitest (kept separate so vite types stay clean)
 | `npm run dev`           | Vite dev server on port 5173 with HMR                      |
 | `npm test`              | Run vitest once (`npm run test:watch` for watch mode)      |
 | `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                |
+| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build  |
+| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                    |
 | `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check) |
 | `npm run lint`          | Prettier check + ESLint                                    |
 | `npm run format`        | Prettier write                                             |
@@ -107,7 +109,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
 3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
-5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`.
+5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`.
 
 ### Print / PDF export
 

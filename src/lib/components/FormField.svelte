@@ -38,7 +38,15 @@
 		{inputmode}
 		{id}
 		bind:value
-		onchange={oncommit}
+		onchange={(e) => {
+			// An emptied number box writes null upstream. Where the caller refuses
+			// that write the value never changes, so nothing re-renders and the box
+			// would sit blank against a live value — put the live one back.
+			if (e.currentTarget.value === '' && Number.isFinite(value)) {
+				e.currentTarget.value = String(value);
+			}
+			oncommit?.();
+		}}
 		class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
 	/>
 	{#if help}<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">{help}</span>{/if}

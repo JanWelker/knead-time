@@ -55,7 +55,7 @@
 	// band to aim at, so it leaves the window alone.
 	function setFlourChoice(choice: string) {
 		if (choice === 'none') {
-			form.flourW = null;
+			form.setFlour(null);
 			return;
 		}
 		if (choice === 'custom') {

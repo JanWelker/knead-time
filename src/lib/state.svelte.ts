@@ -31,7 +31,25 @@ export class FormState {
 	mixingMethod: MixingMethod = $state(RECIPE_DEFAULTS.mixingMethod);
 	ballProof: BallProof = $state(RECIPE_DEFAULTS.ballProof);
 	autolyse: boolean = $state(RECIPE_DEFAULTS.autolyse);
-	flourW: number | null = $state(RECIPE_DEFAULTS.flourW);
+	// Backed by a private field because a number input bound to an empty box
+	// writes null, and null means something here: "no flour stated". Letting a
+	// backspace through flipped the preset select to "not specified" and
+	// stamped fw=0 into the share URL — the recipe changed while the user was
+	// mid-edit. Only `setFlour` says that on purpose.
+	#flourW: number | null = $state(RECIPE_DEFAULTS.flourW);
+
+	get flourW(): number | null {
+		return this.#flourW;
+	}
+
+	set flourW(value: number | null) {
+		if (value !== null && Number.isFinite(value)) this.#flourW = value;
+	}
+
+	/** Deliberate change of flour, including to "not specified". */
+	setFlour(value: number | null) {
+		this.#flourW = value;
+	}
 	preFermentTempEnabled: boolean = $state(false);
 	preFermentTempValue: number = $state(18);
 	bigaEnabled: boolean = $state(false);
@@ -137,10 +155,27 @@ export class FormState {
 	// user editing the start time themselves.
 	startDayMoved: boolean = $state(false);
 
+	// The day the user themselves last put the start on — a typed start time, or
+	// the one a decoded link arrived with. NOT the value before the previous
+	// write: a drag fires one write per stop, so comparing against the last one
+	// switched the notice off again the moment two consecutive stops happened to
+	// land on the same day. Dragging six stops across midnight left no notice at
+	// all, which is the whole thing it exists to report.
+	#startDayBaseline: string = $state('');
+
 	#trackStartDay(mutate: () => void) {
-		const before = toDatePart(this.startAt);
 		mutate();
-		this.startDayMoved = toDatePart(this.startAt) !== before;
+		this.startDayMoved = toDatePart(this.startAt) !== this.#baseline();
+	}
+
+	#baseline(): string {
+		if (this.#startDayBaseline === '') this.#startDayBaseline = toDatePart(this.startAt);
+		return this.#startDayBaseline;
+	}
+
+	#rebaseStartDay() {
+		this.#startDayBaseline = toDatePart(this.startAt);
+		this.startDayMoved = false;
 	}
 
 	// The window the current flour and deadline deserve. Both of those are
@@ -184,9 +219,9 @@ export class FormState {
 	// accepted as a negative window; returns whether it had to clamp, so the
 	// form can say why the field snapped back.
 	setStartAt(next: Date): boolean {
-		this.startDayMoved = false;
 		const late = next.getTime() > this.readyBy.getTime();
 		this.startAt = late ? new SvelteDate(this.readyBy.getTime()) : next;
+		this.#rebaseStartDay();
 		return late;
 	}
 
@@ -212,7 +247,10 @@ export class FormState {
 
 	apply(partial: Partial<SerializableInputs>) {
 		if (partial.readyBy instanceof Date) this.readyBy = partial.readyBy;
-		if (partial.startAt instanceof Date) this.startAt = partial.startAt;
+		if (partial.startAt instanceof Date) {
+			this.startAt = partial.startAt;
+			this.#rebaseStartDay();
+		}
 		if (partial.pizzaCount !== undefined) this.pizzaCount = partial.pizzaCount;
 		if (partial.ballWeight !== undefined) this.ballWeight = partial.ballWeight;
 		if (partial.hydration !== undefined) this.hydration = partial.hydration;
@@ -228,7 +266,7 @@ export class FormState {
 		if (partial.autolyse !== undefined) this.autolyse = partial.autolyse;
 		// null is a real value here ("no flour stated", what every pre-v6 link
 		// decodes to), so this checks undefined rather than truthiness.
-		if (partial.flourW !== undefined) this.flourW = partial.flourW;
+		if (partial.flourW !== undefined) this.setFlour(partial.flourW);
 		if (partial.preFermentTempC !== undefined && partial.preFermentTempC !== null) {
 			this.preFermentTempEnabled = true;
 			this.preFermentTempValue = partial.preFermentTempC;
