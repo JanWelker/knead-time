@@ -93,6 +93,7 @@ vitest.config.ts          ← Vitest (kept separate so vite types stay clean)
 | `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                |
 | `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build  |
 | `npm run test:e2e:ui`   | The same suite in Playwright's debugger                    |
+| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage     |
 | `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check) |
 | `npm run lint`          | Prettier check + ESLint                                    |
 | `npm run format`        | Prettier write                                             |

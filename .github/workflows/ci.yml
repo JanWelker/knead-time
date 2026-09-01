@@ -94,6 +94,11 @@ jobs:
       # extra signal.
       - run: npx playwright install --with-deps chromium
 
+      # Refuses a change that quietly removes tests, in either suite, or that
+      # relaxes the coverage gate. Collects without running, so it is quick and
+      # fails before the long suite rather than after it.
+      - run: npm run test:baseline
+
       # Builds and serves the real static output — see playwright.config.ts.
       - run: npm run test:e2e
 
