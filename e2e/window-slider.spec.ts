@@ -119,6 +119,30 @@ test('the rail marker names a ceiling, not the bake moment', async ({ page }) =>
 	await expect(marker).toContainText('Sep 2');
 });
 
+test('the "use best" button restores the ideal, then gets out of the way', async ({ page }) => {
+	await openRecipe(page, `${CAPUTO}&${FAR_BAKE}`);
+	await page.locator('form input[type="date"]').nth(1).fill('2026-09-06');
+	await expect.poll(() => chosenWindow(page)).toBe('40 h');
+
+	// already at the ideal, so there is nothing to restore
+	const useBest = windowCard(page).getByRole('button', { name: 'Use best' });
+	await expect(useBest).toHaveCount(0);
+
+	await dragTo(page, 1);
+	expect(await chosenWindow(page)).not.toBe('40 h');
+	await expect(useBest).toBeVisible();
+
+	await useBest.click();
+	await expect.poll(() => chosenWindow(page)).toBe('40 h');
+	await expect(useBest).toHaveCount(0);
+});
+
+test('no "use best" button when the flour has no ideal to offer', async ({ page }) => {
+	await openRecipe(page, `v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=180&${FAR_BAKE}`);
+
+	await expect(windowCard(page).getByRole('button', { name: 'Use best' })).toHaveCount(0);
+});
+
 test('every marker caption stays inside the rail', async ({ page }) => {
 	await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
 

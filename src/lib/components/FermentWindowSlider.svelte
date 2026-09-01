@@ -325,18 +325,32 @@
 		{/each}
 	</div>
 
-	<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
-		{#if band}
-			{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
-			<span class="whitespace-nowrap">
-				({formatBandEdge(band.min)} – {formatBandEdge(band.max)})
-			</span>
-		{:else if form.flourW !== null}
-			{t.schedule.window_no_band}
-		{:else}
-			{t.schedule.window_no_flour}
+	<div class="mt-2 flex items-start justify-between gap-2">
+		<p class="text-xs text-stone-500 dark:text-stone-400">
+			{#if band}
+				{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
+				<span class="whitespace-nowrap">
+					({formatBandEdge(band.min)} – {formatBandEdge(band.max)})
+				</span>
+			{:else if form.flourW !== null}
+				{t.schedule.window_no_band}
+			{:else}
+				{t.schedule.window_no_flour}
+			{/if}
+		</p>
+		<!-- Only when there is something to go back to. A button that is already
+		     at its destination is noise, and its disappearance is the receipt
+		     that the click landed. -->
+		{#if ideal !== null && Math.abs(windowHours - ideal) > 1 / 60}
+			<button
+				type="button"
+				class="bg-tomato-500 hover:bg-tomato-600 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
+				onclick={() => form.repickWindow()}
+			>
+				{t.schedule.window_use_ideal}
+			</button>
 		{/if}
-	</p>
+	</div>
 
 	{#if overrun && reachableIndex >= 0}
 		<p
