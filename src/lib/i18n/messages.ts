@@ -52,6 +52,8 @@ export interface Messages {
 		info_round_body: string;
 		info_fit_title: string;
 		info_fit_body: string;
+		info_defaults_title: string;
+		info_defaults_body: string;
 		info_night_title: string;
 		info_night_body: string;
 		info_flour_title: string;
@@ -444,6 +446,9 @@ const en: Messages = {
 		info_fit_title: 'The star rating',
 		info_fit_body:
 			'Starts at 100 points; one star per 20. Points come off when the schedule had to bend (a cold leg or pre-ferment forced off its natural length, a step stuck in the night window, an infeasible window) and when inputs leave the contemporary Neapolitan bands: 60-80% hydration, 2-3.5% salt, 200-320 g balls, 14-30 °C room, 2-8 °C fridge, solved yeast 0.05-1.5% in fresh-yeast terms (dry yeast and starter convert first) — and when the window falls outside what the chosen flour tolerates. Every deduction is capped, so one wild input cannot zero the rating.',
+		info_defaults_title: 'Defaults and limits',
+		info_defaults_body:
+			'A fresh visit starts from 6 balls of 280 g, 70 % hydration, 3 % salt, no oil or sugar, fresh yeast, a spiral mixer, Caputo Pizzeria (W 265), an autolyse rest, 22 °C in the kitchen and 4 °C in the fridge, baking tomorrow at 19:00. Change anything and the rest stays put. Every number is also held inside a band, silently, wherever it arrives from — typed into the form or hand-edited into a share link: 1–100 pizzas, 100–600 g balls, 50–90 % hydration, 0–5 % salt, 0–15 % oil, 0–5 % sugar, 40–150 % starter hydration, 10–35 °C room, 0–12 °C fridge, 4–35 °C pre-ferment, W 150–400, and each pre-ferment 5–80 % of the flour with 80 % across both. An emptied field reads as the band minimum rather than poisoning the maths. Nothing this app has ever written falls outside these bands, so clamping never changes what an old link meant.',
 		info_night_title: 'Night-window guard',
 		info_night_body:
 			'No active step is allowed between 22:00 and 08:00. The cold-bulk leg only ever shrinks (never grows — the first step must stay at or after your start time) until mixing and shaping land in waking hours; if no length works, the schedule keeps the natural timing and warns instead.',
@@ -476,8 +481,7 @@ const en: Messages = {
 		fridgeTemp: 'Fridge temperature (°C)',
 		fridgeTemp_help: 'Only used during the cold-bulk phase. Home fridges run 2–7 °C.',
 		flour: 'Flour',
-		flour_help:
-			'Strength (W) sets how long the dough tolerates fermenting — not how much water it takes.',
+		flour_help: 'Strength (W) sets how long the dough tolerates fermenting.',
 		flour_band_weak: 'Too weak for a long ferment',
 		flour_band_sameDay: 'Same day — up to 12 h',
 		flour_band_day24: 'Around 24 h',
@@ -888,6 +892,9 @@ const de: Messages = {
 		info_fit_title: 'Die Sterne-Bewertung',
 		info_fit_body:
 			'Startet bei 100 Punkten; ein Stern pro 20. Punkte gehen ab, wenn der Zeitplan sich biegen musste (Kühlphase oder Vorteig abseits der natürlichen Dauer, ein Schritt im Nachtfenster, ein nicht machbares Fenster) und wenn Eingaben die zeitgenössischen neapolitanischen Bänder verlassen: 60–80% Hydration, 2–3,5% Salz, 200–320 g Teiglinge, 14–30 °C Raum, 2–8 °C Kühlschrank, gelöste Hefe 0,05–1,5% in Frischhefe-Einheiten (Trockenhefe und Anstellgut werden zuerst umgerechnet) — und wenn das Fenster außerhalb dessen liegt, was das gewählte Mehl verträgt. Jeder Abzug ist gedeckelt, sodass eine einzelne wilde Eingabe die Bewertung nicht auf null bringen kann.',
+		info_defaults_title: 'Vorgaben und Grenzen',
+		info_defaults_body:
+			'Ein frischer Besuch startet mit 6 Ballen zu 280 g, 70 % Hydration, 3 % Salz, ohne Öl und Zucker, Frischhefe, Spiralkneter, Caputo Pizzeria (W 265), Autolyse-Rast, 22 °C in der Küche und 4 °C im Kühlschrank, Backen morgen um 19:00. Änderst du eines, bleibt der Rest stehen. Jede Zahl wird außerdem still in ein Band gezwungen, egal woher sie kommt — im Formular getippt oder von Hand in einen Link geschrieben: 1–100 Pizzen, 100–600 g Ballen, 50–90 % Hydration, 0–5 % Salz, 0–15 % Öl, 0–5 % Zucker, 40–150 % Anstellgut-Hydration, 10–35 °C Raum, 0–12 °C Kühlschrank, 4–35 °C Vorteig, W 150–400, und jeder Vorteig 5–80 % des Mehls, zusammen höchstens 80 %. Ein leeres Feld gilt als Bandminimum, statt die Rechnung zu vergiften. Nichts, was diese App je geschrieben hat, liegt außerhalb dieser Bänder — Begrenzen ändert also nie, was ein alter Link gemeint hat.',
 		info_night_title: 'Nachtfenster-Schutz',
 		info_night_body:
 			'Kein aktiver Schritt zwischen 22:00 und 08:00. Die Kühlgare schrumpft nur (sie wächst nie — der erste Schritt muss auf oder nach deiner Startzeit bleiben), bis Kneten und Formen in der Wachzeit liegen; hilft keine Länge, behält der Zeitplan die natürlichen Zeiten bei und warnt stattdessen.',
@@ -921,8 +928,7 @@ const de: Messages = {
 		fridgeTemp: 'Kühlschranktemperatur (°C)',
 		fridgeTemp_help: 'Nur in der Kühlgare relevant. Haushaltskühlschränke laufen bei 2–7 °C.',
 		flour: 'Mehl',
-		flour_help:
-			'Die Stärke (W-Wert) bestimmt, wie lange der Teig die Gare verträgt — nicht, wie viel Wasser er aufnimmt.',
+		flour_help: 'Die Stärke (W-Wert) bestimmt, wie lange der Teig die Gare verträgt.',
 		flour_band_weak: 'Zu schwach für lange Gare',
 		flour_band_sameDay: 'Gleicher Tag — bis 12 h',
 		flour_band_day24: 'Rund 24 h',
@@ -1342,6 +1348,9 @@ const it: Messages = {
 		info_fit_title: 'La valutazione a stelle',
 		info_fit_body:
 			'Parte da 100 punti; una stella ogni 20. I punti calano quando il programma si è dovuto piegare (fase in frigo o preimpasto fuori dalla durata naturale, un passo bloccato nella fascia notturna, una finestra non fattibile) e quando gli input escono dalle bande napoletane contemporanee: idratazione 60–80%, sale 2–3,5%, panetti 200–320 g, ambiente 14–30 °C, frigo 2–8 °C, lievito risolto 0,05–1,5% in termini di lievito fresco (secco e lievito madre vengono prima convertiti) — e quando la finestra esce da ciò che la farina scelta tollera. Ogni detrazione ha un tetto, quindi un singolo input estremo non può azzerare la valutazione.',
+		info_defaults_title: 'Valori predefiniti e limiti',
+		info_defaults_body:
+			'Una visita nuova parte da 6 panetti da 280 g, 70 % di idratazione, 3 % di sale, niente olio né zucchero, lievito fresco, impastatrice a spirale, Caputo Pizzeria (W 265), riposo di autolisi, 22 °C in cucina e 4 °C in frigo, cottura domani alle 19:00. Se cambi una voce, le altre restano. Ogni numero viene inoltre riportato dentro una banda, in silenzio, da qualunque parte arrivi — digitato nel modulo o scritto a mano in un link: 1–100 pizze, panetti 100–600 g, idratazione 50–90 %, sale 0–5 %, olio 0–15 %, zucchero 0–5 %, idratazione del lievito madre 40–150 %, ambiente 10–35 °C, frigo 0–12 °C, prefermento 4–35 °C, W 150–400, e ogni prefermento 5–80 % della farina, 80 % in tutto. Un campo svuotato vale il minimo della banda invece di avvelenare il calcolo. Nulla che questa app abbia mai scritto cade fuori da queste bande, quindi il limite non cambia mai il senso di un vecchio link.',
 		info_night_title: 'Protezione fascia notturna',
 		info_night_body:
 			'Nessun passo attivo tra le 22:00 e le 08:00. La puntata in frigo può solo accorciarsi (mai allungarsi — il primo passo deve restare all’ora di inizio o dopo) finché impasto e staglio non cadono nelle ore di veglia; se nessuna durata funziona, il programma mantiene i tempi naturali e avvisa invece.',
@@ -1374,8 +1383,7 @@ const it: Messages = {
 		fridgeTemp: 'Temperatura del frigo (°C)',
 		fridgeTemp_help: 'Usata solo durante la puntata in frigo. I frigo domestici stanno tra 2–7 °C.',
 		flour: 'Farina',
-		flour_help:
-			'La forza (W) determina quanto a lungo l’impasto regge la lievitazione — non quanta acqua assorbe.',
+		flour_help: 'La forza (W) determina quanto a lungo l’impasto regge la lievitazione.',
 		flour_band_weak: 'Troppo debole per lunghe lievitazioni',
 		flour_band_sameDay: 'In giornata — fino a 12 h',
 		flour_band_day24: 'Circa 24 h',
@@ -1797,6 +1805,9 @@ const fr: Messages = {
 		info_fit_title: 'La note en étoiles',
 		info_fit_body:
 			'Part de 100 points ; une étoile par tranche de 20. Des points sont retirés quand le programme a dû se plier (phase au frigo ou pré-ferment écartés de leur durée naturelle, une étape coincée dans la fenêtre nocturne, une fenêtre infaisable) et quand les entrées sortent des bandes napolitaines contemporaines : hydratation 60–80%, sel 2–3,5%, pâtons 200–320 g, ambiante 14–30 °C, frigo 2–8 °C, levure résolue 0,05–1,5% en équivalent levure fraîche (levure sèche et levain sont convertis au préalable) — et quand la fenêtre sort de ce que la farine choisie tolère. Chaque déduction est plafonnée, donc une seule entrée extrême ne peut pas mettre la note à zéro.',
+		info_defaults_title: 'Valeurs par défaut et limites',
+		info_defaults_body:
+			'Une visite neuve part de 6 pâtons de 280 g, 70 % d’hydratation, 3 % de sel, ni huile ni sucre, levure fraîche, pétrin à spirale, Caputo Pizzeria (W 265), un repos d’autolyse, 22 °C dans la cuisine et 4 °C au frigo, cuisson demain à 19:00. Changez-en une, les autres ne bougent pas. Chaque nombre est aussi ramené dans une plage, en silence, d’où qu’il vienne — saisi dans le formulaire ou écrit à la main dans un lien : 1–100 pizzas, pâtons 100–600 g, hydratation 50–90 %, sel 0–5 %, huile 0–15 %, sucre 0–5 %, hydratation du levain 40–150 %, ambiante 10–35 °C, frigo 0–12 °C, préferment 4–35 °C, W 150–400, et chaque préferment 5–80 % de la farine, 80 % au total. Un champ vidé vaut le minimum de la plage plutôt que d’empoisonner le calcul. Rien de ce que cette application a jamais écrit ne sort de ces plages : borner ne change donc jamais le sens d’un ancien lien.',
 		info_night_title: 'Garde-fou fenêtre nocturne',
 		info_night_body:
 			"Aucune étape active n'est autorisée entre 22:00 et 08:00. La phase au frigo ne fait que raccourcir (jamais s'allonger — la première étape doit rester à votre heure de départ ou après) jusqu'à ce que pétrissage et façonnage tombent aux heures d'éveil ; si aucune durée ne convient, le programme garde les temps naturels et avertit à la place.",
@@ -1832,8 +1843,7 @@ const fr: Messages = {
 		fridgeTemp_help:
 			'Utilisée seulement pendant la phase au frigo. Les frigos domestiques sont à 2–7 °C.',
 		flour: 'Farine',
-		flour_help:
-			'La force (W) détermine combien de temps la pâte supporte la fermentation — pas la quantité d’eau qu’elle absorbe.',
+		flour_help: 'La force (W) détermine combien de temps la pâte supporte la fermentation.',
 		flour_band_weak: 'Trop faible pour une longue fermentation',
 		flour_band_sameDay: 'Le jour même — jusqu’à 12 h',
 		flour_band_day24: 'Environ 24 h',
@@ -2257,6 +2267,9 @@ const nl: Messages = {
 		info_fit_title: 'De sterrenwaardering',
 		info_fit_body:
 			'Begint op 100 punten; één ster per 20. Er gaan punten af wanneer het schema moest buigen (koelfase of voordeeg buiten de natuurlijke duur, een stap vast in het nachtvenster, een onhaalbaar venster) en wanneer invoer buiten de hedendaagse Napolitaanse banden valt: 60–80% hydratatie, 2–3,5% zout, bolletjes van 200–320 g, kamer 14–30 °C, koelkast 2–8 °C, opgeloste gist 0,05–1,5% in verse-gist-termen (gedroogde gist en desem worden eerst omgerekend) — en wanneer het venster buiten valt wat het gekozen meel verdraagt. Elke aftrek is gemaximeerd, dus één wilde invoerwaarde kan de waardering niet op nul zetten.',
+		info_defaults_title: 'Standaardwaarden en grenzen',
+		info_defaults_body:
+			'Een nieuw bezoek begint met 6 bollen van 280 g, 70 % hydratatie, 3 % zout, geen olie of suiker, verse gist, spiraalkneder, Caputo Pizzeria (W 265), een autolyse-rust, 22 °C in de keuken en 4 °C in de koelkast, bakken morgen om 19:00. Verander er één en de rest blijft staan. Elk getal wordt bovendien stil binnen een band gehouden, waar het ook vandaan komt — getypt in het formulier of met de hand in een link gezet: 1–100 pizza’s, bollen 100–600 g, hydratatie 50–90 %, zout 0–5 %, olie 0–15 %, suiker 0–5 %, desemhydratatie 40–150 %, kamer 10–35 °C, koelkast 0–12 °C, voordeeg 4–35 °C, W 150–400, en elk voordeeg 5–80 % van het meel, samen hoogstens 80 %. Een leeggemaakt veld geldt als het minimum van de band in plaats van de berekening te vergiftigen. Niets wat deze app ooit geschreven heeft valt buiten deze banden, dus begrenzen verandert nooit wat een oude link bedoelde.',
 		info_night_title: 'Nachtvenster-bescherming',
 		info_night_body:
 			'Geen actieve stap toegestaan tussen 22:00 en 08:00. De koelfase krimpt alleen (groeit nooit — de eerste stap moet op of na je starttijd blijven) tot kneden en vormen in de wakkere uren vallen; werkt geen enkele lengte, dan houdt het schema de natuurlijke timing aan en waarschuwt in plaats daarvan.',
@@ -2290,8 +2303,7 @@ const nl: Messages = {
 		fridgeTemp_help:
 			'Alleen tijdens de koelkast-rijs gebruikt. Huishoudkoelkasten staan op 2–7 °C.',
 		flour: 'Meel',
-		flour_help:
-			'De sterkte (W-waarde) bepaalt hoe lang het deeg de rijs verdraagt — niet hoeveel water het opneemt.',
+		flour_help: 'De sterkte (W-waarde) bepaalt hoe lang het deeg de rijs verdraagt.',
 		flour_band_weak: 'Te zwak voor een lange rijs',
 		flour_band_sameDay: 'Zelfde dag — tot 12 h',
 		flour_band_day24: 'Rond 24 h',

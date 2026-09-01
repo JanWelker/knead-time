@@ -509,6 +509,13 @@
 				</div>
 
 				<div>
+					<p class="font-semibold text-stone-900 dark:text-stone-100">
+						{t.form.info_defaults_title}
+					</p>
+					<p class="mt-1">{t.form.info_defaults_body}</p>
+				</div>
+
+				<div>
 					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_night_title}</p>
 					<p class="mt-1">{t.form.info_night_body}</p>
 				</div>
