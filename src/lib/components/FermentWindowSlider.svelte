@@ -3,9 +3,10 @@
 	import { COLD_MODE_THRESHOLD_MIN } from '$lib/dough/schedule';
 	import {
 		fermentationBenefitTier,
+		idealWindowHours,
 		nearestWindowStopIndex,
 		reachableStopIndex,
-		WINDOW_STOPS,
+		stopsWithIdeal,
 		windowAxisPercent
 	} from '$lib/dough/windowPresets';
 	import { formatDateTime, formatDuration, toDatePart } from '$lib/format';
@@ -54,10 +55,17 @@
 	// before now. Stops past it are greyed and refused rather than offered as a
 	// plan that is already lost.
 	const hoursUntilBake = $derived((form.readyBy.getTime() - now.getTime()) / 3_600_000);
-	const reachableIndex = $derived(reachableStopIndex(hoursUntilBake));
+
+	// The window this flour and this deadline actually deserve, spliced into
+	// the rail as a stop of its own so the slider can land on it exactly — and
+	// return to it after the user has dragged elsewhere.
+	const ideal = $derived(idealWindowHours(zones, hoursUntilBake));
+	const stops = $derived(stopsWithIdeal(ideal));
+	const axis = (hours: number) => windowAxisPercent(hours, stops);
+	const reachableIndex = $derived(reachableStopIndex(hoursUntilBake, stops));
 	// Grey starts at the true remaining time, not at the last reachable stop,
 	// so the rail shows exactly where the deadline falls.
-	const unreachableFromPct = $derived(windowAxisPercent(hoursUntilBake));
+	const unreachableFromPct = $derived(axis(hoursUntilBake));
 
 	// The bake flag is centred on the deadline, except near the ends where a
 	// centred label would hang off the rail — there it pivots to sit inside,
@@ -65,6 +73,18 @@
 	const markerAnchor = $derived(
 		unreachableFromPct < 12 ? 'start' : unreachableFromPct > 88 ? 'end' : 'center'
 	);
+	const idealPct = $derived(ideal === null ? null : axis(ideal));
+	const idealAnchor = $derived(
+		idealPct === null ? 'center' : idealPct < 12 ? 'start' : idealPct > 88 ? 'end' : 'center'
+	);
+	const idealShift = $derived(
+		idealAnchor === 'start'
+			? 'translateX(0)'
+			: idealAnchor === 'end'
+				? 'translateX(-100%)'
+				: 'translateX(-50%)'
+	);
+
 	const markerShift = $derived(
 		markerAnchor === 'start'
 			? 'translateX(0)'
@@ -94,7 +114,7 @@
 	const windowHours = $derived(form.fermentWindowHours);
 	// A window set from the date fields need not be on a stop; the thumb shows
 	// the nearest one while the readout above keeps the true duration.
-	const sliderIndex = $derived(nearestWindowStopIndex(windowHours));
+	const sliderIndex = $derived(nearestWindowStopIndex(windowHours, stops));
 
 	const band = $derived(
 		form.schedule.mode === 'cold' ? (zones?.cold ?? null) : (zones?.room ?? null)
@@ -192,26 +212,22 @@
 			{#if zones?.room}
 				<div
 					class="bg-basil-300 dark:bg-basil-700 absolute inset-y-0"
-					style="left:{windowAxisPercent(zones.room.min)}%;width:{windowAxisPercent(
-						zones.room.max
-					) - windowAxisPercent(zones.room.min)}%"
+					style="left:{axis(zones.room.min)}%;width:{axis(zones.room.max) - axis(zones.room.min)}%"
 				></div>
 			{/if}
 			{#if zones?.cold}
 				<div
 					class="bg-basil-400 dark:bg-basil-600 absolute inset-y-0"
-					style="left:{windowAxisPercent(zones.cold.min)}%;width:{windowAxisPercent(
-						zones.cold.max
-					) - windowAxisPercent(zones.cold.min)}%"
+					style="left:{axis(zones.cold.min)}%;width:{axis(zones.cold.max) - axis(zones.cold.min)}%"
 				></div>
 			{/if}
 			<!-- A notch per stop, so the snap points are visible even where the
 			     rail carries no label. -->
-			{#each WINDOW_STOPS as stop, i (stop)}
-				{#if i > 0 && i < WINDOW_STOPS.length - 1}
+			{#each stops as stop, i (stop)}
+				{#if i > 0 && i < stops.length - 1}
 					<div
 						class="absolute inset-y-0 w-px bg-white/70 dark:bg-stone-900/50"
-						style="left:{windowAxisPercent(stop)}%"
+						style="left:{axis(stop)}%"
 					></div>
 				{/if}
 			{/each}
@@ -235,7 +251,7 @@
 		<input
 			type="range"
 			min="0"
-			max={WINDOW_STOPS.length - 1}
+			max={stops.length - 1}
 			step="1"
 			value={sliderIndex}
 			disabled={reachableIndex < 0}
@@ -248,7 +264,7 @@
 				// bound index unchanged, so Svelte re-renders nothing and the thumb
 				// would sit out in the greyed stretch contradicting the readout.
 				e.currentTarget.value = String(allowed);
-				form.fermentWindowHours = WINDOW_STOPS[allowed];
+				form.fermentWindowHours = stops[allowed];
 				startMovedDay = toDatePart(form.startAt) !== dayBefore;
 			}}
 			class="absolute inset-0 w-full appearance-none bg-transparent disabled:cursor-not-allowed {reachableIndex <
@@ -260,11 +276,41 @@
 		/>
 	</div>
 
+	<!-- The ideal, marked from below so it cannot be confused with the bake
+	     deadline flagged from above. It is a real stop on the rail, so the
+	     arrow always sits on a position the thumb can land on. -->
+	{#if idealPct !== null}
+		<div class="relative mt-1 h-8" aria-hidden="true">
+			<div
+				class="absolute top-0 flex flex-col {idealAnchor === 'start'
+					? 'items-start'
+					: idealAnchor === 'end'
+						? 'items-end'
+						: 'items-center'}"
+				style="left:{idealPct}%;transform:{idealShift}"
+			>
+				<svg class="fill-basil-500 mb-0.5" width="9" height="6" viewBox="0 0 10 6">
+					<path d="M5 0 0 6h10z" />
+				</svg>
+				<span
+					class="text-basil-700 dark:text-basil-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
+				>
+					{t.schedule.window_ideal}
+				</span>
+				<span
+					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
+				>
+					{formatWindow(ideal as number)}
+				</span>
+			</div>
+		</div>
+	{/if}
+
 	<div class="relative mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
 				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-400 dark:text-stone-500"
-				style="left:{windowAxisPercent(stop)}%">{formatWindow(stop)}</span
+				style="left:{axis(stop)}%">{formatWindow(stop)}</span
 			>
 		{/each}
 	</div>
@@ -288,7 +334,7 @@
 			role="alert"
 		>
 			{interpolate(t.schedule.window_overrun, {
-				max: formatWindow(WINDOW_STOPS[reachableIndex])
+				max: formatWindow(stops[reachableIndex])
 			})}
 		</p>
 	{/if}
@@ -314,7 +360,7 @@
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
 		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
 			{interpolate(t.schedule.window_capped_by_bake, {
-				max: formatBandEdge(WINDOW_STOPS[reachableIndex]),
+				max: formatBandEdge(stops[reachableIndex]),
 				band: formatBandEdge(band.max)
 			})}
 		</p>

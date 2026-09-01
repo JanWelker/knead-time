@@ -25,10 +25,10 @@ export const WINDOW_STOPS = [6, 8, 12, 16, 18, 24, 36, 48, 72, 80];
 
 // Index of the stop closest to an arbitrary window. Ties keep the shorter
 // stop, which is the safer direction for a dough.
-export function nearestWindowStopIndex(hours: number): number {
+export function nearestWindowStopIndex(hours: number, stops: number[] = WINDOW_STOPS): number {
 	let best = 0;
-	for (let i = 1; i < WINDOW_STOPS.length; i++) {
-		if (Math.abs(WINDOW_STOPS[i] - hours) < Math.abs(WINDOW_STOPS[best] - hours)) best = i;
+	for (let i = 1; i < stops.length; i++) {
+		if (Math.abs(stops[i] - hours) < Math.abs(stops[best] - hours)) best = i;
 	}
 	return best;
 }
@@ -41,14 +41,14 @@ export function nearestWindowStopIndex(hours: number): number {
 // — unusable with a thumb on a phone. Spacing the stops evenly gives every
 // choice the same target size, and interpolating between them keeps the
 // tolerance zones and tick labels aligned with the same axis.
-export function windowAxisPercent(hours: number): number {
-	const last = WINDOW_STOPS.length - 1;
-	if (hours <= WINDOW_STOPS[0]) return 0;
-	if (hours >= WINDOW_STOPS[last]) return 100;
+export function windowAxisPercent(hours: number, stops: number[] = WINDOW_STOPS): number {
+	const last = stops.length - 1;
+	if (hours <= stops[0]) return 0;
+	if (hours >= stops[last]) return 100;
 	let i = 0;
-	while (WINDOW_STOPS[i + 1] < hours) i++;
-	const lo = WINDOW_STOPS[i];
-	const hi = WINDOW_STOPS[i + 1];
+	while (stops[i + 1] < hours) i++;
+	const lo = stops[i];
+	const hi = stops[i + 1];
 	return ((i + (hours - lo) / (hi - lo)) / last) * 100;
 }
 
@@ -79,9 +79,9 @@ export function fermentationBenefitTier(hours: number): FermentationBenefitTier 
 // bake time is the anchor and the window is measured back from it — so any
 // stop longer than the time remaining would have had to start before now. The
 // slider greys those out rather than offering a plan that is already lost.
-export function reachableStopIndex(hoursUntilBake: number): number {
-	for (let i = WINDOW_STOPS.length - 1; i >= 0; i--) {
-		if (WINDOW_STOPS[i] <= hoursUntilBake) return i;
+export function reachableStopIndex(hoursUntilBake: number, stops: number[] = WINDOW_STOPS): number {
+	for (let i = stops.length - 1; i >= 0; i--) {
+		if (stops[i] <= hoursUntilBake) return i;
 	}
 	return -1;
 }
@@ -107,10 +107,11 @@ export function reachableStopIndex(hoursUntilBake: number): number {
 // or a bake so close that not even the shortest window fits.
 export function bestWindowStopIndex(
 	hoursUntilBake: number,
-	zones: { room: FermentWindowBand | null; cold: FermentWindowBand | null } | null
+	zones: { room: FermentWindowBand | null; cold: FermentWindowBand | null } | null,
+	stops: number[] = WINDOW_STOPS
 ): number | null {
 	if (zones === null) return null;
-	const reachable = reachableStopIndex(hoursUntilBake);
+	const reachable = reachableStopIndex(hoursUntilBake, stops);
 	if (reachable < 0) return null;
 
 	const inZone = (hours: number) =>
@@ -118,7 +119,7 @@ export function bestWindowStopIndex(
 		(zones.cold !== null && hours >= zones.cold.min && hours <= zones.cold.max);
 
 	for (let i = reachable; i >= 0; i--) {
-		if (inZone(WINDOW_STOPS[i])) return i;
+		if (inZone(stops[i])) return i;
 	}
 
 	// No stop lands inside the tolerance at all. The only flours this happens
@@ -131,4 +132,49 @@ export function bestWindowStopIndex(
 	// can get, and the direction that errs toward under- rather than
 	// over-fermenting.
 	return 0;
+}
+
+// The window this recipe should actually get: the longest one that is both
+// inside the flour's tolerance and still fits before the bake.
+//
+// This is the number the re-pick aims at, and it is almost never one of the
+// canonical stops — a flour's band ends where its gluten gives out (Caputo
+// Pizzeria at 40 h), not on a round Neapolitan figure. Rounding it down to
+// 36 h to fit the rail threw away hours of good fermentation and, worse, made
+// the value unreachable by hand: the slider could never return to what the app
+// itself had chosen. So the ideal becomes a stop of its own (`stopsWithIdeal`).
+//
+// Floored to the hour: it has to stay inside both limits it was derived from,
+// and the tolerance band is interpolated from a table its own authors call a
+// broad reference, so its minutes are noise either way.
+//
+// Cold is tried first because it is the longer regime; a flour with no cold
+// zone, or a bake too close to reach one, falls back to the room band. Null
+// when nothing good is reachable — including an ideal below the rail's
+// shortest stop, which no slider position could express.
+export function idealWindowHours(
+	zones: { room: FermentWindowBand | null; cold: FermentWindowBand | null } | null,
+	hoursUntilBake: number
+): number | null {
+	if (zones === null) return null;
+	for (const band of [zones.cold, zones.room]) {
+		if (band === null || band.min > hoursUntilBake) continue;
+		const ideal = Math.floor(Math.min(band.max, hoursUntilBake));
+		if (ideal >= WINDOW_STOPS[0] && ideal >= band.min) return ideal;
+	}
+	return null;
+}
+
+// The rail's stops with the ideal spliced in, or the canonical list unchanged
+// when there is no ideal, it already coincides with a stop, or it falls outside
+// the rail. The rail is linear in stop *index*, so this list is what positions
+// every notch, zone edge and tick label — the tick labels shift slightly when
+// the ideal appears or moves, which only happens on a flour or bake-time
+// change, never mid-drag.
+export function stopsWithIdeal(ideal: number | null): number[] {
+	if (ideal === null || ideal < WINDOW_STOPS[0]) return WINDOW_STOPS;
+	if (ideal > WINDOW_STOPS[WINDOW_STOPS.length - 1] || WINDOW_STOPS.includes(ideal)) {
+		return WINDOW_STOPS;
+	}
+	return [...WINDOW_STOPS, ideal].sort((a, b) => a - b);
 }

@@ -13,7 +13,7 @@ import type {
 	YeastType
 } from './dough/types';
 import type { SerializableInputs } from './dough/urlState';
-import { bestWindowStopIndex, WINDOW_STOPS } from './dough/windowPresets';
+import { bestWindowStopIndex, idealWindowHours, stopsWithIdeal } from './dough/windowPresets';
 
 export class FormState {
 	readyBy: Date = $state(toDefaultReadyBy(new SvelteDate()));
@@ -131,11 +131,14 @@ export class FormState {
 	// recipe verbatim, so `apply()` deliberately writes readyBy directly.
 	setReadyBy(next: Date) {
 		this.readyBy = next;
-		const best = bestWindowStopIndex(
-			(next.getTime() - Date.now()) / 3_600_000,
-			this.flourW === null ? null : flourZones(this.flourW, COLD_MODE_THRESHOLD_MIN / 60)
-		);
-		if (best !== null) this.fermentWindowHours = WINDOW_STOPS[best];
+		const hoursUntilBake = (next.getTime() - Date.now()) / 3_600_000;
+		const zones =
+			this.flourW === null ? null : flourZones(this.flourW, COLD_MODE_THRESHOLD_MIN / 60);
+		// Aim at the same stop list the slider offers, ideal included — otherwise
+		// the app picks a window the user can never drag back to.
+		const stops = stopsWithIdeal(idealWindowHours(zones, hoursUntilBake));
+		const best = bestWindowStopIndex(hoursUntilBake, zones, stops);
+		if (best !== null) this.fermentWindowHours = stops[best];
 		// Without a re-pick (no flour, or nothing reachable) startAt keeps its
 		// old value, which a bake time moved earlier can leave stranded after
 		// the bake. Same floor as setStartAt, applied from the other side.

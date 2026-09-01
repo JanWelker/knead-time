@@ -6,8 +6,10 @@ import {
 	bestWindowStopIndex,
 	BENEFIT_MEDIUM_FROM_H,
 	fermentationBenefitTier,
+	idealWindowHours,
 	nearestWindowStopIndex,
 	reachableStopIndex,
+	stopsWithIdeal,
 	WINDOW_STOPS,
 	windowAxisPercent
 } from './windowPresets';
@@ -295,5 +297,106 @@ describe('bestWindowStopIndex', () => {
 				expect(WINDOW_STOPS[i as number] * 60).toBeGreaterThanOrEqual(ROOM_MIN_TOTAL_MIN);
 			}
 		}
+	});
+});
+
+describe('idealWindowHours', () => {
+	const zonesFor = (w: number) => flourZones(w, COLD_MODE_THRESHOLD_MIN / 60);
+
+	it('is the top of the flour’s cold band when the bake is far enough out', () => {
+		// Caputo Pizzeria's cold band tops out at 40 h — not a canonical stop,
+		// which is the whole reason this exists.
+		expect(idealWindowHours(zonesFor(265), 1000)).toBe(40);
+		expect(WINDOW_STOPS).not.toContain(40);
+		expect(idealWindowHours(zonesFor(310), 1000)).toBe(72);
+	});
+
+	it('is capped by the time left before the bake', () => {
+		expect(idealWindowHours(zonesFor(310), 30)).toBe(30);
+		expect(idealWindowHours(zonesFor(310), 30.9)).toBe(30);
+	});
+
+	it('never exceeds either limit it came from', () => {
+		for (const w of [180, 265, 280, 310, 380]) {
+			const zones = zonesFor(w);
+			for (let h = 0; h <= 100; h += 0.5) {
+				const ideal = idealWindowHours(zones, h);
+				if (ideal === null) continue;
+				expect(ideal).toBeLessThanOrEqual(h);
+				// Inside *a* band — not necessarily the one the threshold would
+				// suggest, since a room band clipped at the switch ends exactly
+				// on it and so does the cold band's start.
+				const inSomeBand = [zones.room, zones.cold].some(
+					(b) => b !== null && ideal >= b.min && ideal <= b.max
+				);
+				expect(inSomeBand).toBe(true);
+			}
+		}
+	});
+
+	it('falls back to the room band when the cold one is out of reach', () => {
+		// W 310's cold band starts at 24 h; with 20 h left only the room band
+		// (6–16 h after clipping) is reachable.
+		expect(idealWindowHours(zonesFor(310), 20)).toBe(16);
+	});
+
+	it('has no ideal for a flour whose band closes before the rail starts', () => {
+		// Supermarket 00: room band 2–4 h, no cold zone at all.
+		expect(idealWindowHours(zonesFor(180), 1000)).toBeNull();
+	});
+
+	it('has no ideal without a flour, or with the bake too close', () => {
+		expect(idealWindowHours(null, 1000)).toBeNull();
+		expect(idealWindowHours(zonesFor(310), 1)).toBeNull();
+	});
+});
+
+describe('stopsWithIdeal', () => {
+	it('splices the ideal in, in order', () => {
+		expect(stopsWithIdeal(40)).toEqual([6, 8, 12, 16, 18, 24, 36, 40, 48, 72, 80]);
+	});
+
+	it('leaves the canonical list alone when there is nothing to add', () => {
+		expect(stopsWithIdeal(null)).toEqual(WINDOW_STOPS);
+		expect(stopsWithIdeal(72)).toEqual(WINDOW_STOPS); // already a stop
+		expect(stopsWithIdeal(3)).toEqual(WINDOW_STOPS); // below the rail
+		expect(stopsWithIdeal(200)).toEqual(WINDOW_STOPS); // past the rail
+	});
+
+	it('stays strictly ascending, so the axis stays monotonic', () => {
+		for (const ideal of [7, 40, 41.5, 79]) {
+			const stops = stopsWithIdeal(ideal);
+			for (let i = 1; i < stops.length; i++) {
+				expect(stops[i]).toBeGreaterThan(stops[i - 1]);
+			}
+		}
+	});
+
+	it('never mutates WINDOW_STOPS', () => {
+		stopsWithIdeal(40);
+		expect(WINDOW_STOPS).toEqual([6, 8, 12, 16, 18, 24, 36, 48, 72, 80]);
+	});
+});
+
+describe('the ideal is reachable by hand once spliced in', () => {
+	const zones = flourZones(265, COLD_MODE_THRESHOLD_MIN / 60);
+
+	it('is what the re-pick lands on, and a stop the slider can return to', () => {
+		// The bug this fixes: the app chose 40 h on first visit, the user dragged
+		// away, and no slider position could get back to it.
+		const ideal = idealWindowHours(zones, 1000) as number;
+		const stops = stopsWithIdeal(ideal);
+
+		const best = bestWindowStopIndex(1000, zones, stops) as number;
+		expect(stops[best]).toBe(ideal);
+		// and dragging to that index reproduces it exactly
+		expect(stops[nearestWindowStopIndex(ideal, stops)]).toBe(ideal);
+	});
+
+	it('sits between the two canonical stops it falls among on the rail', () => {
+		const stops = stopsWithIdeal(40);
+		const pct = windowAxisPercent(40, stops);
+		expect(pct).toBeGreaterThan(windowAxisPercent(36, stops));
+		expect(pct).toBeLessThan(windowAxisPercent(48, stops));
 	});
 });
