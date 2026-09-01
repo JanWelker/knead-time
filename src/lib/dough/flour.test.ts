@@ -11,14 +11,40 @@ import { COLD_MODE_THRESHOLD_MIN } from './schedule';
 const COLD_THRESHOLD_H = COLD_MODE_THRESHOLD_MIN / 60;
 
 describe('FLOUR_PRESETS', () => {
-	it('pins the five shipped flours to their published W values', () => {
+	it('pins every shipped flour to its published W', () => {
 		expect(FLOUR_PRESETS).toEqual([
 			{ id: 'supermarket-00', w: 180 },
+			{ id: 'caputo-doppio-zero', w: 230 },
+			{ id: '5stagioni-napoletana', w: 260 },
 			{ id: 'caputo-pizzeria', w: 265 },
+			{ id: 'polselli-classica', w: 270 },
 			{ id: 'caputo-nuvola', w: 280 },
+			{ id: 'caputo-saccorosso', w: 290 },
+			{ id: 'dallagiovanna-classica-oro', w: 305 },
 			{ id: 'dallagiovanna-napoletana', w: 310 },
+			{ id: 'caputo-cuoco', w: 315 },
+			{ id: 'caputo-nuvola-super', w: 330 },
 			{ id: 'dallagiovanna-uniqua-blu', w: 380 }
 		]);
+	});
+
+	it('gives every preset a unique W, or one of them becomes unselectable', () => {
+		// flourPresetForW maps a W back to an id to drive the select, so two
+		// presets sharing a W would make the form show the first one's name
+		// while the second is picked — and picking the second would silently
+		// select the first. Found while adding seven flours at once.
+		const ws = FLOUR_PRESETS.map((p) => p.w);
+		expect(new Set(ws).size).toBe(ws.length);
+		for (const preset of FLOUR_PRESETS) {
+			expect(flourPresetForW(preset.w)).toBe(preset.id);
+		}
+	});
+
+	it('keeps every preset inside the input bounds the form clamps to', () => {
+		for (const preset of FLOUR_PRESETS) {
+			expect(preset.w).toBeGreaterThanOrEqual(150);
+			expect(preset.w).toBeLessThanOrEqual(400);
+		}
 	});
 
 	it('defaults to Caputo Pizzeria', () => {

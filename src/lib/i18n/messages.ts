@@ -82,9 +82,16 @@ export interface Messages {
 		flour: string;
 		flour_help: string;
 		'flour_supermarket-00': string;
+		'flour_caputo-doppio-zero': string;
+		'flour_5stagioni-napoletana': string;
 		'flour_caputo-pizzeria': string;
+		'flour_polselli-classica': string;
 		'flour_caputo-nuvola': string;
+		'flour_caputo-saccorosso': string;
+		'flour_dallagiovanna-classica-oro': string;
 		'flour_dallagiovanna-napoletana': string;
+		'flour_caputo-cuoco': string;
+		'flour_caputo-nuvola-super': string;
 		'flour_dallagiovanna-uniqua-blu': string;
 		flour_custom: string;
 		flour_none: string;
@@ -466,9 +473,16 @@ const en: Messages = {
 		flour_help:
 			'Strength (W) sets how long the dough tolerates fermenting — not how much water it takes.',
 		'flour_supermarket-00': 'Supermarket tipo 00',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
 		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Custom strength',
 		flour_none: 'Not specified',
@@ -898,9 +912,16 @@ const de: Messages = {
 		flour_help:
 			'Die Stärke (W-Wert) bestimmt, wie lange der Teig die Gare verträgt — nicht, wie viel Wasser er aufnimmt.',
 		'flour_supermarket-00': 'Supermarkt-Mehl Tipo 00',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
 		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigener W-Wert',
 		flour_none: 'Nicht angegeben',
@@ -1337,10 +1358,17 @@ const it: Messages = {
 		flour: 'Farina',
 		flour_help:
 			'La forza (W) determina quanto a lungo l’impasto regge la lievitazione — non quanta acqua assorbe.',
-		'flour_supermarket-00': 'Farina tipo 00 da supermercato',
+		'flour_supermarket-00': 'Farina 00 da supermercato',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
 		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Forza personalizzata',
 		flour_none: 'Non specificata',
@@ -1782,10 +1810,17 @@ const fr: Messages = {
 		flour: 'Farine',
 		flour_help:
 			'La force (W) détermine combien de temps la pâte supporte la fermentation — pas la quantité d’eau qu’elle absorbe.',
-		'flour_supermarket-00': 'Farine type 00 de supermarché',
+		'flour_supermarket-00': 'Farine tipo 00 de supermarché',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
 		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Force personnalisée',
 		flour_none: 'Non précisée',
@@ -2227,10 +2262,17 @@ const nl: Messages = {
 		flour: 'Meel',
 		flour_help:
 			'De sterkte (W-waarde) bepaalt hoe lang het deeg de rijs verdraagt — niet hoeveel water het opneemt.',
-		'flour_supermarket-00': 'Supermarktmeel tipo 00',
+		'flour_supermarket-00': 'Supermarkt tipo 00',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
 		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
 		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
 		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigen W-waarde',
 		flour_none: 'Niet opgegeven',
