@@ -183,6 +183,7 @@ export interface Messages {
 		window_no_band: string;
 		window_no_flour: string;
 		window_overrun: string;
+		window_start_moved: string;
 		window_capped_by_bake: string;
 		window_started_ago: string;
 		window_benefit_short: string;
@@ -593,6 +594,8 @@ const en: Messages = {
 		window_no_flour: 'Pick a flour to see its fermentation tolerance.',
 		window_overrun:
 			'That window would have to start before now. The longest that still fits before your bake time is {max}.',
+		window_start_moved:
+			'That window pushes your start to a different day — {start}. Check you’re free then.',
 		window_capped_by_bake:
 			'Your bake time leaves room for {max}. This flour would take up to {band} — set a later bake time to use it.',
 		window_started_ago:
@@ -1023,6 +1026,8 @@ const de: Messages = {
 		window_no_flour: 'Wähle ein Mehl, um seine Garetoleranz zu sehen.',
 		window_overrun:
 			'Dieses Fenster müsste in der Vergangenheit beginnen. Das längste, das bis zur Backzeit noch passt, sind {max}.',
+		window_start_moved:
+			'Dieses Fenster verschiebt deinen Start auf einen anderen Tag — {start}. Prüfe, ob du dann Zeit hast.',
 		window_capped_by_bake:
 			'Bis zur Backzeit ist Platz für {max}. Dieses Mehl verträgt bis zu {band} — wähle eine spätere Backzeit, um das auszunutzen.',
 		window_started_ago:
@@ -1459,6 +1464,8 @@ const it: Messages = {
 		window_no_flour: 'Scegli una farina per vederne la tolleranza.',
 		window_overrun:
 			'Questa finestra dovrebbe iniziare nel passato. La più lunga che entra ancora prima della cottura è {max}.',
+		window_start_moved:
+			'Questa finestra sposta l’inizio a un altro giorno — {start}. Controlla di essere disponibile.',
 		window_capped_by_bake:
 			'Fino all’ora di cottura c’è spazio per {max}. Questa farina regge fino a {band} — imposta un orario più tardi per sfruttarla.',
 		window_started_ago:
@@ -1900,6 +1907,8 @@ const fr: Messages = {
 		window_no_flour: 'Choisis une farine pour voir sa tolérance.',
 		window_overrun:
 			'Cette fenêtre devrait commencer dans le passé. La plus longue qui tient encore avant la cuisson est {max}.',
+		window_start_moved:
+			'Cette fenêtre décale ton début à un autre jour — {start}. Vérifie que tu es disponible.',
 		window_capped_by_bake:
 			'D’ici à la cuisson, il y a de la place pour {max}. Cette farine supporte jusqu’à {band} — choisis une heure de cuisson plus tardive pour en profiter.',
 		window_started_ago:
@@ -2339,6 +2348,8 @@ const nl: Messages = {
 		window_no_flour: 'Kies een meel om de rijstolerantie te zien.',
 		window_overrun:
 			'Dit venster zou in het verleden moeten beginnen. Het langste dat nog vóór de baktijd past is {max}.',
+		window_start_moved:
+			'Dit venster verschuift je start naar een andere dag — {start}. Controleer of je dan tijd hebt.',
 		window_capped_by_bake:
 			'Tot de baktijd is er ruimte voor {max}. Dit meel verdraagt tot {band} — kies een latere baktijd om dat te benutten.',
 		window_started_ago:

@@ -8,7 +8,7 @@
 		WINDOW_STOPS,
 		windowAxisPercent
 	} from '$lib/dough/windowPresets';
-	import { formatDateTime, formatDuration } from '$lib/format';
+	import { formatDateTime, formatDuration, toDatePart } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { onMount } from 'svelte';
@@ -77,9 +77,17 @@
 	// say why. Cleared by the next drag that lands legally, and by a new bake
 	// time, since the refusal was about that particular deadline.
 	let overrun = $state(false);
+
+	// The bake time is the anchor, so lengthening the window can only move the
+	// start — and past a certain length that lands on a different day, which is
+	// easy to miss when the readout is counting hours. Say so when the day
+	// actually changes; a same-day shift is visible in the field just above.
+	let startMovedDay = $state(false);
+
 	$effect(() => {
 		void form.readyBy;
 		overrun = false;
+		startMovedDay = false;
 	});
 
 	const windowHours = $derived(form.fermentWindowHours);
@@ -233,12 +241,14 @@
 			oninput={(e) => {
 				const wanted = e.currentTarget.valueAsNumber;
 				const allowed = Math.min(wanted, reachableIndex);
+				const dayBefore = toDatePart(form.startAt);
 				overrun = wanted > reachableIndex;
 				// Put the thumb back by hand. A refused drag usually leaves the
 				// bound index unchanged, so Svelte re-renders nothing and the thumb
 				// would sit out in the greyed stretch contradicting the readout.
 				e.currentTarget.value = String(allowed);
 				form.fermentWindowHours = WINDOW_STOPS[allowed];
+				startMovedDay = toDatePart(form.startAt) !== dayBefore;
 			}}
 			class="absolute inset-0 w-full appearance-none bg-transparent disabled:cursor-not-allowed {reachableIndex <
 			0
@@ -278,6 +288,17 @@
 		>
 			{interpolate(t.schedule.window_overrun, {
 				max: formatWindow(WINDOW_STOPS[reachableIndex])
+			})}
+		</p>
+	{/if}
+
+	{#if startMovedDay}
+		<p
+			class="border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100 mt-2 rounded-lg border px-3 py-2 text-sm"
+			role="status"
+		>
+			{interpolate(t.schedule.window_start_moved, {
+				start: formatDateTime(form.startAt, i18n.locale)
 			})}
 		</p>
 	{/if}
