@@ -6,6 +6,7 @@
 	import type { FormState } from '$lib/state.svelte';
 	import FormField from './FormField.svelte';
 	import FermentWindowSlider from './FermentWindowSlider.svelte';
+	import Warnings from './Warnings.svelte';
 
 	let { form }: { form: FormState } = $props();
 
@@ -361,6 +362,13 @@
 			/>
 		{/if}
 	</fieldset>
+
+	<!-- Warnings read under the inputs that cause them, not over in the
+	     schedule: every one is fixed by changing a field on this card, and the
+	     window slider's own refusal notice already sits here. Above the mode
+	     toggle and the info section, or expert view would bury them under a
+	     screenful of collapsed prose. -->
+	<Warnings warnings={form.schedule.warnings} />
 
 	<div>
 		<button

@@ -35,7 +35,6 @@
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import TrmnlPush from '$lib/components/TrmnlPush.svelte';
-	import Warnings from '$lib/components/Warnings.svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
@@ -365,7 +364,6 @@
 				</div>
 			</div>
 
-			<Warnings warnings={form.schedule.warnings} />
 			<div class="mt-4">
 				<ScheduleTable
 					schedule={form.schedule}
