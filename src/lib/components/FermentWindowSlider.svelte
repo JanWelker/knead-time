@@ -230,17 +230,13 @@
 				{/if}
 			{/each}
 			<!-- Everything past the bake deadline, drawn over the zones and
-			     notches so an unreachable stretch cannot look available. -->
+			     notches so an unreachable stretch cannot look available. Where
+			     it begins is the deadline; the flag above points at the same
+			     spot, so a line on the rail as well was a third telling of one
+			     fact. -->
 			{#if unreachableFromPct < 100}
 				<div
 					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
-					style="left:{unreachableFromPct}%"
-				></div>
-				<!-- The bake deadline itself: everything right of this line would
-				     have had to start before now. Drawn last so it stays visible
-				     on top of the grey. -->
-				<div
-					class="bg-tomato-500 absolute inset-y-0 w-[3px] -translate-x-1/2 rounded-full"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
