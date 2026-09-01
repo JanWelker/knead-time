@@ -15,7 +15,9 @@
 //
 // Counts are collected, not run: `vitest list` and `playwright test --list`
 // enumerate without executing, so this is cheap enough to sit in front of the
-// real suites.
+// real suites. `vitest list` still needs .svelte-kit/tsconfig.json, so the npm
+// script runs `svelte-kit sync` first — a clean checkout has no such file, and
+// the failure it produces looks nothing like a missing tsconfig.
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
