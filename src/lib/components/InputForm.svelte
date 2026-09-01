@@ -120,7 +120,7 @@
 			</div>
 			{#if startAtClamped}
 				<p
-					class="mt-2 rounded-lg border px-3 py-2 text-sm border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200"
+					class="border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200 mt-2 rounded-lg border px-3 py-2 text-sm"
 					role="alert"
 				>
 					{t.form.startAt_clamped}
