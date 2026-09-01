@@ -1,4 +1,5 @@
 import type { UiMode } from '../storedMode';
+import { DEFAULT_FLOUR_W } from './flour';
 import { clampInput, clampPreFermentShares } from './inputBounds';
 import type { DoughInputs, PreFermentSpec, YeastType } from './types';
 
@@ -17,9 +18,17 @@ export type SerializableInputs = DoughInputs;
 // (rename/remove a field, change a unit, change defaults that links should
 // preserve). Keep decode() understanding every published key shape so links
 // shared before the change still resolve to a working recipe.
-const CURRENT_VERSION = 5;
+const CURRENT_VERSION = 6;
 const VERSION_KEY = 'v';
 
+// v=6 adds 'fw' (flour W). Like 'al' it is version-gated rather than
+// add-only, because it has a non-null default: a v=6 link OMITS 'fw' when the
+// flour is the Caputo-Pizzeria default, writes 'fw=0' for "no flour stated"
+// and writes the number otherwise. Pre-v6 links predate the field entirely, so
+// a missing 'fw' decodes to null there — they were shared before the app knew
+// about flour and must not retroactively claim one. Nothing about the recipe
+// or the schedule changes either way; 'fw' only drives advisory warnings and
+// the fit score.
 // v=5 adds 'al' (autolyse). Autolyse defaults ON for no-pre-ferment recipes,
 // so a v=5 link OMITS 'al' when on and stamps 'al=0' only for the expert
 // opt-out. Pre-v5 links never carried it and were computed WITHOUT an autolyse
@@ -54,6 +63,7 @@ const KEYS_V4 = {
 	ballProof: 'bp',
 	mixingMethod: 'mm',
 	autolyse: 'al',
+	flourW: 'fw',
 	preFerment: 'p'
 } as const;
 
@@ -94,6 +104,11 @@ export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }):
 	if (inputs.ballProof === 'cold') params.set(KEYS_V4.ballProof, 'c');
 	// Autolyse defaults on for no-pre-ferment recipes — stamp only the opt-out.
 	if (!inputs.autolyse) params.set(KEYS_V4.autolyse, '0');
+	// '0' is the explicit "no flour stated"; the default flour is simply omitted.
+	if (inputs.flourW === null) params.set(KEYS_V4.flourW, '0');
+	else if (inputs.flourW !== DEFAULT_FLOUR_W) {
+		params.set(KEYS_V4.flourW, String(inputs.flourW));
+	}
 	if (inputs.preFerments.length > 0) {
 		params.set(KEYS_V4.preFerment, inputs.preFerments.map(formatPreFerment).join('_'));
 	}
@@ -153,6 +168,20 @@ export function decodeUiMode(query: string): UiMode | null {
 	if (md === 'b') return 'beginner';
 	if (md === 'e') return 'expert';
 	return hasRecipeParams(query) ? 'expert' : null;
+}
+
+// The recipe memory is the user's OWN last recipe on their OWN device — not a
+// link a stranger sent them. The pre-v6 'fw' gate exists so an old share-link
+// can't retroactively claim a flour it was never made with; applying it to the
+// memory instead pins every returning user to "no flour stated" forever, and
+// they'd never see the tolerance band without digging into the expert options.
+// So on this path a stored query that predates the field entirely lets the
+// current default fill in. An explicit 'fw=0' is still a real choice and wins.
+export function decodeStoredRecipe(query: string): Partial<SerializableInputs> {
+	const out = decodeInputs(query);
+	// URLSearchParams strips a leading '?' itself, so both call shapes work.
+	if (!new URLSearchParams(query).has(KEYS_V4.flourW)) delete out.flourW;
+	return out;
 }
 
 export function decodeInputs(query: string): Partial<SerializableInputs> {
@@ -229,9 +258,19 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	// autolyse on (the new default, so it's simply omitted), while pre-v5 links
 	// predate the feature and must reproduce their original no-autolyse schedule.
 	// Missing v = v1 (legacy), so it falls to the off side.
+	// Missing v = v1 (legacy), which falls to the off/absent side of both gates.
+	const version = Number(params.get(VERSION_KEY)) || 1;
+
 	const al = params.get(KEYS_V4.autolyse);
 	if (al !== null) out.autolyse = al !== '0';
-	else if ((Number(params.get(VERSION_KEY)) || 1) < 5) out.autolyse = false;
+	else if (version < 5) out.autolyse = false;
+
+	// Flour strength: '0' is the explicit "not stated". An absent key means the
+	// default flour on v ≥ 6 (left undefined so FormState fills it in) and no
+	// flour at all on the pre-v6 links that predate the field.
+	const fw = num(params.get(KEYS_V4.flourW));
+	if (fw !== null) out.flourW = fw === 0 ? null : clampInput('flourW', fw);
+	else if (version < 6) out.flourW = null;
 
 	const p = params.get(KEYS_V4.preFerment);
 	if (p) {

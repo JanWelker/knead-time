@@ -1,6 +1,6 @@
 {
 	"name": "knead-time",
-	"version": "5.0.1",
+	"version": "6.7.3",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
@@ -16,12 +16,16 @@
 		"test": "TZ=UTC vitest run",
 		"test:watch": "TZ=UTC vitest",
 		"test:coverage": "TZ=UTC vitest run --coverage",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:baseline": "svelte-kit sync && node scripts/check-test-baseline.mjs",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"prepare": "husky || true"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
+		"@playwright/test": "^1.62.1",
 		"@sveltejs/adapter-static": "^3.0.6",
 		"@sveltejs/kit": "^2.20.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",

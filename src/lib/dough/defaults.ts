@@ -1,3 +1,4 @@
+import { DEFAULT_FLOUR_W } from './flour';
 import type { DoughInputs } from './types';
 
 // Single source of truth for the recipe-parameter defaults. Consumed by both
@@ -18,6 +19,10 @@ export const RECIPE_DEFAULTS: Omit<DoughInputs, 'readyBy' | 'startAt' | 'preFerm
 	preFermentTempC: null,
 	ballProof: 'room',
 	mixingMethod: 'spiral',
+	// Caputo Pizzeria (W 260-270) — the workhorse Neapolitan tipo 00. Pre-v6
+	// share-links decode to null instead: they were made before the app knew
+	// about flour, so claiming one would be a fabrication.
+	flourW: DEFAULT_FLOUR_W,
 	// On by default: a no-pre-ferment recipe gets an autolyse rest unless the
 	// user (expert view) or an old-schema share-link opts out.
 	autolyse: true

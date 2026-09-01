@@ -22,7 +22,8 @@ describe('INPUT_BOUNDS', () => {
 			starterHydration: { min: 40, max: 150 },
 			roomTempC: { min: 10, max: 35 },
 			fridgeTempC: { min: 0, max: 12 },
-			preFermentTempC: { min: 4, max: 35 }
+			preFermentTempC: { min: 4, max: 35 },
+			flourW: { min: 150, max: 400 }
 		});
 		expect(PREFERMENT_SHARE_MIN).toBe(5);
 		expect(PREFERMENT_SHARE_MAX).toBe(80);

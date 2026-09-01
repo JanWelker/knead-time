@@ -5,9 +5,17 @@
 
 A time-anchored Neapolitan pizza dough calculator — [try it live](https://kneadtime.pizza). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
+New in v6: **flour strength (W)** and a **fermentation-window slider**.
+
+Pick your flour and the schedule paints the window that flour actually tolerates. Twelve presets are shelved by what each strength is for — same-day, ~24 h, ~48 h, 48–72 h, plus a too-weak and a too-strong shelf, with the AVPN spec's W 220–380 as the outer edges — covering Caputo (Doppio Zero, Pizzeria, Nuvola, Saccorosso, Cuoco, Nuvola Super), Dallagiovanna (Classica Oro, La Napoletana, Uniqua Blu), Le 5 Stagioni Pizza Napoletana, Polselli Classica and a generic supermarket tipo 00. Or type a W yourself.
+
+The slider snaps to the windows Neapolitan practice actually uses (6, 8, 12, 16, 18, 24, 36, 48, 72 h), greys out anything that no longer fits before your bake time, and gives the longest window your flour handles well a stop of its own, marked under the rail. Change the bake time or the flour and it re-picks that window for you; a **Use best** button puts it back after you have dragged elsewhere.
+
+W is advisory only: it predicts how long the gluten survives fermenting, **not** how much water the flour takes, so it never touches hydration, the ingredient masses or the yeast solve. Old share-links predate the field and stay flour-less.
+
 New in v5: an **autolyse rest** — when you're not using a pre-ferment, the app rests flour and water for 30 min before the salt and yeast go in (less kneading, a more extensible dough). It's on by default (including the beginner view); experts can switch it off. Old share-links predate it and reproduce their original schedule unchanged.
 
-New in v4: a **beginner view** (just "how many, when, and how you knead" — every step explained via the schedule's short/detailed switch; experts get the full form), **spiral, stand-mixer or hand kneading** — each adapts the mix step and the water temperature to how efficiently it works the dough, **combined pre-ferments** (biga and poolish maturing in parallel, each with its own flour share and an optional cellar temperature), **dry yeast** (instant and active dry alongside fresh and sourdough), a **cold ball proof** option (divide first, balls ripen in the fridge), and **recipe memory** — the app restores your last recipe on a fresh visit and keeps a device-local recipe book.
+New in v4: a **beginner view** (just "how many, when, how you knead, and which flour" — every step explained via the schedule's short/detailed switch; experts get the full form), **spiral, stand-mixer or hand kneading** — each adapts the mix step and the water temperature to how efficiently it works the dough, **combined pre-ferments** (biga and poolish maturing in parallel, each with its own flour share and an optional cellar temperature), **dry yeast** (instant and active dry alongside fresh and sourdough), a **cold ball proof** option (divide first, balls ripen in the fridge), and **recipe memory** — the app restores your last recipe on a fresh visit and keeps a device-local recipe book.
 
 Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, five languages (EN / DE / IT / FR / NL), shareable recipes via URL.
 
@@ -52,6 +60,9 @@ src/
 │   │   ├── schedule.ts        backwards schedule, cold↔room auto-switch
 │   │   ├── ics.ts             RFC 5545 calendar export
 │   │   ├── urlState.ts        compact share-link encoding
+│   │   ├── flour.ts           flour presets, W → fermentation-tolerance bands
+│   │   ├── windowPresets.ts   slider stops, rail axis, the ideal window
+│   │   ├── quality.ts         recipe-fit score (0–100 → 0–5 stars)
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
@@ -59,7 +70,8 @@ src/
 │   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
-│   ├── state.svelte.ts   ← form state as a $state class
+│   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
+│   ├── warningSlots.ts   ← which card each schedule warning is rendered in
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
@@ -73,13 +85,20 @@ src/
 ├── app.css               ← Tailwind v4 entrypoint + @theme palette
 └── app.html              ← shell
 
-.github/workflows/
-├── ci.yml                ← lint + check + coverage gate + build on PRs and pushes to main
-├── deploy.yml            ← build + publish to GitHub Pages on main
-└── preview.yml           ← build + publish a per-PR preview, comment the URL, clean up on close
+e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
+scripts/
+└── check-test-baseline.mjs   refuses a change that removes tests or relaxes coverage
+
+.github/
+├── test-baseline.json    ← how many tests exist; the floor the script enforces
+└── workflows/
+    ├── ci.yml            ← verify (lint + check + coverage gate + build) and e2e, on PRs and pushes to main
+    ├── deploy.yml        ← build + publish to GitHub Pages on main
+    └── preview.yml       ← build + publish a per-PR preview, comment the URL, clean up on close
 
 vite.config.ts            ← Vite (no test config; runtime build only)
 vitest.config.ts          ← Vitest (kept separate so vite types stay clean)
+playwright.config.ts      ← Playwright (builds and serves the real static output)
 ```
 
 ### npm scripts
@@ -89,6 +108,9 @@ vitest.config.ts          ← Vitest (kept separate so vite types stay clean)
 | `npm run dev`           | Vite dev server on port 5173 with HMR                      |
 | `npm test`              | Run vitest once (`npm run test:watch` for watch mode)      |
 | `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                |
+| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build  |
+| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                    |
+| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage     |
 | `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check) |
 | `npm run lint`          | Prettier check + ESLint                                    |
 | `npm run format`        | Prettier write                                             |
@@ -105,7 +127,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
 3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
-5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`.
+5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`.
 
 ### Print / PDF export
 
@@ -155,7 +177,9 @@ The workflow resolves the **base path** automatically. A **custom domain** (a `s
 
 The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
 
-A separate **`.github/workflows/ci.yml`** runs lint, type-check, the coverage-gated test suite, and build on every PR and on pushes to `main`, but doesn't deploy. The `main` runs exist so Codecov gets a main-branch baseline (the badge at the top points at `branch/main`); branch protection already guarantees the PR check was green before merge.
+A separate **`.github/workflows/ci.yml`** runs on every PR and on pushes to `main`, but doesn't deploy. It has two jobs: **`verify`** (lint, type-check, the coverage-gated suite, build) and **`e2e`** (the test-count ratchet, then Playwright against a real build). Both are **required status checks** on `main` — note that `main` is guarded by a repository _ruleset_, so the classic branch-protection API reports it as unprotected; see `gh api repos/JanWelker/knead-time/rulesets`. Adding a CI job does not make it required, that is a separate change to the ruleset.
+
+The `main` runs exist so Codecov gets a main-branch baseline (the badge at the top points at `branch/main`). The CI badge covers the whole workflow, so a failing `e2e` turns it red too — it needs no badge of its own.
 
 ---
 
@@ -210,7 +234,8 @@ has seven columns:
 ## Conventions worth knowing
 
 - All calculation logic stays in `src/lib/dough/` and is **framework-free**. Components only render results.
-- Tests live next to the code they cover (`foo.ts` + `foo.test.ts`). The dough math is the priority surface; UI tests are not currently planned.
+- Tests live next to the code they cover (`foo.ts` + `foo.test.ts`); browser tests live in `e2e/`. The dough math is unit-tested to a 100 % gate. Anything that lives in a component or a `.svelte.ts` module is covered by the Playwright suite instead — vitest has no Svelte plugin, so those files cannot even be imported by a unit test.
+- **The suite may grow, never shrink.** `npm run test:baseline` compares both collected test counts against `.github/test-baseline.json` and re-checks that the coverage thresholds are still 100. Lowering either is allowed, but only as an explicit edit to that file — coverage alone would not notice, since it is a ratio and the browser suite has no coverage gate at all.
 - Comments explain **why**, not what. A named function or variable is the documentation for _what_.
 - New dependencies should be small and justified. We prefer hand-rolling small things (the `.ics` generator is hand-written) over pulling in large libraries.
 - The full project rationale and scope lives in `CLAUDE.md`.

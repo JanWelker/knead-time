@@ -130,11 +130,11 @@
 				{@const wait = WAIT_KINDS.has(step.kind)}
 				{@const flags = stepQualityFlags(step, schedule)}
 				{@const ingredients = stepIngredients(step, t, schedule)}
-				<li
-					class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3 {past
-						? 'opacity-70'
-						: ''}"
-				>
+				<!-- Past steps are NOT dimmed: fading them read as a rendering glitch
+				     rather than as information. The fermentation-window card says
+				     outright when the schedule opens before now. `past` still mutes
+				     the accent on an already-missed bake moment below. -->
+				<li class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3">
 					<!-- Rail: a vertical line threading every node within the day. -->
 					<div class="relative">
 						{#if si > 0}

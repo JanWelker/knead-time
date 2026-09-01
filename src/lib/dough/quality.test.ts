@@ -399,3 +399,60 @@ describe('fitStars', () => {
 		expect(fitStars(score)).toBe(stars);
 	});
 });
+
+describe('recipeFitScore — flour-window-off', () => {
+	// A 24 h cold window, which Caputo Pizzeria (W 265, band 16-40 h) covers.
+	const window24h = {
+		startAt: new Date('2026-05-11T19:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+
+	function score(overrides: Partial<DoughInputs>) {
+		const i = inputs({ ...window24h, ...overrides });
+		return recipeFitScore(computeSchedule(i), i);
+	}
+
+	it('does not fire when the window is inside the flour band', () => {
+		expect(factorKinds(score({ flourW: 265 }).factors)).not.toContain('flour-window-off');
+	});
+
+	it('does not fire when no flour is stated', () => {
+		expect(factorKinds(score({ flourW: null }).factors)).not.toContain('flour-window-off');
+	});
+
+	it('fires with the hours outside the band as its delta', () => {
+		const fit = score({ flourW: 180 });
+		const factor = fit.factors.find((f) => f.factor === 'flour-window-off');
+		// Supermarket 00 tolerates 12 h cold; the window is 24 h.
+		expect(factor?.delta).toBeCloseTo(12, 6);
+	});
+
+	it('deducts 1.5 points per hour outside the band', () => {
+		// 44 h window against Caputo Pizzeria's 16-40 h cold band = 4 h over.
+		// Comparing against the same window with no flour isolates the factor
+		// from whatever else a 44 h schedule costs.
+		const long44h = {
+			startAt: new Date('2026-05-10T23:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		};
+		const withFlour = score({ ...long44h, flourW: 265 });
+		const withoutFlour = score({ ...long44h, flourW: null });
+		expect(withoutFlour.score - withFlour.score).toBe(Math.round(4 * 1.5));
+	});
+
+	it('caps the deduction so one wrong flour cannot sink the score alone', () => {
+		// A 4 d window on the weakest flour runs ~84 h past the band; uncapped
+		// that would be 126 points, which would zero the score by itself.
+		const veryLong = {
+			startAt: new Date('2026-05-08T19:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		};
+		const withFlour = score({ ...veryLong, flourW: 150 });
+		const withoutFlour = score({ ...veryLong, flourW: null });
+		expect(withoutFlour.score - withFlour.score).toBe(12);
+	});
+
+	it('keeps a default Caputo recipe at a full five stars', () => {
+		expect(fitStars(score({ flourW: 265 }).score)).toBe(5);
+	});
+});

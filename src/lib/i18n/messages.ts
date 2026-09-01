@@ -15,6 +15,7 @@ export interface Messages {
 		section_when: string;
 		section_recipe: string;
 		startAt: string;
+		startAt_clamped: string;
 		startAt_help: string;
 		startAt_now: string;
 		readyBy: string;
@@ -51,8 +52,12 @@ export interface Messages {
 		info_round_body: string;
 		info_fit_title: string;
 		info_fit_body: string;
+		info_defaults_title: string;
+		info_defaults_body: string;
 		info_night_title: string;
 		info_night_body: string;
+		info_flour_title: string;
+		info_flour_body: string;
 		pizzaCount: string;
 		ballWeight: string;
 		ballWeight_round: string;
@@ -76,6 +81,30 @@ export interface Messages {
 		roomTemp_help: string;
 		fridgeTemp: string;
 		fridgeTemp_help: string;
+		flour: string;
+		flour_help: string;
+		flour_band_weak: string;
+		flour_band_sameDay: string;
+		flour_band_day24: string;
+		flour_band_day48: string;
+		flour_band_day72: string;
+		flour_band_veryStrong: string;
+		'flour_supermarket-00': string;
+		'flour_caputo-doppio-zero': string;
+		'flour_5stagioni-napoletana': string;
+		'flour_caputo-pizzeria': string;
+		'flour_polselli-classica': string;
+		'flour_caputo-nuvola': string;
+		'flour_caputo-saccorosso': string;
+		'flour_dallagiovanna-classica-oro': string;
+		'flour_dallagiovanna-napoletana': string;
+		'flour_caputo-cuoco': string;
+		'flour_caputo-nuvola-super': string;
+		'flour_dallagiovanna-uniqua-blu': string;
+		flour_custom: string;
+		flour_none: string;
+		flourW: string;
+		flourW_help: string;
 		mixingMethod: string;
 		mixingMethod_help: string;
 		mixing_spiral: string;
@@ -163,6 +192,21 @@ export interface Messages {
 		source_timing_label: string;
 		icon_active: string;
 		icon_passive: string;
+		window_label: string;
+		window_in_band: string;
+		window_out_of_band: string;
+		window_no_band: string;
+		window_no_flour: string;
+		window_overrun: string;
+		window_ideal: string;
+		window_use_ideal: string;
+		window_limit_label: string;
+		window_start_moved: string;
+		window_capped_by_bake: string;
+		window_started_ago: string;
+		window_benefit_short: string;
+		window_benefit_medium: string;
+		window_benefit_long: string;
 		now: string;
 	};
 	quality: {
@@ -189,6 +233,7 @@ export interface Messages {
 		factor_room_temp_off: string;
 		factor_fridge_temp_off: string;
 		factor_yeast_extreme: string;
+		factor_flour_window_off: string;
 	};
 	ingredients: {
 		heading: string;
@@ -264,6 +309,8 @@ export interface Messages {
 		yeast_tiny: string;
 		yeast_large: string;
 		night_step: string;
+		flour_window_long: string;
+		flour_window_short: string;
 	};
 	footer: {
 		about: string;
@@ -345,6 +392,8 @@ const en: Messages = {
 		section_when: 'When',
 		section_recipe: 'Recipe',
 		startAt: 'Start time',
+		startAt_clamped:
+			'A start time after the bake makes no sense — moved it to the bake time. Pick an earlier start, or a later bake.',
 		startAt_help:
 			"The earliest you're available to start. Steps fit between this moment and the bake.",
 		startAt_now: 'Now',
@@ -396,10 +445,16 @@ const en: Messages = {
 			'The rounding button nudges the ball weight in 0.1 g steps until the flour lands on a multiple of 100 g — 50 g for batches under 400 g flour, so small doughs keep a sensible ball weight.',
 		info_fit_title: 'The star rating',
 		info_fit_body:
-			'Starts at 100 points; one star per 20. Points come off when the schedule had to bend (a cold leg or pre-ferment forced off its natural length, a step stuck in the night window, an infeasible window) and when inputs leave the contemporary Neapolitan bands: 60-80% hydration, 2-3.5% salt, 200-320 g balls, 14-30 °C room, 2-8 °C fridge, solved yeast 0.05-1.5% in fresh-yeast terms (dry yeast and starter convert first). Every deduction is capped, so one wild input cannot zero the rating.',
+			'Starts at 100 points; one star per 20. Points come off when the schedule had to bend (a cold leg or pre-ferment forced off its natural length, a step stuck in the night window, an infeasible window) and when inputs leave the contemporary Neapolitan bands: 60-80% hydration, 2-3.5% salt, 200-320 g balls, 14-30 °C room, 2-8 °C fridge, solved yeast 0.05-1.5% in fresh-yeast terms (dry yeast and starter convert first) — and when the window falls outside what the chosen flour tolerates. Every deduction is capped, so one wild input cannot zero the rating.',
+		info_defaults_title: 'Defaults and limits',
+		info_defaults_body:
+			'A fresh visit starts from 6 balls of 280 g, 70 % hydration, 3 % salt, no oil or sugar, fresh yeast, a spiral mixer, Caputo Pizzeria (W 265), an autolyse rest, 22 °C in the kitchen and 4 °C in the fridge, baking tomorrow at 19:00. Change anything and the rest stays put. Every number is also held inside a band, silently, wherever it arrives from — typed into the form or hand-edited into a share link: 1–100 pizzas, 100–600 g balls, 50–90 % hydration, 0–5 % salt, 0–15 % oil, 0–5 % sugar, 40–150 % starter hydration, 10–35 °C room, 0–12 °C fridge, 4–35 °C pre-ferment, W 150–400, and each pre-ferment 5–80 % of the flour with 80 % across both. An emptied field reads as the band minimum rather than poisoning the maths. Nothing this app has ever written falls outside these bands, so clamping never changes what an old link meant.',
 		info_night_title: 'Night-window guard',
 		info_night_body:
 			'No active step is allowed between 22:00 and 08:00. The cold-bulk leg only ever shrinks (never grows — the first step must stay at or after your start time) until mixing and shaping land in waking hours; if no length works, the schedule keeps the natural timing and warns instead.',
+		info_flour_title: 'Flour strength (W)',
+		info_flour_body:
+			'W is the Chopin alveograph deformation energy — how much work the gluten takes before it tears. It does NOT tell you how much water the flour absorbs: that is a separate farinograph measurement driven by protein, damaged starch and pentosans. So W never touches hydration, the ingredient masses or the yeast solve here. What it does predict is fermentation tolerance. Knead Time interpolates a good window between three anchors — W 180: 2–4 h at room temperature / 6–12 h cold; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in log-hours, because tolerance grows geometrically with W, and clamps rather than extrapolates past the edges. The upper edges are calibrated against the preset flours’ published fermentation ranges; the lower edge is deliberately generous, since using a strong flour for a short bake wastes the flour rather than spoiling the dough. Each band is clipped to its own regime (the app switches to cold above a 16 h window), so a weak flour offers no cold zone at all. A window outside the band raises a warning and costs the fit score 1.5 points per hour, capped at 12. A flour stronger than the top anchor shares its band: without a published fermentation range to anchor on, we clamp rather than invent a longer tolerance. Changing the bake time — or the flour — re-picks the window for you: the longest one that both fits before the bake and stays inside this band, floored to the hour. That figure gets a position of its own on the slider, marked from below, so you can always drag back to it. When a flour’s whole band closes before the slider’s shortest window, you get that shortest window instead. The slider itself moves between the windows Neapolitan practice actually uses — 6, 8, 12, 16, 18, 24, 36, 48 and 72 hours — plus an 80 h stop that is not a canonical time but this schedule’s own ceiling: the cold bulk caps out, so about 78 h is the longest window even a maximal pre-ferment can fill.',
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Ball weight (g)',
 		ballWeight_round: 'Round numbers',
@@ -425,6 +480,30 @@ const en: Messages = {
 		roomTemp_help: 'Warmer kitchens ferment faster — this drives the math.',
 		fridgeTemp: 'Fridge temperature (°C)',
 		fridgeTemp_help: 'Only used during the cold-bulk phase. Home fridges run 2–7 °C.',
+		flour: 'Flour',
+		flour_help: 'Strength (W) sets how long the dough tolerates fermenting.',
+		flour_band_weak: 'Too weak for a long ferment',
+		flour_band_sameDay: 'Same day — up to 12 h',
+		flour_band_day24: 'Around 24 h',
+		flour_band_day48: 'Around 48 h',
+		flour_band_day72: 'Long — 48 to 72 h',
+		flour_band_veryStrong: 'Very strong — for biga and blends',
+		'flour_supermarket-00': 'Supermarket tipo 00',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
+		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
+		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
+		flour_custom: 'Custom strength',
+		flour_none: 'Not specified',
+		flourW: 'Flour strength (W)',
+		flourW_help: 'Alveograph value from the bag. A higher W survives a longer ferment.',
 		mixingMethod: 'Mixing',
 		mixingMethod_help:
 			'A spiral mixer kneads most efficiently; a stand mixer needs longer; hand kneading takes the longest and warms the dough the least — the mix step and the recommended water temperature adapt.',
@@ -541,6 +620,28 @@ const en: Messages = {
 		source_timing_label: 'Original: {duration}',
 		icon_active: 'Active step',
 		icon_passive: 'Waiting step',
+		window_label: 'Fermentation window',
+		window_in_band: 'Within what this flour tolerates',
+		window_out_of_band: 'Outside what this flour tolerates',
+		window_no_band: 'This flour is too weak for a cold ferment.',
+		window_no_flour: 'Pick a flour to see its fermentation tolerance.',
+		window_overrun:
+			'That window would have to start before now. The longest that still fits before your bake time is {max}.',
+		window_ideal: 'Best for this flour',
+		window_use_ideal: 'Use best',
+		window_limit_label: 'Limit set by ‘ready to bake’ time',
+		window_start_moved:
+			'That window pushes your start to a different day — {start}. Check you’re free then.',
+		window_capped_by_bake:
+			'Your bake time leaves room for {max}. This flour would take up to {band} — set a later bake time to use it.',
+		window_started_ago:
+			'This window started {ago} ago — move the bake time later, or pick a shorter window.',
+		window_benefit_short:
+			'Under 12 hours the yeast is mostly making gas. Give the dough longer and the flour’s own enzymes get time to work: starch breaks down into sugar, and the gluten relaxes.',
+		window_benefit_medium:
+			'Long enough for the enzymes to matter. Starch turns into sugars that deepen the flavour and colour the crust, and the gluten relaxes so the ball opens without fighting back. Long fermentation also breaks down some of the fructans in the flour, which is why many people find this dough easier to digest.',
+		window_benefit_long:
+			'The deep-flavour end: slow ripening builds aromas a short rise never reaches, the dough handles softly, and so little yeast is needed that nothing tastes of yeast. Returns flatten from here, and the flour’s own tolerance becomes the limit — that is what the band above is watching.',
 		now: 'Now'
 	},
 	quality: {
@@ -573,6 +674,7 @@ const en: Messages = {
 			'Kitchen temperature is {delta} °C outside the 14–30 °C comfortable range.',
 		factor_fridge_temp_off:
 			'Fridge temperature is {delta} °C outside the 2–8 °C cold-ferment range.',
+		factor_flour_window_off: 'Window sits {delta} h outside the flour’s fermentation tolerance.',
 		factor_yeast_extreme: 'Solved yeast is outside the typical 0.05–1.5% range.'
 	},
 	ingredients: {
@@ -650,6 +752,9 @@ const en: Messages = {
 		too_warm: 'Kitchen looks hot — dough may overproof. Watch it closely.',
 		yeast_tiny: 'Yeast is tiny — measure carefully (a kitchen scale that reads 0.1 g helps).',
 		yeast_large: 'Yeast is unusually high — double-check the inputs.',
+		flour_window_long:
+			'Longer than this flour’s strength tolerates — the gluten may break down before you bake.',
+		flour_window_short: 'Shorter than this flour needs — a weaker flour would do the same job.',
 		night_step:
 			'A step still falls between 22:00 and 08:00. Shift the bake time so every task lands during waking hours.'
 	},
@@ -734,6 +839,8 @@ const de: Messages = {
 		section_when: 'Wann',
 		section_recipe: 'Rezept',
 		startAt: 'Startzeit',
+		startAt_clamped:
+			'Eine Startzeit nach dem Backen ergibt keinen Sinn — sie wurde auf die Backzeit gesetzt. Wähle einen früheren Start oder ein späteres Backen.',
 		startAt_help:
 			'Der früheste Zeitpunkt, ab dem du Zeit hast. Die Schritte werden zwischen diesem Moment und dem Backen verteilt.',
 		startAt_now: 'Jetzt',
@@ -784,10 +891,16 @@ const de: Messages = {
 			'Der Rundungs-Button verschiebt den Teigling in Schritten von 0,1 g, bis das Mehl auf einem Vielfachen von 100 g landet — 50 g bei Mengen unter 400 g Mehl, damit kleine Teige einen sinnvollen Teigling behalten.',
 		info_fit_title: 'Die Sterne-Bewertung',
 		info_fit_body:
-			'Startet bei 100 Punkten; ein Stern pro 20. Punkte gehen ab, wenn der Zeitplan sich biegen musste (Kühlphase oder Vorteig abseits der natürlichen Dauer, ein Schritt im Nachtfenster, ein nicht machbares Fenster) und wenn Eingaben die zeitgenössischen neapolitanischen Bänder verlassen: 60–80% Hydration, 2–3,5% Salz, 200–320 g Teiglinge, 14–30 °C Raum, 2–8 °C Kühlschrank, gelöste Hefe 0,05–1,5% in Frischhefe-Einheiten (Trockenhefe und Anstellgut werden zuerst umgerechnet). Jeder Abzug ist gedeckelt, sodass eine einzelne wilde Eingabe die Bewertung nicht auf null bringen kann.',
+			'Startet bei 100 Punkten; ein Stern pro 20. Punkte gehen ab, wenn der Zeitplan sich biegen musste (Kühlphase oder Vorteig abseits der natürlichen Dauer, ein Schritt im Nachtfenster, ein nicht machbares Fenster) und wenn Eingaben die zeitgenössischen neapolitanischen Bänder verlassen: 60–80% Hydration, 2–3,5% Salz, 200–320 g Teiglinge, 14–30 °C Raum, 2–8 °C Kühlschrank, gelöste Hefe 0,05–1,5% in Frischhefe-Einheiten (Trockenhefe und Anstellgut werden zuerst umgerechnet) — und wenn das Fenster außerhalb dessen liegt, was das gewählte Mehl verträgt. Jeder Abzug ist gedeckelt, sodass eine einzelne wilde Eingabe die Bewertung nicht auf null bringen kann.',
+		info_defaults_title: 'Vorgaben und Grenzen',
+		info_defaults_body:
+			'Ein frischer Besuch startet mit 6 Ballen zu 280 g, 70 % Hydration, 3 % Salz, ohne Öl und Zucker, Frischhefe, Spiralkneter, Caputo Pizzeria (W 265), Autolyse-Rast, 22 °C in der Küche und 4 °C im Kühlschrank, Backen morgen um 19:00. Änderst du eines, bleibt der Rest stehen. Jede Zahl wird außerdem still in ein Band gezwungen, egal woher sie kommt — im Formular getippt oder von Hand in einen Link geschrieben: 1–100 Pizzen, 100–600 g Ballen, 50–90 % Hydration, 0–5 % Salz, 0–15 % Öl, 0–5 % Zucker, 40–150 % Anstellgut-Hydration, 10–35 °C Raum, 0–12 °C Kühlschrank, 4–35 °C Vorteig, W 150–400, und jeder Vorteig 5–80 % des Mehls, zusammen höchstens 80 %. Ein leeres Feld gilt als Bandminimum, statt die Rechnung zu vergiften. Nichts, was diese App je geschrieben hat, liegt außerhalb dieser Bänder — Begrenzen ändert also nie, was ein alter Link gemeint hat.',
 		info_night_title: 'Nachtfenster-Schutz',
 		info_night_body:
 			'Kein aktiver Schritt zwischen 22:00 und 08:00. Die Kühlgare schrumpft nur (sie wächst nie — der erste Schritt muss auf oder nach deiner Startzeit bleiben), bis Kneten und Formen in der Wachzeit liegen; hilft keine Länge, behält der Zeitplan die natürlichen Zeiten bei und warnt stattdessen.',
+		info_flour_title: 'Mehlstärke (W-Wert)',
+		info_flour_body:
+			'Der W-Wert ist die Verformungsenergie aus dem Chopin-Alveographen — wie viel Arbeit das Klebergerüst aushält, bevor es reißt. Er sagt NICHT, wie viel Wasser das Mehl aufnimmt: das ist eine eigene Farinograph-Messung, bestimmt von Protein, beschädigter Stärke und Pentosanen. Deshalb berührt der W-Wert hier weder die Hydration noch die Zutatenmengen noch die Hefeberechnung. Er sagt die Garetoleranz voraus. Knead Time interpoliert ein gutes Zeitfenster zwischen drei Stützpunkten — W 180: 2–4 Std bei Raumtemperatur / 6–12 Std kalt; W 265: 4–10 Std / 16–40 Std; W 310: 6–18 Std / 24–72 Std — in logarithmischen Stunden, weil die Toleranz geometrisch mit dem W-Wert wächst, und begrenzt an den Rändern statt zu extrapolieren. Die Obergrenzen sind an den veröffentlichten Garezeiten der voreingestellten Mehle kalibriert; die Untergrenze ist bewusst großzügig, denn ein starkes Mehl für eine kurze Gare verschenkt das Mehl, verdirbt aber den Teig nicht. Jedes Band wird auf seinen eigenen Bereich beschnitten (ab 16 Std Fenster schaltet die App auf kalt), ein schwaches Mehl bietet also gar keine Kühlgare an. Ein Fenster außerhalb des Bandes löst eine Warnung aus und kostet 1,5 Punkte pro Stunde, gedeckelt bei 12. Ein Mehl, das stärker ist als der oberste Stützpunkt, teilt sich dessen Band: ohne veröffentlichte Garezeit als Anhaltspunkt begrenzen wir lieber, als eine längere Toleranz zu erfinden. Wenn du die Backzeit oder das Mehl änderst, wählt der Zeitplan das Fenster neu: das längste, das vor dem Backen noch Platz hat und im Band bleibt, auf volle Stunden abgerundet. Dieser Wert bekommt eine eigene Rastposition auf dem Regler, von unten markiert, sodass du jederzeit dorthin zurückziehen kannst. Schließt das Band eines Mehls schon vor dem kürzesten Fenster des Reglers, bekommst du eben dieses kürzeste. Der Regler selbst bewegt sich zwischen den Fenstern, die in Neapel tatsächlich üblich sind — 6, 8, 12, 16, 18, 24, 36, 48 und 72 Stunden — plus einer 80-h-Stellung, die keine übliche Zeit ist, sondern die Obergrenze dieses Zeitplans: die Kühlgare ist gedeckelt, also sind rund 78 h das längste Fenster, das selbst ein maximaler Vorteig füllen kann.',
 		pizzaCount: 'Pizzen',
 		ballWeight: 'Teigling (g)',
 		ballWeight_round: 'Runde Zahlen',
@@ -814,6 +927,30 @@ const de: Messages = {
 		roomTemp_help: 'Wärmere Küchen sind schneller — das steuert die Rechnung.',
 		fridgeTemp: 'Kühlschranktemperatur (°C)',
 		fridgeTemp_help: 'Nur in der Kühlgare relevant. Haushaltskühlschränke laufen bei 2–7 °C.',
+		flour: 'Mehl',
+		flour_help: 'Die Stärke (W-Wert) bestimmt, wie lange der Teig die Gare verträgt.',
+		flour_band_weak: 'Zu schwach für lange Gare',
+		flour_band_sameDay: 'Gleicher Tag — bis 12 h',
+		flour_band_day24: 'Rund 24 h',
+		flour_band_day48: 'Rund 48 h',
+		flour_band_day72: 'Lang — 48 bis 72 h',
+		flour_band_veryStrong: 'Sehr stark — für Biga und Mischungen',
+		'flour_supermarket-00': 'Supermarkt-Mehl Tipo 00',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
+		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
+		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
+		flour_custom: 'Eigener W-Wert',
+		flour_none: 'Nicht angegeben',
+		flourW: 'Mehlstärke (W-Wert)',
+		flourW_help: 'Alveograph-Wert von der Packung. Ein höherer W-Wert übersteht eine längere Gare.',
 		mixingMethod: 'Kneten',
 		mixingMethod_help:
 			'Ein Spiralkneter knetet am effizientesten; eine Küchenmaschine braucht länger; Handkneten dauert am längsten und erwärmt den Teig am wenigsten — der Misch-Schritt und die empfohlene Wassertemperatur passen sich an.',
@@ -933,6 +1070,28 @@ const de: Messages = {
 		source_timing_label: 'Original: {duration}',
 		icon_active: 'Aktiver Schritt',
 		icon_passive: 'Wartezeit',
+		window_label: 'Gärfenster',
+		window_in_band: 'Im Rahmen dieser Mehlstärke',
+		window_out_of_band: 'Außerhalb dieser Mehlstärke',
+		window_no_band: 'Dieses Mehl ist zu schwach für eine Kühlgare.',
+		window_no_flour: 'Wähle ein Mehl, um seine Garetoleranz zu sehen.',
+		window_overrun:
+			'Dieses Fenster müsste in der Vergangenheit beginnen. Das längste, das bis zur Backzeit noch passt, sind {max}.',
+		window_ideal: 'Optimal für dieses Mehl',
+		window_use_ideal: 'Optimum wählen',
+		window_limit_label: 'Grenze durch die Zeit „Bereit zum Backen“',
+		window_start_moved:
+			'Dieses Fenster verschiebt deinen Start auf einen anderen Tag — {start}. Prüfe, ob du dann Zeit hast.',
+		window_capped_by_bake:
+			'Bis zur Backzeit ist Platz für {max}. Dieses Mehl verträgt bis zu {band} — wähle eine spätere Backzeit, um das auszunutzen.',
+		window_started_ago:
+			'Dieses Fenster hat vor {ago} begonnen — verschiebe die Backzeit nach hinten oder wähle ein kürzeres Fenster.',
+		window_benefit_short:
+			'Unter 12 Stunden erzeugt die Hefe vor allem Gas. Mit mehr Zeit kommen die Enzyme des Mehls zum Zug: Stärke wird zu Zucker abgebaut, und das Klebergerüst entspannt sich.',
+		window_benefit_medium:
+			'Lang genug, dass die Enzyme etwas bewirken. Stärke wird zu Zucker, der Geschmack vertieft und die Kruste färbt, und der Teig entspannt sich, sodass sich der Ballen mühelos öffnen lässt. Lange Gare baut außerdem einen Teil der Fruktane im Mehl ab — deshalb empfinden viele diesen Teig als bekömmlicher.',
+		window_benefit_long:
+			'Das Ende mit dem meisten Geschmack: langsame Reife bildet Aromen, die eine kurze Gare nie erreicht, der Teig lässt sich weich verarbeiten, und es braucht so wenig Hefe, dass nichts nach Hefe schmeckt. Ab hier flacht der Gewinn ab, und die Mehlstärke wird zur Grenze — genau darauf achtet das Band oben.',
 		now: 'Jetzt'
 	},
 	quality: {
@@ -969,6 +1128,7 @@ const de: Messages = {
 			'Küchentemperatur ist {delta} °C außerhalb des komfortablen 14–30-°C-Bereichs.',
 		factor_fridge_temp_off:
 			'Kühlschranktemperatur ist {delta} °C außerhalb des 2–8-°C-Bereichs für Kühlreife.',
+		factor_flour_window_off: 'Das Fenster liegt {delta} Std außerhalb der Garetoleranz des Mehls.',
 		factor_yeast_extreme: 'Berechnete Hefemenge liegt außerhalb des typischen 0,05–1,5%-Bereichs.'
 	},
 	ingredients: {
@@ -1047,6 +1207,9 @@ const de: Messages = {
 		too_warm: 'Die Küche sieht warm aus — Achtung Übergare.',
 		yeast_tiny: 'Sehr wenig Hefe — Feinwaage (0,1 g) hilft.',
 		yeast_large: 'Sehr viel Hefe — kurz die Eingaben prüfen.',
+		flour_window_long:
+			'Länger, als diese Mehlstärke verträgt — das Klebergerüst kann vor dem Backen abbauen.',
+		flour_window_short: 'Kürzer, als dieses Mehl braucht — ein schwächeres Mehl täte es genauso.',
 		night_step:
 			'Ein Schritt fällt noch zwischen 22:00 und 08:00. Verschiebe die Backzeit, damit alle Aufgaben tagsüber liegen.'
 	},
@@ -1131,6 +1294,8 @@ const it: Messages = {
 		section_when: 'Quando',
 		section_recipe: 'Ricetta',
 		startAt: 'Ora di inizio',
+		startAt_clamped:
+			'Un orario di inizio dopo la cottura non ha senso — è stato spostato all’ora di cottura. Scegli un inizio prima o una cottura più tardi.',
 		startAt_help:
 			'Il primo momento in cui sei disponibile. I passaggi si distribuiscono tra questo momento e la cottura.',
 		startAt_now: 'Adesso',
@@ -1182,10 +1347,16 @@ const it: Messages = {
 			'Il pulsante di arrotondamento sposta il peso del panetto a passi di 0,1 g finché la farina non cade su un multiplo di 100 g — 50 g per quantità sotto i 400 g di farina, così gli impasti piccoli mantengono un panetto sensato.',
 		info_fit_title: 'La valutazione a stelle',
 		info_fit_body:
-			'Parte da 100 punti; una stella ogni 20. I punti calano quando il programma si è dovuto piegare (fase in frigo o preimpasto fuori dalla durata naturale, un passo bloccato nella fascia notturna, una finestra non fattibile) e quando gli input escono dalle bande napoletane contemporanee: idratazione 60–80%, sale 2–3,5%, panetti 200–320 g, ambiente 14–30 °C, frigo 2–8 °C, lievito risolto 0,05–1,5% in termini di lievito fresco (secco e lievito madre vengono prima convertiti). Ogni detrazione ha un tetto, quindi un singolo input estremo non può azzerare la valutazione.',
+			'Parte da 100 punti; una stella ogni 20. I punti calano quando il programma si è dovuto piegare (fase in frigo o preimpasto fuori dalla durata naturale, un passo bloccato nella fascia notturna, una finestra non fattibile) e quando gli input escono dalle bande napoletane contemporanee: idratazione 60–80%, sale 2–3,5%, panetti 200–320 g, ambiente 14–30 °C, frigo 2–8 °C, lievito risolto 0,05–1,5% in termini di lievito fresco (secco e lievito madre vengono prima convertiti) — e quando la finestra esce da ciò che la farina scelta tollera. Ogni detrazione ha un tetto, quindi un singolo input estremo non può azzerare la valutazione.',
+		info_defaults_title: 'Valori predefiniti e limiti',
+		info_defaults_body:
+			'Una visita nuova parte da 6 panetti da 280 g, 70 % di idratazione, 3 % di sale, niente olio né zucchero, lievito fresco, impastatrice a spirale, Caputo Pizzeria (W 265), riposo di autolisi, 22 °C in cucina e 4 °C in frigo, cottura domani alle 19:00. Se cambi una voce, le altre restano. Ogni numero viene inoltre riportato dentro una banda, in silenzio, da qualunque parte arrivi — digitato nel modulo o scritto a mano in un link: 1–100 pizze, panetti 100–600 g, idratazione 50–90 %, sale 0–5 %, olio 0–15 %, zucchero 0–5 %, idratazione del lievito madre 40–150 %, ambiente 10–35 °C, frigo 0–12 °C, prefermento 4–35 °C, W 150–400, e ogni prefermento 5–80 % della farina, 80 % in tutto. Un campo svuotato vale il minimo della banda invece di avvelenare il calcolo. Nulla che questa app abbia mai scritto cade fuori da queste bande, quindi il limite non cambia mai il senso di un vecchio link.',
 		info_night_title: 'Protezione fascia notturna',
 		info_night_body:
 			'Nessun passo attivo tra le 22:00 e le 08:00. La puntata in frigo può solo accorciarsi (mai allungarsi — il primo passo deve restare all’ora di inizio o dopo) finché impasto e staglio non cadono nelle ore di veglia; se nessuna durata funziona, il programma mantiene i tempi naturali e avvisa invece.',
+		info_flour_title: 'Forza della farina (W)',
+		info_flour_body:
+			'La W è l’energia di deformazione dell’alveografo Chopin — quanto lavoro regge il glutine prima di strapparsi. NON indica quanta acqua assorbe la farina: quella è una misura separata al farinografo, determinata da proteine, amido danneggiato e pentosani. Perciò qui la W non tocca né l’idratazione, né le masse degli ingredienti, né il calcolo del lievito. Quello che predice è la tolleranza alla lievitazione. Knead Time interpola una finestra ideale fra tre punti di riferimento — W 180: 2–4 h a temperatura ambiente / 6–12 h in frigo; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in ore logaritmiche, perché la tolleranza cresce in modo geometrico con la W, e ai bordi limita invece di estrapolare. I limiti superiori sono calibrati sulle durate di lievitazione dichiarate dalle farine preimpostate; quello inferiore è volutamente generoso, perché usare una farina forte per una lievitazione breve spreca la farina ma non rovina l’impasto. Ogni banda è ritagliata sul proprio regime (sopra le 16 h l’app passa al freddo), quindi una farina debole non offre alcuna zona in frigo. Una finestra fuori banda genera un avviso e costa 1,5 punti all’ora, con un tetto di 12. Una farina più forte del punto di riferimento più alto ne condivide la banda: senza una durata di lievitazione pubblicata su cui ancorarsi, preferiamo limitare piuttosto che inventare una tolleranza più lunga. Quando cambi l’orario di cottura o la farina, la finestra viene riscelta: la più lunga che sta prima della cottura e resta dentro questa banda, arrotondata per difetto all’ora. Quel valore ottiene una posizione propria sul cursore, segnata dal basso, così puoi sempre tornarci. Se la banda di una farina si chiude prima della finestra più breve del cursore, ottieni quella più breve. Il cursore stesso si muove tra le finestre che la pratica napoletana usa davvero — 6, 8, 12, 16, 18, 24, 36, 48 e 72 ore — più una posizione a 80 h che non è un tempo canonico ma il tetto di questo calendario: la fase in frigo ha un limite, quindi circa 78 h è la finestra più lunga che perfino un prefermento massimo può riempire.',
 		pizzaCount: 'Pizze',
 		ballWeight: 'Panetto (g)',
 		ballWeight_round: 'Arrotonda',
@@ -1211,6 +1382,31 @@ const it: Messages = {
 		roomTemp_help: 'In cucine più calde la lievitazione corre — è ciò che guida il calcolo.',
 		fridgeTemp: 'Temperatura del frigo (°C)',
 		fridgeTemp_help: 'Usata solo durante la puntata in frigo. I frigo domestici stanno tra 2–7 °C.',
+		flour: 'Farina',
+		flour_help: 'La forza (W) determina quanto a lungo l’impasto regge la lievitazione.',
+		flour_band_weak: 'Troppo debole per lunghe lievitazioni',
+		flour_band_sameDay: 'In giornata — fino a 12 h',
+		flour_band_day24: 'Circa 24 h',
+		flour_band_day48: 'Circa 48 h',
+		flour_band_day72: 'Lunga — da 48 a 72 h',
+		flour_band_veryStrong: 'Molto forte — per biga e tagli',
+		'flour_supermarket-00': 'Farina 00 da supermercato',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
+		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
+		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
+		flour_custom: 'Forza personalizzata',
+		flour_none: 'Non specificata',
+		flourW: 'Forza della farina (W)',
+		flourW_help:
+			'Valore alveografico riportato sulla confezione. Una W più alta regge una lievitazione più lunga.',
 		mixingMethod: 'Impasto',
 		mixingMethod_help:
 			"Un'impastatrice a spirale impasta nel modo più efficiente; una planetaria richiede più tempo; a mano serve ancora di più e l'impasto si scalda meno — il passaggio di impasto e la temperatura dell'acqua consigliata si adattano.",
@@ -1330,6 +1526,28 @@ const it: Messages = {
 		source_timing_label: 'Originale: {duration}',
 		icon_active: 'Passo attivo',
 		icon_passive: 'Attesa',
+		window_label: 'Finestra di lievitazione',
+		window_in_band: 'Entro la tolleranza di questa farina',
+		window_out_of_band: 'Oltre la tolleranza di questa farina',
+		window_no_band: 'Questa farina è troppo debole per una lievitazione in frigo.',
+		window_no_flour: 'Scegli una farina per vederne la tolleranza.',
+		window_overrun:
+			'Questa finestra dovrebbe iniziare nel passato. La più lunga che entra ancora prima della cottura è {max}.',
+		window_ideal: 'Ideale per questa farina',
+		window_use_ideal: 'Usa l’ideale',
+		window_limit_label: 'Limite dato dall’orario «Pronto da infornare»',
+		window_start_moved:
+			'Questa finestra sposta l’inizio a un altro giorno — {start}. Controlla di essere disponibile.',
+		window_capped_by_bake:
+			'Fino all’ora di cottura c’è spazio per {max}. Questa farina regge fino a {band} — imposta un orario più tardi per sfruttarla.',
+		window_started_ago:
+			'Questa finestra è iniziata {ago} fa — sposta più tardi l’orario di cottura o scegli una finestra più breve.',
+		window_benefit_short:
+			'Sotto le 12 ore il lievito produce soprattutto gas. Dando più tempo all’impasto entrano in gioco gli enzimi della farina: l’amido si scompone in zuccheri e la maglia glutinica si rilassa.',
+		window_benefit_medium:
+			'Abbastanza lungo perché gli enzimi contino davvero. L’amido diventa zucchero, che approfondisce il gusto e colora il cornicione, e il glutine si rilassa così il panetto si stende senza opporre resistenza. La lievitazione lunga scompone anche parte dei fruttani della farina: per questo molti trovano l’impasto più digeribile.',
+		window_benefit_long:
+			'L’estremo del gusto: la maturazione lenta sviluppa aromi che una lievitazione breve non raggiunge mai, l’impasto si lavora morbido e serve così poco lievito che nulla sa di lievito. Da qui i vantaggi si appiattiscono e il limite diventa la forza della farina — è quello che sorveglia la banda qui sopra.',
 		now: 'Ora'
 	},
 	quality: {
@@ -1366,6 +1584,8 @@ const it: Messages = {
 			'La temperatura della cucina è {delta} °C fuori dal range comodo 14–30 °C.',
 		factor_fridge_temp_off:
 			'La temperatura del frigo è {delta} °C fuori dal range 2–8 °C per la maturazione.',
+		factor_flour_window_off:
+			'La finestra è {delta} h fuori dalla tolleranza di lievitazione della farina.',
 		factor_yeast_extreme: 'Il lievito calcolato è fuori dal range tipico 0,05–1,5%.'
 	},
 	ingredients: {
@@ -1444,6 +1664,9 @@ const it: Messages = {
 		too_warm: 'La cucina è calda — attenzione alla sovramaturazione.',
 		yeast_tiny: 'Lievito minimo — usa una bilancia precisa (0,1 g).',
 		yeast_large: 'Quantità di lievito alta — ricontrolla i dati.',
+		flour_window_long:
+			'Più lunga di quanto regga questa farina — il glutine può cedere prima della cottura.',
+		flour_window_short: 'Più breve di quanto serva a questa farina — ne basterebbe una più debole.',
 		night_step:
 			"Un passaggio cade ancora tra le 22:00 e le 08:00. Sposta l'ora di cottura perché tutte le azioni siano di giorno."
 	},
@@ -1528,6 +1751,8 @@ const fr: Messages = {
 		section_when: 'Quand',
 		section_recipe: 'Recette',
 		startAt: 'Heure de départ',
+		startAt_clamped:
+			'Une heure de début après la cuisson n’a pas de sens — elle a été ramenée à l’heure de cuisson. Choisis un début plus tôt ou une cuisson plus tard.',
 		startAt_help:
 			'Le moment le plus tôt où vous êtes disponible. Les étapes se répartissent entre ce moment et la cuisson.',
 		startAt_now: 'Maintenant',
@@ -1579,10 +1804,16 @@ const fr: Messages = {
 			"Le bouton d'arrondi ajuste le pâton par pas de 0,1 g jusqu'à ce que la farine tombe sur un multiple de 100 g — 50 g pour les quantités sous 400 g de farine, afin que les petites pâtes gardent un pâton sensé.",
 		info_fit_title: 'La note en étoiles',
 		info_fit_body:
-			'Part de 100 points ; une étoile par tranche de 20. Des points sont retirés quand le programme a dû se plier (phase au frigo ou pré-ferment écartés de leur durée naturelle, une étape coincée dans la fenêtre nocturne, une fenêtre infaisable) et quand les entrées sortent des bandes napolitaines contemporaines : hydratation 60–80%, sel 2–3,5%, pâtons 200–320 g, ambiante 14–30 °C, frigo 2–8 °C, levure résolue 0,05–1,5% en équivalent levure fraîche (levure sèche et levain sont convertis au préalable). Chaque déduction est plafonnée, donc une seule entrée extrême ne peut pas mettre la note à zéro.',
+			'Part de 100 points ; une étoile par tranche de 20. Des points sont retirés quand le programme a dû se plier (phase au frigo ou pré-ferment écartés de leur durée naturelle, une étape coincée dans la fenêtre nocturne, une fenêtre infaisable) et quand les entrées sortent des bandes napolitaines contemporaines : hydratation 60–80%, sel 2–3,5%, pâtons 200–320 g, ambiante 14–30 °C, frigo 2–8 °C, levure résolue 0,05–1,5% en équivalent levure fraîche (levure sèche et levain sont convertis au préalable) — et quand la fenêtre sort de ce que la farine choisie tolère. Chaque déduction est plafonnée, donc une seule entrée extrême ne peut pas mettre la note à zéro.',
+		info_defaults_title: 'Valeurs par défaut et limites',
+		info_defaults_body:
+			'Une visite neuve part de 6 pâtons de 280 g, 70 % d’hydratation, 3 % de sel, ni huile ni sucre, levure fraîche, pétrin à spirale, Caputo Pizzeria (W 265), un repos d’autolyse, 22 °C dans la cuisine et 4 °C au frigo, cuisson demain à 19:00. Changez-en une, les autres ne bougent pas. Chaque nombre est aussi ramené dans une plage, en silence, d’où qu’il vienne — saisi dans le formulaire ou écrit à la main dans un lien : 1–100 pizzas, pâtons 100–600 g, hydratation 50–90 %, sel 0–5 %, huile 0–15 %, sucre 0–5 %, hydratation du levain 40–150 %, ambiante 10–35 °C, frigo 0–12 °C, préferment 4–35 °C, W 150–400, et chaque préferment 5–80 % de la farine, 80 % au total. Un champ vidé vaut le minimum de la plage plutôt que d’empoisonner le calcul. Rien de ce que cette application a jamais écrit ne sort de ces plages : borner ne change donc jamais le sens d’un ancien lien.',
 		info_night_title: 'Garde-fou fenêtre nocturne',
 		info_night_body:
 			"Aucune étape active n'est autorisée entre 22:00 et 08:00. La phase au frigo ne fait que raccourcir (jamais s'allonger — la première étape doit rester à votre heure de départ ou après) jusqu'à ce que pétrissage et façonnage tombent aux heures d'éveil ; si aucune durée ne convient, le programme garde les temps naturels et avertit à la place.",
+		info_flour_title: 'Force de la farine (W)',
+		info_flour_body:
+			'Le W est l’énergie de déformation mesurée à l’alvéographe Chopin — le travail que le gluten encaisse avant de se déchirer. Il n’indique PAS la quantité d’eau que la farine absorbe : c’est une mesure distincte, au farinographe, qui dépend des protéines, de l’amidon endommagé et des pentosanes. Le W ne touche donc ici ni l’hydratation, ni les masses d’ingrédients, ni le calcul de la levure. Ce qu’il prédit, c’est la tolérance à la fermentation. Knead Time interpole une bonne fenêtre entre trois points de référence — W 180 : 2–4 h à température ambiante / 6–12 h au froid ; W 265 : 4–10 h / 16–40 h ; W 310 : 6–18 h / 24–72 h — en heures logarithmiques, car la tolérance croît géométriquement avec le W, et borne au lieu d’extrapoler aux extrémités. Les bornes hautes sont calibrées sur les durées de fermentation publiées des farines proposées ; la borne basse est volontairement généreuse, car utiliser une farine forte pour une fermentation courte gaspille la farine sans abîmer la pâte. Chaque bande est découpée sur son propre régime (au-delà de 16 h, l’app passe au froid), une farine faible n’offre donc aucune zone au froid. Une fenêtre hors bande déclenche un avertissement et coûte 1,5 point par heure, plafonné à 12. Une farine plus forte que le point de référence le plus haut partage sa bande : faute d’une durée de fermentation publiée sur laquelle s’appuyer, nous bornons plutôt que d’inventer une tolérance plus longue. Quand vous changez l’heure de cuisson ou la farine, la fenêtre est resélectionnée : la plus longue qui tient avant la cuisson et reste dans cette bande, arrondie à l’heure inférieure. Cette valeur reçoit son propre cran sur le curseur, marqué par le bas, pour que vous puissiez toujours y revenir. Si la bande d’une farine se referme avant la fenêtre la plus courte du curseur, vous obtenez cette plus courte. Le curseur lui-même se déplace entre les fenêtres réellement utilisées à Naples — 6, 8, 12, 16, 18, 24, 36, 48 et 72 heures — plus un cran à 80 h qui n’est pas une durée canonique mais le plafond de ce planning : la phase au froid est bornée, donc environ 78 h est la plus longue fenêtre que même un préferment maximal peut remplir.',
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Pâton (g)',
 		ballWeight_round: 'Arrondir',
@@ -1611,6 +1842,31 @@ const fr: Messages = {
 		fridgeTemp: 'Température du frigo (°C)',
 		fridgeTemp_help:
 			'Utilisée seulement pendant la phase au frigo. Les frigos domestiques sont à 2–7 °C.',
+		flour: 'Farine',
+		flour_help: 'La force (W) détermine combien de temps la pâte supporte la fermentation.',
+		flour_band_weak: 'Trop faible pour une longue fermentation',
+		flour_band_sameDay: 'Le jour même — jusqu’à 12 h',
+		flour_band_day24: 'Environ 24 h',
+		flour_band_day48: 'Environ 48 h',
+		flour_band_day72: 'Longue — 48 à 72 h',
+		flour_band_veryStrong: 'Très forte — pour biga et mélanges',
+		'flour_supermarket-00': 'Farine tipo 00 de supermarché',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
+		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
+		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
+		flour_custom: 'Force personnalisée',
+		flour_none: 'Non précisée',
+		flourW: 'Force de la farine (W)',
+		flourW_help:
+			'Valeur alvéographique indiquée sur le paquet. Un W plus élevé supporte une fermentation plus longue.',
 		mixingMethod: 'Pétrissage',
 		mixingMethod_help:
 			"Un pétrin à spirale pétrit le plus efficacement ; un robot pâtissier demande plus de temps ; le pétrissage à la main est le plus long et réchauffe le moins la pâte — l'étape de pétrissage et la température d'eau recommandée s'adaptent.",
@@ -1731,6 +1987,28 @@ const fr: Messages = {
 		source_timing_label: 'Original : {duration}',
 		icon_active: 'Étape active',
 		icon_passive: 'Attente',
+		window_label: 'Fenêtre de fermentation',
+		window_in_band: 'Dans la tolérance de cette farine',
+		window_out_of_band: 'Hors de la tolérance de cette farine',
+		window_no_band: 'Cette farine est trop faible pour une fermentation au froid.',
+		window_no_flour: 'Choisis une farine pour voir sa tolérance.',
+		window_overrun:
+			'Cette fenêtre devrait commencer dans le passé. La plus longue qui tient encore avant la cuisson est {max}.',
+		window_ideal: 'Idéal pour cette farine',
+		window_use_ideal: 'Choisir l’idéal',
+		window_limit_label: 'Limite fixée par l’heure « Prêt à enfourner »',
+		window_start_moved:
+			'Cette fenêtre décale ton début à un autre jour — {start}. Vérifie que tu es disponible.',
+		window_capped_by_bake:
+			'D’ici à la cuisson, il y a de la place pour {max}. Cette farine supporte jusqu’à {band} — choisis une heure de cuisson plus tardive pour en profiter.',
+		window_started_ago:
+			'Cette fenêtre a commencé il y a {ago} — décale l’heure de cuisson ou choisis une fenêtre plus courte.',
+		window_benefit_short:
+			'En dessous de 12 heures, la levure produit surtout du gaz. Laisse plus de temps à la pâte et les enzymes de la farine entrent en jeu : l’amidon se transforme en sucre et le gluten se détend.',
+		window_benefit_medium:
+			'Assez long pour que les enzymes comptent. L’amidon devient du sucre qui approfondit le goût et colore la croûte, et le gluten se détend : le pâton s’ouvre sans résister. Une fermentation longue dégrade aussi une partie des fructanes de la farine, ce qui explique pourquoi beaucoup trouvent cette pâte plus digeste.',
+		window_benefit_long:
+			'Le bout du spectre côté goût : la maturation lente développe des arômes qu’une pousse courte n’atteint jamais, la pâte se travaille tout en souplesse, et il faut si peu de levure que rien n’a le goût de levure. Au-delà, les gains s’aplatissent et c’est la force de la farine qui devient la limite — c’est ce que surveille la bande ci-dessus.',
 		now: 'Maintenant'
 	},
 	quality: {
@@ -1766,6 +2044,8 @@ const fr: Messages = {
 			'La température de la cuisine est {delta} °C hors du range confortable 14–30 °C.',
 		factor_fridge_temp_off:
 			'La température du frigo est {delta} °C hors du range 2–8 °C pour le pointage au frigo.',
+		factor_flour_window_off:
+			'La fenêtre dépasse de {delta} h la tolérance de fermentation de la farine.',
 		factor_yeast_extreme: 'La levure calculée est hors du range typique 0,05–1,5%.'
 	},
 	ingredients: {
@@ -1845,6 +2125,10 @@ const fr: Messages = {
 		too_warm: 'Cuisine chaude — la pâte risque la sur-fermentation. Surveillez-la.',
 		yeast_tiny: 'Très peu de levure — pesez précisément (une balance au 0,1 g aide).',
 		yeast_large: 'Quantité de levure inhabituelle — vérifiez les valeurs.',
+		flour_window_long:
+			'Plus longue que cette farine ne le supporte — le gluten risque de se dégrader avant la cuisson.',
+		flour_window_short:
+			'Plus courte que nécessaire pour cette farine — une farine plus faible suffirait.',
 		night_step:
 			'Une étape tombe encore entre 22:00 et 08:00. Décalez la cuisson pour que toutes les tâches soient en journée.'
 	},
@@ -1929,6 +2213,8 @@ const nl: Messages = {
 		section_when: 'Wanneer',
 		section_recipe: 'Recept',
 		startAt: 'Starttijd',
+		startAt_clamped:
+			'Een starttijd na het bakken heeft geen zin — hij is op de baktijd gezet. Kies een eerder begin of een latere baktijd.',
 		startAt_help:
 			'Het vroegste moment waarop je beschikbaar bent. De stappen worden verdeeld tussen dit moment en het bakken.',
 		startAt_now: 'Nu',
@@ -1980,10 +2266,16 @@ const nl: Messages = {
 			'De afrondknop verschuift het bolletjesgewicht in stappen van 0,1 g tot de bloem op een veelvoud van 100 g uitkomt — 50 g bij hoeveelheden onder 400 g bloem, zodat kleine degen een zinnig bolletjesgewicht houden.',
 		info_fit_title: 'De sterrenwaardering',
 		info_fit_body:
-			'Begint op 100 punten; één ster per 20. Er gaan punten af wanneer het schema moest buigen (koelfase of voordeeg buiten de natuurlijke duur, een stap vast in het nachtvenster, een onhaalbaar venster) en wanneer invoer buiten de hedendaagse Napolitaanse banden valt: 60–80% hydratatie, 2–3,5% zout, bolletjes van 200–320 g, kamer 14–30 °C, koelkast 2–8 °C, opgeloste gist 0,05–1,5% in verse-gist-termen (gedroogde gist en desem worden eerst omgerekend). Elke aftrek is gemaximeerd, dus één wilde invoerwaarde kan de waardering niet op nul zetten.',
+			'Begint op 100 punten; één ster per 20. Er gaan punten af wanneer het schema moest buigen (koelfase of voordeeg buiten de natuurlijke duur, een stap vast in het nachtvenster, een onhaalbaar venster) en wanneer invoer buiten de hedendaagse Napolitaanse banden valt: 60–80% hydratatie, 2–3,5% zout, bolletjes van 200–320 g, kamer 14–30 °C, koelkast 2–8 °C, opgeloste gist 0,05–1,5% in verse-gist-termen (gedroogde gist en desem worden eerst omgerekend) — en wanneer het venster buiten valt wat het gekozen meel verdraagt. Elke aftrek is gemaximeerd, dus één wilde invoerwaarde kan de waardering niet op nul zetten.',
+		info_defaults_title: 'Standaardwaarden en grenzen',
+		info_defaults_body:
+			'Een nieuw bezoek begint met 6 bollen van 280 g, 70 % hydratatie, 3 % zout, geen olie of suiker, verse gist, spiraalkneder, Caputo Pizzeria (W 265), een autolyse-rust, 22 °C in de keuken en 4 °C in de koelkast, bakken morgen om 19:00. Verander er één en de rest blijft staan. Elk getal wordt bovendien stil binnen een band gehouden, waar het ook vandaan komt — getypt in het formulier of met de hand in een link gezet: 1–100 pizza’s, bollen 100–600 g, hydratatie 50–90 %, zout 0–5 %, olie 0–15 %, suiker 0–5 %, desemhydratatie 40–150 %, kamer 10–35 °C, koelkast 0–12 °C, voordeeg 4–35 °C, W 150–400, en elk voordeeg 5–80 % van het meel, samen hoogstens 80 %. Een leeggemaakt veld geldt als het minimum van de band in plaats van de berekening te vergiftigen. Niets wat deze app ooit geschreven heeft valt buiten deze banden, dus begrenzen verandert nooit wat een oude link bedoelde.',
 		info_night_title: 'Nachtvenster-bescherming',
 		info_night_body:
 			'Geen actieve stap toegestaan tussen 22:00 en 08:00. De koelfase krimpt alleen (groeit nooit — de eerste stap moet op of na je starttijd blijven) tot kneden en vormen in de wakkere uren vallen; werkt geen enkele lengte, dan houdt het schema de natuurlijke timing aan en waarschuwt in plaats daarvan.',
+		info_flour_title: 'Sterkte van het meel (W-waarde)',
+		info_flour_body:
+			'De W-waarde is de vervormingsenergie uit de Chopin-alveograaf — hoeveel arbeid het gluten verdraagt voordat het scheurt. Hij zegt NIET hoeveel water het meel opneemt: dat is een aparte farinograafmeting, bepaald door eiwit, beschadigd zetmeel en pentosanen. Daarom raakt de W-waarde hier niet aan de hydratatie, de ingrediëntmassa’s of de gistberekening. Wat hij wel voorspelt is de rijstolerantie. Knead Time interpoleert een goed venster tussen drie ankerpunten — W 180: 2–4 u op kamertemperatuur / 6–12 u koud; W 265: 4–10 u / 16–40 u; W 310: 6–18 u / 24–72 u — in logaritmische uren, omdat de tolerantie geometrisch met de W-waarde groeit, en begrenst aan de randen in plaats van te extrapoleren. De bovengrenzen zijn geijkt op de gepubliceerde rijstijden van de voorgestelde melen; de ondergrens is bewust ruim, want sterk meel voor een korte rijs verspilt het meel maar bederft het deeg niet. Elke band wordt op zijn eigen regime bijgesneden (boven een venster van 16 u schakelt de app naar koud), dus zwak meel biedt helemaal geen koude zone. Een venster buiten de band geeft een waarschuwing en kost 1,5 punt per uur, met een maximum van 12. Een meel dat sterker is dan het hoogste ankerpunt deelt diens band: zonder een gepubliceerde rijstijd om op te ankeren begrenzen we liever dan een langere tolerantie te verzinnen. Als je de baktijd of het meel wijzigt, wordt het venster opnieuw gekozen: het langste dat nog vóór het bakken past en binnen deze band blijft, naar beneden afgerond op hele uren. Die waarde krijgt een eigen stand op de schuif, van onderaf gemarkeerd, zodat je er altijd naar terug kunt. Sluit de band van een meel al vóór het kortste venster van de schuif, dan krijg je dat kortste. De schuif zelf beweegt tussen de vensters die in Napels echt gebruikt worden — 6, 8, 12, 16, 18, 24, 36, 48 en 72 uur — plus een stand op 80 h die geen gangbare tijd is maar het plafond van dit schema: de koude rijs is begrensd, dus ongeveer 78 h is het langste venster dat zelfs een maximaal voordeeg kan vullen.',
 		pizzaCount: "Pizza's",
 		ballWeight: 'Bolletje (g)',
 		ballWeight_round: 'Ronde getallen',
@@ -2010,6 +2302,31 @@ const nl: Messages = {
 		fridgeTemp: 'Koelkasttemperatuur (°C)',
 		fridgeTemp_help:
 			'Alleen tijdens de koelkast-rijs gebruikt. Huishoudkoelkasten staan op 2–7 °C.',
+		flour: 'Meel',
+		flour_help: 'De sterkte (W-waarde) bepaalt hoe lang het deeg de rijs verdraagt.',
+		flour_band_weak: 'Te zwak voor een lange rijs',
+		flour_band_sameDay: 'Zelfde dag — tot 12 h',
+		flour_band_day24: 'Rond 24 h',
+		flour_band_day48: 'Rond 48 h',
+		flour_band_day72: 'Lang — 48 tot 72 h',
+		flour_band_veryStrong: 'Zeer sterk — voor biga en mengsels',
+		'flour_supermarket-00': 'Supermarkt tipo 00',
+		'flour_caputo-doppio-zero': 'Caputo Doppio Zero tipo 00',
+		'flour_5stagioni-napoletana': 'Le 5 Stagioni Pizza Napoletana',
+		'flour_caputo-pizzeria': 'Caputo Pizzeria',
+		'flour_polselli-classica': 'Polselli Classica',
+		'flour_caputo-nuvola': 'Caputo Nuvola tipo 0',
+		'flour_caputo-saccorosso': 'Caputo Saccorosso',
+		'flour_dallagiovanna-classica-oro': 'Dallagiovanna Classica Oro',
+		'flour_dallagiovanna-napoletana': 'Dallagiovanna La Napoletana',
+		'flour_caputo-cuoco': 'Caputo Cuoco (Chef)',
+		'flour_caputo-nuvola-super': 'Caputo Nuvola Super tipo 0',
+		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
+		flour_custom: 'Eigen W-waarde',
+		flour_none: 'Niet opgegeven',
+		flourW: 'Sterkte van het meel (W-waarde)',
+		flourW_help:
+			'Alveograafwaarde van de verpakking. Een hogere W-waarde houdt een langere rijs vol.',
 		mixingMethod: 'Kneden',
 		mixingMethod_help:
 			'Een spiraalkneder kneedt het efficiëntst; een keukenmachine heeft langer nodig; met de hand kneden duurt het langst en verwarmt het deeg het minst — de kneedstap en de aanbevolen watertemperatuur passen zich aan.',
@@ -2129,6 +2446,28 @@ const nl: Messages = {
 		source_timing_label: 'Origineel: {duration}',
 		icon_active: 'Actieve stap',
 		icon_passive: 'Wachttijd',
+		window_label: 'Rijsvenster',
+		window_in_band: 'Binnen wat dit meel verdraagt',
+		window_out_of_band: 'Buiten wat dit meel verdraagt',
+		window_no_band: 'Dit meel is te zwak voor een koude rijs.',
+		window_no_flour: 'Kies een meel om de rijstolerantie te zien.',
+		window_overrun:
+			'Dit venster zou in het verleden moeten beginnen. Het langste dat nog vóór de baktijd past is {max}.',
+		window_ideal: 'Ideaal voor dit meel',
+		window_use_ideal: 'Kies ideaal',
+		window_limit_label: 'Grens door de tijd ‘Klaar om te bakken’',
+		window_start_moved:
+			'Dit venster verschuift je start naar een andere dag — {start}. Controleer of je dan tijd hebt.',
+		window_capped_by_bake:
+			'Tot de baktijd is er ruimte voor {max}. Dit meel verdraagt tot {band} — kies een latere baktijd om dat te benutten.',
+		window_started_ago:
+			'Dit venster begon {ago} geleden — verschuif de baktijd naar later of kies een korter venster.',
+		window_benefit_short:
+			'Onder de 12 uur maakt de gist vooral gas. Geef het deeg meer tijd en de enzymen van het meel komen aan bod: zetmeel wordt afgebroken tot suiker en het gluten ontspant.',
+		window_benefit_medium:
+			'Lang genoeg om de enzymen te laten meetellen. Zetmeel wordt suiker die de smaak verdiept en de korst kleurt, en het gluten ontspant zodat de bol zich moeiteloos laat openen. Lange rijs breekt ook een deel van de fructanen in het meel af — daarom vinden veel mensen dit deeg beter verteerbaar.',
+		window_benefit_long:
+			'Het uiterste eind qua smaak: langzame rijping bouwt aroma’s op die een korte rijs nooit haalt, het deeg verwerkt zacht, en er is zo weinig gist nodig dat niets naar gist smaakt. Vanaf hier vlakt de winst af en wordt de meelsterkte de grens — daar let de band hierboven op.',
 		now: 'Nu'
 	},
 	quality: {
@@ -2164,6 +2503,7 @@ const nl: Messages = {
 			'De keukentemperatuur is {delta} °C buiten het comfortabele bereik 14–30 °C.',
 		factor_fridge_temp_off:
 			'De koelkasttemperatuur is {delta} °C buiten het bereik 2–8 °C voor koelrijs.',
+		factor_flour_window_off: 'Het venster ligt {delta} u buiten de rijstolerantie van het meel.',
 		factor_yeast_extreme: 'De berekende gistdosering valt buiten het typische bereik 0,05–1,5%.'
 	},
 	ingredients: {
@@ -2242,6 +2582,9 @@ const nl: Messages = {
 		yeast_tiny:
 			'Heel weinig gist — weeg nauwkeurig (een keukenweegschaal die 0,1 g afleest helpt).',
 		yeast_large: 'Ongebruikelijk veel gist — controleer de invoer.',
+		flour_window_long:
+			'Langer dan deze meelsterkte verdraagt — het gluten kan afbreken voor je bakt.',
+		flour_window_short: 'Korter dan dit meel nodig heeft — een zwakker meel doet hetzelfde werk.',
 		night_step:
 			'Een stap valt nog tussen 22:00 en 08:00. Schuif de baktijd zodat alle taken overdag vallen.'
 	},
