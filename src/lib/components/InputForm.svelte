@@ -132,32 +132,9 @@
 				{t.form.readyBy_help}
 			</span>
 		</label>
-		<!-- The window spans the two times above and rewrites startAt as you
-		     drag it, so it belongs with them rather than over in the schedule.
-		     Its own explanation always shows, like every other field's help
-		     text — the schedule's short/detailed toggle is in the other column
-		     and must not reach across into this one. -->
-		<FermentWindowSlider {form} />
-	</fieldset>
-
-	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-accent col-span-full text-lg">
-			{t.form.section_recipe}
-		</legend>
-		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={form.pizzaCount} />
-		{#if uiMode.current === 'expert'}
-			<FormField
-				label={t.form.ballWeight}
-				min={100}
-				max={600}
-				step={1}
-				bind:value={form.ballWeight}
-			/>
-		{/if}
-
-		<!-- Flour sits with the mixing method, not down in the expert fields:
-		     which flour is in the cupboard is something every baker knows, and
-		     it decides the fermentation band the schedule paints. The W number
+		<!-- The flour sits here, not down in the recipe: it is the other half of
+		     what makes a window ideal, so it belongs with the times it bounds and
+		     directly above the rail that paints its tolerance band. The W number
 		     behind it stays expert-only — the presets already carry it. -->
 		<label class="block">
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
@@ -189,6 +166,30 @@
 				oncommit={() => form.repickWindow()}
 			/>
 		{/if}
+
+		<!-- The window spans the two times above and rewrites startAt as you
+		     drag it, so it belongs with them rather than over in the schedule.
+		     Its own explanation always shows, like every other field's help
+		     text — the schedule's short/detailed toggle is in the other column
+		     and must not reach across into this one. -->
+		<FermentWindowSlider {form} />
+	</fieldset>
+
+	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+		<legend class="font-display text-accent col-span-full text-lg">
+			{t.form.section_recipe}
+		</legend>
+		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={form.pizzaCount} />
+		{#if uiMode.current === 'expert'}
+			<FormField
+				label={t.form.ballWeight}
+				min={100}
+				max={600}
+				step={1}
+				bind:value={form.ballWeight}
+			/>
+		{/if}
+
 		{#if uiMode.current === 'expert'}
 			<FormField
 				label={t.form.hydration}
