@@ -50,6 +50,9 @@
 		form.flourW === null ? 'none' : (flourPresetForW(form.flourW) ?? 'custom')
 	);
 
+	// The flour is the other half of what makes a window ideal, so picking one
+	// re-answers it just as changing the bake time does. "Not specified" has no
+	// band to aim at, so it leaves the window alone.
 	function setFlourChoice(choice: string) {
 		if (choice === 'none') {
 			form.flourW = null;
@@ -57,9 +60,10 @@
 		}
 		if (choice === 'custom') {
 			form.flourW ??= DEFAULT_FLOUR_W;
-			return;
+		} else {
+			form.flourW = FLOUR_PRESETS.find((p) => p.id === choice)?.w ?? DEFAULT_FLOUR_W;
 		}
-		form.flourW = FLOUR_PRESETS.find((p) => p.id === choice)?.w ?? DEFAULT_FLOUR_W;
+		form.repickWindow();
 	}
 </script>
 
@@ -182,6 +186,7 @@
 				step={5}
 				help={t.form.flourW_help}
 				bind:value={form.flourW}
+				oncommit={() => form.repickWindow()}
 			/>
 		{/if}
 		{#if uiMode.current === 'expert'}

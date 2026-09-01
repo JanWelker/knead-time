@@ -9,6 +9,10 @@
 		inputmode?: 'numeric' | 'decimal' | 'text';
 		id?: string;
 		help?: string;
+		// Fires on the input's `change`, i.e. once the value is committed rather
+		// than on every keystroke — for callers that react by rewriting other
+		// fields, which would be unbearable mid-typing.
+		oncommit?: () => void;
 	};
 	let {
 		label,
@@ -19,7 +23,8 @@
 		step,
 		inputmode,
 		id,
-		help
+		help,
+		oncommit
 	}: Props = $props();
 </script>
 
@@ -33,6 +38,7 @@
 		{inputmode}
 		{id}
 		bind:value
+		onchange={oncommit}
 		class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
 	/>
 	{#if help}<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">{help}</span>{/if}

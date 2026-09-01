@@ -1,4 +1,5 @@
 import { SvelteDate } from 'svelte/reactivity';
+import { toDatePart } from './format';
 import { roundBallWeight } from './dough/bakers';
 import { flourZones } from './dough/flour';
 import { RECIPE_DEFAULTS, toDefaultReadyBy } from './dough/defaults';
@@ -129,20 +130,53 @@ export class FormState {
 	//
 	// Only from an explicit edit: decoding a share link must reproduce its
 	// recipe verbatim, so `apply()` deliberately writes readyBy directly.
-	setReadyBy(next: Date) {
-		this.readyBy = next;
-		const hoursUntilBake = (next.getTime() - Date.now()) / 3_600_000;
+	// Set whenever something the app did moved the start onto a different
+	// calendar day — a slider drag, or a re-pick after a bake-time or flour
+	// edit. Easy to miss while the readout counts hours, so the window card
+	// says so. Cleared by any of those that lands on the same day, and by the
+	// user editing the start time themselves.
+	startDayMoved: boolean = $state(false);
+
+	#trackStartDay(mutate: () => void) {
+		const before = toDatePart(this.startAt);
+		mutate();
+		this.startDayMoved = toDatePart(this.startAt) !== before;
+	}
+
+	// The window the current flour and deadline deserve. Both of those are
+	// inputs the user can edit, so both re-answer it — the ideal is a function
+	// of the pair, and showing a better option without taking it is just a
+	// worse plan with an arrow pointing at the good one.
+	//
+	// Never called from `apply()`: a decoded share link has to reproduce its own
+	// window verbatim. Returns whether it found anything to pick.
+	repickWindow(): boolean {
+		const hoursUntilBake = (this.readyBy.getTime() - Date.now()) / 3_600_000;
 		const zones =
 			this.flourW === null ? null : flourZones(this.flourW, COLD_MODE_THRESHOLD_MIN / 60);
 		// Aim at the same stop list the slider offers, ideal included — otherwise
 		// the app picks a window the user can never drag back to.
 		const stops = stopsWithIdeal(idealWindowHours(zones, hoursUntilBake));
 		const best = bestWindowStopIndex(hoursUntilBake, zones, stops);
-		if (best !== null) this.fermentWindowHours = stops[best];
+		if (best === null) return false;
+		this.#trackStartDay(() => (this.fermentWindowHours = stops[best]));
+		return true;
+	}
+
+	// The slider's own write. Goes through here rather than the plain setter so
+	// a drag reports a day change the same way a re-pick does.
+	setWindowHours(hours: number) {
+		this.#trackStartDay(() => (this.fermentWindowHours = hours));
+	}
+
+	setReadyBy(next: Date) {
+		this.readyBy = next;
 		// Without a re-pick (no flour, or nothing reachable) startAt keeps its
 		// old value, which a bake time moved earlier can leave stranded after
 		// the bake. Same floor as setStartAt, applied from the other side.
-		else if (this.startAt.getTime() > next.getTime()) this.startAt = new SvelteDate(next.getTime());
+		if (!this.repickWindow() && this.startAt.getTime() > next.getTime()) {
+			this.startAt = new SvelteDate(next.getTime());
+		}
 	}
 
 	// A user edit of the start time. The dough cannot begin after it is due out
@@ -150,6 +184,7 @@ export class FormState {
 	// accepted as a negative window; returns whether it had to clamp, so the
 	// form can say why the field snapped back.
 	setStartAt(next: Date): boolean {
+		this.startDayMoved = false;
 		const late = next.getTime() > this.readyBy.getTime();
 		this.startAt = late ? new SvelteDate(this.readyBy.getTime()) : next;
 		return late;
