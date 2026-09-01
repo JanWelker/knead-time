@@ -230,7 +230,7 @@
 	     right; below lg everything collapses to one column in DOM order. -->
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
 		<section class="card lg:col-start-1 lg:row-start-1">
-			<InputForm state={form} />
+			<InputForm {form} />
 		</section>
 
 		<div class="card lg:col-start-1 lg:row-start-2">

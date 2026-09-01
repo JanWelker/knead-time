@@ -136,6 +136,20 @@ export class FormState {
 			this.flourW === null ? null : flourZones(this.flourW, COLD_MODE_THRESHOLD_MIN / 60)
 		);
 		if (best !== null) this.fermentWindowHours = WINDOW_STOPS[best];
+		// Without a re-pick (no flour, or nothing reachable) startAt keeps its
+		// old value, which a bake time moved earlier can leave stranded after
+		// the bake. Same floor as setStartAt, applied from the other side.
+		else if (this.startAt.getTime() > next.getTime()) this.startAt = new SvelteDate(next.getTime());
+	}
+
+	// A user edit of the start time. The dough cannot begin after it is due out
+	// of the oven, so a later value is clamped to the bake time rather than
+	// accepted as a negative window; returns whether it had to clamp, so the
+	// form can say why the field snapped back.
+	setStartAt(next: Date): boolean {
+		const late = next.getTime() > this.readyBy.getTime();
+		this.startAt = late ? new SvelteDate(this.readyBy.getTime()) : next;
+		return late;
 	}
 
 	serializable(): SerializableInputs {

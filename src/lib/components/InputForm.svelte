@@ -7,14 +7,14 @@
 	import FormField from './FormField.svelte';
 	import FermentWindowSlider from './FermentWindowSlider.svelte';
 
-	let { state }: { state: FormState } = $props();
+	let { form }: { form: FormState } = $props();
 
 	const t = $derived(i18n.t);
 
-	let startAtDate = $derived(toDatePart(state.startAt));
-	let startAtTime = $derived(toTimePart(state.startAt));
-	let readyByDate = $derived(toDatePart(state.readyBy));
-	let readyByTime = $derived(toTimePart(state.readyBy));
+	let startAtDate = $derived(toDatePart(form.startAt));
+	let startAtTime = $derived(toTimePart(form.startAt));
+	let readyByDate = $derived(toDatePart(form.readyBy));
+	let readyByTime = $derived(toTimePart(form.readyBy));
 
 	const inputBase =
 		'border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100';
@@ -22,36 +22,43 @@
 	const timeInputClass = `${inputBase} w-28`;
 	const selectClass = `${inputBase} mt-1 w-full`;
 
+	// True while the last start-time edit had to be pulled back to the bake
+	// time. Cleared by the next edit that lands legally, and by a new bake
+	// time — the refusal is about one particular pair of moments.
+	let startAtClamped = $state(false);
+
 	function setStartAt(datePart: string, timePart: string) {
 		const d = combineDateTimeInputs(datePart, timePart);
-		if (d) state.startAt = d;
+		if (d) startAtClamped = form.setStartAt(d);
 	}
 
 	function setReadyBy(datePart: string, timePart: string) {
 		const d = combineDateTimeInputs(datePart, timePart);
-		if (d) state.setReadyBy(d);
+		if (!d) return;
+		form.setReadyBy(d);
+		startAtClamped = false;
 	}
 
 	function resetStartAtToNow() {
-		state.startAt = new Date();
+		startAtClamped = form.setStartAt(new Date());
 	}
 
 	// The select has no state of its own — it reads back off flourW, so typing
 	// a strength no preset matches simply lands on "custom".
 	const flourChoice = $derived(
-		state.flourW === null ? 'none' : (flourPresetForW(state.flourW) ?? 'custom')
+		form.flourW === null ? 'none' : (flourPresetForW(form.flourW) ?? 'custom')
 	);
 
 	function setFlourChoice(choice: string) {
 		if (choice === 'none') {
-			state.flourW = null;
+			form.flourW = null;
 			return;
 		}
 		if (choice === 'custom') {
-			state.flourW ??= DEFAULT_FLOUR_W;
+			form.flourW ??= DEFAULT_FLOUR_W;
 			return;
 		}
-		state.flourW = FLOUR_PRESETS.find((p) => p.id === choice)?.w ?? DEFAULT_FLOUR_W;
+		form.flourW = FLOUR_PRESETS.find((p) => p.id === choice)?.w ?? DEFAULT_FLOUR_W;
 	}
 </script>
 
@@ -91,6 +98,7 @@
 					type="date"
 					class={dateInputClass}
 					value={startAtDate}
+					max={readyByDate}
 					oninput={(e) => setStartAt(e.currentTarget.value, startAtTime)}
 				/>
 				<input
@@ -110,27 +118,35 @@
 					{t.form.startAt_now}
 				</button>
 			</div>
+			{#if startAtClamped}
+				<p
+					class="mt-2 rounded-lg border px-3 py-2 text-sm border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200"
+					role="alert"
+				>
+					{t.form.startAt_clamped}
+				</p>
+			{/if}
 		</label>
 		<!-- The window spans the two times above and rewrites startAt as you
 		     drag it, so it belongs with them rather than over in the schedule.
 		     Its own explanation always shows, like every other field's help
 		     text — the schedule's short/detailed toggle is in the other column
 		     and must not reach across into this one. -->
-		<FermentWindowSlider form={state} />
+		<FermentWindowSlider {form} />
 	</fieldset>
 
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<legend class="font-display text-accent col-span-full text-lg">
 			{t.form.section_recipe}
 		</legend>
-		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={state.pizzaCount} />
+		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={form.pizzaCount} />
 		{#if uiMode.current === 'expert'}
 			<FormField
 				label={t.form.ballWeight}
 				min={100}
 				max={600}
 				step={1}
-				bind:value={state.ballWeight}
+				bind:value={form.ballWeight}
 			/>
 		{/if}
 
@@ -157,14 +173,14 @@
 				{t.form.flour_help}
 			</span>
 		</label>
-		{#if uiMode.current === 'expert' && state.flourW !== null}
+		{#if uiMode.current === 'expert' && form.flourW !== null}
 			<FormField
 				label={t.form.flourW}
 				min={150}
 				max={400}
 				step={5}
 				help={t.form.flourW_help}
-				bind:value={state.flourW}
+				bind:value={form.flourW}
 			/>
 		{/if}
 		{#if uiMode.current === 'expert'}
@@ -174,10 +190,10 @@
 				max={90}
 				step={1}
 				help={t.form.hydration_help}
-				bind:value={state.hydration}
+				bind:value={form.hydration}
 			/>
 
-			<FormField label={t.form.salt} min={0} max={5} step={0.1} bind:value={state.saltPercent} />
+			<FormField label={t.form.salt} min={0} max={5} step={0.1} bind:value={form.saltPercent} />
 
 			<FormField
 				label={t.form.oil}
@@ -185,7 +201,7 @@
 				max={15}
 				step={0.1}
 				help={t.form.oil_help}
-				bind:value={state.oilPercent}
+				bind:value={form.oilPercent}
 			/>
 
 			<FormField
@@ -194,7 +210,7 @@
 				max={5}
 				step={0.1}
 				help={t.form.sugar_help}
-				bind:value={state.sugarPercent}
+				bind:value={form.sugarPercent}
 			/>
 		{/if}
 
@@ -202,7 +218,7 @@
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.mixingMethod}
 			</span>
-			<select class={selectClass} bind:value={state.mixingMethod}>
+			<select class={selectClass} bind:value={form.mixingMethod}>
 				<option value="spiral">{t.form.mixing_spiral}</option>
 				<option value="stand">{t.form.mixing_stand}</option>
 				<option value="hand">{t.form.mixing_hand}</option>
@@ -216,27 +232,27 @@
 				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 					{t.form.yeastType}
 				</span>
-				<select class={selectClass} bind:value={state.yeastType}>
+				<select class={selectClass} bind:value={form.yeastType}>
 					<option value="fresh">{t.form.yeast_fresh}</option>
 					<option value="instant">{t.form.yeast_instant}</option>
 					<option value="active-dry">{t.form.yeast_active_dry}</option>
 					<option value="sourdough">{t.form.yeast_sourdough}</option>
 				</select>
-				{#if state.yeastType === 'active-dry'}
+				{#if form.yeastType === 'active-dry'}
 					<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
 						{t.form.yeast_active_dry_help}
 					</span>
 				{/if}
 			</label>
 
-			{#if state.yeastType === 'sourdough'}
+			{#if form.yeastType === 'sourdough'}
 				<FormField
 					label={t.form.starterHydration}
 					min={40}
 					max={150}
 					step={5}
 					help={t.form.starterHydration_help}
-					bind:value={state.starterHydration}
+					bind:value={form.starterHydration}
 				/>
 			{:else}
 				<fieldset class="space-y-2">
@@ -244,53 +260,53 @@
 						{t.form.preFerment}
 					</legend>
 					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-						<input type="checkbox" class="accent-tomato-500" bind:checked={state.bigaEnabled} />
+						<input type="checkbox" class="accent-tomato-500" bind:checked={form.bigaEnabled} />
 						{t.form.preFerment_biga}
 					</label>
-					{#if state.bigaEnabled}
+					{#if form.bigaEnabled}
 						<FormField
 							label={t.form.preFermentFlour_biga}
 							min={5}
-							max={80 - (state.poolishEnabled ? state.poolishFlourPercent : 0)}
+							max={80 - (form.poolishEnabled ? form.poolishFlourPercent : 0)}
 							step={5}
-							bind:value={state.bigaFlourPercent}
+							bind:value={form.bigaFlourPercent}
 						/>
 					{/if}
 					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-						<input type="checkbox" class="accent-tomato-500" bind:checked={state.poolishEnabled} />
+						<input type="checkbox" class="accent-tomato-500" bind:checked={form.poolishEnabled} />
 						{t.form.preFerment_poolish}
 					</label>
-					{#if state.poolishEnabled}
+					{#if form.poolishEnabled}
 						<FormField
 							label={t.form.preFermentFlour_poolish}
 							min={5}
-							max={80 - (state.bigaEnabled ? state.bigaFlourPercent : 0)}
+							max={80 - (form.bigaEnabled ? form.bigaFlourPercent : 0)}
 							step={5}
-							bind:value={state.poolishFlourPercent}
+							bind:value={form.poolishFlourPercent}
 						/>
 					{/if}
-					{#if state.bigaEnabled && state.poolishEnabled}
+					{#if form.bigaEnabled && form.poolishEnabled}
 						<span class="block text-xs text-stone-500 dark:text-stone-400">
 							{t.form.preFerment_sum_help}
 						</span>
 					{/if}
-					{#if state.bigaEnabled || state.poolishEnabled}
+					{#if form.bigaEnabled || form.poolishEnabled}
 						<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
 							<input
 								type="checkbox"
 								class="accent-tomato-500"
-								bind:checked={state.preFermentTempEnabled}
+								bind:checked={form.preFermentTempEnabled}
 							/>
 							{t.form.preFermentTemp_toggle}
 						</label>
-						{#if state.preFermentTempEnabled}
+						{#if form.preFermentTempEnabled}
 							<FormField
 								label={t.form.preFermentTemp}
 								min={4}
 								max={35}
 								step={0.5}
 								help={t.form.preFermentTemp_help}
-								bind:value={state.preFermentTempValue}
+								bind:value={form.preFermentTempValue}
 							/>
 						{/if}
 					{/if}
@@ -299,9 +315,9 @@
 
 			<!-- Autolyse applies only with no pre-ferment (sourdough always
 			     qualifies — its starter is not a schedule pre-ferment). -->
-			{#if state.yeastType === 'sourdough' || !(state.bigaEnabled || state.poolishEnabled)}
+			{#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
 				<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-					<input type="checkbox" class="accent-tomato-500" bind:checked={state.autolyse} />
+					<input type="checkbox" class="accent-tomato-500" bind:checked={form.autolyse} />
 					<span>
 						{t.form.autolyse_toggle}
 						<span class="block text-xs font-normal text-stone-500 dark:text-stone-400">
@@ -315,8 +331,8 @@
 				<input
 					type="checkbox"
 					class="accent-tomato-500"
-					checked={state.ballProof === 'cold'}
-					onchange={(e) => (state.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
+					checked={form.ballProof === 'cold'}
+					onchange={(e) => (form.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
 				/>
 				<span>
 					{t.form.ballProof_toggle}
@@ -332,7 +348,7 @@
 				max={35}
 				step={0.5}
 				help={t.form.roomTemp_help}
-				bind:value={state.roomTempC}
+				bind:value={form.roomTempC}
 			/>
 
 			<FormField
@@ -341,7 +357,7 @@
 				max={12}
 				step={0.5}
 				help={t.form.fridgeTemp_help}
-				bind:value={state.fridgeTempC}
+				bind:value={form.fridgeTempC}
 			/>
 		{/if}
 	</fieldset>

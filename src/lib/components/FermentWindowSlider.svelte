@@ -72,6 +72,16 @@
 				: 'translateX(-50%)'
 	);
 
+	// A drag into the greyed stretch is refused, not obeyed — but a control
+	// that silently springs back reads as broken, so remember the attempt and
+	// say why. Cleared by the next drag that lands legally, and by a new bake
+	// time, since the refusal was about that particular deadline.
+	let overrun = $state(false);
+	$effect(() => {
+		void form.readyBy;
+		overrun = false;
+	});
+
 	const windowHours = $derived(form.fermentWindowHours);
 	// A window set from the date fields need not be on a stop; the thumb shows
 	// the nearest one while the readout above keeps the true duration.
@@ -220,9 +230,16 @@
 			step="1"
 			value={sliderIndex}
 			disabled={reachableIndex < 0}
-			oninput={(e) =>
-				(form.fermentWindowHours =
-					WINDOW_STOPS[Math.min(e.currentTarget.valueAsNumber, reachableIndex)])}
+			oninput={(e) => {
+				const wanted = e.currentTarget.valueAsNumber;
+				const allowed = Math.min(wanted, reachableIndex);
+				overrun = wanted > reachableIndex;
+				// Put the thumb back by hand. A refused drag usually leaves the
+				// bound index unchanged, so Svelte re-renders nothing and the thumb
+				// would sit out in the greyed stretch contradicting the readout.
+				e.currentTarget.value = String(allowed);
+				form.fermentWindowHours = WINDOW_STOPS[allowed];
+			}}
 			class="absolute inset-0 w-full appearance-none bg-transparent disabled:cursor-not-allowed {reachableIndex <
 			0
 				? ''
@@ -253,6 +270,17 @@
 			{t.schedule.window_no_flour}
 		{/if}
 	</p>
+
+	{#if overrun && reachableIndex >= 0}
+		<p
+			class="border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200 mt-2 rounded-lg border px-3 py-2 text-sm"
+			role="alert"
+		>
+			{interpolate(t.schedule.window_overrun, {
+				max: formatWindow(WINDOW_STOPS[reachableIndex])
+			})}
+		</p>
+	{/if}
 
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
 		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">

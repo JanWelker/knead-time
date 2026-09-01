@@ -15,6 +15,7 @@ export interface Messages {
 		section_when: string;
 		section_recipe: string;
 		startAt: string;
+		startAt_clamped: string;
 		startAt_help: string;
 		startAt_now: string;
 		readyBy: string;
@@ -181,6 +182,7 @@ export interface Messages {
 		window_out_of_band: string;
 		window_no_band: string;
 		window_no_flour: string;
+		window_overrun: string;
 		window_capped_by_bake: string;
 		window_started_ago: string;
 		window_benefit_short: string;
@@ -371,6 +373,8 @@ const en: Messages = {
 		section_when: 'When',
 		section_recipe: 'Recipe',
 		startAt: 'Start time',
+		startAt_clamped:
+			'A start time after the bake makes no sense — moved it to the bake time. Pick an earlier start, or a later bake.',
 		startAt_help:
 			"The earliest you're available to start. Steps fit between this moment and the bake.",
 		startAt_now: 'Now',
@@ -587,6 +591,8 @@ const en: Messages = {
 		window_out_of_band: 'Outside what this flour tolerates',
 		window_no_band: 'This flour is too weak for a cold ferment.',
 		window_no_flour: 'Pick a flour to see its fermentation tolerance.',
+		window_overrun:
+			'That window would have to start before now. The longest that still fits before your bake time is {max}.',
 		window_capped_by_bake:
 			'Your bake time leaves room for {max}. This flour would take up to {band} — set a later bake time to use it.',
 		window_started_ago:
@@ -794,6 +800,8 @@ const de: Messages = {
 		section_when: 'Wann',
 		section_recipe: 'Rezept',
 		startAt: 'Startzeit',
+		startAt_clamped:
+			'Eine Startzeit nach dem Backen ergibt keinen Sinn — sie wurde auf die Backzeit gesetzt. Wähle einen früheren Start oder ein späteres Backen.',
 		startAt_help:
 			'Der früheste Zeitpunkt, ab dem du Zeit hast. Die Schritte werden zwischen diesem Moment und dem Backen verteilt.',
 		startAt_now: 'Jetzt',
@@ -1013,6 +1021,8 @@ const de: Messages = {
 		window_out_of_band: 'Außerhalb dieser Mehlstärke',
 		window_no_band: 'Dieses Mehl ist zu schwach für eine Kühlgare.',
 		window_no_flour: 'Wähle ein Mehl, um seine Garetoleranz zu sehen.',
+		window_overrun:
+			'Dieses Fenster müsste in der Vergangenheit beginnen. Das längste, das bis zur Backzeit noch passt, sind {max}.',
 		window_capped_by_bake:
 			'Bis zur Backzeit ist Platz für {max}. Dieses Mehl verträgt bis zu {band} — wähle eine spätere Backzeit, um das auszunutzen.',
 		window_started_ago:
@@ -1225,6 +1235,8 @@ const it: Messages = {
 		section_when: 'Quando',
 		section_recipe: 'Ricetta',
 		startAt: 'Ora di inizio',
+		startAt_clamped:
+			'Un orario di inizio dopo la cottura non ha senso — è stato spostato all’ora di cottura. Scegli un inizio prima o una cottura più tardi.',
 		startAt_help:
 			'Il primo momento in cui sei disponibile. I passaggi si distribuiscono tra questo momento e la cottura.',
 		startAt_now: 'Adesso',
@@ -1445,6 +1457,8 @@ const it: Messages = {
 		window_out_of_band: 'Oltre la tolleranza di questa farina',
 		window_no_band: 'Questa farina è troppo debole per una lievitazione in frigo.',
 		window_no_flour: 'Scegli una farina per vederne la tolleranza.',
+		window_overrun:
+			'Questa finestra dovrebbe iniziare nel passato. La più lunga che entra ancora prima della cottura è {max}.',
 		window_capped_by_bake:
 			'Fino all’ora di cottura c’è spazio per {max}. Questa farina regge fino a {band} — imposta un orario più tardi per sfruttarla.',
 		window_started_ago:
@@ -1658,6 +1672,8 @@ const fr: Messages = {
 		section_when: 'Quand',
 		section_recipe: 'Recette',
 		startAt: 'Heure de départ',
+		startAt_clamped:
+			'Une heure de début après la cuisson n’a pas de sens — elle a été ramenée à l’heure de cuisson. Choisis un début plus tôt ou une cuisson plus tard.',
 		startAt_help:
 			'Le moment le plus tôt où vous êtes disponible. Les étapes se répartissent entre ce moment et la cuisson.',
 		startAt_now: 'Maintenant',
@@ -1882,6 +1898,8 @@ const fr: Messages = {
 		window_out_of_band: 'Hors de la tolérance de cette farine',
 		window_no_band: 'Cette farine est trop faible pour une fermentation au froid.',
 		window_no_flour: 'Choisis une farine pour voir sa tolérance.',
+		window_overrun:
+			'Cette fenêtre devrait commencer dans le passé. La plus longue qui tient encore avant la cuisson est {max}.',
 		window_capped_by_bake:
 			'D’ici à la cuisson, il y a de la place pour {max}. Cette farine supporte jusqu’à {band} — choisis une heure de cuisson plus tardive pour en profiter.',
 		window_started_ago:
@@ -2096,6 +2114,8 @@ const nl: Messages = {
 		section_when: 'Wanneer',
 		section_recipe: 'Recept',
 		startAt: 'Starttijd',
+		startAt_clamped:
+			'Een starttijd na het bakken heeft geen zin — hij is op de baktijd gezet. Kies een eerder begin of een latere baktijd.',
 		startAt_help:
 			'Het vroegste moment waarop je beschikbaar bent. De stappen worden verdeeld tussen dit moment en het bakken.',
 		startAt_now: 'Nu',
@@ -2317,6 +2337,8 @@ const nl: Messages = {
 		window_out_of_band: 'Buiten wat dit meel verdraagt',
 		window_no_band: 'Dit meel is te zwak voor een koude rijs.',
 		window_no_flour: 'Kies een meel om de rijstolerantie te zien.',
+		window_overrun:
+			'Dit venster zou in het verleden moeten beginnen. Het langste dat nog vóór de baktijd past is {max}.',
 		window_capped_by_bake:
 			'Tot de baktijd is er ruimte voor {max}. Dit meel verdraagt tot {band} — kies een latere baktijd om dat te benutten.',
 		window_started_ago:
