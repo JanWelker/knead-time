@@ -184,6 +184,7 @@ export interface Messages {
 		window_no_flour: string;
 		window_overrun: string;
 		window_ideal: string;
+		window_limit_label: string;
 		window_start_moved: string;
 		window_capped_by_bake: string;
 		window_started_ago: string;
@@ -596,6 +597,7 @@ const en: Messages = {
 		window_overrun:
 			'That window would have to start before now. The longest that still fits before your bake time is {max}.',
 		window_ideal: 'Best for this flour',
+		window_limit_label: 'Limit set by ‘ready to bake’ time',
 		window_start_moved:
 			'That window pushes your start to a different day — {start}. Check you’re free then.',
 		window_capped_by_bake:
@@ -1029,6 +1031,7 @@ const de: Messages = {
 		window_overrun:
 			'Dieses Fenster müsste in der Vergangenheit beginnen. Das längste, das bis zur Backzeit noch passt, sind {max}.',
 		window_ideal: 'Optimal für dieses Mehl',
+		window_limit_label: 'Grenze durch die Zeit „Bereit zum Backen“',
 		window_start_moved:
 			'Dieses Fenster verschiebt deinen Start auf einen anderen Tag — {start}. Prüfe, ob du dann Zeit hast.',
 		window_capped_by_bake:
@@ -1468,6 +1471,7 @@ const it: Messages = {
 		window_overrun:
 			'Questa finestra dovrebbe iniziare nel passato. La più lunga che entra ancora prima della cottura è {max}.',
 		window_ideal: 'Ideale per questa farina',
+		window_limit_label: 'Limite dato dall’orario «Pronto da infornare»',
 		window_start_moved:
 			'Questa finestra sposta l’inizio a un altro giorno — {start}. Controlla di essere disponibile.',
 		window_capped_by_bake:
@@ -1912,6 +1916,7 @@ const fr: Messages = {
 		window_overrun:
 			'Cette fenêtre devrait commencer dans le passé. La plus longue qui tient encore avant la cuisson est {max}.',
 		window_ideal: 'Idéal pour cette farine',
+		window_limit_label: 'Limite fixée par l’heure « Prêt à enfourner »',
 		window_start_moved:
 			'Cette fenêtre décale ton début à un autre jour — {start}. Vérifie que tu es disponible.',
 		window_capped_by_bake:
@@ -2354,6 +2359,7 @@ const nl: Messages = {
 		window_overrun:
 			'Dit venster zou in het verleden moeten beginnen. Het langste dat nog vóór de baktijd past is {max}.',
 		window_ideal: 'Ideaal voor dit meel',
+		window_limit_label: 'Grens door de tijd ‘Klaar om te bakken’',
 		window_start_moved:
 			'Dit venster verschuift je start naar een andere dag — {start}. Controleer of je dan tijd hebt.',
 		window_capped_by_bake:

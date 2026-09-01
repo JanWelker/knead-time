@@ -108,6 +108,17 @@ test('the ideal arrow sits on the thumb, at both ends of the rail', async ({ pag
 	await arrowIsOnTheThumb();
 });
 
+test('the rail marker names a ceiling, not the bake moment', async ({ page }) => {
+	// It used to reuse the form's "Ready to bake" label, which read as if the
+	// arrow pointed at the bake itself rather than at the longest window it
+	// allows. The moment stays on the line beneath.
+	await openRecipe(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
+
+	const marker = windowCard(page).locator('div.absolute').filter({ hasText: 'Limit set by' });
+	await expect(marker).toContainText('Limit set by ‘ready to bake’ time');
+	await expect(marker).toContainText('Sep 2');
+});
+
 test('every marker caption stays inside the rail', async ({ page }) => {
 	await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
 

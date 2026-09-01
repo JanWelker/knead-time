@@ -157,10 +157,12 @@
 
 	<!-- The bake time anchors everything here: the window is measured back from
 	     it, and it is where the rail's greyed-out stretch begins. Reuses the
-	     form's own label so the two can never word it differently. When the
-	     deadline lands inside the rail it becomes a flag pointing at the spot;
-	     with the bake days off there is nothing to point at, so it falls back
-	     to a plain line. -->
+	     rail the flag names a *ceiling on the window*, not a moment, so it gets
+	     its own wording rather than reusing the form's field label — which read
+	     as if the arrow pointed at the bake itself. The line under it still
+	     shows the moment that sets the ceiling. With the bake days off there is
+	     nothing on the rail to point at, and the fallback below does name the
+	     moment, so it keeps the field's own label. -->
 	{#if unreachableFromPct < 100}
 		<div class="relative mx-2.5 mt-2 h-9" aria-hidden="true">
 			<!-- Caption and arrow are placed separately on purpose: the caption
@@ -178,7 +180,7 @@
 				<span
 					class="text-tomato-700 dark:text-tomato-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
 				>
-					{t.form.readyBy}
+					{t.schedule.window_limit_label}
 				</span>
 				<span
 					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
