@@ -5,7 +5,13 @@
 
 A time-anchored Neapolitan pizza dough calculator — [try it live](https://kneadtime.pizza). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
-New in v6: **flour strength (W)** — pick your flour (twelve presets, shelved in the picker by what each strength is for — same-day, 24 h, 48 h, 48–72 h, or too weak / too strong, with the AVPN spec's W 220–380 as the outer edges — Caputo Doppio Zero, Pizzeria, Nuvola, Saccorosso, Cuoco and Nuvola Super; Dallagiovanna Classica Oro, La Napoletana and Uniqua Blu; Le 5 Stagioni Pizza Napoletana; Polselli Classica; or a generic supermarket tipo 00 — or type a W yourself) and the schedule paints the fermentation window that flour actually tolerates, with a slider that snaps to the windows Neapolitan practice actually uses (6, 8, 12, 16, 18, 24, 36, 48, 72 h) and greys out anything that would no longer fit before your bake time. The longest window that flour handles well gets a stop of its own, marked under the rail, and changing either the bake time or the flour re-picks it for you. W is advisory only: it predicts how long the gluten survives fermenting, **not** how much water the flour takes, so it never touches hydration, the ingredient masses or the yeast solve. Old share-links predate the field and stay flour-less.
+New in v6: **flour strength (W)** and a **fermentation-window slider**.
+
+Pick your flour and the schedule paints the window that flour actually tolerates. Twelve presets are shelved by what each strength is for — same-day, ~24 h, ~48 h, 48–72 h, plus a too-weak and a too-strong shelf, with the AVPN spec's W 220–380 as the outer edges — covering Caputo (Doppio Zero, Pizzeria, Nuvola, Saccorosso, Cuoco, Nuvola Super), Dallagiovanna (Classica Oro, La Napoletana, Uniqua Blu), Le 5 Stagioni Pizza Napoletana, Polselli Classica and a generic supermarket tipo 00. Or type a W yourself.
+
+The slider snaps to the windows Neapolitan practice actually uses (6, 8, 12, 16, 18, 24, 36, 48, 72 h), greys out anything that no longer fits before your bake time, and gives the longest window your flour handles well a stop of its own, marked under the rail. Change the bake time or the flour and it re-picks that window for you; a **Use best** button puts it back after you have dragged elsewhere.
+
+W is advisory only: it predicts how long the gluten survives fermenting, **not** how much water the flour takes, so it never touches hydration, the ingredient masses or the yeast solve. Old share-links predate the field and stay flour-less.
 
 New in v5: an **autolyse rest** — when you're not using a pre-ferment, the app rests flour and water for 30 min before the salt and yeast go in (less kneading, a more extensible dough). It's on by default (including the beginner view); experts can switch it off. Old share-links predate it and reproduce their original schedule unchanged.
 
@@ -54,6 +60,9 @@ src/
 │   │   ├── schedule.ts        backwards schedule, cold↔room auto-switch
 │   │   ├── ics.ts             RFC 5545 calendar export
 │   │   ├── urlState.ts        compact share-link encoding
+│   │   ├── flour.ts           flour presets, W → fermentation-tolerance bands
+│   │   ├── windowPresets.ts   slider stops, rail axis, the ideal window
+│   │   ├── quality.ts         recipe-fit score (0–100 → 0–5 stars)
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
@@ -61,7 +70,8 @@ src/
 │   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
-│   ├── state.svelte.ts   ← form state as a $state class
+│   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
+│   ├── warningSlots.ts   ← which card each schedule warning is rendered in
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
