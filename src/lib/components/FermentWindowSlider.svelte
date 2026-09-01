@@ -162,7 +162,7 @@
 	     with the bake days off there is nothing to point at, so it falls back
 	     to a plain line. -->
 	{#if unreachableFromPct < 100}
-		<div class="relative mt-2 h-9" aria-hidden="true">
+		<div class="relative mx-2.5 mt-2 h-9" aria-hidden="true">
 			<div
 				class="absolute bottom-0 flex flex-col {markerAnchor === 'start'
 					? 'items-start'
@@ -197,9 +197,14 @@
 
 	<div class="relative mt-3 h-6">
 		<!-- Rail + the flour's tolerance zones behind the thumb. aria-hidden:
-		     the range input below carries the accessible value and description. -->
+		     the range input below carries the accessible value and description.
+		     Inset by half a thumb (2.5 = 0.625rem, the thumb is 1.25rem): a
+		     native range thumb's centre travels from `radius` to `width -
+		     radius`, so anything positioned at a plain `left: p%` of the full
+		     width drifts from the thumb by up to that radius, worst at the ends.
+		     Every marker row below carries the same inset for the same reason. -->
 		<div
-			class="bg-dough-200 absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full dark:bg-stone-700"
+			class="bg-dough-200 absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full dark:bg-stone-700"
 			aria-hidden="true"
 		>
 			{#if zones?.room}
@@ -271,7 +276,7 @@
 	     deadline flagged from above. It is a real stop on the rail, so the
 	     arrow always sits on a position the thumb can land on. -->
 	{#if idealPct !== null}
-		<div class="relative mt-1 h-8" aria-hidden="true">
+		<div class="relative mx-2.5 mt-1 h-8" aria-hidden="true">
 			<div
 				class="absolute top-0 flex flex-col {idealAnchor === 'start'
 					? 'items-start'
@@ -297,7 +302,7 @@
 		</div>
 	{/if}
 
-	<div class="relative mt-1 h-4" aria-hidden="true">
+	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
 				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-400 dark:text-stone-500"
