@@ -57,7 +57,7 @@
 							</a>
 							<button
 								type="button"
-								class="hover:text-tomato-600 dark:hover:text-tomato-300 text-sm text-stone-500 underline-offset-2 hover:underline dark:text-stone-400"
+								class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-block py-0.5 text-sm text-stone-500 underline-offset-2 hover:underline dark:text-stone-400"
 								onclick={() => onDelete(recipe.name)}
 							>
 								{t.myRecipes.delete_label}

@@ -104,11 +104,7 @@
 			</div>
 			<div class="mt-1 flex items-center justify-between gap-2">
 				<span class="block text-xs text-stone-500 dark:text-stone-400">{t.form.startAt_help}</span>
-				<button
-					type="button"
-					class="bg-tomato-500 hover:bg-tomato-600 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
-					onclick={resetStartAtToNow}
-				>
+				<button type="button" class="btn-tomato-sm shrink-0" onclick={resetStartAtToNow}>
 					{t.form.startAt_now}
 				</button>
 			</div>
@@ -399,7 +395,7 @@
 	<div>
 		<button
 			type="button"
-			class="text-accent cursor-pointer text-sm font-medium underline-offset-2 hover:underline"
+			class="text-accent inline-block cursor-pointer py-0.5 text-sm font-medium underline-offset-2 hover:underline"
 			onclick={() => uiMode.set(uiMode.current === 'beginner' ? 'expert' : 'beginner')}
 		>
 			{uiMode.current === 'beginner' ? t.form.mode_expert : t.form.mode_beginner}
