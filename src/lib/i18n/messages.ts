@@ -310,6 +310,9 @@ export interface Messages {
 		setup_link: string;
 	};
 	warnings: {
+		// Spoken prefix so severity is not carried by colour alone.
+		severity_danger: string;
+		severity_info: string;
 		too_short: string;
 		too_cold: string;
 		too_warm: string;
@@ -756,6 +759,8 @@ const en: Messages = {
 		setup_link: 'See the TRMNL setup guide'
 	},
 	warnings: {
+		severity_danger: 'Warning',
+		severity_info: 'Note',
 		too_short:
 			'Not enough time. Pick a later moment or accept that the dough will be underproofed.',
 		too_cold: 'Kitchen looks chilly — fermentation will be sluggish at this temperature.',
@@ -1214,6 +1219,8 @@ const de: Messages = {
 		setup_link: 'Zur TRMNL-Einrichtungsanleitung'
 	},
 	warnings: {
+		severity_danger: 'Warnung',
+		severity_info: 'Hinweis',
 		too_short:
 			'Zu wenig Zeit. Wähle einen späteren Zeitpunkt oder akzeptiere, dass der Teig unfertig sein wird.',
 		too_cold: 'Die Küche sieht kühl aus — die Gare wird zäh.',
@@ -1674,6 +1681,8 @@ const it: Messages = {
 		setup_link: 'Guida alla configurazione TRMNL'
 	},
 	warnings: {
+		severity_danger: 'Attenzione',
+		severity_info: 'Nota',
 		too_short:
 			'Tempo insufficiente. Scegli un orario più tardi o accetta un impasto poco lievitato.',
 		too_cold: 'La cucina è fresca — la lievitazione sarà pigra.',
@@ -2138,6 +2147,8 @@ const fr: Messages = {
 		setup_link: 'Guide de configuration TRMNL'
 	},
 	warnings: {
+		severity_danger: 'Avertissement',
+		severity_info: 'Remarque',
 		too_short:
 			'Pas assez de temps. Choisissez un moment plus tardif ou acceptez une pâte sous-fermentée.',
 		too_cold: 'Cuisine fraîche — la fermentation sera lente à cette température.',
@@ -2598,6 +2609,8 @@ const nl: Messages = {
 		setup_link: 'Bekijk de TRMNL-installatiegids'
 	},
 	warnings: {
+		severity_danger: 'Waarschuwing',
+		severity_info: 'Let op',
 		too_short: 'Niet genoeg tijd. Kies een later moment of accepteer dat het deeg ondergerezen is.',
 		too_cold: 'Keuken oogt fris — fermentatie zal traag zijn bij deze temperatuur.',
 		too_warm: 'Keuken oogt warm — deeg kan overgaar worden. Houd het in de gaten.',
