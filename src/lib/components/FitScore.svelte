@@ -63,7 +63,7 @@
 
 <details class="group relative inline-block">
 	<summary
-		class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex cursor-pointer list-none items-center gap-1.5 text-sm font-medium text-stone-600 select-none dark:text-stone-300"
+		class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex cursor-pointer list-none items-center gap-1.5 py-0.5 text-sm font-medium text-stone-600 select-none dark:text-stone-300"
 		title={summaryTooltip}
 		aria-label={interpolate(t.quality.fit_aria, { stars })}
 	>

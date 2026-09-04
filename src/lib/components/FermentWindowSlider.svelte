@@ -342,11 +342,7 @@
 		     at its destination is noise, and its disappearance is the receipt
 		     that the click landed. -->
 		{#if ideal !== null && Math.abs(windowHours - ideal) > 1 / 60}
-			<button
-				type="button"
-				class="bg-tomato-500 hover:bg-tomato-600 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
-				onclick={() => form.repickWindow()}
-			>
+			<button type="button" class="btn-tomato-sm shrink-0" onclick={() => form.repickWindow()}>
 				{t.schedule.window_use_ideal}
 			</button>
 		{/if}
