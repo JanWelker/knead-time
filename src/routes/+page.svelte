@@ -25,6 +25,7 @@
 		type SavedRecipe
 	} from '$lib/storedRecipes';
 	import MyRecipes from '$lib/components/MyRecipes.svelte';
+	import SaveRecipeDialog from '$lib/components/SaveRecipeDialog.svelte';
 	import Community from '$lib/components/Community.svelte';
 	import Pizzerias from '$lib/components/Pizzerias.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
@@ -54,6 +55,7 @@
 	let actionsRef: HTMLDetailsElement | null = $state(null);
 	let actionsOpen = $state(false);
 	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
+	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
 
 	let savedRecipes = $state<SavedRecipe[]>([]);
 
@@ -107,9 +109,10 @@
 		}
 	});
 
-	function saveCurrentRecipe() {
-		const name = window.prompt(t.actions.save_recipe_prompt)?.trim();
-		if (!name) return;
+	// Was a window.prompt: native chrome in an app that is otherwise translated
+	// into five languages, unstyled in both themes, and blocking. The dialog
+	// beside it (TrmnlPush) already had the shape to copy.
+	function saveCurrentRecipe(name: string) {
 		savedRecipes = saveRecipe(safeLocalStorage(), {
 			name,
 			search: encodeInputs(form.serializable()),
@@ -305,7 +308,16 @@
 							>
 								{copied === 'share' ? t.actions.copied : t.actions.share}
 							</button>
-							<button type="button" role="menuitem" class="menu-item" onclick={saveCurrentRecipe}>
+							<button
+								type="button"
+								role="menuitem"
+								aria-haspopup="dialog"
+								class="menu-item"
+								onclick={() => {
+									actionsOpen = false;
+									saveDialog?.open();
+								}}
+							>
 								{t.actions.save_recipe}
 							</button>
 							<button
@@ -331,6 +343,7 @@
 						schedule={form.schedule}
 						{locale}
 					/>
+					<SaveRecipeDialog bind:this={saveDialog} onsave={saveCurrentRecipe} />
 				</div>
 				<!-- Always in the DOM, so the live region exists before it has
 				     anything to say — one created together with its first message
