@@ -29,8 +29,19 @@ const run = (cmd, args) =>
 	execFileSync(cmd, args, { encoding: 'utf8', env: { ...process.env, TZ: 'UTC' } });
 
 function unitTestCount() {
+	// `--no-static-parse` is load-bearing. Vitest 5 made `vitest list` parse test
+	// files from the AST instead of importing them, which cannot evaluate a
+	// `test.each` table: every parametrised suite lists as a single row with its
+	// placeholders unresolved ("isUiMode > $value → $expected"). That reported 642
+	// tests against 878 actually run — this ratchet read the difference as a mass
+	// deletion and refused the vitest 5 bump. Importing the files, as vitest 4 did,
+	// expands the tables and counts what the suite really contains.
+	//
+	// Vitest throws on an unknown option, so if the flag is ever dropped this fails
+	// loudly rather than silently going back to under-counting.
+	//
 	// One line per collected test: "file > suite > name".
-	return run('npx', ['vitest', 'list'])
+	return run('npx', ['vitest', 'list', '--no-static-parse'])
 		.split('\n')
 		.filter((l) => l.includes(' > ')).length;
 }
