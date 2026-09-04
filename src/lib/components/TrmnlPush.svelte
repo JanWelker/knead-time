@@ -104,7 +104,7 @@
 				autocomplete="off"
 				bind:value={uuidInput}
 				placeholder="00000000-0000-0000-0000-000000000000"
-				class="border-dough-300 w-full rounded-lg border bg-white px-3 py-2 font-mono text-sm tracking-tight text-stone-900 focus:outline-none dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100"
+				class="border-dough-300 w-full rounded-lg border bg-white px-3 py-2 font-mono text-sm tracking-tight text-stone-900 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100"
 			/>
 		</label>
 

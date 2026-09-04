@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openRecipe } from './helpers';
+import { card, openRecipe } from './helpers';
 
 // A two-day cold plan, so the schedule really does group steps under more than
 // one date heading.
@@ -67,8 +67,8 @@ test('no heading level is skipped', async ({ page }) => {
 test('changing a heading level does not change its typeface', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 
-	const day = await page
-		.locator('main h3.kt-day')
+	const day = await card(page, 'Schedule')
+		.locator('h3')
 		.first()
 		.evaluate((el) => {
 			const cs = getComputedStyle(el);
