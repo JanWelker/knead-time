@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import {
@@ -55,13 +56,39 @@
 		return interpolate(factorTemplate(detail.factor), { delta: rounded });
 	}
 
+	// The actions menu next to this one dismisses on outside-click and Escape;
+	// this panel did neither, so once opened it stayed open — floating over the
+	// schedule it is describing — until the same summary was clicked again. Same
+	// contract as the menu, minus the roving focus: this is a disclosure, not a
+	// menu, so its content is read in place.
+	let detailsRef: HTMLDetailsElement | null = $state(null);
+	let open = $state(false);
+
+	$effect(() => {
+		if (!browser || !open) return;
+		function onDocClick(event: MouseEvent) {
+			if (detailsRef && !detailsRef.contains(event.target as Node)) open = false;
+		}
+		function onKey(event: KeyboardEvent) {
+			if (event.key !== 'Escape') return;
+			open = false;
+			detailsRef?.querySelector<HTMLElement>('summary')?.focus();
+		}
+		document.addEventListener('click', onDocClick);
+		document.addEventListener('keydown', onKey);
+		return () => {
+			document.removeEventListener('click', onDocClick);
+			document.removeEventListener('keydown', onKey);
+		};
+	});
+
 	const summaryTooltip = $derived.by(() => {
 		const lines = fit.factors.length === 0 ? [t.quality.fit_perfect] : fit.factors.map(factorLabel);
 		return `${t.quality.fit_heading} ${starRow}: ${lines.join(' · ')}`;
 	});
 </script>
 
-<details class="group relative inline-block">
+<details bind:this={detailsRef} bind:open class="group relative inline-block">
 	<summary
 		class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex cursor-pointer list-none items-center gap-1.5 py-0.5 text-sm font-medium text-stone-600 select-none dark:text-stone-300"
 		title={summaryTooltip}
