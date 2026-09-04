@@ -173,7 +173,7 @@
 									<a
 										href={resolve('/') + entry.search}
 										rel="external"
-										class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+										class="text-tomato-600 hover:text-accent dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
 									>
 										{t.community.open_link}
 									</a>

@@ -1,6 +1,6 @@
 {
 	"name": "knead-time",
-	"version": "6.9.0",
+	"version": "6.9.1",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
@@ -24,6 +24,7 @@
 		"prepare": "husky || true"
 	},
 	"devDependencies": {
+		"@axe-core/playwright": "^4.13.0",
 		"@eslint/js": "^10.0.1",
 		"@playwright/test": "^1.62.1",
 		"@sveltejs/adapter-static": "^3.0.6",
