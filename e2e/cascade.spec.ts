@@ -48,7 +48,9 @@ test('every control keeps the focus ring, including the TRMNL uuid field', async
 	// The trigger is a <summary>; Playwright does not expose it as a button.
 	await page.locator('summary').filter({ hasText: 'Actions' }).click();
 	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
-	const uuid = page.locator('dialog input[type="text"]');
+	// By its accessible name: there is more than one dialog with a text field
+	// in the page now, and "the input inside a dialog" stopped being unique.
+	const uuid = page.getByRole('textbox', { name: 'Plugin UUID' });
 	await expect(uuid).toBeVisible();
 	expect(await ring(uuid)).toBe('rgb(200, 64, 26) solid 2px');
 });

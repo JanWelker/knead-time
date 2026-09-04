@@ -281,6 +281,8 @@ export interface Messages {
 		share_help: string;
 		save_recipe: string;
 		save_recipe_prompt: string;
+		save_confirm: string;
+		cancel: string;
 	};
 	print: {
 		recipe_heading: string;
@@ -729,7 +731,9 @@ const en: Messages = {
 		copy_failed: 'Could not copy — the link is in the address bar.',
 		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.',
 		save_recipe: 'Save recipe',
-		save_recipe_prompt: 'Name this recipe:'
+		save_recipe_prompt: 'Name this recipe:',
+		save_confirm: 'Save',
+		cancel: 'Cancel'
 	},
 	print: {
 		recipe_heading: 'Recipe',
@@ -1190,7 +1194,9 @@ const de: Messages = {
 		copy_failed: 'Kopieren nicht möglich — der Link steht in der Adressleiste.',
 		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.',
 		save_recipe: 'Rezept speichern',
-		save_recipe_prompt: 'Name für dieses Rezept:'
+		save_recipe_prompt: 'Name für dieses Rezept:',
+		save_confirm: 'Speichern',
+		cancel: 'Abbrechen'
 	},
 	print: {
 		recipe_heading: 'Rezept',
@@ -1653,7 +1659,9 @@ const it: Messages = {
 		copy_failed: 'Copia non riuscita — il link è nella barra degli indirizzi.',
 		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.',
 		save_recipe: 'Salva ricetta',
-		save_recipe_prompt: 'Nome per questa ricetta:'
+		save_recipe_prompt: 'Nome per questa ricetta:',
+		save_confirm: 'Salva',
+		cancel: 'Annulla'
 	},
 	print: {
 		recipe_heading: 'Ricetta',
@@ -2120,7 +2128,9 @@ const fr: Messages = {
 		copy_failed: 'Copie impossible — le lien est dans la barre d’adresse.',
 		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte.",
 		save_recipe: 'Enregistrer la recette',
-		save_recipe_prompt: 'Nom de cette recette :'
+		save_recipe_prompt: 'Nom de cette recette :',
+		save_confirm: 'Enregistrer',
+		cancel: 'Annuler'
 	},
 	print: {
 		recipe_heading: 'Recette',
@@ -2583,7 +2593,9 @@ const nl: Messages = {
 		copy_failed: 'Kopiëren mislukt — de link staat in de adresbalk.',
 		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.',
 		save_recipe: 'Recept opslaan',
-		save_recipe_prompt: 'Naam voor dit recept:'
+		save_recipe_prompt: 'Naam voor dit recept:',
+		save_confirm: 'Opslaan',
+		cancel: 'Annuleren'
 	},
 	print: {
 		recipe_heading: 'Recept',
