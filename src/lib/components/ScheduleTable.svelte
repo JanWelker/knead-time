@@ -112,10 +112,15 @@
 
 <div class="text-stone-800 dark:text-stone-200">
 	{#each days as day (day.key)}
+		<!-- A heading, not a span: the date is what groups the steps under it, and
+		     as plain text it left a multi-day plan looking like one flat run of
+		     step titles to anything navigating by heading. `font-sans` is
+		     load-bearing — app.css gives every h1-h3 the display serif, which
+		     this label has never used. -->
 		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<span class="text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
-				>{day.label}</span
-			>
+			<h3 class="kt-day text-xs font-bold text-stone-500 uppercase dark:text-stone-400">
+				{day.label}
+			</h3>
 			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
 		</div>
 
@@ -179,13 +184,18 @@
 					<div class="pb-6">
 						<div class="flex items-start justify-between gap-3">
 							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-								<h3
-									class="text-[0.9375rem] leading-5 font-semibold {current || (isReady && !past)
+								<!-- h4, under the day heading above. `font-display` is
+								     load-bearing: as an h3 this inherited the serif from
+								     app.css, and demoting the level alone would silently
+								     drop it to sans. -->
+								<h4
+									class="font-display text-[0.9375rem] leading-5 font-semibold {current ||
+									(isReady && !past)
 										? 'text-accent'
 										: 'text-stone-900 dark:text-stone-100'}"
 								>
 									{stepTitle(step, t)}
-								</h3>
+								</h4>
 								{#if current}
 									<span
 										class="bg-tomato-500 rounded px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-white uppercase"
@@ -269,6 +279,21 @@
 </div>
 
 <style>
+	/* The day label is a heading now, so app.css's `h1, h2, h3, .font-display`
+	   rule reaches it — and that rule sits OUTSIDE any cascade layer, which
+	   beats every Tailwind utility no matter how specific (unlayered wins over
+	   @layer utilities). `font-sans` and `tracking-[0.14em]` were silently
+	   dropped, turning the label serif and pulling its letters together. Both
+	   values therefore live here, where a component-scoped rule can win.
+
+	   The general fix is to move app.css's element rules into `@layer base`;
+	   that is left alone deliberately, because it would also let the one
+	   `outline-none` in the tree beat the global focus ring. */
+	.kt-day {
+		font-family: var(--font-sans);
+		letter-spacing: 0.14em;
+	}
+
 	/* A gentle halo on the current step's node — "you are here". */
 	@keyframes kt-node-pulse {
 		0%,
