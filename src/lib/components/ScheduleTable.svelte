@@ -118,7 +118,9 @@
 		     load-bearing — app.css gives every h1-h3 the display serif, which
 		     this label has never used. -->
 		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<h3 class="kt-day text-xs font-bold text-stone-500 uppercase dark:text-stone-400">
+			<h3
+				class="font-sans text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
+			>
 				{day.label}
 			</h3>
 			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
@@ -279,21 +281,6 @@
 </div>
 
 <style>
-	/* The day label is a heading now, so app.css's `h1, h2, h3, .font-display`
-	   rule reaches it — and that rule sits OUTSIDE any cascade layer, which
-	   beats every Tailwind utility no matter how specific (unlayered wins over
-	   @layer utilities). `font-sans` and `tracking-[0.14em]` were silently
-	   dropped, turning the label serif and pulling its letters together. Both
-	   values therefore live here, where a component-scoped rule can win.
-
-	   The general fix is to move app.css's element rules into `@layer base`;
-	   that is left alone deliberately, because it would also let the one
-	   `outline-none` in the tree beat the global focus ring. */
-	.kt-day {
-		font-family: var(--font-sans);
-		letter-spacing: 0.14em;
-	}
-
 	/* A gentle halo on the current step's node — "you are here". */
 	@keyframes kt-node-pulse {
 		0%,

@@ -40,33 +40,52 @@
 	--color-basil-900: #142810;
 }
 
-html {
-	font-family: var(--font-sans);
-	-webkit-font-smoothing: antialiased;
-	background: radial-gradient(ellipse at top, var(--color-dough-100) 0%, var(--color-dough-50) 60%)
-		fixed;
-}
+/* These are element defaults, so they belong in @layer base — and being in a
+   layer is what lets a utility override them. Unlayered, they outranked every
+   Tailwind utility no matter how specific, because unlayered CSS wins over any
+   @layer. Two things were silently broken by that: `font-sans` or `tracking-*`
+   on an h1-h3 did nothing (a heading could not be restyled without a
+   component-scoped rule to fight back), and `focus:outline-none` on an input
+   did nothing either. Both are the obvious class to reach for, and both were
+   being ignored with no error anywhere. */
+@layer base {
+	html {
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		background: radial-gradient(
+				ellipse at top,
+				var(--color-dough-100) 0%,
+				var(--color-dough-50) 60%
+			)
+			fixed;
+	}
 
-html.dark {
-	background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
-	color-scheme: dark;
-}
+	html.dark {
+		background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
+		color-scheme: dark;
+	}
 
-h1,
-h2,
-h3,
-.font-display {
-	font-family: var(--font-display);
-	letter-spacing: -0.01em;
-}
+	h1,
+	h2,
+	h3,
+	.font-display {
+		font-family: var(--font-display);
+		letter-spacing: -0.01em;
+	}
 
-input[type='number'] {
-	font-variant-numeric: tabular-nums;
-}
+	input[type='number'] {
+		font-variant-numeric: tabular-nums;
+	}
 
-:where(input, select, button, textarea):focus-visible {
-	outline: 2px solid var(--color-tomato-500);
-	outline-offset: 2px;
+	/* Deliberately still :where() — zero specificity, so a component that needs
+	   its own focus treatment can say so with one utility. Nothing does today:
+	   the one `focus:outline-none` in the tree was dead code that this change
+	   would have brought to life, removing that input's only focus indicator,
+	   so it went with it. */
+	:where(input, select, button, textarea):focus-visible {
+		outline: 2px solid var(--color-tomato-500);
+		outline-offset: 2px;
+	}
 }
 
 @layer components {
