@@ -72,8 +72,8 @@
 									class="bg-dough-100 rounded-full px-2 py-0.5 text-stone-700 tabular-nums dark:bg-stone-800 dark:text-stone-200"
 									title="{listLabel(r.list)} · {r.year}"
 								>
-									#{r.rank} <span class="text-stone-500 dark:text-stone-400">{r.year}</span>
-									<span class="text-stone-400 dark:text-stone-500">{listLabel(r.list)}</span>
+									#{r.rank} <span class="text-stone-600 dark:text-stone-400">{r.year}</span>
+									<span class="text-stone-600 dark:text-stone-400">{listLabel(r.list)}</span>
 								</li>
 							{/each}
 						</ul>
@@ -192,8 +192,8 @@
 												title="{listLabel(r.list)} · {r.year}"
 											>
 												#{r.rank}
-												<span class="text-stone-500 dark:text-stone-400">{r.year}</span>
-												<span class="text-stone-400 dark:text-stone-500">{listLabel(r.list)}</span>
+												<span class="text-stone-600 dark:text-stone-400">{r.year}</span>
+												<span class="text-stone-600 dark:text-stone-400">{listLabel(r.list)}</span>
 											</li>
 										{/each}
 									</ul>
@@ -210,7 +210,7 @@
 									<a
 										href={resolve('/') + entry.recipeSearch}
 										rel="external"
-										class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+										class="text-tomato-600 hover:text-accent dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
 									>
 										{t.pizzerias.open_link}
 									</a>
@@ -220,7 +220,7 @@
 										href={entry.sourceUrl}
 										target="_blank"
 										rel="noopener noreferrer"
-										class="text-tomato-600 hover:text-accent dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
+										class="text-tomato-600 hover:text-accent dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline"
 									>
 										{t.pizzerias.source_link}
 									</a>

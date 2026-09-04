@@ -411,9 +411,9 @@
 
 	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400">
 		<p>{t.footer.about}</p>
-		<p class="mt-1 text-stone-400 dark:text-stone-500">{t.actions.share_help}</p>
+		<p class="mt-1 text-stone-500 dark:text-stone-400">{t.actions.share_help}</p>
 		<p
-			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-400 dark:text-stone-500"
+			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-500 dark:text-stone-400"
 		>
 			<a
 				href="https://github.com/JanWelker/knead-time"
@@ -442,7 +442,7 @@
 				{t.footer.support}
 			</a>
 		</p>
-		<p class="mt-2 text-stone-400 dark:text-stone-500">
+		<p class="mt-2 text-stone-500 dark:text-stone-400">
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
 				target="_blank"
