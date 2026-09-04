@@ -227,42 +227,16 @@
 	</header>
 
 	<!-- lg+: When + Ingredients stack in the left column, Schedule spans the
-	     right; below lg everything collapses to one column in DOM order. -->
+	     right; below lg everything collapses to one column in DOM order.
+	     All three carry explicit col/row placement, so DOM order is free to
+	     serve the phone: the schedule comes second there, because it is what
+	     the app is for and it used to sit two screens below the fold, behind
+	     the form AND the ingredients. At lg+ the placement pins it back to
+	     the right-hand column regardless. -->
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
 		<section class="card lg:col-start-1 lg:row-start-1">
 			<InputForm {form} />
 		</section>
-
-		<div class="card lg:col-start-1 lg:row-start-2">
-			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-					{t.ingredients.heading}
-				</h2>
-				<button
-					type="button"
-					class="btn-tomato-sm inline-flex items-center gap-1"
-					onclick={() => form.roundBallWeight()}
-					title={t.form.ballWeight_round_help}
-					aria-label={t.form.ballWeight_round_help}
-				>
-					<span aria-hidden="true">↻</span>
-					{t.form.ballWeight_round}
-				</button>
-			</div>
-			<Ingredients
-				ingredients={form.schedule.ingredients}
-				yeastType={form.yeastType}
-				yeastPercent={form.schedule.yeastPercent}
-				flourW={form.flourW}
-			/>
-			<!-- The yeast warnings are about the number you weigh out ("measure
-			     carefully", "double-check the inputs"), so they belong with the
-			     weights. Visible in beginner view too, where the yeast field
-			     itself is hidden but the window can still reach both extremes. -->
-			<div class="mt-4">
-				<Warnings warnings={form.schedule.warnings} place="ingredients" />
-			</div>
-		</div>
 
 		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
 			<!-- Title row keeps Actions pinned top-right at every width; the badge/
@@ -379,6 +353,37 @@
 					sourceTiming={activePizzeria?.timing}
 					verbosity={scheduleVerbosity.current}
 				/>
+			</div>
+		</div>
+
+		<div class="card lg:col-start-1 lg:row-start-2">
+			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+					{t.ingredients.heading}
+				</h2>
+				<button
+					type="button"
+					class="btn-tomato-sm inline-flex items-center gap-1"
+					onclick={() => form.roundBallWeight()}
+					title={t.form.ballWeight_round_help}
+					aria-label={t.form.ballWeight_round_help}
+				>
+					<span aria-hidden="true">↻</span>
+					{t.form.ballWeight_round}
+				</button>
+			</div>
+			<Ingredients
+				ingredients={form.schedule.ingredients}
+				yeastType={form.yeastType}
+				yeastPercent={form.schedule.yeastPercent}
+				flourW={form.flourW}
+			/>
+			<!-- The yeast warnings are about the number you weigh out ("measure
+			     carefully", "double-check the inputs"), so they belong with the
+			     weights. Visible in beginner view too, where the yeast field
+			     itself is hidden but the window can still reach both extremes. -->
+			<div class="mt-4">
+				<Warnings warnings={form.schedule.warnings} place="ingredients" />
 			</div>
 		</div>
 	</div>

@@ -77,22 +77,28 @@
 		<legend class="font-display text-accent text-lg">
 			{t.form.section_when}
 		</legend>
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+		<!-- A fieldset, not a label: a label names its FIRST labelable
+		     descendant, so wrapping a date and a time box in one left the time
+		     box with no accessible name at all. The legend names the moment,
+		     each input names its own half. -->
+		<fieldset class="block min-w-0">
+			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.startAt}
-			</span>
+			</legend>
 			<div class="mt-1 flex gap-2">
 				<input
 					type="date"
 					class={dateInputClass}
 					value={startAtDate}
 					max={readyByDate}
+					aria-label="{t.form.startAt} — {t.form.field_date}"
 					oninput={(e) => setStartAt(e.currentTarget.value, startAtTime)}
 				/>
 				<input
 					type="time"
 					class={timeInputClass}
 					value={startAtTime}
+					aria-label="{t.form.startAt} — {t.form.field_time}"
 					oninput={(e) => setStartAt(startAtDate, e.currentTarget.value)}
 				/>
 			</div>
@@ -114,29 +120,31 @@
 					{t.form.startAt_clamped}
 				</p>
 			{/if}
-		</label>
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+		</fieldset>
+		<fieldset class="block min-w-0">
+			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.readyBy}
-			</span>
+			</legend>
 			<div class="mt-1 flex gap-2">
 				<input
 					type="date"
 					class={dateInputClass}
 					value={readyByDate}
+					aria-label="{t.form.readyBy} — {t.form.field_date}"
 					oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
 				/>
 				<input
 					type="time"
 					class={timeInputClass}
 					value={readyByTime}
+					aria-label="{t.form.readyBy} — {t.form.field_time}"
 					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
 				/>
 			</div>
 			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
 				{t.form.readyBy_help}
 			</span>
-		</label>
+		</fieldset>
 		<!-- The flour sits here, not down in the recipe: it is the other half of
 		     what makes a window ideal, so it belongs with the times it bounds and
 		     directly above the rail that paints its tolerance band. The W number

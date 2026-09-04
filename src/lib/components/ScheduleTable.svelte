@@ -113,7 +113,7 @@
 <div class="text-stone-800 dark:text-stone-200">
 	{#each days as day (day.key)}
 		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<span class="text-xs font-bold tracking-[0.14em] text-stone-400 uppercase dark:text-stone-500"
+			<span class="text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
 				>{day.label}</span
 			>
 			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>

@@ -20,6 +20,10 @@ export interface Messages {
 		startAt_now: string;
 		readyBy: string;
 		readyBy_help: string;
+		// Names the two halves of a date+time pair. The pair's own legend says
+		// which moment it is; these say which half you are in.
+		field_date: string;
+		field_time: string;
 		info_heading: string;
 		info_intro: string;
 		info_q10_title: string;
@@ -399,6 +403,8 @@ const en: Messages = {
 		startAt_now: 'Now',
 		readyBy: 'Ready to bake',
 		readyBy_help: 'The moment the first pizza goes in the oven.',
+		field_date: 'Date',
+		field_time: 'Time',
 		info_heading: 'Get nerdy: the math behind the schedule',
 		info_intro:
 			'Fermentation modelled as a kinetic process; the schedule runs backwards from your bake time.',
@@ -846,6 +852,8 @@ const de: Messages = {
 		startAt_now: 'Jetzt',
 		readyBy: 'Bereit zum Backen',
 		readyBy_help: 'Der Moment, an dem die erste Pizza in den Ofen geht.',
+		field_date: 'Datum',
+		field_time: 'Uhrzeit',
 		info_heading: 'Geek-Modus: die Mathematik hinter dem Plan',
 		info_intro:
 			'Gärung wird als kinetischer Prozess modelliert; der Plan läuft rückwärts von der Backzeit.',
@@ -1301,6 +1309,8 @@ const it: Messages = {
 		startAt_now: 'Adesso',
 		readyBy: 'Pronto da infornare',
 		readyBy_help: "L'istante in cui la prima pizza entra nel forno.",
+		field_date: 'Data',
+		field_time: 'Ora',
 		info_heading: 'Modalità nerd: la matematica dietro il programma',
 		info_intro:
 			"Lievitazione modellata come processo cinetico; il programma scorre a ritroso dall'ora di cottura.",
@@ -1758,6 +1768,8 @@ const fr: Messages = {
 		startAt_now: 'Maintenant',
 		readyBy: 'Prêt à enfourner',
 		readyBy_help: 'Le moment où la première pizza entre au four.',
+		field_date: 'Date',
+		field_time: 'Heure',
 		info_heading: 'Mode geek : les maths derrière le programme',
 		info_intro:
 			"Fermentation modélisée comme un processus cinétique ; le programme se déroule à rebours depuis l'heure de cuisson.",
@@ -2220,6 +2232,8 @@ const nl: Messages = {
 		startAt_now: 'Nu',
 		readyBy: 'Klaar om te bakken',
 		readyBy_help: 'Het moment dat de eerste pizza in de oven gaat.',
+		field_date: 'Datum',
+		field_time: 'Tijd',
 		info_heading: 'Geek-modus: de wiskunde achter het schema',
 		info_intro:
 			'Fermentatie gemodelleerd als een kinetisch proces; het schema loopt achterwaarts vanaf je baktijd.',
