@@ -10,7 +10,8 @@ import {
 	stepDetailText,
 	stepIngredients,
 	stepTitle,
-	yeastIngredientName
+	yeastIngredientName,
+	flourIngredientName
 } from './stepCopy';
 
 // stepCopy tests use the decimal ball weight (288.5 g) by default because
@@ -398,6 +399,22 @@ describe('yeastIngredientName', () => {
 		const r = computeSchedule(prefermentInputs('poolish', { yeastType: 'instant' }));
 		const list = stepIngredients(findStep(r, 'preferment-mix'), MESSAGES.en, r);
 		expect(list[2].name).toBe(MESSAGES.en.ingredients.instant_yeast);
+	});
+});
+
+describe('flourIngredientName', () => {
+	it('names the preset the baker picked', () => {
+		expect(flourIngredientName(265, MESSAGES.en)).toBe(MESSAGES.en.form['flour_caputo-pizzeria']);
+		expect(flourIngredientName(180, MESSAGES.de)).toBe(MESSAGES.de.form['flour_supermarket-00']);
+	});
+
+	it('falls back to the generic label for a hand-typed strength', () => {
+		// No preset sits on W 300, so there is no bag name to print.
+		expect(flourIngredientName(300, MESSAGES.en)).toBe(MESSAGES.en.ingredients.flour);
+	});
+
+	it('falls back to the generic label when no flour is stated', () => {
+		expect(flourIngredientName(null, MESSAGES.it)).toBe(MESSAGES.it.ingredients.flour);
 	});
 });
 

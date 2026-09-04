@@ -1,3 +1,4 @@
+import { flourPresetForW } from './dough/flour';
 import type { ComputedSchedule, ScheduleStep, ScheduleStepKind, YeastType } from './dough/types';
 import { formatBallWeight, formatGrams } from './format';
 import { interpolate } from './i18n/interpolate';
@@ -68,6 +69,15 @@ export function yeastIngredientName(type: YeastType, msgs: Messages): string {
 		case 'sourdough':
 			return msgs.ingredients.sourdough_starter;
 	}
+}
+
+// Localized ingredient-row name for the flour: the bag the baker picked, so
+// the scale list reads like the cupboard ("Caputo Pizzeria 600 g") instead of
+// a generic "Flour". A hand-typed W matches no preset and "not specified" is
+// null — neither has a name, so both keep the generic label.
+export function flourIngredientName(flourW: number | null, msgs: Messages): string {
+	const preset = flourW === null ? null : flourPresetForW(flourW);
+	return preset ? msgs.form[`flour_${preset}`] : msgs.ingredients.flour;
 }
 
 // True when this schedule carries a flour+water autolyse rest — only happens

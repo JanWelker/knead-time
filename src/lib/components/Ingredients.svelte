@@ -2,17 +2,26 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { ingredientTotals } from '$lib/dough/bakers';
 	import { formatGrams, formatPercent } from '$lib/format';
-	import { yeastIngredientName } from '$lib/stepCopy';
+	import { flourIngredientName, yeastIngredientName } from '$lib/stepCopy';
 	import type { Ingredients, YeastType } from '$lib/dough/types';
 
 	let {
 		ingredients,
 		yeastType,
-		yeastPercent
-	}: { ingredients: Ingredients; yeastType: YeastType; yeastPercent: number } = $props();
+		yeastPercent,
+		flourW
+	}: {
+		ingredients: Ingredients;
+		yeastType: YeastType;
+		yeastPercent: number;
+		flourW: number | null;
+	} = $props();
 	const t = $derived(i18n.t);
 
 	const yeastLabel = $derived(yeastIngredientName(yeastType, t));
+	// The chosen bag's own name on every flour row — pre-dough, main dough and
+	// totals all weigh the same flour.
+	const flourLabel = $derived(flourIngredientName(flourW, t));
 
 	// A 1 g kitchen scale cannot weigh a 0.8 g yeast pinch — surface the hint
 	// whenever any yeast amount on the page drops below 2 g.
@@ -68,7 +77,7 @@
 				</header>
 				<table class="w-full border-collapse tabular-nums">
 					<tbody>
-						{@render row(t.ingredients.flour, pf.flour)}
+						{@render row(flourLabel, pf.flour)}
 						{@render row(t.ingredients.water, pf.water)}
 						{@render row(yeastLabel, pf.yeast)}
 					</tbody>
@@ -83,7 +92,7 @@
 			</header>
 			<table class="w-full border-collapse tabular-nums">
 				<tbody>
-					{@render row(t.ingredients.flour, ingredients.flour)}
+					{@render row(flourLabel, ingredients.flour)}
 					{@render row(t.ingredients.water, ingredients.water)}
 					{@render row(t.ingredients.salt, ingredients.salt)}
 					{@render extras()}
@@ -100,7 +109,7 @@
 			</header>
 			<table class="w-full border-collapse tabular-nums">
 				<tbody>
-					{@render row(t.ingredients.flour, totals.flour)}
+					{@render row(flourLabel, totals.flour)}
 					{@render row(t.ingredients.water, totals.water)}
 					{@render row(t.ingredients.salt, totals.salt)}
 					{@render extras()}
@@ -112,7 +121,7 @@
 	{:else}
 		<table class="w-full border-collapse tabular-nums">
 			<tbody>
-				{@render row(t.ingredients.flour, ingredients.flour)}
+				{@render row(flourLabel, ingredients.flour)}
 				{@render row(t.ingredients.water, ingredients.water)}
 				{@render row(t.ingredients.salt, ingredients.salt)}
 				{@render extras()}

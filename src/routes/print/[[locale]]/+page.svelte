@@ -20,7 +20,13 @@
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
 	import { qrCode } from '$lib/qr';
-	import { stepDescription, stepIngredients, stepTitle, yeastIngredientName } from '$lib/stepCopy';
+	import {
+		flourIngredientName,
+		stepDescription,
+		stepIngredients,
+		stepTitle,
+		yeastIngredientName
+	} from '$lib/stepCopy';
 	import { yeastLabel as yeastTypeLabelFor } from '$lib/components/recipeLabels';
 
 	// Locale lives in the URL path so each language can ship its own prerendered
@@ -52,6 +58,7 @@
 	);
 	const qr = $derived(shareUrl ? qrCode(shareUrl) : null);
 	const yeastLabel = $derived(yeastIngredientName(inputs.yeastType, t));
+	const flourLabel = $derived(flourIngredientName(inputs.flourW, t));
 	const yeastTypeLabel = $derived(yeastTypeLabelFor(inputs, t));
 	const preFermentLabel = $derived(
 		schedule.preFerments.length > 0
@@ -282,7 +289,7 @@
 						</h3>
 						<table class="printpage-ingredients">
 							<tbody>
-								<tr><th>{t.ingredients.flour}</th><td>{formatGrams(pf.flour)}</td></tr>
+								<tr><th>{flourLabel}</th><td>{formatGrams(pf.flour)}</td></tr>
 								<tr><th>{t.ingredients.water}</th><td>{formatGrams(pf.water)}</td></tr>
 								<tr><th>{yeastLabel}</th><td>{formatGrams(pf.yeast)}</td></tr>
 							</tbody>
@@ -293,10 +300,7 @@
 					<h3>{t.ingredients.mainDough_heading}</h3>
 					<table class="printpage-ingredients">
 						<tbody>
-							<tr
-								><th>{t.ingredients.flour}</th><td>{formatGrams(schedule.ingredients.flour)}</td
-								></tr
-							>
+							<tr><th>{flourLabel}</th><td>{formatGrams(schedule.ingredients.flour)}</td></tr>
 							<tr
 								><th>{t.ingredients.water}</th><td>{formatGrams(schedule.ingredients.water)}</td
 								></tr
@@ -323,7 +327,7 @@
 					<h3>{t.ingredients.totals_heading}</h3>
 					<table class="printpage-ingredients">
 						<tbody>
-							<tr><th>{t.ingredients.flour}</th><td>{formatGrams(totals.flour)}</td></tr>
+							<tr><th>{flourLabel}</th><td>{formatGrams(totals.flour)}</td></tr>
 							<tr><th>{t.ingredients.water}</th><td>{formatGrams(totals.water)}</td></tr>
 							<tr><th>{t.ingredients.salt}</th><td>{formatGrams(totals.salt)}</td></tr>
 							{#if totals.oil > 0}
@@ -348,8 +352,7 @@
 			{:else}
 				<table class="printpage-ingredients">
 					<tbody>
-						<tr><th>{t.ingredients.flour}</th><td>{formatGrams(schedule.ingredients.flour)}</td></tr
-						>
+						<tr><th>{flourLabel}</th><td>{formatGrams(schedule.ingredients.flour)}</td></tr>
 						<tr><th>{t.ingredients.water}</th><td>{formatGrams(schedule.ingredients.water)}</td></tr
 						>
 						<tr><th>{t.ingredients.salt}</th><td>{formatGrams(schedule.ingredients.salt)}</td></tr>
