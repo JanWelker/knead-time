@@ -239,7 +239,17 @@
 	     the app is for and it used to sit two screens below the fold, behind
 	     the form AND the ingredients. At lg+ the placement pins it back to
 	     the right-hand column regardless. -->
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
+	<!-- 7fr 5fr, not two equal halves. The columns behave differently under
+	     width: the form is a grid of controls and the ingredients a table of
+	     short rows, so both are close to rigid (972 px of ingredients does not
+	     move by a pixel between a 536 and a 680 px column), while the schedule
+	     is prose that reflows and loses ~300 px over the same range. Equal
+	     halves therefore left the rigid column hanging 377 px below the elastic
+	     one on a default recipe and 718 px on a twelve-pizza biga+poolish.
+	     Giving the rigid side the extra width and letting the schedule run
+	     taller closes it to 68 px and 351 px. Widening the whole container does
+	     the opposite — only the schedule shrinks, so the gap grows. -->
+	<div class="grid grid-cols-1 gap-8 lg:grid-cols-[7fr_5fr] lg:items-start">
 		<section class="card lg:col-start-1 lg:row-start-1">
 			<!-- The input card was the one card with no heading, so the whole
 			     primary surface was missing from the heading outline. Kept

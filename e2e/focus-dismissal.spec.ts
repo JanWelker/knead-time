@@ -39,14 +39,17 @@ test('the fit-score panel closes on Escape and on an outside click', async ({ pa
 	const trigger = details.locator('summary');
 
 	await trigger.click();
-	await expect(details).toHaveAttribute('open', '');
+	// Wait for the panel to be on screen, not merely for the open attribute:
+	// <details> sets that itself on click, before the component has rendered
+	// anything, and "it is open" should mean the reader can see it.
+	await expect(details.locator('p, ul').first()).toBeVisible();
 	await page.keyboard.press('Escape');
 	await expect(details).not.toHaveAttribute('open', '');
 	// Escape hands focus back to the trigger, so the keyboard does not restart.
 	await expect(trigger).toBeFocused();
 
 	await trigger.click();
-	await expect(details).toHaveAttribute('open', '');
+	await expect(details.locator('p, ul').first()).toBeVisible();
 	await card(page, 'Schedule').getByRole('heading', { name: 'Schedule' }).click();
 	await expect(details).not.toHaveAttribute('open', '');
 });

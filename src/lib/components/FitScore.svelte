@@ -57,22 +57,33 @@
 	}
 
 	// The actions menu next to this one dismisses on outside-click and Escape;
-	// this panel did neither, so once opened it stayed open — floating over the
-	// schedule it is describing — until the same summary was clicked again. Same
-	// contract as the menu, minus the roving focus: this is a disclosure, not a
-	// menu, so its content is read in place.
+	// this panel did neither, so once opened it floated over the schedule it is
+	// describing until its own summary was clicked again. Same contract as the
+	// menu, minus the roving focus: this is a disclosure, not a menu, so its
+	// content is read in place.
+	//
+	// The element's own `open` is the source of truth, rather than a bound piece
+	// of state. <details> flips that attribute itself on click and Svelte syncs a
+	// binding afterwards, so handlers gated on the bound copy saw `false` for a
+	// window after the panel was visibly open and did nothing — reproducibly in
+	// dev, and about one browser-test run in four. Reading the DOM removes the
+	// timing question instead of racing it.
 	let detailsRef: HTMLDetailsElement | null = $state(null);
-	let open = $state(false);
 
 	$effect(() => {
-		if (!browser || !open) return;
+		if (!browser) return;
+		function dismiss() {
+			if (!detailsRef) return;
+			detailsRef.open = false;
+		}
 		function onDocClick(event: MouseEvent) {
-			if (detailsRef && !detailsRef.contains(event.target as Node)) open = false;
+			if (!detailsRef?.open) return;
+			if (!detailsRef.contains(event.target as Node)) dismiss();
 		}
 		function onKey(event: KeyboardEvent) {
-			if (event.key !== 'Escape') return;
-			open = false;
-			detailsRef?.querySelector<HTMLElement>('summary')?.focus();
+			if (event.key !== 'Escape' || !detailsRef?.open) return;
+			dismiss();
+			detailsRef.querySelector<HTMLElement>('summary')?.focus();
 		}
 		document.addEventListener('click', onDocClick);
 		document.addEventListener('keydown', onKey);
@@ -88,7 +99,7 @@
 	});
 </script>
 
-<details bind:this={detailsRef} bind:open class="group relative inline-block">
+<details bind:this={detailsRef} class="group relative inline-block">
 	<summary
 		class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex cursor-pointer list-none items-center gap-1.5 py-0.5 text-sm font-medium text-stone-600 select-none dark:text-stone-300"
 		title={summaryTooltip}

@@ -43,6 +43,32 @@ test.describe('desktop', () => {
 		expect(ingredients!.x).toBeCloseTo(form!.x, 0);
 		expect(ingredients!.y).toBeGreaterThan(form!.y + form!.height - 2);
 	});
+
+	// The columns are 7fr 5fr rather than two halves. The left one is close to
+	// rigid — a grid of controls, and a table of short rows that does not change
+	// height with width at all — while the schedule is prose that reflows. Equal
+	// halves left the rigid side hanging 377 px below the elastic one on a
+	// default recipe, and 718 px on a twelve-pizza biga+poolish. Only a browser
+	// can see this: it is entirely a question of how the content reflows.
+	test('the rigid column gets the extra width, so the two end closer together', async ({
+		page
+	}) => {
+		await openRecipe(page, RECIPE);
+
+		const form = await formCard(page).boundingBox();
+		const schedule = await card(page, 'Schedule').boundingBox();
+		const ingredients = await card(page, 'Ingredients').boundingBox();
+
+		// 7:5 — checked loosely, since the gap is part of the ratio.
+		expect(form!.width / schedule!.width).toBeGreaterThan(1.25);
+		expect(form!.width / schedule!.width).toBeLessThan(1.55);
+
+		// ...and the point of it: the two columns now end within a few hundred
+		// pixels of each other rather than nearly four hundred apart.
+		const leftBottom = ingredients!.y + ingredients!.height;
+		const rightBottom = schedule!.y + schedule!.height;
+		expect(Math.abs(leftBottom - rightBottom)).toBeLessThan(200);
+	});
 });
 
 // A <label> names its FIRST labelable descendant, so wrapping a date box and a
