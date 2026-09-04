@@ -82,13 +82,16 @@
 	}
 </script>
 
+<!-- aria-labelledby: a <dialog> with no accessible name is announced as just
+     "dialog", and this one already has the heading to use. -->
 <dialog
 	bind:this={dialogEl}
+	aria-labelledby="trmnl-push-heading"
 	class="border-dough-200 max-w-md rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200"
 >
 	<form class="space-y-4 p-5" onsubmit={onSubmit}>
 		<header class="space-y-1">
-			<h2 class="font-display text-accent text-lg">
+			<h2 id="trmnl-push-heading" class="font-display text-accent text-lg">
 				{t.trmnl_push.dialog_heading}
 			</h2>
 			<p class="text-xs text-stone-500 dark:text-stone-400">{t.trmnl_push.dialog_intro}</p>
@@ -134,13 +137,20 @@
 			</button>
 		</div>
 
-		{#if status === 'sent'}
-			<p class="text-basil-700 dark:text-basil-300 text-xs">{t.trmnl_push.sent}</p>
-		{:else if status === 'error'}
-			<p class="text-accent text-xs">
-				{t.trmnl_push.error}: {errorMessage}
-			</p>
-		{/if}
+		<!-- Whether the push worked was rendered, but never announced: no live
+		     region, so a screen-reader user pressed Send and heard nothing back
+		     either way. Present from the start and empty while idle, because a
+		     region that appears with its first message is not announced at all. -->
+		<p
+			role="status"
+			class="text-xs {status === 'sent'
+				? 'text-basil-700 dark:text-basil-300'
+				: status === 'error'
+					? 'text-accent'
+					: 'sr-only'}"
+		>
+			{#if status === 'sent'}{t.trmnl_push.sent}{:else if status === 'error'}{t.trmnl_push.error}: {errorMessage}{/if}
+		</p>
 
 		<p
 			class="border-dough-200 border-t pt-3 text-xs text-stone-500 dark:border-stone-700 dark:text-stone-400"

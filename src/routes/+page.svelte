@@ -49,7 +49,7 @@
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
 
-	let copied = $state<'share' | null>(null);
+	let copied = $state<'share' | 'failed' | null>(null);
 	let hydrated = $state(false);
 	let actionsRef: HTMLDetailsElement | null = $state(null);
 	let actionsOpen = $state(false);
@@ -151,8 +151,11 @@
 			copied = 'share';
 			setTimeout(() => (copied = null), 1500);
 		} catch {
-			// Browser denied clipboard access — drop silently; the share URL
-			// is also visible in the address bar.
+			// A denied clipboard used to be swallowed here. The reasoning was that
+			// the URL is in the address bar anyway — true, but the user has just
+			// pressed a button and been given no reason to think it did nothing.
+			// Say so, and say where the link is. Stays until the next attempt.
+			copied = 'failed';
 		}
 	}
 
@@ -329,6 +332,21 @@
 						{locale}
 					/>
 				</div>
+				<!-- Always in the DOM, so the live region exists before it has
+				     anything to say — one created together with its first message
+				     is not announced by most screen readers. Success is visible
+				     already (the menu item reads "Copied!"), so it stays sr-only;
+				     a refusal has no other signal at all, so it becomes visible. -->
+				<p
+					id="share-status"
+					role="status"
+					class={copied === 'failed'
+						? 'border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200 mt-2 rounded-lg border px-3 py-2 text-sm'
+						: 'sr-only'}
+				>
+					{#if copied === 'share'}{t.actions.copied}{:else if copied === 'failed'}{t.actions
+							.copy_failed}{/if}
+				</p>
 				<div class="mt-2 flex flex-wrap items-center gap-3">
 					<ModeBadge mode={form.schedule.mode} />
 					<FitScore schedule={form.schedule} inputs={form.serializable()} />

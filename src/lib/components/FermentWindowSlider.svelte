@@ -293,6 +293,7 @@
 				: 'cursor-pointer'}"
 			aria-label={t.schedule.window_label}
 			aria-valuetext={formatWindow(windowHours)}
+			aria-describedby="window-band window-benefit"
 		/>
 	</div>
 
@@ -346,7 +347,12 @@
 	</div>
 
 	<div class="mt-2 flex items-start justify-between gap-2">
-		<p class="text-xs text-stone-500 dark:text-stone-400">
+		<!-- Described by, not merely displayed beside: everything on the rail that
+		     says whether this window is a GOOD one — the tolerance bands, the
+		     ideal marker, the tick labels — is aria-hidden decoration, so a
+		     screen reader got a bare duration and no way to judge it. These two
+		     lines are that judgement, in words. -->
+		<p id="window-band" class="text-xs text-stone-500 dark:text-stone-400">
 			{#if band}
 				<!-- A swatch in the same green as the band it describes. The rail
 				     painted two green stretches and nothing ever said what the
@@ -426,7 +432,7 @@
 		</p>
 	{/if}
 
-	<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
+	<p id="window-benefit" class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
 </div>
 
 <style>
