@@ -277,6 +277,7 @@ export interface Messages {
 		print: string;
 		share: string;
 		copied: string;
+		copy_failed: string;
 		share_help: string;
 		save_recipe: string;
 		save_recipe_prompt: string;
@@ -725,6 +726,7 @@ const en: Messages = {
 		print: 'Print / Save as PDF',
 		share: 'Copy share link',
 		copied: 'Copied!',
+		copy_failed: 'Could not copy — the link is in the address bar.',
 		share_help: 'The recipe lives in the URL — anyone with the link gets the same dough.',
 		save_recipe: 'Save recipe',
 		save_recipe_prompt: 'Name this recipe:'
@@ -1185,6 +1187,7 @@ const de: Messages = {
 		print: 'Drucken / als PDF',
 		share: 'Link kopieren',
 		copied: 'Kopiert!',
+		copy_failed: 'Kopieren nicht möglich — der Link steht in der Adressleiste.',
 		share_help: 'Das Rezept steckt in der URL — wer den Link hat, hat denselben Teig.',
 		save_recipe: 'Rezept speichern',
 		save_recipe_prompt: 'Name für dieses Rezept:'
@@ -1647,6 +1650,7 @@ const it: Messages = {
 		print: 'Stampa / Salva PDF',
 		share: 'Copia link',
 		copied: 'Copiato!',
+		copy_failed: 'Copia non riuscita — il link è nella barra degli indirizzi.',
 		share_help: 'La ricetta vive nella URL — chi ha il link ottiene lo stesso impasto.',
 		save_recipe: 'Salva ricetta',
 		save_recipe_prompt: 'Nome per questa ricetta:'
@@ -2113,6 +2117,7 @@ const fr: Messages = {
 		print: 'Imprimer / Enregistrer en PDF',
 		share: 'Copier le lien',
 		copied: 'Copié !',
+		copy_failed: 'Copie impossible — le lien est dans la barre d’adresse.',
 		share_help: "La recette est dans l'URL — toute personne avec le lien obtient la même pâte.",
 		save_recipe: 'Enregistrer la recette',
 		save_recipe_prompt: 'Nom de cette recette :'
@@ -2575,6 +2580,7 @@ const nl: Messages = {
 		print: 'Afdrukken / Opslaan als PDF',
 		share: 'Deellink kopiëren',
 		copied: 'Gekopieerd!',
+		copy_failed: 'Kopiëren mislukt — de link staat in de adresbalk.',
 		share_help: 'Het recept staat in de URL — wie de link heeft, krijgt hetzelfde deeg.',
 		save_recipe: 'Recept opslaan',
 		save_recipe_prompt: 'Naam voor dit recept:'
