@@ -81,8 +81,14 @@
 	   its own focus treatment can say so with one utility. Nothing does today:
 	   the one `focus:outline-none` in the tree was dead code that this change
 	   would have brought to life, removing that input's only focus indicator,
-	   so it went with it. */
-	:where(input, select, button, textarea):focus-visible {
+	   so it went with it.
+
+	   `a` and `summary` are in the list because both are used here as primary
+	   controls, not as prose links: every disclosure in the app is a styled
+	   <summary>, and every "Open" in the recipe tables is an <a>. They were
+	   falling back to the browser's default ring, which is a different shape
+	   and colour on every engine and invisible against a dark card in some. */
+	:where(a, summary, input, select, button, textarea):focus-visible {
 		outline: 2px solid var(--color-tomato-500);
 		outline-offset: 2px;
 	}
