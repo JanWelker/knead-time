@@ -319,7 +319,7 @@
 	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-400 dark:text-stone-500"
+				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400"
 				style="left:{axis(stop)}%">{formatWindow(stop)}</span
 			>
 		{/each}
