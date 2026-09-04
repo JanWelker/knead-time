@@ -235,6 +235,12 @@
 	     the right-hand column regardless. -->
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
 		<section class="card lg:col-start-1 lg:row-start-1">
+			<!-- The input card was the one card with no heading, so the whole
+			     primary surface was missing from the heading outline. Kept
+			     sr-only: the two group legends below already label it on screen,
+			     and a visible "Your recipe" sitting directly above a "Recipe"
+			     legend reads as a duplicate. -->
+			<h2 class="sr-only">{t.form.heading}</h2>
 			<InputForm {form} />
 		</section>
 

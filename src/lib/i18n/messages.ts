@@ -12,6 +12,9 @@ export interface Messages {
 		theme_dark: string;
 	};
 	form: {
+		// Names the input card. Rendered sr-only: its siblings carry visible
+		// headings, and this card already shows its two group legends.
+		heading: string;
 		section_when: string;
 		section_recipe: string;
 		startAt: string;
@@ -393,6 +396,7 @@ const en: Messages = {
 		theme_dark: 'Dark theme'
 	},
 	form: {
+		heading: 'Your recipe',
 		section_when: 'When',
 		section_recipe: 'Recipe',
 		startAt: 'Start time',
@@ -842,6 +846,7 @@ const de: Messages = {
 		theme_dark: 'Dunkles Design'
 	},
 	form: {
+		heading: 'Dein Rezept',
 		section_when: 'Wann',
 		section_recipe: 'Rezept',
 		startAt: 'Startzeit',
@@ -1299,6 +1304,7 @@ const it: Messages = {
 		theme_dark: 'Tema scuro'
 	},
 	form: {
+		heading: 'La tua ricetta',
 		section_when: 'Quando',
 		section_recipe: 'Ricetta',
 		startAt: 'Ora di inizio',
@@ -1758,6 +1764,7 @@ const fr: Messages = {
 		theme_dark: 'Thème sombre'
 	},
 	form: {
+		heading: 'Votre recette',
 		section_when: 'Quand',
 		section_recipe: 'Recette',
 		startAt: 'Heure de départ',
@@ -2222,6 +2229,7 @@ const nl: Messages = {
 		theme_dark: 'Donker thema'
 	},
 	form: {
+		heading: 'Jouw recept',
 		section_when: 'Wanneer',
 		section_recipe: 'Recept',
 		startAt: 'Starttijd',
