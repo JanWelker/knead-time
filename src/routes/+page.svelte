@@ -253,6 +253,7 @@
 				ingredients={form.schedule.ingredients}
 				yeastType={form.yeastType}
 				yeastPercent={form.schedule.yeastPercent}
+				flourW={form.flourW}
 			/>
 			<!-- The yeast warnings are about the number you weigh out ("measure
 			     carefully", "double-check the inputs"), so they belong with the

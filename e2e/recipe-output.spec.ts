@@ -37,6 +37,18 @@ test('a pre-ferment carries all the fresh yeast, none on baking day', async ({ p
 	await expect(mainDough).not.toContainText('yeast');
 });
 
+test('the ingredients list names the flour that was picked', async ({ page }) => {
+	// The row read a generic "Flour" while the form above it already knew the
+	// bag. The name lives in the preset table, which only the mounted form
+	// reaches, so nothing but a browser check covers the wiring.
+	await openRecipe(page, `v=6&${BASE}`);
+	await expect(card(page, 'Ingredients').locator('tr').first()).toContainText('Caputo Pizzeria');
+
+	// a hand-typed strength matches no bag, so the row keeps the generic label
+	await openRecipe(page, `v=6&${BASE}&fw=300`);
+	await expect(card(page, 'Ingredients').locator('tr').first()).toContainText('Flour');
+});
+
 test('"Round numbers" lands the flour on a tidy figure and is idempotent', async ({ page }) => {
 	await openRecipe(page, `v=6&n=6&b=283.5&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z`);
 
@@ -47,10 +59,9 @@ test('"Round numbers" lands the flour on a tidy figure and is idempotent', async
 		.locator('input')
 		.inputValue();
 
-	const flour = await card(page, 'Ingredients')
-		.locator('tr', { hasText: 'Flour' })
-		.first()
-		.innerText();
+	// first row is the flour — it is labelled with the chosen bag's name, not
+	// the word "Flour", so address it by position
+	const flour = await card(page, 'Ingredients').locator('tr').first().innerText();
 	const grams = Number(flour.replace(/[^\d.]/g, ''));
 	expect(grams % 50).toBe(0);
 
