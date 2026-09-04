@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import {
 	allStops,
 	arrowCentreX,
@@ -16,6 +16,39 @@ const CAPUTO = 'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265';
 const NAPOLETANA = 'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=310';
 /** Far enough out that the flour's tolerance, not the deadline, is the limit. */
 const FAR_BAKE = 'r=2026-09-06T17%3A00%3A00.000Z';
+/**
+ * No `sa`, so the start is "now" and the window lands half an hour past a
+ * stop: the thumb snaps to that stop, the ideal floors to the same one, and
+ * the two markers share a pixel while the readout still shows the minutes.
+ */
+const IDEAL_RECIPE = `${CAPUTO}&r=2026-09-02T17%3A30%3A00.000Z`;
+
+/**
+ * The tick-label row under the rail. The ideal marker carries its own duration
+ * caption in a separate row above, and comparing the two rows against each
+ * other reports a collision that is not on screen.
+ */
+async function tickRowBoxes(page: Page): Promise<{ t: string; left: number; right: number }[]> {
+	return page.evaluate(() => {
+		const card = document.querySelector('form div.rounded-2xl')!;
+		const spans = [...card.querySelectorAll('span')]
+			.filter((s) => /^\d+\s*h$/.test(s.textContent!.trim()) && s.checkVisibility())
+			.map((s) => {
+				const b = s.getBoundingClientRect();
+				return {
+					t: s.textContent!.trim(),
+					left: Math.round(b.left),
+					right: Math.round(b.right),
+					top: Math.round(b.top)
+				};
+			});
+		const row = spans.find((s) => s.t === '8 h')?.top;
+		return spans
+			.filter((s) => s.top === row)
+			.sort((a, b) => a.left - b.left)
+			.map(({ t, left, right }) => ({ t, left, right }));
+	});
+}
 
 test('a decoded link reproduces its own window, without re-picking', async ({ page }) => {
 	// The share-link contract: opening someone's recipe must not quietly rewrite
@@ -153,4 +186,75 @@ test('every marker caption stays inside the rail', async ({ page }) => {
 		expect(box.x).toBeGreaterThanOrEqual(rail!.x - 1);
 		expect(box.x + box.width).toBeLessThanOrEqual(rail!.x + rail!.width + 1);
 	}
+});
+
+// Four tick labels do not fit a phone. The rail is linear in stop INDEX and
+// 48 h / 72 h are adjacent stops, so at 390 px the two labels ended up 3 px
+// apart and read as a single number. Only a browser can show that.
+test.describe('tick labels on a phone', () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test('the rail labels never run into each other', async ({ page }) => {
+		await openRecipe(page, IDEAL_RECIPE);
+
+		const boxes = await tickRowBoxes(page);
+		expect(boxes.length).toBeGreaterThanOrEqual(3);
+		for (let i = 1; i < boxes.length; i++) {
+			expect(
+				boxes[i].left - boxes[i - 1].right,
+				`${boxes[i - 1].t} to ${boxes[i].t}`
+			).toBeGreaterThan(8);
+		}
+		// 48 h is the one dropped; the ends stay so the rail keeps its scale.
+		expect(boxes.map((b) => b.t)).not.toContain('48 h');
+		expect(boxes.map((b) => b.t)).toContain('72 h');
+	});
+});
+
+test.describe('tick labels with room', () => {
+	test.use({ viewport: { width: 1280, height: 900 } });
+
+	test('all four labels come back once there is width for them', async ({ page }) => {
+		await openRecipe(page, IDEAL_RECIPE);
+
+		const boxes = await tickRowBoxes(page);
+		expect(boxes.map((b) => b.t)).toContain('48 h');
+		for (let i = 1; i < boxes.length; i++) {
+			expect(boxes[i].left - boxes[i - 1].right).toBeGreaterThan(8);
+		}
+	});
+});
+
+// The thumb snaps to stops and the ideal marker points at one, so when they are
+// the same stop the rail is already saying "you are here" — while a "Use best"
+// button sat underneath saying the opposite, on the default view. Worse, an
+// ideal capped by the bake time rather than the flour is SHORTER than the
+// window in hand, so the button offered to throw away the extra minutes.
+test('no "use best" while the thumb already sits on the ideal', async ({ page }) => {
+	await openRecipe(page, IDEAL_RECIPE);
+
+	// Precondition: the two really are on the same pixel, so a pass cannot be
+	// an accident of the button being absent for some other reason.
+	const thumb = await thumbCentreX(page);
+	const arrow = await arrowCentreX(page, 'up');
+	expect(arrow, 'no ideal marker on the rail').not.toBeNull();
+	expect(Math.abs(thumb - arrow!)).toBeLessThan(2);
+	// ...and the window is not exactly the ideal, which is what used to show it.
+	expect(await chosenWindow(page)).toMatch(/min/);
+
+	await expect(windowCard(page).getByRole('button', { name: 'Use best' })).toHaveCount(0);
+});
+
+// The rail painted two green stretches and nothing said what the colour meant.
+test('the band caption carries a swatch in the band colour', async ({ page }) => {
+	await openRecipe(page, IDEAL_RECIPE);
+
+	const swatch = windowCard(page).locator('p span.size-2');
+	await expect(swatch).toHaveCount(1);
+	const colour = await swatch.evaluate((el) => getComputedStyle(el).backgroundColor);
+	const rail = await windowCard(page)
+		.locator('div.bg-basil-400, div.bg-basil-300')
+		.last()
+		.evaluate((el) => getComputedStyle(el).backgroundColor);
+	expect(colour).toBe(rail);
 });

@@ -128,6 +128,22 @@
 	// rail stays readable at phone widths. The extremes are left unlabelled —
 	// a centred label at 0 % or 100 % would hang off the rail.
 	const labelledStops = [8, 24, 48, 72];
+	// Four of them do not fit a phone: the rail is linear in stop INDEX, and
+	// 48 h and 72 h are adjacent stops, so at 390 px their labels end up 3 px
+	// apart and read as one number. 48 h is the one that goes — dropping it
+	// leaves 8/24/72 evenly spread, and 72 h has to stay because it is the last
+	// canonical window before the rail's own ceiling.
+	const narrowLabelledStops = [8, 24, 72];
+
+	// The thumb snaps to stops, and the ideal marker points at one. When they
+	// are the same stop the button is offering to send the user where the rail
+	// already shows them standing: the readout can still differ by minutes, but
+	// those minutes are below anything the rail can express, and when the ideal
+	// is capped by the bake time rather than the flour it is the CURRENT window
+	// that is the longer one. Comparing hours instead of stops put a "Use best"
+	// button under an arrow pointing at the thumb, on the default view.
+	const idealIndex = $derived(ideal === null ? -1 : stops.indexOf(ideal));
+	const atIdeal = $derived(idealIndex >= 0 && sliderIndex === idealIndex);
 
 	// What the chosen window actually buys the dough. Keyed off the current
 	// length, so it describes THIS plan rather than stating a general truth
@@ -319,7 +335,11 @@
 	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400"
+				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400 {narrowLabelledStops.includes(
+					stop
+				)
+					? ''
+					: 'max-sm:hidden'}"
 				style="left:{axis(stop)}%">{formatWindow(stop)}</span
 			>
 		{/each}
@@ -328,6 +348,18 @@
 	<div class="mt-2 flex items-start justify-between gap-2">
 		<p class="text-xs text-stone-500 dark:text-stone-400">
 			{#if band}
+				<!-- A swatch in the same green as the band it describes. The rail
+				     painted two green stretches and nothing ever said what the
+				     colour meant; this sentence was already the explanation, it
+				     just had no way to point at itself. Inline, so it costs no
+				     height in a card that is long enough already. -->
+				<span
+					class="mr-0.5 inline-block size-2 rounded-[2px] align-baseline {form.schedule.mode ===
+					'cold'
+						? 'bg-basil-400 dark:bg-basil-600'
+						: 'bg-basil-300 dark:bg-basil-700'}"
+					aria-hidden="true"
+				></span>
 				{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
 				<span class="whitespace-nowrap">
 					({formatBandEdge(band.min)} – {formatBandEdge(band.max)})
@@ -341,7 +373,7 @@
 		<!-- Only when there is something to go back to. A button that is already
 		     at its destination is noise, and its disappearance is the receipt
 		     that the click landed. -->
-		{#if ideal !== null && Math.abs(windowHours - ideal) > 1 / 60}
+		{#if ideal !== null && !atIdeal}
 			<button type="button" class="btn-tomato-sm shrink-0" onclick={() => form.repickWindow()}>
 				{t.schedule.window_use_ideal}
 			</button>
