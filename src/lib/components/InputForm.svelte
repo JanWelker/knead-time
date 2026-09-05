@@ -81,7 +81,7 @@
 		     descendant, so wrapping a date and a time box in one left the time
 		     box with no accessible name at all. The legend names the moment,
 		     each input names its own half. -->
-		<fieldset class="block min-w-0">
+		<fieldset class="group block min-w-0">
 			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.startAt}
 			</legend>
@@ -103,10 +103,11 @@
 				/>
 			</div>
 			<div class="mt-1 flex items-center justify-between gap-2">
-				{#if uiMode.current === 'beginner'}
-					<span class="block text-xs text-stone-500 dark:text-stone-400">{t.form.startAt_help}</span
-					>
-				{/if}
+				<span
+					class="text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
+						? 'block'
+						: 'hidden group-focus-within:block'}">{t.form.startAt_help}</span
+				>
 				<button type="button" class="btn-tomato-sm ml-auto shrink-0" onclick={resetStartAtToNow}>
 					{t.form.startAt_now}
 				</button>
@@ -120,7 +121,7 @@
 				</p>
 			{/if}
 		</fieldset>
-		<fieldset class="block min-w-0">
+		<fieldset class="group block min-w-0">
 			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.readyBy}
 			</legend>
@@ -140,17 +141,19 @@
 					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
 				/>
 			</div>
-			{#if uiMode.current === 'beginner'}
-				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-					{t.form.readyBy_help}
-				</span>
-			{/if}
+			<span
+				class="mt-1 text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
+					? 'block'
+					: 'hidden group-focus-within:block'}"
+			>
+				{t.form.readyBy_help}
+			</span>
 		</fieldset>
 		<!-- The flour sits here, not down in the recipe: it is the other half of
 		     what makes a window ideal, so it belongs with the times it bounds and
 		     directly above the rail that paints its tolerance band. The W number
 		     behind it stays expert-only — the presets already carry it. -->
-		<label class="block">
+		<label class="group block">
 			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
 				{t.form.flour}
 			</span>
@@ -173,11 +176,13 @@
 				<option value="custom">{t.form.flour_custom}</option>
 				<option value="none">{t.form.flour_none}</option>
 			</select>
-			{#if uiMode.current === 'beginner'}
-				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-					{t.form.flour_help}
-				</span>
-			{/if}
+			<span
+				class="mt-1 text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
+					? 'block'
+					: 'hidden group-focus-within:block'}"
+			>
+				{t.form.flour_help}
+			</span>
 		</label>
 		{#if uiMode.current === 'expert' && form.flourW !== null}
 			<FormField
@@ -254,11 +259,13 @@
 				<option value="stand">{t.form.mixing_stand}</option>
 				<option value="hand">{t.form.mixing_hand}</option>
 			</select>
-			{#if uiMode.current === 'beginner'}
-				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-					{t.form.mixingMethod_help}
-				</span>
-			{/if}
+			<span
+				class="mt-1 text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
+					? 'block'
+					: 'hidden group-focus-within:block'}"
+			>
+				{t.form.mixingMethod_help}
+			</span>
 		</label>
 		{#if uiMode.current === 'expert'}
 			<label class="block">
@@ -349,15 +356,20 @@
 			<!-- Autolyse applies only with no pre-ferment (sourdough always
 			     qualifies — its starter is not a schedule pre-ferment). -->
 			{#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
-				<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+				<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
 					<input type="checkbox" class="accent-tomato-500" bind:checked={form.autolyse} />
 					<span>
 						{t.form.autolyse_toggle}
+						<span
+							class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
+						>
+							{t.form.autolyse_help}
+						</span>
 					</span>
 				</label>
 			{/if}
 
-			<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+			<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
 				<input
 					type="checkbox"
 					class="accent-tomato-500"
@@ -366,6 +378,11 @@
 				/>
 				<span>
 					{t.form.ballProof_toggle}
+					<span
+						class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
+					>
+						{t.form.ballProof_help}
+					</span>
 				</span>
 			</label>
 
