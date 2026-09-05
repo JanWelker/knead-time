@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { LOCALES, type Locale } from '$lib/i18n/messages';
+	import SegmentedControl from './SegmentedControl.svelte';
 
 	const labels: Record<Locale, string> = {
 		en: 'EN',
@@ -11,21 +12,10 @@
 	};
 </script>
 
-<fieldset
-	class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70"
->
-	<legend class="sr-only">{i18n.t.app.langLabel}</legend>
-	{#each LOCALES as loc (loc)}
-		{@const active = i18n.locale === loc}
-		<button
-			type="button"
-			class="px-3 py-1.5 transition-colors {active
-				? 'bg-tomato-500 text-white'
-				: 'hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700'}"
-			aria-pressed={active}
-			onclick={() => i18n.set(loc)}
-		>
-			{labels[loc]}
-		</button>
-	{/each}
-</fieldset>
+<SegmentedControl
+	legend={i18n.t.app.langLabel}
+	options={LOCALES}
+	active={i18n.locale}
+	onselect={(loc) => i18n.set(loc)}
+	labelFor={(loc) => labels[loc]}
+/>

@@ -22,11 +22,10 @@
 	let readyByDate = $derived(toDatePart(form.readyBy));
 	let readyByTime = $derived(toTimePart(form.readyBy));
 
-	const inputBase =
-		'border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100';
-	const dateInputClass = `${inputBase} min-w-0 flex-1`;
-	const timeInputClass = `${inputBase} w-28`;
-	const selectClass = `${inputBase} mt-1 w-full`;
+	// `.input` in app.css carries the box itself; only the sizing differs here.
+	const dateInputClass = 'input min-w-0 flex-1 text-base';
+	const timeInputClass = 'input w-28 text-base';
+	const selectClass = 'input mt-1 w-full text-base';
 
 	// True while the last start-time edit had to be pulled back to the bake
 	// time. Cleared by the next edit that lands legally, and by a new bake
@@ -113,10 +112,7 @@
 				</button>
 			</div>
 			{#if startAtClamped}
-				<p
-					class="border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200 mt-2 rounded-lg border px-3 py-2 text-sm"
-					role="alert"
-				>
+				<p class="notice notice-danger mt-2" role="alert">
 					{t.form.startAt_clamped}
 				</p>
 			{/if}

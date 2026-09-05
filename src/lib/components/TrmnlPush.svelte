@@ -84,11 +84,7 @@
 
 <!-- aria-labelledby: a <dialog> with no accessible name is announced as just
      "dialog", and this one already has the heading to use. -->
-<dialog
-	bind:this={dialogEl}
-	aria-labelledby="trmnl-push-heading"
-	class="border-dough-200 max-w-md rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200"
->
+<dialog bind:this={dialogEl} aria-labelledby="trmnl-push-heading" class="dialog-panel max-w-md">
 	<form class="space-y-4 p-5" onsubmit={onSubmit}>
 		<header class="space-y-1">
 			<h2 id="trmnl-push-heading" class="font-display text-accent text-lg">
@@ -107,7 +103,7 @@
 				autocomplete="off"
 				bind:value={uuidInput}
 				placeholder="00000000-0000-0000-0000-000000000000"
-				class="border-dough-300 w-full rounded-lg border bg-white px-3 py-2 font-mono text-sm tracking-tight text-stone-900 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100"
+				class="input w-full font-mono text-sm tracking-tight text-stone-900 dark:bg-stone-900"
 			/>
 		</label>
 
@@ -128,11 +124,7 @@
 					{t.trmnl_push.disconnect}
 				</button>
 			{/if}
-			<button
-				type="button"
-				class="ml-auto rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
-				onclick={close}
-			>
+			<button type="button" class="btn-quiet ml-auto" onclick={close}>
 				{t.trmnl_push.close}
 			</button>
 		</div>
@@ -160,7 +152,7 @@
 				href="https://github.com/JanWelker/knead-time/blob/main/docs/trmnl-setup.md"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline"
+				class="link-quiet"
 			>
 				{t.trmnl_push.setup_link}
 			</a>

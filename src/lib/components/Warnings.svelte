@@ -49,11 +49,7 @@
 <ul class="space-y-2" aria-live="polite">
 	{#each shown as w (w)}
 		{@const danger = SEVERITY[w] === 'danger'}
-		<li
-			class="flex items-start gap-2 rounded-lg border px-3 py-2 text-sm {danger
-				? 'border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200'
-				: 'border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100'}"
-		>
+		<li class="notice flex items-start gap-2 {danger ? 'notice-danger' : 'notice-info'}">
 			<!-- Same triangle the schedule uses for a step it could not place
 			     naturally, so one shape means "something is wrong here" throughout. -->
 			<svg

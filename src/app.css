@@ -118,4 +118,61 @@
 	.row-divider {
 		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
 	}
+
+	/* A boxed message under the control that caused it. Danger is the same red
+	   the schedule's warnings use — something is wrong and the bake is at risk;
+	   info is the dough colour, for a consequence worth reporting rather than a
+	   refusal. Four components wrote these two class lists out by hand. */
+	.notice {
+		@apply rounded-lg border px-3 py-2 text-sm;
+	}
+
+	.notice-danger {
+		@apply border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200;
+	}
+
+	.notice-info {
+		@apply border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100;
+	}
+
+	/* The rounded switch strip: language, theme, schedule verbosity. Rendered by
+	   SegmentedControl.svelte, which owns the markup as well as the look. */
+	.pill-group {
+		@apply border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70;
+	}
+
+	.pill {
+		@apply inline-flex items-center justify-center px-3 py-1.5 transition-colors;
+	}
+
+	.pill-on {
+		@apply bg-tomato-500 text-white;
+	}
+
+	.pill-off {
+		@apply hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700;
+	}
+
+	/* Every box the form types into. Size and width stay with the caller — the
+	   date pair splits a row, the rest fill it. */
+	.input {
+		@apply border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100;
+	}
+
+	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
+	   Underlined on hover only; the surrounding paragraph carries the colour. */
+	.link-quiet {
+		@apply hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline;
+	}
+
+	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
+	   Width is the caller's, everything else is shared. */
+	.dialog-panel {
+		@apply border-dough-200 rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200;
+	}
+
+	/* The way out of a dialog: quieter than the action beside it. */
+	.btn-quiet {
+		@apply rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200;
+	}
 }

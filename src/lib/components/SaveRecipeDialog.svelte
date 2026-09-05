@@ -37,11 +37,7 @@
 	}
 </script>
 
-<dialog
-	bind:this={dialogEl}
-	aria-labelledby="save-recipe-heading"
-	class="border-dough-200 max-w-sm rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200"
->
+<dialog bind:this={dialogEl} aria-labelledby="save-recipe-heading" class="dialog-panel max-w-sm">
 	<form class="space-y-4 p-5" onsubmit={onSubmit}>
 		<h2 id="save-recipe-heading" class="font-display text-accent text-lg">
 			{t.actions.save_recipe}
@@ -56,7 +52,7 @@
 				type="text"
 				autocomplete="off"
 				bind:value={name}
-				class="border-dough-300 w-full rounded-lg border bg-white px-3 py-2 text-sm text-stone-900 dark:border-stone-600 dark:bg-stone-900 dark:text-stone-100"
+				class="input w-full text-sm text-stone-900 dark:bg-stone-900"
 			/>
 		</label>
 
@@ -64,11 +60,7 @@
 			<button type="submit" class="btn-tomato" disabled={name.trim().length === 0}>
 				{t.actions.save_confirm}
 			</button>
-			<button
-				type="button"
-				class="ml-auto rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
-				onclick={close}
-			>
+			<button type="button" class="btn-quiet ml-auto" onclick={close}>
 				{t.actions.cancel}
 			</button>
 		</div>

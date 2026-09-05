@@ -173,6 +173,10 @@ The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a Private P
 
 Responsive, playful, Italian-warm (tomato / basil / dough). Must read well on a phone on the counter at narrow widths.
 
+- **A repeated Tailwind class list gets a name in `app.css`, not a copy.** The `@layer components` block holds the shapes more than one place needs: `.card`, `.btn-tomato{,-sm}`, `.btn-quiet`, `.menu-item`, `.notice` + `.notice-{danger,info}`, `.pill-group`/`.pill`/`.pill-{on,off}`, `.input`, `.link-quiet`, `.dialog-panel`, `.row-divider`, `.text-accent`. Hand-copied lists drift silently — the window card's status box had ended up a different shade from the warning list directly below it. One-off styling stays inline; the rule is about the second occurrence, not the first.
+- **The segmented switch is a component**, `SegmentedControl.svelte` — language, theme and schedule verbosity all render through it. The three had drifted apart in markup as well as size: two named themselves with a `<legend>`, one with `aria-label` on a `role="group"`. A `<fieldset>` + sr-only `<legend>` needs no ARIA at all, so that is the shape it settled on; an icon strip passes `labelFor` for the spoken name and a snippet for the glyph.
+- **e2e specs address the app through these names**, so a class in `app.css` is closer to an API than a style — `windowCard()` finds `form div.rounded-2xl`, `card()` finds `.card`. Renaming one means grepping `e2e/` too.
+
 ## Git workflow
 
 `main` is protected by a repository **ruleset** — the classic branch-protection API answers "Branch not protected", which is easy to misread as unprotected (`gh api repos/JanWelker/knead-time/rulesets`). **Never commit or push directly to `main`.** Branch → commit → push → PR → CI green (`verify` and `e2e` are both required) → merge.

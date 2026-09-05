@@ -35,6 +35,7 @@
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
+	import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import TrmnlPush from '$lib/components/TrmnlPush.svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
@@ -58,6 +59,9 @@
 	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
 
 	let savedRecipes = $state<SavedRecipe[]>([]);
+
+	// Ordered least-to-most detail, which is also the order the strip reads in.
+	const VERBOSITIES = ['short', 'descriptive'] as const;
 
 	// Recipe-only encoding of the form as it left hydration. The save effect
 	// below compares against it so recipe memory only updates after a real
@@ -353,9 +357,7 @@
 				<p
 					id="share-status"
 					role="status"
-					class={copied === 'failed'
-						? 'border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200 mt-2 rounded-lg border px-3 py-2 text-sm'
-						: 'sr-only'}
+					class={copied === 'failed' ? 'notice notice-danger mt-2' : 'sr-only'}
 				>
 					{#if copied === 'share'}{t.actions.copied}{:else if copied === 'failed'}{t.actions
 							.copy_failed}{/if}
@@ -363,24 +365,14 @@
 				<div class="mt-2 flex flex-wrap items-center gap-3">
 					<ModeBadge mode={form.schedule.mode} />
 					<FitScore schedule={form.schedule} inputs={form.serializable()} />
-					<fieldset
-						class="border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold dark:border-stone-700 dark:bg-stone-800/70"
-					>
-						<legend class="sr-only">{t.schedule.verbosity_label}</legend>
-						{#each ['short', 'descriptive'] as const as v (v)}
-							{@const active = scheduleVerbosity.current === v}
-							<button
-								type="button"
-								class="px-3 py-1 transition-colors {active
-									? 'bg-tomato-500 text-white'
-									: 'hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700'}"
-								aria-pressed={active}
-								onclick={() => scheduleVerbosity.set(v)}
-							>
-								{v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
-							</button>
-						{/each}
-					</fieldset>
+					<SegmentedControl
+						legend={t.schedule.verbosity_label}
+						options={VERBOSITIES}
+						active={scheduleVerbosity.current}
+						onselect={(v) => scheduleVerbosity.set(v)}
+						labelFor={(v) =>
+							v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
+					/>
 				</div>
 			</div>
 
@@ -450,7 +442,7 @@
 				href="https://github.com/JanWelker/knead-time"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+				class="link-quiet"
 			>
 				{t.footer.source}
 			</a>
@@ -459,7 +451,7 @@
 				href="https://github.com/JanWelker/knead-time#readme"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+				class="link-quiet"
 			>
 				{t.footer.docs}
 			</a>
@@ -468,7 +460,7 @@
 				href="https://github.com/JanWelker/knead-time/issues"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+				class="link-quiet"
 			>
 				{t.footer.support}
 			</a>
@@ -478,7 +470,7 @@
 				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+				class="link-quiet"
 			>
 				{interpolate(t.footer.license, { year: currentYear })}
 			</a>
@@ -487,7 +479,7 @@
 				href="https://github.com/JanWelker/knead-time/releases/tag/v{appVersion}"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="hover:text-tomato-600 underline-offset-2 hover:underline"
+				class="link-quiet"
 			>
 				v{appVersion}
 			</a>
