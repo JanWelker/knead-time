@@ -165,6 +165,17 @@
 		@apply hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline;
 	}
 
+	/* A link that IS the action — "Open", "Source" in the recipe tables, where
+	   the row's other columns are all text and the link has to look clickable
+	   without a button's weight. The dark half is deliberate: `text-tomato-600`
+	   alone sat at 2.71:1 on a dark card until the axe suite caught it. */
+	.link-action {
+		/* The hover colour is spelled out rather than reusing .text-accent: a
+		   component class cannot take a variant inside @apply, and `hover:` on one
+		   only works from a class attribute. Same four colours as before. */
+		@apply text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline;
+	}
+
 	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
 	   Width is the caller's, everything else is shared. */
 	.dialog-panel {

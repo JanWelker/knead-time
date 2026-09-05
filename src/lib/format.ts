@@ -68,6 +68,27 @@ export function formatTime(date: Date, locale: Locale): string {
 	return timeFormatter(locale).format(date);
 }
 
+const isoDateFormatter = perLocale(
+	(locale) =>
+		new Intl.DateTimeFormat(locale, {
+			day: 'numeric',
+			month: 'short',
+			year: 'numeric'
+		})
+);
+
+// A plain calendar day, from the YYYY-MM-DD the community table's rows carry.
+// Parsed by hand rather than through `new Date(iso)`, which reads a bare date
+// as UTC and can therefore show the day before in a western timezone. A row
+// with an unparseable date keeps its raw text: the parser that reads
+// community.md drops malformed rows, so anything that reaches here is at worst
+// a date nobody has to act on.
+export function formatIsoDate(iso: string, locale: Locale): string {
+	const [y, m, d] = iso.split('-').map(Number);
+	if (!y || !m || !d) return iso;
+	return isoDateFormatter(locale).format(new Date(y, m - 1, d));
+}
+
 export function formatDuration(minutes: number, locale: Locale): string {
 	const m = MESSAGES[locale].schedule;
 	// Round before splitting so the minute carry propagates into the hours

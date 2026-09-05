@@ -1,8 +1,41 @@
 import type { Messages } from '../i18n/messages';
 import type { SerializableInputs } from '../dough/urlState';
 
-// Helpers shared by the Community and Pizzerias tables/cards. Each takes a
-// localized message bundle to keep the components free of i18n plumbing.
+// Helpers and copy shapes shared by the Community and Pizzerias tables/cards.
+// Each takes a localized message bundle to keep the components free of i18n
+// plumbing.
+//
+// The two message namespaces are parallel by design — same heading/intro/empty
+// /contribute shape, same col_* names for the columns they share — so these
+// structural types accept either one without the components knowing which
+// section they are in. Community simply has no oil or sugar column, which is
+// why those two are optional rather than absent from the list.
+
+export interface RecipeSectionCopy {
+	heading: string;
+	intro: string;
+	empty: string;
+	contribute: {
+		before_md: string;
+		md: string;
+		between: string;
+		pr: string;
+		after: string;
+	};
+}
+
+export interface RecipeSpecLabels {
+	col_pizzas: string;
+	col_ball: string;
+	col_hydration: string;
+	col_salt: string;
+	col_oil?: string;
+	col_sugar?: string;
+	col_yeast: string;
+	col_temp: string;
+	col_fridge: string;
+	col_preFerment: string;
+}
 
 export function yeastLabel(inputs: Partial<SerializableInputs>, t: Messages): string {
 	switch (inputs.yeastType) {
