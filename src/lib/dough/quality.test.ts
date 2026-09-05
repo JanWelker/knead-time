@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
 import { fitStars, recipeFitScore, stepQualityFlags, type FitFactor } from './quality';
-import { computeSchedule } from './schedule';
+import { COLD_BULK_CEIL_MIN, COLD_BULK_FLOOR_MIN, computeSchedule } from './schedule';
 import { defaultInputs as inputs } from './testFixtures';
 import type { ComputedSchedule, DoughInputs, ScheduleStep, ScheduleWarning } from './types';
 
@@ -363,12 +363,14 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 
 	it('caps each factor at its per-factor max so one extreme value cannot pin the score to 0', () => {
 		// 1 kg dough balls (huge): grams-out-of-band = 680. At 0.1 pts/g
-		// uncapped that would be -68; the cap clamps to -8.
+		// uncapped that would be -68; the cap clamps to -8. Ball weight is the
+		// only factor a 6 h room-mode default trips, so the cap is the whole
+		// deduction and the score is exact — a range here left the cap free to
+		// move without failing anything.
 		const i = inputs({ ballWeight: 1000 });
 		const fit = recipeFitScore(computeSchedule(i), i);
-		// At least 100 - 8 (the cap). Other factors may apply on top.
-		expect(fit.score).toBeGreaterThanOrEqual(92 - 50);
-		expect(fit.score).toBeLessThanOrEqual(92);
+		expect(factorKinds(fit.factors)).toEqual(['ball-weight-off']);
+		expect(fit.score).toBe(92);
 	});
 
 	it('floors the score at 0 when every penalty stacks', () => {
@@ -382,8 +384,153 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 			readyBy: new Date('2026-05-12T19:00:00Z')
 		});
 		const fit = recipeFitScore(computeSchedule(i), i);
-		expect(fit.score).toBeGreaterThanOrEqual(0);
-		expect(fit.score).toBeLessThanOrEqual(50);
+		// 10 + 8 + 8 + 8 + 8 (capped KPIs) + 60 (infeasible) + 8 (yeast-extreme)
+		// = 110 points of deduction against a 100-point scale.
+		expect(fit.score).toBe(0);
+	});
+});
+
+// What each factor COSTS, not merely that it fires. Every rate and per-factor
+// cap in quality.ts could be doubled without a single test failing: the suite
+// pinned which factors appear and left the arithmetic — the thing the user
+// actually sees, as stars — completely free. The deltas below are chosen so
+// exactly one factor is in play, so each expectation is that factor's rate.
+describe('recipeFitScore — the deduction table', () => {
+	// A 6 h room-mode default scores 100 with no factors, so a single overridden
+	// KPI turns the score into "100 − that factor's deduction" and nothing else.
+	it.each([
+		// hydration: 1 point per percentage point outside 60–80, capped at 10.
+		{ label: 'hydration 85 %', overrides: { hydration: 85 }, factor: 'hydration-off', score: 95 },
+		{
+			label: 'hydration 100 % (capped)',
+			overrides: { hydration: 100 },
+			factor: 'hydration-off',
+			score: 90
+		},
+		// salt: 4 points per percentage point outside 2–3.5, capped at 10.
+		{ label: 'salt 5 %', overrides: { saltPercent: 5 }, factor: 'salt-off', score: 94 },
+		{ label: 'salt 7 % (capped)', overrides: { saltPercent: 7 }, factor: 'salt-off', score: 90 },
+		// ball weight: 0.1 points per gram outside 200–320, capped at 8.
+		{
+			label: 'ball weight 350 g',
+			overrides: { ballWeight: 350 },
+			factor: 'ball-weight-off',
+			score: 97
+		},
+		// fridge temperature: 1.5 points per degree outside 2–8, capped at 8.
+		// Inert in the room-mode solve, so it isolates cleanly.
+		{ label: 'fridge 12 °C', overrides: { fridgeTempC: 12 }, factor: 'fridge-temp-off', score: 94 },
+		{
+			label: 'fridge 20 °C (capped)',
+			overrides: { fridgeTempC: 20 },
+			factor: 'fridge-temp-off',
+			score: 92
+		},
+		// room temperature: 1.5 points per degree outside 14–30, capped at 8.
+		{ label: 'room 10 °C', overrides: { roomTempC: 10 }, factor: 'room-temp-off', score: 94 },
+		{
+			label: 'room 40 °C (capped)',
+			overrides: { roomTempC: 40 },
+			factor: 'room-temp-off',
+			score: 92
+		}
+	] as const)('$label → $score', ({ overrides, factor, score }) => {
+		const i = inputs(overrides as Partial<DoughInputs>);
+		const fit = recipeFitScore(computeSchedule(i), i);
+		expect(factorKinds(fit.factors)).toEqual([factor]);
+		expect(fit.score).toBe(score);
+	});
+
+	// The schedule-imperfection factors need a schedule that actually deviated,
+	// which is easier to state exactly by overriding the pre-shift/pre-clamp
+	// signals on a clean one — the same synthetic-schedule trick the noise-floor
+	// and low-yeast tests use.
+	const coldWindow = {
+		startAt: new Date('2026-05-11T19:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+
+	function cleanCold(): { i: DoughInputs; s: ComputedSchedule } {
+		const i = inputs(coldWindow);
+		const s = computeSchedule(i);
+		// Precondition: nothing is deviating yet, so every delta below is the
+		// override's alone.
+		expect(recipeFitScore(s, i).factors).toEqual([]);
+		return { i, s };
+	}
+
+	it('charges 3 points per hour of night-shifted cold bulk, capped at 20', () => {
+		const { i, s } = cleanCold();
+		const actual = s.steps.find((st) => st.kind === 'bulk-cold')!.durationMinutes;
+		const shifted = (byMin: number) => ({ ...s, naturalColdBulkMin: actual + byMin });
+		expect(recipeFitScore(shifted(120), i).score).toBe(94);
+		expect(recipeFitScore(shifted(300), i).score).toBe(85);
+		// 60 h of shift would be 180 points uncapped.
+		expect(recipeFitScore(shifted(60 * 60), i).score).toBe(80);
+	});
+
+	it('charges 4 points per hour of clamped cold bulk, capped at 20', () => {
+		const { i, s } = cleanCold();
+		// desiredColdBulkMin drives the clamp factors; naturalColdBulkMin is left
+		// alone so the shift factor stays quiet.
+		const short = { ...s, desiredColdBulkMin: COLD_BULK_FLOOR_MIN - 120 };
+		expect(factorKinds(recipeFitScore(short, i).factors)).toEqual(['cold-bulk-clamped-short']);
+		expect(recipeFitScore(short, i).score).toBe(92);
+
+		const long = { ...s, desiredColdBulkMin: COLD_BULK_CEIL_MIN + 180 };
+		expect(factorKinds(recipeFitScore(long, i).factors)).toEqual(['cold-bulk-clamped-long']);
+		expect(recipeFitScore(long, i).score).toBe(88);
+
+		const wayLong = { ...s, desiredColdBulkMin: COLD_BULK_CEIL_MIN + 60 * 60 };
+		expect(recipeFitScore(wayLong, i).score).toBe(80);
+	});
+
+	it('charges the same 4 points per hour for a clamped pre-ferment', () => {
+		const i = inputs({ ...coldWindow, preFerments: [{ type: 'biga', flourPercent: 30 }] });
+		const s = computeSchedule(i);
+		expect(recipeFitScore(s, i).factors).toEqual([]);
+
+		const overLong = {
+			...s,
+			naturalPreferments: [{ type: 'biga' as const, naturalHours: PREFERMENT_MAX_HOURS + 3 }]
+		};
+		expect(recipeFitScore(overLong, i).score).toBe(88);
+
+		const overShort = {
+			...s,
+			naturalPreferments: [{ type: 'biga' as const, naturalHours: PREFERMENT_MIN_HOURS - 2 }]
+		};
+		expect(recipeFitScore(overShort, i).score).toBe(92);
+	});
+
+	it('charges 20 for a residual night step, 60 for infeasibility and 8 for extreme yeast', () => {
+		const { i, s } = cleanCold();
+		expect(recipeFitScore({ ...s, warnings: ['night-step'] }, i).score).toBe(80);
+		expect(recipeFitScore({ ...s, feasible: false }, i).score).toBe(40);
+		expect(recipeFitScore({ ...s, yeastPercent: 0.01 }, i).score).toBe(92);
+	});
+
+	// The promise CLAUDE.md makes about the rates: generous enough that one
+	// moderate deviation still reads as five stars, and only stacked problems
+	// fall below four.
+	it('keeps a single moderate deviation at five stars', () => {
+		for (const overrides of [
+			{ hydration: 82 },
+			{ saltPercent: 4 },
+			{ ballWeight: 340 },
+			{ roomTempC: 32 },
+			{ fridgeTempC: 10 }
+		]) {
+			const i = inputs(overrides as Partial<DoughInputs>);
+			expect(fitStars(recipeFitScore(computeSchedule(i), i).score), JSON.stringify(overrides)).toBe(
+				5
+			);
+		}
+	});
+
+	it('drops below four stars only once problems stack', () => {
+		const i = inputs({ hydration: 95, saltPercent: 5, ballWeight: 450, roomTempC: 36 });
+		expect(fitStars(recipeFitScore(computeSchedule(i), i).score)).toBeLessThan(4);
 	});
 });
 

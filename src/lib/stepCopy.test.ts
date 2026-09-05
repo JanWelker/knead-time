@@ -3,7 +3,7 @@ import { computeSchedule } from './dough/schedule';
 import { defaultInputs, findStep } from './dough/testFixtures';
 import type { DoughInputs, PreFermentType } from './dough/types';
 import { formatGrams } from './format';
-import { MESSAGES } from './i18n/messages';
+import { LOCALES, MESSAGES } from './i18n/messages';
 import {
 	stepDescription,
 	stepDetail,
@@ -506,5 +506,105 @@ describe('autolyse', () => {
 		expect(stepDetailText(step, MESSAGES.en, r, { includeDetail: true })).toContain(
 			MESSAGES.en.steps.autolyse_detail
 		);
+	});
+});
+
+// messages.test.ts pins that every locale carries the same {placeholder} set,
+// which catches a translator dropping a token. It cannot catch the other half:
+// a code path that returns a template without interpolating it. Several already
+// do that on purpose (prep_desc_with_preferment, autolyse_desc), so the rule is
+// not "never return a raw template" — it is "whatever reaches the user has no
+// braces left in it". Individual tests asserted that for a handful of shapes;
+// this is the net across all of them.
+describe('rendered copy never leaks a {placeholder}', () => {
+	const shapes: Array<{ label: string; overrides: Partial<DoughInputs> }> = [];
+	const windows = [
+		{ label: 'room', startAt: new Date('2026-05-12T07:00:00Z') },
+		{ label: 'cold', startAt: new Date('2026-05-11T07:00:00Z') }
+	];
+	const prefermentShapes = [
+		{ label: 'none', preFerments: [] as DoughInputs['preFerments'] },
+		{
+			label: 'biga',
+			preFerments: [{ type: 'biga', flourPercent: 30 }] as DoughInputs['preFerments']
+		},
+		{
+			label: 'poolish',
+			preFerments: [{ type: 'poolish', flourPercent: 30 }] as DoughInputs['preFerments']
+		},
+		{
+			label: 'both',
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			] as DoughInputs['preFerments']
+		}
+	];
+	for (const w of windows) {
+		for (const pf of prefermentShapes) {
+			for (const autolyse of [true, false]) {
+				for (const ballProof of ['room', 'cold'] as const) {
+					for (const preFermentTempC of [null, 17]) {
+						for (const yeastType of ['fresh', 'sourdough'] as const) {
+							shapes.push({
+								label: `${w.label}/${pf.label}/autolyse:${autolyse}/${ballProof} proof/pt:${preFermentTempC}/${yeastType}`,
+								overrides: {
+									startAt: w.startAt,
+									readyBy: new Date('2026-05-12T19:00:00Z'),
+									preFerments: pf.preFerments,
+									autolyse,
+									ballProof,
+									preFermentTempC,
+									yeastType
+								}
+							});
+						}
+					}
+				}
+			}
+		}
+	}
+
+	it('renders every step of every recipe shape in every locale brace-free', () => {
+		const leaks: string[] = [];
+		for (const shape of shapes) {
+			const schedule = computeSchedule(inputs(shape.overrides));
+			for (const locale of LOCALES) {
+				const msgs = MESSAGES[locale];
+				for (const step of schedule.steps) {
+					const rendered = [
+						stepTitle(step, msgs),
+						stepDescription(step, msgs, schedule),
+						stepDetail(step, msgs),
+						stepDetailText(step, msgs, schedule, { includeDetail: true })
+					];
+					for (const text of rendered) {
+						if (/\{\w+\}/.test(text)) {
+							leaks.push(`${locale} · ${shape.label} · ${step.kind}: ${text}`);
+						}
+					}
+				}
+			}
+		}
+		expect([...new Set(leaks)]).toEqual([]);
+	});
+
+	it('covers every step kind the schedule can emit', () => {
+		// A net that never sees a step kind is not a net for it.
+		const seen = new Set(
+			shapes.flatMap((shape) => computeSchedule(inputs(shape.overrides)).steps.map((s) => s.kind))
+		);
+		expect([...seen].sort()).toEqual([
+			'autolyse',
+			'bulk-cold',
+			'bulk-room',
+			'divide',
+			'final-proof',
+			'mix',
+			'preferment-mix',
+			'prep',
+			'proof-cold',
+			'ready'
+		]);
 	});
 });

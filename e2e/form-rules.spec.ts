@@ -92,3 +92,41 @@ test('a drag that moves the start onto another day says so', async ({ page }) =>
 
 	await expect(windowCard(page).locator('[role="status"]')).toContainText('different day');
 });
+
+test('pulling the bake time back past the start drags the start with it', async ({ page }) => {
+	// FormState.setReadyBy applies the startAt <= readyBy floor from the other
+	// side, for the case where no window re-pick happens. Only "not specified"
+	// reaches it — with a flour stated the re-pick rewrites the start anyway —
+	// so the branch had no coverage at all, and stranding the start after the
+	// bake is exactly the negative window setStartAt refuses from the front.
+	await openRecipe(page, `v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=0&${FAR_BAKE}`);
+	await expect(page.locator('form select').first()).toHaveValue('none');
+	await dateField(page, 'start').fill('2026-09-05');
+	await expect(dateField(page, 'start')).toHaveValue('2026-09-05');
+
+	// bake moves to before the start
+	await dateField(page, 'bake').fill('2026-09-03');
+
+	await expect(dateField(page, 'start')).toHaveValue('2026-09-03');
+	await expect(timeField(page, 'start')).toHaveValue(await timeField(page, 'bake').inputValue());
+});
+
+test('turning a pre-ferment on and off again gives the autolyse choice back', async ({ page }) => {
+	// A biga already rests the flour, so the autolyse toggle is hidden while one
+	// is on — but the flag is a real DoughInputs field, not a view preference,
+	// and it has to survive being hidden. Only a browser sees the round trip.
+	await openRecipe(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+
+	const autolyse = page.locator('form label', { hasText: 'Autolyse rest' }).locator('input');
+	await expect(autolyse).toBeChecked();
+	await autolyse.uncheck();
+	await expect.poll(() => new URL(page.url()).searchParams.get('al')).toBe('0');
+
+	const biga = page.locator('form label', { hasText: 'Biga (' }).locator('input');
+	await biga.check();
+	await expect(autolyse).toHaveCount(0); // hidden: the biga rests the flour
+
+	await biga.uncheck();
+	await expect(autolyse).not.toBeChecked();
+	expect(new URL(page.url()).searchParams.get('al')).toBe('0');
+});

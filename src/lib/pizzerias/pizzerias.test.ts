@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { DoughInputs } from '../dough/types';
 import {
@@ -429,8 +430,19 @@ describe('findMatchingPizzeria', () => {
 });
 
 describe('pizzeriaEntries (real data)', () => {
-	it('parses at least one row from the shipped pizzerias.md', () => {
-		expect(pizzeriaEntries.length).toBeGreaterThan(0);
+	// Bad rows are dropped silently so one of them can't break the page — which
+	// also means a typo'd URL or a missing Source deletes a pizzeria from the
+	// site with a green suite. Counting the rows in the source, rather than
+	// asserting "at least one", is what turns that into a failure.
+	const markdown = readFileSync(new URL('./pizzerias.md', import.meta.url), 'utf8');
+	const dataRows = markdown
+		.split('\n')
+		.filter((line) => line.trim().startsWith('| ['))
+		.filter((line) => !line.includes('---'));
+
+	it('keeps every row of the shipped pizzerias.md — none silently dropped', () => {
+		expect(dataRows.length).toBeGreaterThan(0);
+		expect(pizzeriaEntries.length).toBe(dataRows.length);
 	});
 
 	it('every shipped row has a 50 Top profile URL', () => {

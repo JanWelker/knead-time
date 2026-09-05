@@ -1,5 +1,6 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { parseCommunity } from './community';
+import { communityEntries, parseCommunity } from './community';
 
 describe('parseCommunity', () => {
 	it('parses a table of entries and decodes the share URL', () => {
@@ -166,5 +167,35 @@ closing paragraph
 			'a'.repeat(39),
 			'ok'
 		]);
+	});
+});
+
+// The parser drops bad rows silently so one typo can't break the page — which
+// also means a typo removes a contributor's recipe from the site with a green
+// suite. The pizzerias table has had this guard from the start; the community
+// one hadn't, so a broken date or URL in community.md was invisible.
+describe('communityEntries (real data)', () => {
+	// Every table row carrying a link is meant to be a recipe. Counting them
+	// from the source rather than hard-coding a number means adding a row is
+	// free, while a row the parser rejected shows up as a mismatch.
+	const markdown = readFileSync(new URL('./community.md', import.meta.url), 'utf8');
+	const linkRows = markdown
+		.split('\n')
+		.filter((line) => line.trim().startsWith('|') && line.includes('http'));
+
+	it('keeps every row of the shipped community.md — none silently dropped', () => {
+		expect(linkRows.length).toBeGreaterThan(0);
+		expect(communityEntries.length).toBe(linkRows.length);
+	});
+
+	it('every shipped row decodes into a usable recipe', () => {
+		for (const e of communityEntries) {
+			expect(e.name, 'name').not.toBe('');
+			expect(e.url, `${e.name} url`).toMatch(/^https?:\/\//);
+			expect(e.inputs.pizzaCount, `${e.name} pizzaCount`).toBeGreaterThan(0);
+			expect(e.inputs.ballWeight, `${e.name} ballWeight`).toBeGreaterThan(0);
+			expect(e.inputs.hydration, `${e.name} hydration`).toBeGreaterThan(0);
+			expect(e.inputs.readyBy, `${e.name} readyBy`).toBeInstanceOf(Date);
+		}
 	});
 });

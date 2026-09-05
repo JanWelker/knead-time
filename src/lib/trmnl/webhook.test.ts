@@ -70,6 +70,21 @@ describe('buildMergeVariables', () => {
 		expect(m.s.toLowerCase()).toContain('poolish');
 	});
 
+	it('names each dry yeast in the summary — not the fresh label for all three', () => {
+		// Only fresh and sourdough were covered, so either dry entry in the label
+		// map could point at the wrong message and read as "Fresh yeast" on the
+		// device.
+		for (const [yeastType, key] of [
+			['instant', 'yeast_instant'],
+			['active-dry', 'yeast_active_dry']
+		] as const) {
+			const i = inputs({ yeastType });
+			const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');
+			expect(m.s, yeastType).toContain(MESSAGES.en.form[key]);
+			expect(m.s, yeastType).not.toContain(MESSAGES.en.form.yeast_fresh);
+		}
+	});
+
 	it('uses the sourdough yeast label when yeastType is sourdough', () => {
 		const i = inputs({ yeastType: 'sourdough' });
 		const m = buildMergeVariables(i, computeSchedule(i), MESSAGES.en, 'en');

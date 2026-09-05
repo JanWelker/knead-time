@@ -317,6 +317,29 @@ describe('roundBallWeight', () => {
 		expect(Math.round(newFlour / 50) * 50).toBe(150);
 	});
 
+	it('never snaps a tiny batch down to zero flour', () => {
+		// The smallest recipe the form allows (1 ball at the 100 g minimum) in an
+		// enriched dough whose window forced a huge solved yeast % works out to
+		// ~23 g of flour. Rounding that to the nearest 50 g gives 0 — and a
+		// 0 g target hands back a 0 g ball weight, wiping out the recipe. The
+		// floor in roundBallWeight is what stops it, and nothing covered it.
+		const a = {
+			pizzaCount: 1,
+			ballWeight: 100,
+			hydration: 90,
+			saltPercent: 5,
+			oilPercent: 15,
+			sugarPercent: 5,
+			yeastPercent: 220,
+			yeastType: 'fresh' as const
+		};
+		const pctSum = 100 + 90 + 5 + 15 + 5 + 220;
+		expect((a.pizzaCount * a.ballWeight * 100) / pctSum).toBeLessThan(25);
+		const newBw = roundBallWeight(a);
+		expect(newBw).toBeGreaterThan(0);
+		expect((a.pizzaCount * newBw * 100) / pctSum).toBeCloseTo(50, 6);
+	});
+
 	it('works for sourdough (yeast % is not part of pctSum)', () => {
 		const sd = {
 			...args,

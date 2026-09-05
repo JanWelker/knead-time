@@ -71,6 +71,16 @@ describe('urlState round-trip', () => {
 		);
 	});
 
+	it('omits the starter hydration for every yeast but sourdough', () => {
+		// Same compactness rule as o/sg/mm/bp/pt: a key that only means something
+		// for one carrier must not ride along on every other link. Every other
+		// conditional key had an omission test; this one did not.
+		for (const yeastType of ['fresh', 'instant', 'active-dry'] as const) {
+			expect(encodeInputs({ ...base, yeastType }), yeastType).not.toContain('sh=');
+		}
+		expect(encodeInputs({ ...base, yeastType: 'sourdough' })).toContain('sh=');
+	});
+
 	it('round-trips sourdough with starter hydration', () => {
 		const inp: SerializableInputs = {
 			...base,

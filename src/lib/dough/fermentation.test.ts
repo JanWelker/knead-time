@@ -153,6 +153,15 @@ describe('idealMixWaterTempC', () => {
 		expect(idealMixWaterTempC(12, 'spiral')).toBeGreaterThan(idealMixWaterTempC(18, 'spiral'));
 		expect(idealMixWaterTempC(18, 'spiral')).toBeGreaterThan(idealMixWaterTempC(22, 'spiral'));
 	});
+	it('uses the stand mixer’s own 18 °C friction, not the spiral’s or the hand’s', () => {
+		// Only the ordering spiral < stand < hand was pinned, which left the
+		// middle calibration free to drift anywhere between the two.
+		// 3·23 − 2·18 − 18 = 15 °C
+		expect(idealMixWaterTempC(18, 'stand')).toBe(15);
+		// 3·23 − 2·12 − 18 = 27 °C
+		expect(idealMixWaterTempC(12, 'stand')).toBe(27);
+	});
+
 	it('recommends warmer water for hand kneading — friction is ~5 °C, not 24 °C', () => {
 		// 3·23 − 2·22 − 5 = 20 °C
 		expect(idealMixWaterTempC(22, 'hand')).toBe(20);

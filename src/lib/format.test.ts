@@ -68,6 +68,14 @@ describe('formatGrams', () => {
 	it('keeps two decimals below 1 g', () => {
 		expect(formatGrams(0.123)).toBe('0.12 g');
 	});
+	it('switches precision exactly at 1 g and 10 g', () => {
+		// The two band edges, which nothing pinned: every existing case sat
+		// comfortably inside a band, so either threshold could move.
+		expect(formatGrams(0.999)).toBe('1.00 g');
+		expect(formatGrams(1)).toBe('1.0 g');
+		expect(formatGrams(9.99)).toBe('10.0 g');
+		expect(formatGrams(10)).toBe('10 g');
+	});
 });
 
 describe('formatBallWeight', () => {
