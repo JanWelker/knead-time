@@ -53,3 +53,51 @@ test('the fit-score panel closes on Escape and on an outside click', async ({ pa
 	await card(page, 'Schedule').getByRole('heading', { name: 'Schedule' }).click();
 	await expect(details).not.toHaveAttribute('open', '');
 });
+
+// The menu and the fit panel now share one dismissal rule
+// (src/lib/components/dismiss.svelte.ts). The panel's half was pinned above;
+// the menu's never was, even though it is the copy that started out doing
+// nothing at all — a <details> toggles on its own summary and dismisses no
+// other way.
+test('the actions menu closes on Escape and on an outside click', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+
+	const menu = page.locator('summary').filter({ hasText: 'Actions' });
+	const items = page.getByRole('menuitem');
+
+	// Wait for focus, not merely for the item to be visible: <details> opens
+	// itself the moment the summary is clicked, while moving focus to the first
+	// item and attaching the key handler both happen in the effect that follows.
+	// "Visible" is therefore true a tick before Escape can be heard.
+	await menu.click();
+	await expect(items.first()).toBeFocused();
+	await page.keyboard.press('Escape');
+	await expect(items.first()).toBeHidden();
+	await expect(menu).toBeFocused();
+
+	await menu.click();
+	await expect(items.first()).toBeFocused();
+	await card(page, 'Schedule').getByRole('heading', { name: 'Schedule' }).click();
+	await expect(items.first()).toBeHidden();
+});
+
+// The ARIA menu contract: opening lands on the first item, and the arrows walk
+// the list rather than the page. Enabled items only — four of the five need a
+// feasible schedule, and a disabled one must not be a stop on the way down.
+test('the actions menu roves focus across its items', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+
+	await page.locator('summary').filter({ hasText: 'Actions' }).click();
+	const items = page.getByRole('menuitem');
+	await expect(items.first()).toBeFocused();
+
+	await page.keyboard.press('ArrowDown');
+	await expect(items.nth(1)).toBeFocused();
+	await page.keyboard.press('End');
+	await expect(items.last()).toBeFocused();
+	// past the end it wraps
+	await page.keyboard.press('ArrowDown');
+	await expect(items.first()).toBeFocused();
+	await page.keyboard.press('ArrowUp');
+	await expect(items.last()).toBeFocused();
+});
