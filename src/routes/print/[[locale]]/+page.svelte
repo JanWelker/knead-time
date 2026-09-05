@@ -4,29 +4,17 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 
-	import { ingredientTotals } from '$lib/dough/bakers';
 	import { defaultInputs } from '$lib/dough/defaults';
 	import { computeSchedule } from '$lib/dough/schedule';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
-	import {
-		formatBallWeight,
-		formatDateTime,
-		formatDuration,
-		formatGrams,
-		formatPercent
-	} from '$lib/format';
+	import { formatBallWeight, formatDateTime, formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { isLocale, type Locale } from '$lib/i18n/messages';
+	import { ingredientSections } from '$lib/ingredientRows';
 	import { qrCode } from '$lib/qr';
-	import {
-		flourIngredientName,
-		stepDescription,
-		stepIngredients,
-		stepTitle,
-		yeastIngredientName
-	} from '$lib/stepCopy';
+	import { stepDescription, stepIngredients, stepTitle } from '$lib/stepCopy';
 	import { yeastLabel as yeastTypeLabelFor } from '$lib/components/recipeLabels';
 
 	// Locale lives in the URL path so each language can ship its own prerendered
@@ -54,8 +42,15 @@
 		browser ? `${window.location.origin}${base}/?${encodeInputs(inputs)}` : ''
 	);
 	const qr = $derived(shareUrl ? qrCode(shareUrl) : null);
-	const yeastLabel = $derived(yeastIngredientName(inputs.yeastType, t));
-	const flourLabel = $derived(flourIngredientName(inputs.flourW, t));
+	const sections = $derived(
+		ingredientSections(
+			schedule.ingredients,
+			inputs.yeastType,
+			schedule.yeastPercent,
+			inputs.flourW,
+			t
+		)
+	);
 	const yeastTypeLabel = $derived(yeastTypeLabelFor(inputs, t));
 	const preFermentLabel = $derived(
 		schedule.preFerments.length > 0
@@ -64,7 +59,6 @@
 					.join(' + ')
 			: null
 	);
-	const totals = $derived(ingredientTotals(schedule.ingredients));
 
 	onMount(() => {
 		// Auto-trigger the print dialog so the Print button → new tab → dialog
@@ -276,104 +270,33 @@
 		</div>
 		<div>
 			<h2>{t.ingredients.heading}</h2>
-			{#if schedule.ingredients.preFerments.length > 0}
-				{#each schedule.ingredients.preFerments as pf (pf.type)}
-					<section class="printpage-ingredients-section">
-						<h3>
-							{pf.type === 'biga'
-								? t.ingredients.preFerment_heading_biga
-								: t.ingredients.preFerment_heading_poolish}
-						</h3>
-						<table class="printpage-ingredients">
-							<tbody>
-								<tr><th>{flourLabel}</th><td>{formatGrams(pf.flour)}</td></tr>
-								<tr><th>{t.ingredients.water}</th><td>{formatGrams(pf.water)}</td></tr>
-								<tr><th>{yeastLabel}</th><td>{formatGrams(pf.yeast)}</td></tr>
-							</tbody>
-						</table>
-					</section>
-				{/each}
+			<!-- Same list the screen renders (src/lib/ingredientRows.ts), so the
+			     printout cannot quietly disagree with what the app showed. The
+			     section help lines are dropped — no room, and the reader has
+			     already seen them. -->
+			{#each sections as section (section.key)}
 				<section class="printpage-ingredients-section">
-					<h3>{t.ingredients.mainDough_heading}</h3>
+					{#if section.heading}<h3>{section.heading}</h3>{/if}
 					<table class="printpage-ingredients">
 						<tbody>
-							<tr><th>{flourLabel}</th><td>{formatGrams(schedule.ingredients.flour)}</td></tr>
-							<tr
-								><th>{t.ingredients.water}</th><td>{formatGrams(schedule.ingredients.water)}</td
-								></tr
-							>
-							<tr><th>{t.ingredients.salt}</th><td>{formatGrams(schedule.ingredients.salt)}</td></tr
-							>
-							{#if schedule.ingredients.oil > 0}
-								<tr><th>{t.ingredients.oil}</th><td>{formatGrams(schedule.ingredients.oil)}</td></tr
-								>
-							{/if}
-							{#if schedule.ingredients.sugar > 0}
-								<tr
-									><th>{t.ingredients.sugar}</th><td>{formatGrams(schedule.ingredients.sugar)}</td
-									></tr
-								>
-							{/if}
-							{#if schedule.ingredients.yeast > 0}
-								<tr><th>{yeastLabel}</th><td>{formatGrams(schedule.ingredients.yeast)}</td></tr>
+							{#each section.rows as row (row.label)}
+								<tr>
+									<th
+										>{row.label}{#if row.hint}&nbsp;({row.hint}){/if}</th
+									>
+									<td>{row.amount}</td>
+								</tr>
+							{/each}
+							{#if section.total}
+								<tr class="printpage-total">
+									<th>{section.total.label}</th>
+									<td>{section.total.amount}</td>
+								</tr>
 							{/if}
 						</tbody>
 					</table>
 				</section>
-				<section class="printpage-ingredients-section">
-					<h3>{t.ingredients.totals_heading}</h3>
-					<table class="printpage-ingredients">
-						<tbody>
-							<tr><th>{flourLabel}</th><td>{formatGrams(totals.flour)}</td></tr>
-							<tr><th>{t.ingredients.water}</th><td>{formatGrams(totals.water)}</td></tr>
-							<tr><th>{t.ingredients.salt}</th><td>{formatGrams(totals.salt)}</td></tr>
-							{#if totals.oil > 0}
-								<tr><th>{t.ingredients.oil}</th><td>{formatGrams(totals.oil)}</td></tr>
-							{/if}
-							{#if totals.sugar > 0}
-								<tr><th>{t.ingredients.sugar}</th><td>{formatGrams(totals.sugar)}</td></tr>
-							{/if}
-							<tr
-								><th>{yeastLabel} ({formatPercent(schedule.yeastPercent)})</th><td
-									>{formatGrams(totals.yeast)}</td
-								></tr
-							>
-							<tr class="printpage-total"
-								><th>{t.ingredients.total}</th><td
-									>{formatGrams(schedule.ingredients.totalDough)}</td
-								></tr
-							>
-						</tbody>
-					</table>
-				</section>
-			{:else}
-				<table class="printpage-ingredients">
-					<tbody>
-						<tr><th>{flourLabel}</th><td>{formatGrams(schedule.ingredients.flour)}</td></tr>
-						<tr><th>{t.ingredients.water}</th><td>{formatGrams(schedule.ingredients.water)}</td></tr
-						>
-						<tr><th>{t.ingredients.salt}</th><td>{formatGrams(schedule.ingredients.salt)}</td></tr>
-						{#if schedule.ingredients.oil > 0}
-							<tr><th>{t.ingredients.oil}</th><td>{formatGrams(schedule.ingredients.oil)}</td></tr>
-						{/if}
-						{#if schedule.ingredients.sugar > 0}
-							<tr
-								><th>{t.ingredients.sugar}</th><td>{formatGrams(schedule.ingredients.sugar)}</td
-								></tr
-							>
-						{/if}
-						<tr
-							><th>{yeastLabel} ({formatPercent(schedule.yeastPercent)})</th><td
-								>{formatGrams(schedule.ingredients.yeast)}</td
-							></tr
-						>
-						<tr class="printpage-total"
-							><th>{t.ingredients.total}</th><td>{formatGrams(schedule.ingredients.totalDough)}</td
-							></tr
-						>
-					</tbody>
-				</table>
-			{/if}
+			{/each}
 		</div>
 	</header>
 

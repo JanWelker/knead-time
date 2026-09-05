@@ -103,6 +103,39 @@ test('the print route renders the same recipe as the screen', async ({ page }) =
 	await expect(page.locator('body')).toContainText('Weigh & prep');
 });
 
+// The screen and the print sheet now render one list (src/lib/ingredientRows.ts)
+// rather than building the same tables in two places. This is the check that
+// they still agree, on the recipe with the most to disagree about: two
+// pre-doughs, a main dough and a totals section, with oil and sugar in play.
+test('the print sheet weighs exactly what the screen weighs', async ({ page }) => {
+	const RICH = `v=6&${BASE}&o=2&sg=1&p=b30_p20&sa=2026-09-05T09%3A00%3A00.000Z`;
+	const rows = (scope: ReturnType<typeof card>) =>
+		scope.locator('tr').evaluateAll((trs) =>
+			trs
+				.map((tr) => {
+					const cells = tr.querySelectorAll('th, td');
+					return cells.length === 2
+						? `${cells[0].textContent} ${cells[1].textContent}`.replace(/\s+/g, ' ').trim()
+						: '';
+				})
+				.filter(Boolean)
+		);
+
+	await openRecipe(page, RICH);
+	const onScreen = await rows(card(page, 'Ingredients'));
+	// biga + poolish + main + totals, each with its rows, plus the total line
+	expect(onScreen.length).toBeGreaterThan(10);
+
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
+	await page.goto(`/print/en?${RICH}`);
+	// The summary block beside it is a table too — only the ingredient ones count.
+	const onPaper = await rows(page.locator('.printpage-ingredients'));
+
+	expect(onPaper).toEqual(onScreen);
+});
+
 test('the flour select is shelved by what each strength is for', async ({ page }) => {
 	// Twelve bag names in a flat list say nothing about which one suits the
 	// plan. The shelves are cut on W, labelled by ferment length, with the AVPN

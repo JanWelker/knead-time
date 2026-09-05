@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { ingredientTotals } from '$lib/dough/bakers';
-	import { formatGrams, formatPercent } from '$lib/format';
-	import { flourIngredientName, yeastIngredientName } from '$lib/stepCopy';
+	import { ingredientSections, needsFineScale } from '$lib/ingredientRows';
 	import type { Ingredients, YeastType } from '$lib/dough/types';
 
 	let {
@@ -18,120 +16,51 @@
 	} = $props();
 	const t = $derived(i18n.t);
 
-	const yeastLabel = $derived(yeastIngredientName(yeastType, t));
-	// The chosen bag's own name on every flour row — pre-dough, main dough and
-	// totals all weigh the same flour.
-	const flourLabel = $derived(flourIngredientName(flourW, t));
-
-	// A 1 g kitchen scale cannot weigh a 0.8 g yeast pinch — surface the hint
-	// whenever any yeast amount on the page drops below 2 g.
-	const needsFineScale = $derived(
-		(ingredients.yeast > 0 && ingredients.yeast < 2) ||
-			ingredients.preFerments.some((pf) => pf.yeast > 0 && pf.yeast < 2)
-	);
-
-	const totals = $derived(ingredientTotals(ingredients));
+	// What is weighed, and in what order, is decided in src/lib/ingredientRows.ts
+	// — the print sheet renders the same list, so the two cannot disagree.
+	const sections = $derived(ingredientSections(ingredients, yeastType, yeastPercent, flourW, t));
 </script>
 
-{#snippet row(label: string, value: number, hint: string | null = null)}
-	<tr class="row-divider">
-		<th class="py-2 pr-3 text-left font-medium text-stone-700 dark:text-stone-200">
-			{label}
-			{#if hint}
-				<span class="text-xs font-normal text-stone-500 dark:text-stone-400">({hint})</span>
-			{/if}
-		</th>
-		<td class="py-2 text-right tabular-nums dark:text-stone-100">{formatGrams(value)}</td>
-	</tr>
-{/snippet}
-
-{#snippet extras()}
-	{#if ingredients.oil > 0}
-		{@render row(t.ingredients.oil, ingredients.oil)}
-	{/if}
-	{#if ingredients.sugar > 0}
-		{@render row(t.ingredients.sugar, ingredients.sugar)}
-	{/if}
-{/snippet}
-
-{#snippet totalRow()}
-	<tr>
-		<th class="font-display text-accent py-2 pr-3 text-left">{t.ingredients.total}</th>
-		<td class="font-display text-accent py-2 text-right tabular-nums">
-			{formatGrams(ingredients.totalDough)}
-		</td>
-	</tr>
-{/snippet}
-
 <div class="space-y-6">
-	{#if ingredients.preFerments.length > 0}
-		{#each ingredients.preFerments as pf (pf.type)}
-			<section>
-				<header class="mb-2">
-					<h3 class="font-display text-accent text-base">
-						{pf.type === 'biga'
-							? t.ingredients.preFerment_heading_biga
-							: t.ingredients.preFerment_heading_poolish}
-					</h3>
-					<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.preFerment_help}</p>
-				</header>
-				<table class="w-full border-collapse tabular-nums">
-					<tbody>
-						{@render row(flourLabel, pf.flour)}
-						{@render row(t.ingredients.water, pf.water)}
-						{@render row(yeastLabel, pf.yeast)}
-					</tbody>
-				</table>
-			</section>
-		{/each}
-
+	{#each sections as section (section.key)}
 		<section>
-			<header class="mb-2">
-				<h3 class="font-display text-accent text-base">{t.ingredients.mainDough_heading}</h3>
-				<p class="text-xs text-stone-500 dark:text-stone-400">{t.ingredients.mainDough_help}</p>
-			</header>
+			{#if section.heading}
+				<header class="mb-2">
+					<h3 class="font-display text-accent text-base">{section.heading}</h3>
+					{#if section.help}
+						<p class="text-xs text-stone-500 dark:text-stone-400">{section.help}</p>
+					{/if}
+				</header>
+			{/if}
 			<table class="w-full border-collapse tabular-nums">
 				<tbody>
-					{@render row(flourLabel, ingredients.flour)}
-					{@render row(t.ingredients.water, ingredients.water)}
-					{@render row(t.ingredients.salt, ingredients.salt)}
-					{@render extras()}
-					{#if ingredients.yeast > 0}
-						{@render row(yeastLabel, ingredients.yeast)}
+					{#each section.rows as row (row.label)}
+						<tr class="row-divider">
+							<th class="py-2 pr-3 text-left font-medium text-stone-700 dark:text-stone-200">
+								{row.label}
+								{#if row.hint}
+									<span class="text-xs font-normal text-stone-500 dark:text-stone-400">
+										({row.hint})
+									</span>
+								{/if}
+							</th>
+							<td class="py-2 text-right tabular-nums dark:text-stone-100">{row.amount}</td>
+						</tr>
+					{/each}
+					{#if section.total}
+						<tr>
+							<th class="font-display text-accent py-2 pr-3 text-left">{section.total.label}</th>
+							<td class="font-display text-accent py-2 text-right tabular-nums">
+								{section.total.amount}
+							</td>
+						</tr>
 					{/if}
 				</tbody>
 			</table>
 		</section>
+	{/each}
 
-		<section>
-			<header class="mb-2">
-				<h3 class="font-display text-accent text-base">{t.ingredients.totals_heading}</h3>
-			</header>
-			<table class="w-full border-collapse tabular-nums">
-				<tbody>
-					{@render row(flourLabel, totals.flour)}
-					{@render row(t.ingredients.water, totals.water)}
-					{@render row(t.ingredients.salt, totals.salt)}
-					{@render extras()}
-					{@render row(yeastLabel, totals.yeast, formatPercent(yeastPercent))}
-					{@render totalRow()}
-				</tbody>
-			</table>
-		</section>
-	{:else}
-		<table class="w-full border-collapse tabular-nums">
-			<tbody>
-				{@render row(flourLabel, ingredients.flour)}
-				{@render row(t.ingredients.water, ingredients.water)}
-				{@render row(t.ingredients.salt, ingredients.salt)}
-				{@render extras()}
-				{@render row(yeastLabel, ingredients.yeast, formatPercent(yeastPercent))}
-				{@render totalRow()}
-			</tbody>
-		</table>
-	{/if}
-
-	{#if needsFineScale}
+	{#if needsFineScale(ingredients)}
 		<p class="text-xs text-stone-500 italic dark:text-stone-400">{t.ingredients.scale_hint}</p>
 	{/if}
 </div>
