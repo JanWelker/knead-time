@@ -1,0 +1,16 @@
+name: Node setup
+description: >-
+  Install the repo's Node version and its dependencies. Every job needs the
+  same three lines, and the version lives in .nvmrc so Renovate can see it —
+  a `node-version:` literal in a workflow is invisible to every manager it has.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      with:
+        node-version-file: .nvmrc
+        cache: npm
+
+    - run: npm ci
+      shell: bash

@@ -5,6 +5,7 @@ Time-anchored Neapolitan pizza dough calculator. User picks **when to bake**; ev
 ## Stack & deploy
 
 - SvelteKit 5 + TS + Tailwind v4. Vitest for units, Playwright (`e2e/`) for the browser. Node 22+. Husky pre-commit runs format/lint/test.
+- **One version literal per thing, and Renovate has to be able to see it.** The Node version lives in `.nvmrc` (its `nvm` manager updates that; a `node-version:` literal in a workflow is invisible to every manager it has), read by every job through the local `.github/actions/node-setup` composite action. `renovate.json` states no `constraints` — they come from `engines.node`, the floor the code must run on. `.github/actions/base-path` resolves `BASE_PATH` for the deploy and the PR preview alike.
 - Static build (`@sveltejs/adapter-static`, `fallback: '404.html'`). CI on every PR and on pushes to `main` (the latter feeds the Codecov main baseline); push to `main` deploys to GitHub Pages.
 - `BASE_PATH` env drives `svelte.config.js`. **All in-app links/assets must use `$app/paths` (`base`/`resolve()`) — never hard-code `/`.**
 
