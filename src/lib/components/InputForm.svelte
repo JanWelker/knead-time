@@ -103,8 +103,11 @@
 				/>
 			</div>
 			<div class="mt-1 flex items-center justify-between gap-2">
-				<span class="block text-xs text-stone-500 dark:text-stone-400">{t.form.startAt_help}</span>
-				<button type="button" class="btn-tomato-sm shrink-0" onclick={resetStartAtToNow}>
+				{#if uiMode.current === 'beginner'}
+					<span class="block text-xs text-stone-500 dark:text-stone-400">{t.form.startAt_help}</span
+					>
+				{/if}
+				<button type="button" class="btn-tomato-sm ml-auto shrink-0" onclick={resetStartAtToNow}>
 					{t.form.startAt_now}
 				</button>
 			</div>
@@ -137,9 +140,11 @@
 					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
 				/>
 			</div>
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.readyBy_help}
-			</span>
+			{#if uiMode.current === 'beginner'}
+				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					{t.form.readyBy_help}
+				</span>
+			{/if}
 		</fieldset>
 		<!-- The flour sits here, not down in the recipe: it is the other half of
 		     what makes a window ideal, so it belongs with the times it bounds and
@@ -168,9 +173,11 @@
 				<option value="custom">{t.form.flour_custom}</option>
 				<option value="none">{t.form.flour_none}</option>
 			</select>
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.flour_help}
-			</span>
+			{#if uiMode.current === 'beginner'}
+				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					{t.form.flour_help}
+				</span>
+			{/if}
 		</label>
 		{#if uiMode.current === 'expert' && form.flourW !== null}
 			<FormField
@@ -247,9 +254,11 @@
 				<option value="stand">{t.form.mixing_stand}</option>
 				<option value="hand">{t.form.mixing_hand}</option>
 			</select>
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.mixingMethod_help}
-			</span>
+			{#if uiMode.current === 'beginner'}
+				<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					{t.form.mixingMethod_help}
+				</span>
+			{/if}
 		</label>
 		{#if uiMode.current === 'expert'}
 			<label class="block">
@@ -344,9 +353,6 @@
 					<input type="checkbox" class="accent-tomato-500" bind:checked={form.autolyse} />
 					<span>
 						{t.form.autolyse_toggle}
-						<span class="block text-xs font-normal text-stone-500 dark:text-stone-400">
-							{t.form.autolyse_help}
-						</span>
 					</span>
 				</label>
 			{/if}
@@ -360,9 +366,6 @@
 				/>
 				<span>
 					{t.form.ballProof_toggle}
-					<span class="block text-xs font-normal text-stone-500 dark:text-stone-400">
-						{t.form.ballProof_help}
-					</span>
 				</span>
 			</label>
 
