@@ -387,10 +387,7 @@
 	</div>
 
 	{#if overrun && reachableIndex >= 0}
-		<p
-			class="border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200 mt-2 rounded-lg border px-3 py-2 text-sm"
-			role="alert"
-		>
+		<p class="notice notice-danger mt-2" role="alert">
 			{interpolate(t.schedule.window_overrun, {
 				max: formatWindow(stops[reachableIndex])
 			})}
@@ -398,10 +395,7 @@
 	{/if}
 
 	{#if form.startDayMoved}
-		<p
-			class="border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100 mt-2 rounded-lg border px-3 py-2 text-sm"
-			role="status"
-		>
+		<p class="notice notice-info mt-2" role="status">
 			{interpolate(t.schedule.window_start_moved, {
 				start: formatDateTime(form.startAt, i18n.locale)
 			})}
