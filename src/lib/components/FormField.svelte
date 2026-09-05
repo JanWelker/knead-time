@@ -30,7 +30,7 @@
 	}: Props = $props();
 </script>
 
-<label class="block" for={id}>
+<label class="group block" for={id}>
 	<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">{label}</span>
 	<input
 		{type}
@@ -51,13 +51,21 @@
 		}}
 		class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
 	/>
-	<!-- Beginner only. Standing help under every field was 32 % of the form's
-	     height in both views, and the expert view is the one that has opted out
-	     of being walked through: it trades that space for the fourteen extra
-	     controls it reveals. Conditional notices — the ones that appear in
-	     response to a choice rather than describing a field — are not this, and
-	     stay in both views. -->
-	{#if help && uiMode.current === 'beginner'}
-		<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">{help}</span>
+	<!-- Beginner reads it standing; expert reads it while editing. Help under
+	     every field was 32 % of the form's height, and the expert view is the
+	     one that has opted out of being walked through — but hiding it outright
+	     left the notes on oil, sugar, autolyse and the cold ball proof with no
+	     view that shows them at all, since those fields do not exist in the
+	     beginner form. Revealing on focus costs nothing at rest and puts the
+	     text there at the moment the control is in use. CSS only, so it works
+	     for a tap, a click and a Tab alike. -->
+	{#if help}
+		<span
+			class="mt-1 text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
+				? 'block'
+				: 'hidden group-focus-within:block'}"
+		>
+			{help}
+		</span>
 	{/if}
 </label>
