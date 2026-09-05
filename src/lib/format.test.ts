@@ -6,6 +6,7 @@ import {
 	formatDuration,
 	formatDurationHHMM,
 	formatGrams,
+	formatIsoDate,
 	formatPercent,
 	formatShortDate,
 	formatTime,
@@ -188,5 +189,22 @@ describe('split date/time input round-trip', () => {
 		expect(d2.getHours()).toBe(23);
 		expect(d2.getMinutes()).toBe(5);
 		expect(combineDateTimeInputs('2026-05-12', '23.05')).toBeNull();
+	});
+});
+
+describe('formatIsoDate', () => {
+	// The community table's rows carry a bare YYYY-MM-DD. `new Date(iso)` would
+	// read that as UTC and show the day before in a western timezone, so the
+	// parts are parsed by hand — this is the assertion that keeps it that way.
+	it('formats a bare calendar day, without a timezone shift', () => {
+		expect(formatIsoDate('2026-09-05', 'en')).toBe('Sep 5, 2026');
+		expect(formatIsoDate('2026-01-01', 'de')).toBe('1. Jan. 2026');
+	});
+
+	it('hands back anything it cannot read', () => {
+		// community.md's parser drops malformed rows, so this is a floor, not a
+		// path a shipped row takes: never render "Invalid Date" at a reader.
+		expect(formatIsoDate('not-a-date', 'en')).toBe('not-a-date');
+		expect(formatIsoDate('2026-09', 'en')).toBe('2026-09');
 	});
 });
