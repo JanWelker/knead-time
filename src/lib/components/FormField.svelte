@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { uiMode } from '$lib/mode.svelte';
+
 	type Props = {
 		label: string;
 		value: number;
@@ -49,5 +51,13 @@
 		}}
 		class="border-dough-300 mt-1 w-full rounded-lg border bg-white px-3 py-2 text-base shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
 	/>
-	{#if help}<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">{help}</span>{/if}
+	<!-- Beginner only. Standing help under every field was 32 % of the form's
+	     height in both views, and the expert view is the one that has opted out
+	     of being walked through: it trades that space for the fourteen extra
+	     controls it reveals. Conditional notices — the ones that appear in
+	     response to a choice rather than describing a field — are not this, and
+	     stay in both views. -->
+	{#if help && uiMode.current === 'beginner'}
+		<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">{help}</span>
+	{/if}
 </label>
