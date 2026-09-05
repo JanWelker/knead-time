@@ -13,9 +13,11 @@ concurrency:
   cancel-in-progress: true
 
 # rossjrw/pr-preview-action@v1.8.1 still pins JamesIves/github-pages-deploy-action
-# v4.7.4 and marocchino/sticky-pull-request-comment v2.9.2, both Node 20. Opt
-# them onto Node 24 ahead of the 2026-06-02 forced migration. Remove once
-# upstream ships Node 24 pins.
+# v4.7.4 and marocchino/sticky-pull-request-comment v2.9.2, both declaring
+# `using: node20` — a runtime GitHub retired on 2026-06-02. The flag opts them
+# onto Node 24 explicitly rather than relying on the forced migration to do it.
+# Remove once upstream re-pins; Renovate bumps the action, not the runtime
+# inside it, so this has to be re-checked by hand when that PR lands.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -29,29 +31,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        if: github.event.action != 'closed'
-        with:
-          node-version: 24
-          cache: npm
-
-      - run: npm ci
+      - uses: ./.github/actions/node-setup
         if: github.event.action != 'closed'
 
       - name: Resolve base path
         id: base
         if: github.event.action != 'closed'
-        run: |
-          REPO_NAME="${GITHUB_REPOSITORY#*/}"
-          OWNER="${GITHUB_REPOSITORY%%/*}"
-          PR="${{ github.event.number }}"
-          # A custom domain (static/CNAME) or a user/org site (<owner>.github.io) is
-          # served from root; bare project sites are served from /<repo>/.
-          if [ -f static/CNAME ] || [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
-            echo "value=/pr-preview/pr-${PR}" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=/${REPO_NAME}/pr-preview/pr-${PR}" >> "$GITHUB_OUTPUT"
-          fi
+        uses: ./.github/actions/base-path
+        with:
+          subdir: /pr-preview/pr-${{ github.event.number }}
 
       - name: Build
         if: github.event.action != 'closed'

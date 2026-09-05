@@ -1,0 +1,31 @@
+name: Resolve base path
+description: >-
+  The BASE_PATH the build is served from. A custom domain (static/CNAME) or a
+  user/org site (<owner>.github.io) is served from root; bare project sites are
+  served from /<repo>/. PR previews add their own subdirectory on top.
+
+inputs:
+  subdir:
+    description: Path appended to the site root, e.g. /pr-preview/pr-12. Empty for the live site.
+    required: false
+    default: ''
+
+outputs:
+  value:
+    description: Value for the BASE_PATH env var — empty string means "served from root".
+    value: ${{ steps.resolve.outputs.value }}
+
+runs:
+  using: composite
+  steps:
+    - id: resolve
+      shell: bash
+      run: |
+        REPO_NAME="${GITHUB_REPOSITORY#*/}"
+        OWNER="${GITHUB_REPOSITORY%%/*}"
+        if [ -f static/CNAME ] || [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
+          ROOT=""
+        else
+          ROOT="/${REPO_NAME}"
+        fi
+        echo "value=${ROOT}${{ inputs.subdir }}" >> "$GITHUB_OUTPUT"

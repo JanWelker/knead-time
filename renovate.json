@@ -8,10 +8,10 @@
 	],
 	"timezone": "Europe/Zurich",
 	"labels": ["dependencies"],
-	"constraints": {
-		"node": "24",
-		"npm": "12"
-	},
+	"description": [
+		"Constraints are deliberately absent: Renovate reads them from package.json engines (node >=22), which is the floor the code has to run on. A literal here was a second source of truth that nothing verified — it said node 24 while engines said 22, so Renovate was free to pick a dependency the declared floor cannot run.",
+		"The Node version CI and the deploys run lives in .nvmrc, read by every workflow through .github/actions/node-setup. Renovate's nvm manager updates that file; a `node-version:` literal in a workflow is invisible to every manager it has."
+	],
 	"automerge": true,
 	"platformAutomerge": true,
 	"prHourlyLimit": 0,
