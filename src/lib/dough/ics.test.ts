@@ -162,16 +162,34 @@ describe('buildIcs', () => {
 	});
 
 	it('marks active steps as busy (TRANSP:OPAQUE) and proofing steps as free (TRANSP:TRANSPARENT)', () => {
-		// preferment-mix is mostly passive maturation, so it's marked TRANSPARENT
-		// even though the first few minutes are active mixing — the calendar should
-		// not block out the baker's day for the maturation.
-		const mixedSteps: ScheduleStep[] = [
-			{ kind: 'preferment-mix', at: new Date('2026-05-11T18:00:00Z'), durationMinutes: 720 },
-			{ kind: 'prep', at: new Date('2026-05-12T06:00:00Z'), durationMinutes: 15 },
-			{ kind: 'bulk-cold', at: new Date('2026-05-12T07:15:00Z'), durationMinutes: 720 },
-			{ kind: 'final-proof', at: new Date('2026-05-12T18:00:00Z'), durationMinutes: 60 },
-			{ kind: 'ready', at: new Date('2026-05-12T19:00:00Z'), durationMinutes: 0 }
+		// Every step kind, not a sample of five: autolyse, bulk-room and
+		// proof-cold could each be dropped from the free set without failing a
+		// thing, and a step wrongly marked busy blocks out the baker's whole
+		// calendar day for a rest they walk away from.
+		//
+		// preferment-mix is mostly passive maturation, so it's TRANSPARENT even
+		// though the first few minutes are active mixing. Autolyse is a passive
+		// flour+water rest. 'ready' is OPAQUE — the bake is the appointment the
+		// whole schedule exists for.
+		const start = new Date('2026-05-11T06:00:00Z').getTime();
+		const at = (hoursIn: number) => new Date(start + hoursIn * 3_600_000);
+		const expected: Array<[ScheduleStep['kind'], 'OPAQUE' | 'TRANSPARENT']> = [
+			['preferment-mix', 'TRANSPARENT'],
+			['prep', 'OPAQUE'],
+			['autolyse', 'TRANSPARENT'],
+			['mix', 'OPAQUE'],
+			['bulk-room', 'TRANSPARENT'],
+			['bulk-cold', 'TRANSPARENT'],
+			['divide', 'OPAQUE'],
+			['proof-cold', 'TRANSPARENT'],
+			['final-proof', 'TRANSPARENT'],
+			['ready', 'OPAQUE']
 		];
+		const mixedSteps: ScheduleStep[] = expected.map(([kind], i) => ({
+			kind,
+			at: at(i),
+			durationMinutes: 30
+		}));
 		const blocks = buildIcs(mixedSteps, describe_).split('BEGIN:VEVENT').slice(1);
 		const transpByIndex = blocks.map((b) =>
 			b.includes('TRANSP:OPAQUE')
@@ -180,12 +198,6 @@ describe('buildIcs', () => {
 					? 'TRANSPARENT'
 					: null
 		);
-		expect(transpByIndex).toEqual([
-			'TRANSPARENT',
-			'OPAQUE',
-			'TRANSPARENT',
-			'TRANSPARENT',
-			'OPAQUE'
-		]);
+		expect(transpByIndex).toEqual(expected.map(([, transp]) => transp));
 	});
 });

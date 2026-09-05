@@ -3,15 +3,23 @@ import { prefermentDurationHours } from './fermentation';
 import {
 	ACTIVE_NIGHT_KINDS,
 	AUTOLYSE_MIN,
+	COLD_BULK_CEIL_MIN,
+	COLD_BULK_FLOOR_MIN,
+	COLD_FINAL_PROOF_MIN,
+	COLD_INITIAL_BULK_MIN,
 	computeSchedule,
 	COLD_MODE_THRESHOLD_MIN,
 	DIVIDE_MIN,
+	MIX_MIN_HAND,
 	MIX_MIN_SPIRAL,
+	MIX_MIN_STAND,
+	mixMin,
 	NIGHT_END_HOUR,
 	NIGHT_START_HOUR,
 	PREP_MIN,
 	ROOM_MIN_TOTAL_MIN
 } from './schedule';
+import { freshEquivalentPercent } from './fermentation';
 import { defaultInputs, findStep } from './testFixtures';
 import type { DoughInputs } from './types';
 
@@ -1268,5 +1276,221 @@ describe('computeSchedule — night guard holds across the window slider', () =>
 				}
 			}
 		}
+	});
+});
+
+// The step lengths, bands and thresholds the schedule is built from. Every one
+// of them could be changed without a single test failing — the suite derived
+// its expectations from the constants themselves, so both sides of the
+// assertion moved together. These are user-visible durations (a 1 h room bulk
+// before the fridge, a 4 h counter rest, a 48 h ceiling on the cold leg) and
+// the same kind of tripwire INPUT_BOUNDS and WINDOW_STOPS already carry.
+describe('computeSchedule — the constants the schedule is made of', () => {
+	it('pins every fixed duration and band', () => {
+		expect({
+			PREP_MIN,
+			AUTOLYSE_MIN,
+			MIX_MIN_SPIRAL,
+			MIX_MIN_STAND,
+			MIX_MIN_HAND,
+			DIVIDE_MIN,
+			COLD_INITIAL_BULK_MIN,
+			COLD_FINAL_PROOF_MIN,
+			COLD_BULK_FLOOR_MIN,
+			COLD_BULK_CEIL_MIN,
+			COLD_MODE_THRESHOLD_MIN,
+			ROOM_MIN_TOTAL_MIN,
+			NIGHT_START_HOUR,
+			NIGHT_END_HOUR
+		}).toEqual({
+			PREP_MIN: 15,
+			AUTOLYSE_MIN: 30,
+			MIX_MIN_SPIRAL: 15,
+			MIX_MIN_STAND: 20,
+			MIX_MIN_HAND: 25,
+			DIVIDE_MIN: 15,
+			COLD_INITIAL_BULK_MIN: 60,
+			COLD_FINAL_PROOF_MIN: 4 * 60,
+			COLD_BULK_FLOOR_MIN: 12 * 60,
+			COLD_BULK_CEIL_MIN: 48 * 60,
+			COLD_MODE_THRESHOLD_MIN: 16 * 60,
+			ROOM_MIN_TOTAL_MIN: 3 * 60,
+			NIGHT_START_HOUR: 22,
+			NIGHT_END_HOUR: 8
+		});
+	});
+
+	it('maps each mixing method to its own mix length', () => {
+		expect(mixMin('spiral')).toBe(MIX_MIN_SPIRAL);
+		expect(mixMin('stand')).toBe(MIX_MIN_STAND);
+		expect(mixMin('hand')).toBe(MIX_MIN_HAND);
+	});
+
+	// The set the night guard and quality.ts both read. 'proof-cold' is in it
+	// because loading divided balls into the fridge is the same wall-clock-bound
+	// action as loading the bulk — and nothing else pins that, because the
+	// adjuster already dodges it, so no schedule the app produces would notice.
+	it('pins which steps count as baker actions for the night window', () => {
+		expect([...ACTIVE_NIGHT_KINDS].sort()).toEqual([
+			'bulk-cold',
+			'bulk-room',
+			'divide',
+			'mix',
+			'preferment-mix',
+			'prep',
+			'proof-cold'
+		]);
+	});
+});
+
+describe('computeSchedule — cold-mode leg lengths', () => {
+	it('gives the pre-fridge bulk exactly one hour and the counter rest four', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-11T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('cold');
+		expect(findStep(r, 'bulk-room').durationMinutes).toBe(COLD_INITIAL_BULK_MIN);
+		expect(findStep(r, 'final-proof').durationMinutes).toBe(COLD_FINAL_PROOF_MIN);
+	});
+
+	it('caps the cold leg at the 48 h ceiling and spends the surplus before startAt', () => {
+		// An 80 h window (the slider's longest stop) wants ~74 h of cold bulk.
+		// The ceiling holds it to 48 h, which is what makes ~78 h the longest
+		// window any schedule can actually use — the reason WINDOW_STOPS ends
+		// where it does. Times are chosen so the whole cluster lands in daytime
+		// and the night adjuster leaves the leg alone.
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const startAt = new Date(readyBy.getTime() - 80 * 3_600_000);
+		const r = computeSchedule(baseInputs({ startAt, readyBy }));
+		expect(r.mode).toBe('cold');
+		expect(r.desiredColdBulkMin).toBeGreaterThan(COLD_BULK_CEIL_MIN);
+		expect(r.naturalColdBulkMin).toBe(COLD_BULK_CEIL_MIN);
+		expect(findStep(r, 'bulk-cold').durationMinutes).toBe(COLD_BULK_CEIL_MIN);
+		// The capped hours are not spent early — the first step simply starts
+		// later than the window allowed for.
+		expect(r.steps[0].at.getTime()).toBeGreaterThan(startAt.getTime());
+		expect(findStep(r, 'ready').at.getTime()).toBe(readyBy.getTime());
+	});
+});
+
+describe('computeSchedule — room-mode ferment budget', () => {
+	// What is left after prep + mix + divide is split roughly 2:1 between bulk
+	// and the final proof, with the proof capped at 90 min. Neither the ratio
+	// nor the cap was pinned anywhere.
+	it('splits the budget 2:1 and caps the final proof at 90 min', () => {
+		// 4 h window → 195 min of budget → 65 min proof (a third), 130 bulk.
+		const short = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T09:00:00Z'),
+				readyBy: new Date('2026-05-12T13:00:00Z')
+			})
+		);
+		expect(short.mode).toBe('room');
+		expect(findStep(short, 'final-proof').durationMinutes).toBe(65);
+		expect(findStep(short, 'bulk-room').durationMinutes).toBe(130);
+
+		// 12 h window → 675 min of budget; a third would be 225, so the 90 min
+		// cap bites and the rest all goes to the bulk.
+		const long = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T07:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(long.mode).toBe('room');
+		expect(findStep(long, 'final-proof').durationMinutes).toBe(90);
+		expect(findStep(long, 'bulk-room').durationMinutes).toBe(585);
+	});
+
+	it('leaves both legs at zero when the window is below the fixed steps', () => {
+		const r = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T18:30:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(findStep(r, 'bulk-room').durationMinutes).toBe(0);
+		expect(findStep(r, 'final-proof').durationMinutes).toBe(0);
+	});
+});
+
+describe('computeSchedule — warning thresholds', () => {
+	// The bands themselves, not just a value comfortably outside them. Both
+	// edges could be moved a degree without failing anything.
+	it.each([
+		{ roomTempC: 13.9, warning: 'too-cold' as const, fires: true },
+		{ roomTempC: 14, warning: 'too-cold' as const, fires: false },
+		{ roomTempC: 30, warning: 'too-warm' as const, fires: false },
+		{ roomTempC: 30.1, warning: 'too-warm' as const, fires: true }
+	])('$roomTempC °C → $warning: $fires', ({ roomTempC, warning, fires }) => {
+		const r = computeSchedule(baseInputs({ roomTempC }));
+		expect(r.warnings.includes(warning)).toBe(fires);
+	});
+
+	it('fires yeast-large exactly above 2 % fresh-equivalent, never below', () => {
+		// The threshold was only ever exercised from far outside it, so it could
+		// drift a whole percentage point unnoticed. Sweeping windows and room
+		// temperatures lands solved percentages either side of the edge; the
+		// warning has to agree with the band on every one of them.
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		let over = 0;
+		let under = 0;
+		for (const roomTempC of [10, 14, 18, 22, 26, 30, 34]) {
+			for (const hours of [2, 2.5, 3, 4, 6, 9, 14, 20, 30, 48, 72]) {
+				const r = computeSchedule(
+					baseInputs({
+						roomTempC,
+						readyBy,
+						startAt: new Date(readyBy.getTime() - hours * 3_600_000)
+					})
+				);
+				const fresh = freshEquivalentPercent(r.yeastPercent, r.yeastType);
+				expect(r.warnings.includes('yeast-large'), `${roomTempC} °C / ${hours} h → ${fresh}`).toBe(
+					fresh > 2
+				);
+				if (fresh > 2) over++;
+				else under++;
+			}
+		}
+		// The sweep is only a net if it actually straddles the edge.
+		expect(over).toBeGreaterThan(0);
+		expect(under).toBeGreaterThan(0);
+	});
+
+	it('fires yeast-tiny exactly below 0.02 % fresh-equivalent, never at zero', () => {
+		// Only a non-physical room temperature pushes the solve this low —
+		// computeSchedule has no input bounds (the form and the URL decoder own
+		// that), which is what makes the threshold testable at all.
+		const window = {
+			startAt: new Date('2026-05-11T07:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		};
+		let over = 0;
+		let under = 0;
+		for (let roomTempC = 40; roomTempC <= 90; roomTempC += 2) {
+			const r = computeSchedule(baseInputs({ ...window, roomTempC }));
+			const fresh = freshEquivalentPercent(r.yeastPercent, r.yeastType);
+			expect(r.warnings.includes('yeast-tiny'), `${roomTempC} °C → ${fresh}`).toBe(
+				fresh > 0 && fresh < 0.02
+			);
+			if (fresh < 0.02) under++;
+			else over++;
+		}
+		expect(over).toBeGreaterThan(0);
+		expect(under).toBeGreaterThan(0);
+
+		// A window too short to ferment solves to exactly 0 — no yeast to call
+		// tiny, so the warning must stay quiet rather than fire on the floor.
+		const infeasible = computeSchedule(
+			baseInputs({
+				startAt: new Date('2026-05-12T18:30:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(infeasible.yeastPercent).toBe(0);
+		expect(infeasible.warnings).not.toContain('yeast-tiny');
 	});
 });
