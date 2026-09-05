@@ -1,10 +1,4 @@
-import { safeGet, safeRemove, safeSet } from '../safeStorage';
-
-export const TRMNL_UUID_STORAGE_KEY = 'kneadtime:trmnlUuid';
-// Pre-rename key (project was once called 'doughcalc'). loadTrmnlUuid
-// migrates any value left over from that era on first read and clears the
-// legacy slot — drop this once we're past one full deploy cycle.
-const LEGACY_TRMNL_UUID_KEY = 'doughcalc:trmnlUuid';
+import { storedPreference } from '../storedPreference';
 
 // TRMNL Private Plugin webhooks are addressed by a UUIDv4 baked into the
 // configuration form. We only accept that shape so a typo in the user's
@@ -15,25 +9,14 @@ export function isTrmnlUuid(value: unknown): value is string {
 	return typeof value === 'string' && UUID_RE.test(value);
 }
 
-export function loadTrmnlUuid(storage: Storage | null | undefined): string | null {
-	let raw = safeGet(storage, TRMNL_UUID_STORAGE_KEY);
-	if (raw === null) {
-		const legacy = safeGet(storage, LEGACY_TRMNL_UUID_KEY);
-		if (legacy !== null) {
-			safeRemove(storage, LEGACY_TRMNL_UUID_KEY);
-			if (isTrmnlUuid(legacy)) {
-				safeSet(storage, TRMNL_UUID_STORAGE_KEY, legacy);
-				raw = legacy;
-			}
-		}
-	}
-	return isTrmnlUuid(raw) ? raw : null;
-}
+const pref = storedPreference({
+	key: 'kneadtime:trmnlUuid',
+	isValid: isTrmnlUuid,
+	// Pre-rename key (the project was once called 'doughcalc').
+	legacyKey: 'doughcalc:trmnlUuid'
+});
 
-export function saveTrmnlUuid(storage: Storage | null | undefined, uuid: string): void {
-	safeSet(storage, TRMNL_UUID_STORAGE_KEY, uuid);
-}
-
-export function clearTrmnlUuid(storage: Storage | null | undefined): void {
-	safeRemove(storage, TRMNL_UUID_STORAGE_KEY);
-}
+export const TRMNL_UUID_STORAGE_KEY = pref.key;
+export const loadTrmnlUuid = pref.load;
+export const saveTrmnlUuid = pref.save;
+export const clearTrmnlUuid = pref.clear;

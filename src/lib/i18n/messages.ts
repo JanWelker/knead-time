@@ -2710,11 +2710,18 @@ const nl: Messages = {
 
 export const MESSAGES: Record<Locale, Messages> = { en, de, it, fr, nl };
 
+// Whether a string is one of the languages this app ships. Three places asked
+// that question — the stored-locale reader, the print route's path parameter,
+// and detectLocale below — and each carried its own copy of the cast.
+export function isLocale(value: unknown): value is Locale {
+	return typeof value === 'string' && (LOCALES as readonly string[]).includes(value);
+}
+
 export function detectLocale(navigatorLanguages: readonly string[] | undefined): Locale {
 	if (!navigatorLanguages) return 'en';
 	for (const raw of navigatorLanguages) {
 		const two = raw.toLowerCase().slice(0, 2);
-		if ((LOCALES as readonly string[]).includes(two)) return two as Locale;
+		if (isLocale(two)) return two;
 	}
 	return 'en';
 }

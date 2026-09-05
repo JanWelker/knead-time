@@ -1,3 +1,4 @@
+import { PersistedChoice } from './persistedChoice.svelte';
 import { safeLocalStorage } from './safeStorage';
 import { saveStoredMode, type UiMode } from './storedMode';
 
@@ -5,13 +6,6 @@ import { saveStoredMode, type UiMode } from './storedMode';
 // mount (URL md param → stored preference → beginner); explicit toggles go
 // through set() so only deliberate choices persist — opening someone else's
 // beginner link never overwrites the local preference.
-class Mode {
-	current: UiMode = $state('expert');
-
-	set(mode: UiMode) {
-		this.current = mode;
-		saveStoredMode(safeLocalStorage(), mode);
-	}
-}
-
-export const uiMode = new Mode();
+export const uiMode = new PersistedChoice<UiMode>('expert', (mode) =>
+	saveStoredMode(safeLocalStorage(), mode)
+);

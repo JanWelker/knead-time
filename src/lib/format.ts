@@ -5,62 +5,67 @@ export function padZero(n: number): string {
 	return String(n).padStart(2, '0');
 }
 
-const dayFormatters = new Map<Locale, Intl.DateTimeFormat>();
-const shortDateFormatters = new Map<Locale, Intl.DateTimeFormat>();
-const timeFormatters = new Map<Locale, Intl.DateTimeFormat>();
-const percentFormatters = new Map<Locale, Intl.NumberFormat>();
-
-function percentFormatter(locale: Locale): Intl.NumberFormat {
-	let f = percentFormatters.get(locale);
-	if (!f) {
-		f = new Intl.NumberFormat(locale, {
-			style: 'percent',
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 3
-		});
-		percentFormatters.set(locale, f);
-	}
-	return f;
+// Intl formatters are expensive to construct and the schedule builds one
+// string per step on every keystroke, so each is made once per locale. Four
+// hand-rolled caches said that four times.
+function perLocale<F>(make: (locale: Locale) => F): (locale: Locale) => F {
+	const cache = new Map<Locale, F>();
+	return (locale) => {
+		let f = cache.get(locale);
+		if (!f) {
+			f = make(locale);
+			cache.set(locale, f);
+		}
+		return f;
+	};
 }
 
-export function formatDateTime(date: Date, locale: Locale): string {
-	let f = dayFormatters.get(locale);
-	if (!f) {
-		f = new Intl.DateTimeFormat(locale, {
+const dayFormatter = perLocale(
+	(locale) =>
+		new Intl.DateTimeFormat(locale, {
 			weekday: 'short',
 			day: 'numeric',
 			month: 'short',
 			hour: '2-digit',
 			minute: '2-digit'
-		});
-		dayFormatters.set(locale, f);
-	}
-	return f.format(date);
+		})
+);
+
+const shortDateFormatter = perLocale(
+	(locale) =>
+		new Intl.DateTimeFormat(locale, {
+			weekday: 'short',
+			day: 'numeric',
+			month: 'short'
+		})
+);
+
+const timeFormatter = perLocale(
+	(locale) => new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' })
+);
+
+const percentFormatter = perLocale(
+	(locale) =>
+		new Intl.NumberFormat(locale, {
+			style: 'percent',
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 3
+		})
+);
+
+export function formatDateTime(date: Date, locale: Locale): string {
+	return dayFormatter(locale).format(date);
 }
 
 // Compact weekday + date, no time, no commas. Used in the TRMNL schedule
 // strip where the time has its own column and the comma-separated form
 // ("Thu, May 14") reads cluttered next to it.
 export function formatShortDate(date: Date, locale: Locale): string {
-	let f = shortDateFormatters.get(locale);
-	if (!f) {
-		f = new Intl.DateTimeFormat(locale, {
-			weekday: 'short',
-			day: 'numeric',
-			month: 'short'
-		});
-		shortDateFormatters.set(locale, f);
-	}
-	return f.format(date).replace(/,/g, '');
+	return shortDateFormatter(locale).format(date).replace(/,/g, '');
 }
 
 export function formatTime(date: Date, locale: Locale): string {
-	let f = timeFormatters.get(locale);
-	if (!f) {
-		f = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit' });
-		timeFormatters.set(locale, f);
-	}
-	return f.format(date);
+	return timeFormatter(locale).format(date);
 }
 
 export function formatDuration(minutes: number, locale: Locale): string {

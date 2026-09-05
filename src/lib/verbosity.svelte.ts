@@ -1,3 +1,4 @@
+import { PersistedChoice } from './persistedChoice.svelte';
 import { safeLocalStorage } from './safeStorage';
 import { saveStoredVerbosity, type ScheduleVerbosity } from './storedVerbosity';
 
@@ -6,13 +7,6 @@ import { saveStoredVerbosity, type ScheduleVerbosity } from './storedVerbosity';
 // URL: how much guidance you want next to the timeline is a device-level
 // reading preference, not part of the recipe. Descriptive by default; the
 // main page restores a stored choice on mount and set() persists toggles.
-class Verbosity {
-	current: ScheduleVerbosity = $state('descriptive');
-
-	set(verbosity: ScheduleVerbosity) {
-		this.current = verbosity;
-		saveStoredVerbosity(safeLocalStorage(), verbosity);
-	}
-}
-
-export const scheduleVerbosity = new Verbosity();
+export const scheduleVerbosity = new PersistedChoice<ScheduleVerbosity>('descriptive', (v) =>
+	saveStoredVerbosity(safeLocalStorage(), v)
+);
