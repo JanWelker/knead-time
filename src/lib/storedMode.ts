@@ -1,18 +1,13 @@
-import { safeGet, safeSet } from './safeStorage';
+import { storedPreference } from './storedPreference';
 
 export type UiMode = 'beginner' | 'expert';
-
-export const MODE_STORAGE_KEY = 'kneadtime:mode';
 
 export function isUiMode(value: unknown): value is UiMode {
 	return value === 'beginner' || value === 'expert';
 }
 
-export function loadStoredMode(storage: Storage | null | undefined): UiMode | null {
-	const raw = safeGet(storage, MODE_STORAGE_KEY);
-	return isUiMode(raw) ? raw : null;
-}
+const pref = storedPreference<UiMode>({ key: 'kneadtime:mode', isValid: isUiMode });
 
-export function saveStoredMode(storage: Storage | null | undefined, mode: UiMode): void {
-	safeSet(storage, MODE_STORAGE_KEY, mode);
-}
+export const MODE_STORAGE_KEY = pref.key;
+export const loadStoredMode = pref.load;
+export const saveStoredMode = pref.save;

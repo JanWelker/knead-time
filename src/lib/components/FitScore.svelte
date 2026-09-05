@@ -16,44 +16,31 @@
 	const stars = $derived(fitStars(fit.score));
 	const starRow = $derived('★'.repeat(stars) + '☆'.repeat(5 - stars));
 
-	function factorTemplate(factor: FitFactor): string {
-		switch (factor) {
-			case 'cold-bulk-shifted':
-				return t.quality.factor_cold_bulk_shifted;
-			case 'cold-bulk-clamped-short':
-				return t.quality.factor_cold_bulk_clamped_short;
-			case 'cold-bulk-clamped-long':
-				return t.quality.factor_cold_bulk_clamped_long;
-			case 'preferment-clamped-short':
-				return t.quality.factor_preferment_clamped_short;
-			case 'preferment-clamped-long':
-				return t.quality.factor_preferment_clamped_long;
-			case 'night-step':
-				return t.quality.factor_night_step;
-			case 'infeasible':
-				return t.quality.factor_infeasible;
-			case 'hydration-off':
-				return t.quality.factor_hydration_off;
-			case 'salt-off':
-				return t.quality.factor_salt_off;
-			case 'ball-weight-off':
-				return t.quality.factor_ball_weight_off;
-			case 'room-temp-off':
-				return t.quality.factor_room_temp_off;
-			case 'fridge-temp-off':
-				return t.quality.factor_fridge_temp_off;
-			case 'yeast-extreme':
-				return t.quality.factor_yeast_extreme;
-			case 'flour-window-off':
-				return t.quality.factor_flour_window_off;
-		}
-	}
+	// A Record rather than a switch, like Warnings.svelte's: same exhaustiveness
+	// (a new FitFactor fails to compile until it is given copy) in a third of
+	// the lines, and the two components now say it the same way.
+	const COPY: Record<FitFactor, keyof typeof t.quality> = {
+		'cold-bulk-shifted': 'factor_cold_bulk_shifted',
+		'cold-bulk-clamped-short': 'factor_cold_bulk_clamped_short',
+		'cold-bulk-clamped-long': 'factor_cold_bulk_clamped_long',
+		'preferment-clamped-short': 'factor_preferment_clamped_short',
+		'preferment-clamped-long': 'factor_preferment_clamped_long',
+		'night-step': 'factor_night_step',
+		infeasible: 'factor_infeasible',
+		'hydration-off': 'factor_hydration_off',
+		'salt-off': 'factor_salt_off',
+		'ball-weight-off': 'factor_ball_weight_off',
+		'room-temp-off': 'factor_room_temp_off',
+		'fridge-temp-off': 'factor_fridge_temp_off',
+		'yeast-extreme': 'factor_yeast_extreme',
+		'flour-window-off': 'factor_flour_window_off'
+	};
 
 	function factorLabel(detail: FitFactorDetail): string {
 		// {delta} is rendered to one decimal place for hours/degrees/grams.
 		// Integer percentage points keep the leading zero off (e.g. "5%").
 		const rounded = Math.round(detail.delta * 10) / 10;
-		return interpolate(factorTemplate(detail.factor), { delta: rounded });
+		return interpolate(t.quality[COPY[detail.factor]], { delta: rounded });
 	}
 
 	// The actions menu next to this one dismisses on outside-click and Escape;

@@ -18,7 +18,7 @@
 	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
-	import { LOCALES, type Locale } from '$lib/i18n/messages';
+	import { isLocale, type Locale } from '$lib/i18n/messages';
 	import { qrCode } from '$lib/qr';
 	import {
 		flourIngredientName,
@@ -31,9 +31,6 @@
 
 	// Locale lives in the URL path so each language can ship its own prerendered
 	// HTML; the root layout skips its navigator-based detection on this route.
-	function isLocale(s: unknown): s is Locale {
-		return typeof s === 'string' && (LOCALES as readonly string[]).includes(s);
-	}
 	const pageLocale: Locale = isLocale(page.params.locale) ? page.params.locale : 'en';
 	// persist: false — this route owns its locale via the URL path; opening a
 	// foreign-language print link must not overwrite the stored app language.

@@ -88,25 +88,19 @@
 		return durationMinutes < min - pad || durationMinutes > max + pad;
 	}
 
-	function flagLabel(flag: StepQualityFlag): string {
-		switch (flag) {
-			case 'night':
-				return t.quality.flag_night;
-			case 'cold-bulk-shifted':
-				return t.quality.flag_cold_bulk_shifted;
-			case 'cold-bulk-clamped-short':
-				return t.quality.flag_cold_bulk_clamped_short;
-			case 'cold-bulk-clamped-long':
-				return t.quality.flag_cold_bulk_clamped_long;
-			case 'preferment-clamped-short':
-				return t.quality.flag_preferment_clamped_short;
-			case 'preferment-clamped-long':
-				return t.quality.flag_preferment_clamped_long;
-		}
-	}
+	// Same shape as Warnings.svelte and FitScore: a Record keeps the
+	// exhaustiveness check — a new flag fails to compile until it has copy.
+	const FLAG_COPY: Record<StepQualityFlag, keyof typeof t.quality> = {
+		night: 'flag_night',
+		'cold-bulk-shifted': 'flag_cold_bulk_shifted',
+		'cold-bulk-clamped-short': 'flag_cold_bulk_clamped_short',
+		'cold-bulk-clamped-long': 'flag_cold_bulk_clamped_long',
+		'preferment-clamped-short': 'flag_preferment_clamped_short',
+		'preferment-clamped-long': 'flag_preferment_clamped_long'
+	};
 
 	function flagTooltip(flags: StepQualityFlag[]): string {
-		return flags.map(flagLabel).join(' ');
+		return flags.map((flag) => t.quality[FLAG_COPY[flag]]).join(' ');
 	}
 </script>
 
