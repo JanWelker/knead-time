@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import {
 		fitStars,
@@ -43,41 +44,23 @@
 		return interpolate(t.quality[COPY[detail.factor]], { delta: rounded });
 	}
 
-	// The actions menu next to this one dismisses on outside-click and Escape;
-	// this panel did neither, so once opened it floated over the schedule it is
-	// describing until its own summary was clicked again. Same contract as the
-	// menu, minus the roving focus: this is a disclosure, not a menu, so its
-	// content is read in place.
+	// Same dismissal contract as the actions menu beside it, minus the roving
+	// focus: this is a disclosure, not a menu, so its content is read in place.
 	//
 	// The element's own `open` is the source of truth, rather than a bound piece
-	// of state. <details> flips that attribute itself on click and Svelte syncs a
-	// binding afterwards, so handlers gated on the bound copy saw `false` for a
-	// window after the panel was visibly open and did nothing — reproducibly in
-	// dev, and about one browser-test run in four. Reading the DOM removes the
-	// timing question instead of racing it.
+	// of state — <details> flips that attribute itself on click and Svelte syncs
+	// a binding a tick later.
 	let detailsRef: HTMLDetailsElement | null = $state(null);
 
 	$effect(() => {
 		if (!browser) return;
-		function dismiss() {
-			if (!detailsRef) return;
-			detailsRef.open = false;
-		}
-		function onDocClick(event: MouseEvent) {
-			if (!detailsRef?.open) return;
-			if (!detailsRef.contains(event.target as Node)) dismiss();
-		}
-		function onKey(event: KeyboardEvent) {
-			if (event.key !== 'Escape' || !detailsRef?.open) return;
-			dismiss();
-			detailsRef.querySelector<HTMLElement>('summary')?.focus();
-		}
-		document.addEventListener('click', onDocClick);
-		document.addEventListener('keydown', onKey);
-		return () => {
-			document.removeEventListener('click', onDocClick);
-			document.removeEventListener('keydown', onKey);
-		};
+		return dismissOnOutsideClickOrEscape({
+			container: () => detailsRef,
+			isOpen: () => detailsRef?.open === true,
+			close: () => {
+				if (detailsRef) detailsRef.open = false;
+			}
+		});
 	});
 
 	const summaryTooltip = $derived.by(() => {

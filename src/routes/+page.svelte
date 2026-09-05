@@ -24,6 +24,7 @@
 		saveRecipe,
 		type SavedRecipe
 	} from '$lib/storedRecipes';
+	import ActionsMenu from '$lib/components/ActionsMenu.svelte';
 	import MyRecipes from '$lib/components/MyRecipes.svelte';
 	import SaveRecipeDialog from '$lib/components/SaveRecipeDialog.svelte';
 	import Community from '$lib/components/Community.svelte';
@@ -53,8 +54,6 @@
 
 	let copied = $state<'share' | 'failed' | null>(null);
 	let hydrated = $state(false);
-	let actionsRef: HTMLDetailsElement | null = $state(null);
-	let actionsOpen = $state(false);
 	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
 	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
 
@@ -165,59 +164,6 @@
 			copied = 'failed';
 		}
 	}
-
-	// The role="menu" contract: enabled menuitems in DOM order.
-	function menuItemEls(): HTMLElement[] {
-		return Array.from(
-			actionsRef?.querySelectorAll<HTMLElement>('[role="menuitem"]:not(:disabled)') ?? []
-		);
-	}
-
-	// ArrowDown/ArrowUp cycle through the items, Home/End jump. Called from
-	// the document-level keydown listener that only exists while the menu is
-	// open — the menu container itself must not be focusable (focus roves
-	// across the items), so it carries no handler of its own.
-	function onMenuKeydown(event: KeyboardEvent) {
-		const items = menuItemEls();
-		if (items.length === 0) return;
-		const index = items.indexOf(document.activeElement as HTMLElement);
-		let next: number;
-		if (event.key === 'ArrowDown') next = (index + 1) % items.length;
-		else if (event.key === 'ArrowUp') next = index <= 0 ? items.length - 1 : index - 1;
-		else if (event.key === 'Home') next = 0;
-		else if (event.key === 'End') next = items.length - 1;
-		else return;
-		event.preventDefault();
-		items[next].focus();
-	}
-
-	// Close the actions menu on outside-click + Escape — <details> handles
-	// click-on-summary toggle natively, but doesn't dismiss otherwise. On
-	// open, focus moves to the first item (ARIA menu contract); Escape
-	// returns it to the trigger.
-	$effect(() => {
-		if (!browser || !actionsOpen) return;
-		menuItemEls()[0]?.focus();
-		function onDocClick(event: MouseEvent) {
-			if (actionsRef && !actionsRef.contains(event.target as Node)) {
-				actionsOpen = false;
-			}
-		}
-		function onKey(event: KeyboardEvent) {
-			if (event.key === 'Escape') {
-				actionsOpen = false;
-				actionsRef?.querySelector<HTMLElement>('summary')?.focus();
-				return;
-			}
-			onMenuKeydown(event);
-		}
-		document.addEventListener('click', onDocClick);
-		document.addEventListener('keydown', onKey);
-		return () => {
-			document.removeEventListener('click', onDocClick);
-			document.removeEventListener('keydown', onKey);
-		};
-	});
 </script>
 
 <svelte:head>
@@ -263,82 +209,15 @@
 					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
 						{t.schedule.heading}
 					</h2>
-					<details bind:this={actionsRef} bind:open={actionsOpen}>
-						<summary
-							class="btn-tomato flex cursor-pointer list-none items-center gap-2 select-none"
-							aria-haspopup="menu"
-							aria-label={t.actions.menu}
-						>
-							<svg
-								width="14"
-								height="14"
-								viewBox="0 0 16 16"
-								fill="currentColor"
-								aria-hidden="true"
-							>
-								<rect y="3" width="16" height="2" rx="1" />
-								<rect y="7" width="16" height="2" rx="1" />
-								<rect y="11" width="16" height="2" rx="1" />
-							</svg>
-							<span>{t.actions.menu}</span>
-						</summary>
-						<div
-							role="menu"
-							class="border-dough-200 absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
-						>
-							<button
-								type="button"
-								role="menuitem"
-								class="menu-item"
-								onclick={downloadIcs}
-								disabled={!form.schedule.feasible}
-							>
-								{t.actions.download_ics}
-							</button>
-							<button
-								type="button"
-								role="menuitem"
-								class="menu-item"
-								onclick={printPage}
-								disabled={!form.schedule.feasible}
-							>
-								{t.actions.print}
-							</button>
-							<button
-								type="button"
-								role="menuitem"
-								class="menu-item"
-								onclick={() => copy(window.location.href)}
-							>
-								{copied === 'share' ? t.actions.copied : t.actions.share}
-							</button>
-							<button
-								type="button"
-								role="menuitem"
-								aria-haspopup="dialog"
-								class="menu-item"
-								onclick={() => {
-									actionsOpen = false;
-									saveDialog?.open();
-								}}
-							>
-								{t.actions.save_recipe}
-							</button>
-							<button
-								type="button"
-								role="menuitem"
-								aria-haspopup="dialog"
-								class="menu-item"
-								disabled={!form.schedule.feasible}
-								onclick={() => {
-									actionsOpen = false;
-									trmnlPush?.open();
-								}}
-							>
-								{t.trmnl_push.menu_item}
-							</button>
-						</div>
-					</details>
+					<ActionsMenu
+						feasible={form.schedule.feasible}
+						shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
+						onIcs={downloadIcs}
+						onPrint={printPage}
+						onShare={() => copy(window.location.href)}
+						onSaveRecipe={() => saveDialog?.open()}
+						onTrmnl={() => trmnlPush?.open()}
+					/>
 					<!-- The modal lives outside the role="menu" container: a dialog is
 					     invalid ARIA-menu content, and the menu closes before it opens. -->
 					<TrmnlPush
