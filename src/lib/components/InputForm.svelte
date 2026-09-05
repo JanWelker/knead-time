@@ -7,8 +7,10 @@
 		flourPresetForW,
 		flourPresetGroups
 	} from '$lib/dough/flour';
+	import { INFO_SECTIONS } from '$lib/infoSections';
 	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
+	import FieldHelp from './FieldHelp.svelte';
 	import FormField from './FormField.svelte';
 	import FermentWindowSlider from './FermentWindowSlider.svelte';
 	import Warnings from './Warnings.svelte';
@@ -102,11 +104,7 @@
 				/>
 			</div>
 			<div class="mt-1 flex items-center justify-between gap-2">
-				<span
-					class="text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
-						? 'block'
-						: 'hidden group-focus-within:block'}">{t.form.startAt_help}</span
-				>
+				<FieldHelp text={t.form.startAt_help} extra="" />
 				<button type="button" class="btn-tomato-sm ml-auto shrink-0" onclick={resetStartAtToNow}>
 					{t.form.startAt_now}
 				</button>
@@ -137,13 +135,7 @@
 					oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
 				/>
 			</div>
-			<span
-				class="mt-1 text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
-					? 'block'
-					: 'hidden group-focus-within:block'}"
-			>
-				{t.form.readyBy_help}
-			</span>
+			<FieldHelp text={t.form.readyBy_help} />
 		</fieldset>
 		<!-- The flour sits here, not down in the recipe: it is the other half of
 		     what makes a window ideal, so it belongs with the times it bounds and
@@ -172,13 +164,7 @@
 				<option value="custom">{t.form.flour_custom}</option>
 				<option value="none">{t.form.flour_none}</option>
 			</select>
-			<span
-				class="mt-1 text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
-					? 'block'
-					: 'hidden group-focus-within:block'}"
-			>
-				{t.form.flour_help}
-			</span>
+			<FieldHelp text={t.form.flour_help} />
 		</label>
 		{#if uiMode.current === 'expert' && form.flourW !== null}
 			<FormField
@@ -255,13 +241,7 @@
 				<option value="stand">{t.form.mixing_stand}</option>
 				<option value="hand">{t.form.mixing_hand}</option>
 			</select>
-			<span
-				class="mt-1 text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
-					? 'block'
-					: 'hidden group-focus-within:block'}"
-			>
-				{t.form.mixingMethod_help}
-			</span>
+			<FieldHelp text={t.form.mixingMethod_help} />
 		</label>
 		{#if uiMode.current === 'expert'}
 			<label class="block">
@@ -439,106 +419,31 @@
 			<div class="mt-3 min-w-0 space-y-4 leading-relaxed">
 				<p>{t.form.info_intro}</p>
 
-				<div class="min-w-0">
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_q10_title}</p>
-					<p class="mt-1">{t.form.info_q10_caption}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">f(T) = 2^((T − 22) / 10)</pre>
-				</div>
-
-				<div class="min-w-0">
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_units_title}</p>
-					<p class="mt-1">{t.form.info_units_body}</p>
-					<ul class="mt-1 list-disc space-y-0.5 pl-5">
-						<li>{t.form.info_units_fresh}</li>
-						<li>{t.form.info_units_sourdough}</li>
-					</ul>
-					<p class="mt-2">{t.form.info_units_solve}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">yeast% = target / Σ (w · hours · f(T))</pre>
-					<p class="mt-2">{t.form.info_units_carriers}</p>
-				</div>
-
-				<div class="min-w-0">
-					<p class="font-semibold text-stone-900 dark:text-stone-100">
-						{t.form.info_preferment_title}
-					</p>
-					<p class="mt-1">{t.form.info_preferment_body}</p>
-					<ul class="mt-1 list-disc space-y-0.5 pl-5">
-						<li>{t.form.info_preferment_biga}</li>
-						<li>{t.form.info_preferment_poolish}</li>
-					</ul>
-					<p class="mt-2">{t.form.info_preferment_wall}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">wallHours = refHours / f(roomTempC),  8 ≤ wallHours ≤ 24</pre>
-					<p class="mt-2">{t.form.info_preferment_yeast}</p>
-				</div>
-
-				<div>
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_switch_title}</p>
-					<p class="mt-1">{t.form.info_switch_body}</p>
-				</div>
-
-				<div>
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_budget_title}</p>
-					<p class="mt-1">{t.form.info_budget_body}</p>
-				</div>
-
-				<div>
-					<p class="font-semibold text-stone-900 dark:text-stone-100">
-						{t.form.info_autolyse_title}
-					</p>
-					<p class="mt-1">{t.form.info_autolyse_body}</p>
-				</div>
-
-				<div class="min-w-0">
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_water_title}</p>
-					<p class="mt-1">{t.form.info_water_body}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">water = 3·23 − 2·room − friction</pre>
-				</div>
-
-				<div class="min-w-0">
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_mass_title}</p>
-					<p class="mt-1">{t.form.info_mass_body}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">flour = total / pctSum</pre>
-					<p class="mt-2">{t.form.info_mass_caption_fresh}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">pctSum = 100 + hydration + salt% + yeast% + oil% + sugar%</pre>
-					<p class="mt-2">{t.form.info_mass_caption_sourdough}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">pctSum = 100 + hydration + salt% + oil% + sugar%</pre>
-				</div>
-
-				<div>
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_round_title}</p>
-					<p class="mt-1">{t.form.info_round_body}</p>
-				</div>
-
-				<div>
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_fit_title}</p>
-					<p class="mt-1">{t.form.info_fit_body}</p>
-				</div>
-
-				<div class="min-w-0">
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_flour_title}</p>
-					<p class="mt-1">{t.form.info_flour_body}</p>
-					<pre
-						class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">hours(W) = lo · (hi/lo)^((W − Wlo) / (Whi − Wlo))</pre>
-				</div>
-
-				<div>
-					<p class="font-semibold text-stone-900 dark:text-stone-100">
-						{t.form.info_defaults_title}
-					</p>
-					<p class="mt-1">{t.form.info_defaults_body}</p>
-				</div>
-
-				<div>
-					<p class="font-semibold text-stone-900 dark:text-stone-100">{t.form.info_night_title}</p>
-					<p class="mt-1">{t.form.info_night_body}</p>
-				</div>
+				<!-- Sections come from INFO_SECTIONS (src/lib/infoSections.ts), which a
+				     test holds against the message bundle in both directions: no key
+				     rendered that does not exist, no info_ message left unrendered.
+				     Thirteen hand-written blocks could not be checked that way. -->
+				{#each INFO_SECTIONS as section (section.title)}
+					<div class="min-w-0">
+						<p class="font-semibold text-stone-900 dark:text-stone-100">
+							{t.form[section.title]}
+						</p>
+						{#each section.parts as part, i (i)}
+							{#if part.kind === 'text'}
+								<p class="mt-1">{t.form[part.key]}</p>
+							{:else if part.kind === 'list'}
+								<ul class="mt-1 list-disc space-y-0.5 pl-5">
+									{#each part.keys as key (key)}
+										<li>{t.form[key]}</li>
+									{/each}
+								</ul>
+							{:else}
+								<pre
+									class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">{part.formula}</pre>
+							{/if}
+						{/each}
+					</div>
+				{/each}
 			</div>
 		</details>
 	{/if}
