@@ -38,8 +38,21 @@ for (const theme of ['light', 'dark'] as const) {
 			}
 			// Community and 50 Top Pizza ship collapsed. Their rows are the
 			// densest markup in the app and would otherwise never be scanned.
+			//
+			// Content sections only, never the popovers. The actions menu and the
+			// fit-score panel are absolutely positioned and are MEANT to cover
+			// what is beneath them while open, so forcing them open alongside
+			// everything else made axe report the verbosity toggle under the menu
+			// as "partially obscured" — a true observation about an arrangement no
+			// user is ever in, since opening either popover is a deliberate act
+			// that dismisses on the next click. Their own contents are covered by
+			// the menu-keyboard and dialog specs instead.
 			await page.evaluate(() =>
-				document.querySelectorAll('details').forEach((d) => (d.open = true))
+				document.querySelectorAll('details').forEach((d) => {
+					const panel = d.querySelector(':scope > :not(summary)');
+					const floats = panel !== null && getComputedStyle(panel).position === 'absolute';
+					if (!floats) d.open = true;
+				})
 			);
 
 			const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
