@@ -1494,3 +1494,37 @@ describe('computeSchedule — warning thresholds', () => {
 		expect(infeasible.warnings).not.toContain('yeast-tiny');
 	});
 });
+
+// The window is spent by one of two legs — coldSchedule or roomSchedule — and
+// the cold-bulk signals are how the rest of the app tells which ran. quality.ts
+// reads them directly, so "room reports neither" is a contract, not an
+// implementation detail. Nothing checked it while the two legs were one
+// function with a shared pair of `let`s above them.
+describe('the cold-bulk signals say which leg ran', () => {
+	it('room mode reports no cold-bulk figures at all', () => {
+		const r = computeSchedule(
+			defaultInputs({
+				startAt: new Date('2026-05-12T09:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('room');
+		expect(r.naturalColdBulkMin).toBeNull();
+		expect(r.desiredColdBulkMin).toBeNull();
+		expect(r.steps.some((step) => step.kind === 'bulk-cold' || step.kind === 'proof-cold')).toBe(
+			false
+		);
+	});
+
+	it('cold mode reports both, with the natural value capped at the 48 h ceiling', () => {
+		const r = computeSchedule(
+			defaultInputs({
+				startAt: new Date('2026-05-10T09:00:00Z'),
+				readyBy: new Date('2026-05-12T19:00:00Z')
+			})
+		);
+		expect(r.mode).toBe('cold');
+		expect(r.desiredColdBulkMin).not.toBeNull();
+		expect(r.naturalColdBulkMin).toBe(Math.min(COLD_BULK_CEIL_MIN, r.desiredColdBulkMin as number));
+	});
+});

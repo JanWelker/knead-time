@@ -169,6 +169,159 @@ function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
 	return inputs.preFerments;
 }
 
+/** One pre-ferment's wall-clock duration, as the schedule reserves it. */
+interface PrefermentDuration {
+	type: PreFermentSpec['type'];
+	min: number;
+}
+
+// Everything both legs need to work out. Assembled once by computeSchedule,
+// which owns the reading of the inputs; the legs only decide how the time is
+// spent, which is the part that differs between them.
+interface PlanArgs {
+	inputs: DoughInputs;
+	totalAvailableMin: number;
+	prefermentDurationsMin: PrefermentDuration[];
+	/** The longest pre-ferment — they mature in parallel and all end at prep. */
+	naturalPrefermentMin: number;
+	/** Flour-share-weighted fermentation phases for a set of pre-ferment durations. */
+	prefermentPhases: (durations: PrefermentDuration[]) => FermentPhase[];
+	mixDurationMin: number;
+	autolyseMin: number;
+}
+
+// What a leg decides: how much yeast, and where every step falls. The two
+// cold-bulk figures are the pre-shift, pre-clamp values the recipe-fit score
+// measures the delivered schedule against — room mode has no cold leg, so it
+// reports null for both.
+interface FermentPlan {
+	yeastPercent: number;
+	steps: ScheduleStep[];
+	naturalColdBulkMin: number | null;
+	desiredColdBulkMin: number | null;
+}
+
+// Cold: a fixed frame — prep, autolyse, mix, an hour of room bulk, divide, and
+// four hours on the counter at the end — with one variable leg in the fridge
+// soaking up whatever time is left.
+function coldSchedule({
+	inputs,
+	totalAvailableMin,
+	prefermentDurationsMin,
+	naturalPrefermentMin,
+	prefermentPhases,
+	mixDurationMin,
+	autolyseMin
+}: PlanArgs): FermentPlan {
+	const fixedMin =
+		PREP_MIN +
+		autolyseMin +
+		mixDurationMin +
+		COLD_INITIAL_BULK_MIN +
+		DIVIDE_MIN +
+		COLD_FINAL_PROOF_MIN;
+	// Cold mode is only entered when totalAvailable − naturalPreferment ≥ 16 h,
+	// so this is always ≥ ~10 h — the pre-ferment-overflow branch room mode
+	// carries cannot fire here.
+	const desired = totalAvailableMin - fixedMin - naturalPrefermentMin;
+	// Cap cold-bulk at the 48 h ceiling. We do NOT clamp UP to the 12 h floor —
+	// that would pull the schedule's first step before startAt, which the
+	// contract forbids. Sub-floor cold-bulk is allowed, and flagged by the
+	// recipe-fit score instead.
+	const naturalColdMin = Math.min(COLD_BULK_CEIL_MIN, desired);
+	const ballProofCold = inputs.ballProof === 'cold';
+	const coldMin = adjustColdMinForNight(
+		inputs.readyBy,
+		naturalColdMin,
+		prefermentDurationsMin.map((d) => d.min),
+		mixDurationMin,
+		autolyseMin,
+		ballProofCold
+	);
+
+	return {
+		yeastPercent: yeastPercentForPhases(inputs.yeastType, [
+			...prefermentPhases(prefermentDurationsMin),
+			{ hours: (COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60, tempC: inputs.roomTempC },
+			{ hours: coldMin / 60, tempC: inputs.fridgeTempC }
+		]),
+		steps: buildSteps({
+			readyBy: inputs.readyBy,
+			prefermentDurationsMin,
+			mixDurationMin,
+			bulkRoomMin: COLD_INITIAL_BULK_MIN,
+			bulkColdMin: coldMin,
+			ballProofCold,
+			finalProofMin: COLD_FINAL_PROOF_MIN,
+			autolyseMin
+		}),
+		naturalColdBulkMin: naturalColdMin,
+		desiredColdBulkMin: desired
+	};
+}
+
+// Room: no fridge leg, so the whole window minus the hands-on steps and the
+// pre-ferments is fermentation, split between bulk and final proof.
+function roomSchedule({
+	inputs,
+	totalAvailableMin,
+	prefermentDurationsMin,
+	naturalPrefermentMin,
+	prefermentPhases,
+	mixDurationMin,
+	autolyseMin
+}: PlanArgs): FermentPlan {
+	const roomFixedMin = PREP_MIN + autolyseMin + mixDurationMin + DIVIDE_MIN;
+	const fermentBudget = totalAvailableMin - roomFixedMin - naturalPrefermentMin;
+
+	let durations = prefermentDurationsMin;
+	let bulkMin: number;
+	let finalProofMin: number;
+
+	if (fermentBudget >= 0) {
+		// Pre-ferments fit; the rest goes to bulk + final-proof in roughly a 2:1
+		// ratio. Both can shrink to 0 if the window is very tight.
+		finalProofMin = Math.min(90, Math.floor(fermentBudget / 3));
+		bulkMin = fermentBudget - finalProofMin;
+	} else {
+		// The longest pre-ferment alone overflows. Cap every pre-ferment at the
+		// wall budget so first-step >= startAt still holds — shorter ones may fit
+		// untouched. Bulk and final-proof are 0.
+		//
+		// Degenerate exception: when the window is shorter than the fixed hands-on
+		// steps themselves (totalAvailableMin < roomFixedMin), the budget bottoms
+		// out at 0 but prep + mix + divide keep their physical durations anchored
+		// to readyBy — the first step lands BEFORE startAt. We never compress fixed
+		// steps or slip readyBy; instead the schedule is honest about being
+		// infeasible: roomFixedMin is always well below ROOM_MIN_TOTAL_MIN, so the
+		// 'too-short' warning (feasible = false, quality.ts's 'infeasible' factor)
+		// has already fired by the time this runs.
+		const budget = Math.max(0, totalAvailableMin - roomFixedMin);
+		durations = durations.map((d) => ({ ...d, min: Math.min(d.min, budget) }));
+		bulkMin = 0;
+		finalProofMin = 0;
+	}
+
+	return {
+		yeastPercent: yeastPercentForPhases(inputs.yeastType, [
+			...prefermentPhases(durations),
+			{ hours: (bulkMin + finalProofMin) / 60, tempC: inputs.roomTempC }
+		]),
+		steps: buildSteps({
+			readyBy: inputs.readyBy,
+			prefermentDurationsMin: durations,
+			mixDurationMin,
+			bulkRoomMin: bulkMin,
+			bulkColdMin: null,
+			ballProofCold: false,
+			finalProofMin,
+			autolyseMin
+		}),
+		naturalColdBulkMin: null,
+		desiredColdBulkMin: null
+	};
+}
+
 export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const preFerments = effectivePreFerments(inputs);
 	const mixDurationMin = mixMin(inputs.mixingMethod);
@@ -189,7 +342,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	// Pre-ferments mature wherever the user says they do — a 17 °C cellar
 	// biga runs much longer than a countertop one. null follows the room.
 	const prefermentTempC = inputs.preFermentTempC ?? inputs.roomTempC;
-	let prefermentDurationsMin = preFerments.map((pf) => ({
+	const prefermentDurationsMin: PrefermentDuration[] = preFerments.map((pf) => ({
 		type: pf.type,
 		min: Math.round(prefermentDurationHours(pf.type, prefermentTempC) * 60)
 	}));
@@ -199,7 +352,7 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	// it carries: eq = Σ wᵢ · hoursᵢ · f(T). With a single pre-ferment w = 1,
 	// which reproduces the pre-v4 solve exactly.
 	const totalShare = preFerments.reduce((sum, pf) => sum + pf.flourPercent, 0);
-	const prefermentPhases = (durations: typeof prefermentDurationsMin): FermentPhase[] =>
+	const prefermentPhases = (durations: PrefermentDuration[]): FermentPhase[] =>
 		durations.map((d, i) => ({
 			hours: (preFerments[i].flourPercent / totalShare) * (d.min / 60),
 			tempC: prefermentTempC
@@ -230,101 +383,19 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		else if (windowHours < band.min) warnings.push('flour-window-short');
 	}
 
-	let yeastPct: number;
-	let steps: ScheduleStep[];
-	let naturalColdBulkMin: number | null = null;
-	let desiredColdBulkMin: number | null = null;
-
-	if (mode === 'cold') {
-		const fixedMin =
-			PREP_MIN +
-			autolyseMin +
-			mixDurationMin +
-			COLD_INITIAL_BULK_MIN +
-			DIVIDE_MIN +
-			COLD_FINAL_PROOF_MIN;
-		// Cold mode is only entered when totalAvailable − naturalPreferment ≥
-		// 16 h, so this is always ≥ ~10 h — the pre-ferment-overflow branch
-		// can only fire in room mode.
-		const desired = totalAvailableMin - fixedMin - naturalPrefermentMin;
-		desiredColdBulkMin = desired;
-		// Cap cold-bulk at the 48 h ceiling. We do NOT clamp UP to the 12 h
-		// floor — that would pull the schedule's first step before startAt,
-		// which the contract forbids. Sub-floor cold-bulk is allowed and
-		// flagged via the recipe-fit score.
-		const naturalColdMin = Math.min(COLD_BULK_CEIL_MIN, desired);
-		naturalColdBulkMin = naturalColdMin;
-		const coldMin = adjustColdMinForNight(
-			inputs.readyBy,
-			naturalColdMin,
-			prefermentDurationsMin.map((d) => d.min),
-			mixDurationMin,
-			autolyseMin,
-			inputs.ballProof === 'cold'
-		);
-
-		yeastPct = yeastPercentForPhases(inputs.yeastType, [
-			...prefermentPhases(prefermentDurationsMin),
-			{ hours: (COLD_INITIAL_BULK_MIN + COLD_FINAL_PROOF_MIN) / 60, tempC: inputs.roomTempC },
-			{ hours: coldMin / 60, tempC: inputs.fridgeTempC }
-		]);
-		steps = buildSteps({
-			readyBy: inputs.readyBy,
-			prefermentDurationsMin,
-			mixDurationMin,
-			bulkRoomMin: COLD_INITIAL_BULK_MIN,
-			bulkColdMin: coldMin,
-			ballProofCold: inputs.ballProof === 'cold',
-			finalProofMin: COLD_FINAL_PROOF_MIN,
-			autolyseMin
-		});
-	} else {
-		const roomFixedMin = PREP_MIN + autolyseMin + mixDurationMin + DIVIDE_MIN;
-		const fermentBudget = totalAvailableMin - roomFixedMin - naturalPrefermentMin;
-		let bulkMin: number;
-		let finalProofMin: number;
-		if (fermentBudget >= 0) {
-			// Pre-ferments fit; the rest goes to bulk + final-proof in roughly
-			// a 2:1 ratio. Both can shrink to 0 if the window is very tight.
-			finalProofMin = Math.min(90, Math.floor(fermentBudget / 3));
-			bulkMin = fermentBudget - finalProofMin;
-		} else {
-			// The longest pre-ferment alone overflows. Cap every pre-ferment at
-			// the wall budget so first-step >= startAt still holds — shorter
-			// ones may fit untouched. Bulk and final-proof are 0.
-			//
-			// Degenerate exception: when the window is shorter than the fixed
-			// hands-on steps themselves (totalAvailableMin < roomFixedMin), the
-			// budget bottoms out at 0 but prep + mix + divide keep their physical
-			// durations anchored to readyBy — the first step lands BEFORE startAt.
-			// We never compress fixed steps or slip readyBy; instead the schedule
-			// is honest about being infeasible: roomFixedMin is always well below
-			// ROOM_MIN_TOTAL_MIN, so the 'too-short' warning (feasible = false,
-			// quality.ts's 'infeasible' factor) has already fired above.
-			const budget = Math.max(0, totalAvailableMin - roomFixedMin);
-			prefermentDurationsMin = prefermentDurationsMin.map((d) => ({
-				...d,
-				min: Math.min(d.min, budget)
-			}));
-			bulkMin = 0;
-			finalProofMin = 0;
-		}
-
-		yeastPct = yeastPercentForPhases(inputs.yeastType, [
-			...prefermentPhases(prefermentDurationsMin),
-			{ hours: (bulkMin + finalProofMin) / 60, tempC: inputs.roomTempC }
-		]);
-		steps = buildSteps({
-			readyBy: inputs.readyBy,
-			prefermentDurationsMin,
-			mixDurationMin,
-			bulkRoomMin: bulkMin,
-			bulkColdMin: null,
-			ballProofCold: false,
-			finalProofMin,
-			autolyseMin
-		});
-	}
+	// Which leg spends the window is the one real fork in the schedule, and it is
+	// now the whole of it: everything above is reading the inputs, everything
+	// below is assembling the answer.
+	const plan = (mode === 'cold' ? coldSchedule : roomSchedule)({
+		inputs,
+		totalAvailableMin,
+		prefermentDurationsMin,
+		naturalPrefermentMin,
+		prefermentPhases,
+		mixDurationMin,
+		autolyseMin
+	});
+	const { yeastPercent: yeastPct, steps } = plan;
 
 	const freshEquivalentPct = freshEquivalentPercent(yeastPct, inputs.yeastType);
 	if (freshEquivalentPct > 0 && freshEquivalentPct < 0.02) warnings.push('yeast-tiny');
@@ -372,8 +443,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		mixingMethod: inputs.mixingMethod,
 		preFermentTempC: preFerments.length > 0 ? inputs.preFermentTempC : null,
 		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC, inputs.mixingMethod),
-		naturalColdBulkMin,
-		desiredColdBulkMin,
+		naturalColdBulkMin: plan.naturalColdBulkMin,
+		desiredColdBulkMin: plan.desiredColdBulkMin,
 		naturalPreferments
 	};
 }
