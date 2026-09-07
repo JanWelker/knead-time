@@ -114,6 +114,11 @@
 		   wash would be the same beige as the ingredient wells inside the other
 		   steps, and "now" has to be unmistakable across a nine-step feed. */
 		--kt-now: #fdeee8;
+		/* A chip is a translucent wash, not a fixed colour: it sits on the panel,
+		   on the quiet card, and inside the tomato-washed "now" step, and a fixed
+		   fill matched one of those grounds closely enough to disappear on it —
+		   the ranking pills in the 50 Top Pizza table vanished in dark. */
+		--kt-chip: rgba(93, 59, 22, 0.09);
 
 		--kt-lift-1: 0 1px 2px rgba(74, 45, 18, 0.05), 0 4px 14px -6px rgba(74, 45, 18, 0.12);
 		--kt-lift-2:
@@ -139,6 +144,7 @@
 		--kt-leaf: var(--color-basil-300);
 		--kt-tint: #2b2119;
 		--kt-now: #33211a;
+		--kt-chip: rgba(255, 238, 214, 0.1);
 
 		--kt-lift-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px -10px rgba(0, 0, 0, 0.6);
 		--kt-lift-2: 0 2px 4px rgba(0, 0, 0, 0.45), 0 18px 40px -20px rgba(0, 0, 0, 0.7);
@@ -282,7 +288,7 @@
 	   default; the two modifiers below carry the tomato/basil meaning. */
 	.chip {
 		@apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap;
-		background: var(--kt-sunk);
+		background: var(--kt-chip);
 		color: var(--kt-ink-soft);
 	}
 

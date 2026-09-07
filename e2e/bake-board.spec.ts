@@ -86,3 +86,56 @@ for (const theme of ['light', 'dark'] as const) {
 		if (theme === 'dark') expect(alpha, 'dark panels need a visible edge').toBeGreaterThan(0);
 	});
 }
+
+// The neutral chip carries a duration in the schedule and a 50 Top Pizza
+// ranking in the table, and it lands on three different grounds: the lifted
+// panel, the flat card the collections sit in, and the tomato wash under the
+// running step. A fixed fill matched the quiet card closely enough in the dark
+// theme that the ranking pills read as plain text — so the chip is a
+// translucent wash, which cannot collide with whatever it happens to sit on.
+for (const theme of ['light', 'dark'] as const) {
+	test(`a chip is visible against what it sits on in the ${theme} theme`, async ({ page }) => {
+		await openRecipe(page, RUNNING);
+		if (theme === 'dark') {
+			await page.evaluate(() => document.documentElement.classList.add('dark'));
+		}
+
+		// The neutral chip only. `.chip-now`, `.chip-action` and `.chip-time`
+		// carry their own fill and are separated from their ground by hue as much
+		// as by lightness, which this measurement cannot see.
+		const chips = card(page, 'Schedule').locator(
+			'.chip:not(.chip-now):not(.chip-action):not(.chip-time)'
+		);
+		expect(await chips.count()).toBeGreaterThan(0);
+
+		// Polled, not read once: the running step's card transitions its own
+		// background, so switching theme and measuring in the same tick catches
+		// the colour it is on its way from rather than the one it lands on.
+		await expect
+			.poll(async () =>
+				chips.evaluateAll((els) =>
+					els.map((el) => {
+						const paint = (n: Element | null): number[] => {
+							for (let e = n; e; e = e.parentElement) {
+								const bg = getComputedStyle(e).backgroundColor;
+								if (bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+									return (bg.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+								}
+							}
+							return [255, 255, 255];
+						};
+						// The chip's fill is translucent, so composite it over its
+						// ground the way the browser paints it before comparing.
+						const own = (getComputedStyle(el).backgroundColor.match(/[\d.]+/g) ?? []).map(Number);
+						const under = paint(el.parentElement);
+						const alpha = own.length === 4 ? own[3] : 1;
+						// 8/255 is about where a fill stops reading as a shape at all.
+						return under.every((u, i) => Math.abs(own[i] * alpha + u * (1 - alpha) - u) <= 8);
+					})
+				)
+			)
+			// The chip inside the running step is the hard case: that card has a
+			// wash of its own, so a fill tuned to the plain panel vanishes on it.
+			.toEqual(Array.from({ length: await chips.count() }, () => false));
+	});
+}
