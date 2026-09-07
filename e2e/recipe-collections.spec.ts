@@ -1,6 +1,13 @@
 import { expect, test } from '@playwright/test';
 import { openRecipe } from './helpers';
 
+// The collections moved out of the foot of the calculator and into a view of
+// their own: they are entry points to a recipe, not an appendix to one.
+async function openLibrary(page: import('@playwright/test').Page, query: string) {
+	await openRecipe(page, query);
+	await page.getByRole('button', { name: 'Recipes', exact: true }).click();
+}
+
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
 
@@ -17,7 +24,7 @@ for (const section of SECTIONS) {
 	test(`${section.heading}: ships collapsed, opens to rows that link back into the app`, async ({
 		page
 	}) => {
-		await openRecipe(page, RECIPE);
+		await openLibrary(page, RECIPE);
 
 		const details = page.locator('details').filter({
 			has: page.getByRole('heading', { name: section.heading })
@@ -35,7 +42,7 @@ for (const section of SECTIONS) {
 	test(`${section.heading}: the contribute note points at its own source file`, async ({
 		page
 	}) => {
-		await openRecipe(page, RECIPE);
+		await openLibrary(page, RECIPE);
 
 		const details = page.locator('details').filter({
 			has: page.getByRole('heading', { name: section.heading })
@@ -51,7 +58,7 @@ for (const section of SECTIONS) {
 // them only for a recipe that uses them. One spec list serves both, so the
 // labels a section does not have are the thing that keeps them apart.
 test('the card details list only the fields a section actually has', async ({ page }) => {
-	await openRecipe(page, RECIPE);
+	await openLibrary(page, RECIPE);
 	await page.setViewportSize({ width: 390, height: 900 });
 
 	const community = page.locator('details').filter({

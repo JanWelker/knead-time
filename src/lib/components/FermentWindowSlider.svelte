@@ -18,7 +18,13 @@
 
 	// Named `form`, not `state`: a local binding called `state` makes Svelte
 	// read the `$state` rune below as a store subscription.
-	let { form }: { form: FormState } = $props();
+	//
+	// `warnings` is off by default. The window family (too short, a step at
+	// night, past what the flour tolerates) reads next to the control on the ask
+	// flow, where the slider IS the screen; in the adjust sheet it stays off,
+	// because the plan behind the sheet is already showing that same family and
+	// two copies of one warning is worse than none.
+	let { form, warnings = false }: { form: FormState; warnings?: boolean } = $props();
 
 	const t = $derived(i18n.t);
 
@@ -159,16 +165,10 @@
 	);
 </script>
 
-<div
-	class="border-dough-200 rounded-2xl border bg-white/60 p-4 dark:border-stone-700 dark:bg-stone-800/40"
->
+<div class="window-card">
 	<div class="flex flex-wrap items-baseline justify-between gap-2">
-		<span class="text-sm font-medium text-stone-700 dark:text-stone-200">
-			{t.schedule.window_label}
-		</span>
-		<span class="font-display text-xl text-stone-900 dark:text-stone-100">
-			{formatWindow(windowHours)}
-		</span>
+		<span class="field-label">{t.schedule.window_label}</span>
+		<span class="data text-ink text-2xl">{formatWindow(windowHours)}</span>
 	</div>
 
 	<!-- The bake time anchors everything here: the window is measured back from
@@ -193,14 +193,10 @@
 						: 'items-center'}"
 				style="left:{unreachableFromPct}%;transform:{markerShift}"
 			>
-				<span
-					class="text-tomato-700 dark:text-tomato-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="text-accent text-[0.65rem] leading-tight font-semibold whitespace-nowrap">
 					{t.schedule.window_limit_label}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="text-ink-soft text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatDateTime(form.readyBy, i18n.locale)}
 				</span>
 			</div>
@@ -215,9 +211,9 @@
 			</svg>
 		</div>
 	{:else}
-		<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-soft mt-1 text-xs">
 			{t.form.readyBy}:
-			<span class="font-medium text-stone-700 dark:text-stone-200">
+			<span class="text-ink font-medium">
 				{formatDateTime(form.readyBy, i18n.locale)}
 			</span>
 		</p>
@@ -232,7 +228,7 @@
 		     width drifts from the thumb by up to that radius, worst at the ends.
 		     Every marker row below carries the same inset for the same reason. -->
 		<div
-			class="bg-dough-200 absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full dark:bg-stone-700"
+			class="bg-line absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full"
 			aria-hidden="true"
 		>
 			{#if zones?.room}
@@ -251,10 +247,7 @@
 			     rail carries no label. -->
 			{#each stops as stop, i (stop)}
 				{#if i > 0 && i < stops.length - 1}
-					<div
-						class="absolute inset-y-0 w-px bg-white/70 dark:bg-stone-900/50"
-						style="left:{axis(stop)}%"
-					></div>
+					<div class="bg-plane/70 absolute inset-y-0 w-px" style="left:{axis(stop)}%"></div>
 				{/if}
 			{/each}
 			<!-- Everything past the bake deadline, drawn over the zones and
@@ -264,13 +257,14 @@
 			     fact. -->
 			{#if unreachableFromPct < 100}
 				<div
-					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
+					class="bg-ground absolute inset-y-0 right-0 opacity-95"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
 		</div>
 
 		<input
+			id="field-window"
 			type="range"
 			min="0"
 			max={stops.length - 1}
@@ -319,14 +313,10 @@
 						: 'items-center'}"
 				style="left:{idealPct}%;transform:{idealShift}"
 			>
-				<span
-					class="text-basil-700 dark:text-basil-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="text-time text-[0.65rem] leading-tight font-semibold whitespace-nowrap">
 					{t.schedule.window_ideal}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="text-ink-soft text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatWindow(ideal as number)}
 				</span>
 			</div>
@@ -336,7 +326,7 @@
 	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400 {narrowLabelledStops.includes(
+				class="text-ink-soft absolute -translate-x-1/2 text-[0.65rem] {narrowLabelledStops.includes(
 					stop
 				)
 					? ''
@@ -352,7 +342,7 @@
 		     ideal marker, the tick labels — is aria-hidden decoration, so a
 		     screen reader got a bare duration and no way to judge it. These two
 		     lines are that judgement, in words. -->
-		<p id="window-band" class="text-xs text-stone-500 dark:text-stone-400">
+		<p id="window-band" class="text-ink-soft text-xs">
 			{#if band}
 				<!-- A swatch in the same green as the band it describes. The rail
 				     painted two green stretches and nothing ever said what the
@@ -405,12 +395,14 @@
 	<!-- The schedule's own window warnings — too short, a step at night, past
 	     what the flour tolerates — read here, next to the control that both
 	     caused them and fixes them. -->
-	<div class="mt-2">
-		<Warnings warnings={form.schedule.warnings} place="window" />
-	</div>
+	{#if warnings}
+		<div class="mt-2">
+			<Warnings warnings={form.schedule.warnings} place="window" />
+		</div>
+	{/if}
 
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
-		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-soft mt-2 text-xs">
 			{interpolate(t.schedule.window_capped_by_bake, {
 				max: formatBandEdge(stops[reachableIndex]),
 				band: formatBandEdge(band.max)
@@ -419,14 +411,14 @@
 	{/if}
 
 	{#if startedAgoMin !== null}
-		<p class="text-tomato-700 dark:text-tomato-300 mt-2 text-xs font-medium">
+		<p class="text-accent mt-2 text-xs font-medium">
 			{interpolate(t.schedule.window_started_ago, {
 				ago: formatDuration(startedAgoMin, i18n.locale)
 			})}
 		</p>
 	{/if}
 
-	<p id="window-benefit" class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
+	<p id="window-benefit" class="text-ink-soft mt-2 text-xs">{benefit}</p>
 </div>
 
 <style>
@@ -440,7 +432,7 @@
 		height: 1.25rem;
 		border-radius: 9999px;
 		background: var(--color-tomato-500);
-		border: 2px solid white;
+		border: 2px solid var(--kt-plane);
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
 		cursor: pointer;
 	}
@@ -449,7 +441,7 @@
 		height: 1.25rem;
 		border-radius: 9999px;
 		background: var(--color-tomato-500);
-		border: 2px solid white;
+		border: 2px solid var(--kt-plane);
 		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
 		cursor: pointer;
 	}

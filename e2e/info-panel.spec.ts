@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openRecipe } from './helpers';
+import { openAdjust, openRecipe, sheet } from './helpers';
 import { INFO_SECTIONS } from '../src/lib/infoSections';
 
 const RECIPE =
@@ -13,8 +13,9 @@ const RECIPE =
 // closed, and expert-only besides.
 test('the nerdy panel renders every section and every formula', async ({ page }) => {
 	await openRecipe(page, RECIPE);
+	await openAdjust(page);
 
-	const panel = page.locator('form details').filter({ hasText: 'Get nerdy' });
+	const panel = sheet(page).locator('details').filter({ hasText: 'Get nerdy' });
 	await panel.locator('summary').click();
 
 	// Each section is one heading paragraph plus its parts.

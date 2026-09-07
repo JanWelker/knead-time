@@ -31,7 +31,9 @@
 	});
 
 	// Fermentation phases — the rail leaving these nodes is the long wait, drawn
-	// dashed so the eye reads "nothing to do here, time just passes".
+	// dashed and in the dough colour so the eye reads "nothing to do here, time
+	// just passes". Dough is the app's warm colour and this is the only place it
+	// is spent: the parts of the plan that are actually fermenting.
 	const WAIT_KINDS = new Set<ScheduleStepKind>([
 		'preferment-mix',
 		// The flour+water autolyse is a passive rest — dashed rail, hollow node.
@@ -104,23 +106,19 @@
 	}
 </script>
 
-<div class="text-stone-800 dark:text-stone-200">
+<div class="text-ink">
 	{#each days as day (day.key)}
 		<!-- A heading, not a span: the date is what groups the steps under it, and
 		     as plain text it left a multi-day plan looking like one flat run of
-		     step titles to anything navigating by heading. `font-sans` is
-		     load-bearing — app.css gives every h1-h3 the display serif, which
-		     this label has never used. -->
-		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<h3
-				class="font-sans text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
-			>
-				{day.label}
-			</h3>
-			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
+		     step titles to anything navigating by heading. Sentence case in the
+		     display face — the tracked-out uppercase label it used to be was
+		     chrome pretending to be structure. -->
+		<div class="flex items-baseline gap-4 pt-10 pb-4 first:pt-0">
+			<h3 class="font-display text-ink text-lg font-medium">{day.label}</h3>
+			<span class="bg-line h-px flex-1"></span>
 		</div>
 
-		<ol class="tabular-nums">
+		<ol>
 			<!-- preFermentType disambiguates the two parallel pre-ferment mixes,
 			     which can share a start time when both shrink to the wall budget. -->
 			{#each day.steps as step, si (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
@@ -132,32 +130,43 @@
 				{@const flags = stepQualityFlags(step, schedule)}
 				{@const ingredients = stepIngredients(step, t, schedule)}
 				<!-- Past steps are NOT dimmed: fading them read as a rendering glitch
-				     rather than as information. The fermentation-window card says
-				     outright when the schedule opens before now. `past` still mutes
-				     the accent on an already-missed bake moment below. -->
-				<li class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3">
+				     rather than as information. The window control says outright when
+				     the schedule opens before now. `past` still mutes the accent on an
+				     already-missed bake moment below. -->
+				<li
+					class="grid grid-cols-[3.5rem_1.25rem_minmax(0,1fr)] gap-x-3 sm:grid-cols-[4.5rem_1.5rem_minmax(0,1fr)] sm:gap-x-4"
+				>
+					<!-- The time hangs in its own gutter and reads first, because a
+					     schedule is a list of moments before it is a list of jobs. -->
+					<div
+						class="data pt-0.5 text-right text-[0.95rem] leading-6 whitespace-nowrap {current ||
+						(isReady && !past)
+							? 'text-accent'
+							: 'text-ink'}"
+					>
+						{formatTime(step.at, locale)}
+					</div>
+
 					<!-- Rail: a vertical line threading every node within the day. -->
 					<div class="relative">
 						{#if si > 0}
-							<span
-								class="bg-dough-300 absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2 dark:bg-stone-700"
-							></span>
+							<span class="bg-line absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2"></span>
 						{/if}
 						{#if si < day.steps.length - 1}
 							<span
-								class="absolute top-2.5 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
-									? 'border-dough-400/80 border-dashed dark:border-stone-600'
-									: 'border-dough-300 border-solid dark:border-stone-700'}"
+								class="absolute top-3 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
+									? 'border-dough-400 border-dashed'
+									: 'border-line border-solid'}"
 							></span>
 						{/if}
 						<span
-							class="absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
+							class="ring-ground absolute top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-4 {current
 								? 'kt-node-now'
 								: ''} {isReady
-								? 'bg-tomato-600 ring-tomato-500/25'
+								? 'bg-tomato-600'
 								: active
 									? 'bg-tomato-500'
-									: 'border-dough-400 border-2 bg-white dark:border-stone-500 dark:bg-stone-900'}"
+									: 'border-dough-400 bg-plane border-2'}"
 							role="img"
 							aria-label={isReady
 								? stepTitle(step, t)
@@ -167,28 +176,16 @@
 						></span>
 					</div>
 
-					<!-- Time -->
-					<div
-						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
-							? 'text-accent'
-							: 'text-stone-600 dark:text-stone-300'}"
-					>
-						{formatTime(step.at, locale)}
-					</div>
-
 					<!-- Step -->
-					<div class="pb-6">
+					<div class="pb-9">
 						<div class="flex items-start justify-between gap-3">
 							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-								<!-- h4, under the day heading above. `font-display` is
-								     load-bearing: as an h3 this inherited the serif from
-								     app.css, and demoting the level alone would silently
-								     drop it to sans. -->
+								<!-- h4, under the day heading above. -->
 								<h4
-									class="font-display text-[0.9375rem] leading-5 font-semibold {current ||
+									class="font-display text-[1.0625rem] leading-6 font-medium {current ||
 									(isReady && !past)
 										? 'text-accent'
-										: 'text-stone-900 dark:text-stone-100'}"
+										: 'text-ink'}"
 								>
 									{stepTitle(step, t)}
 								</h4>
@@ -221,7 +218,7 @@
 							</div>
 							{#if step.durationMinutes > 0}
 								<span
-									class="bg-dough-100 mt-px shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-stone-600 dark:bg-stone-800 dark:text-stone-300"
+									class="border-line text-ink-soft data mt-px shrink-0 rounded-full border px-2.5 py-0.5 text-xs whitespace-nowrap"
 								>
 									{formatDuration(step.durationMinutes, locale)}
 								</span>
@@ -230,35 +227,31 @@
 
 						{#if ingredients.length > 0}
 							<ul
-								class="bg-dough-50 border-dough-100 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border px-3 py-2 dark:border-stone-700/60 dark:bg-stone-800/40"
+								class="border-line bg-plane mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 rounded-lg border px-3.5 py-2.5"
 							>
 								{#each ingredients as ing (ing.name)}
 									<li class="contents">
-										<span
-											class="text-right text-xs font-semibold text-stone-700 dark:text-stone-200"
-										>
-											{ing.amount}
-										</span>
-										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
+										<span class="data text-ink text-right text-xs">{ing.amount}</span>
+										<span class="text-ink-soft text-xs">{ing.name}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
+						<p class="text-ink-soft mt-3 max-w-[62ch] text-sm leading-relaxed">
 							{stepDescription(step, t, schedule)}
 						</p>
 
 						{#if verbosity === 'descriptive'}
 							<p
-								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
+								class="border-line text-ink-soft mt-3 max-w-[62ch] border-l-2 pl-3 text-xs leading-relaxed italic"
 							>
 								{stepDetail(step, t)}
 							</p>
 						{/if}
 
 						{#if sourceTiming?.[step.kind] && step.durationMinutes > 0 && outsideSourceRange(step.durationMinutes, sourceTiming[step.kind]!.minMinutes, sourceTiming[step.kind]!.maxMinutes)}
-							<div class="text-accent mt-1.5 text-xs font-medium">
+							<div class="text-accent mt-2 text-xs font-medium">
 								{interpolate(t.schedule.source_timing_label, {
 									duration: formatRange(
 										sourceTiming[step.kind]!.minMinutes,

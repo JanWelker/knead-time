@@ -3,8 +3,15 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-	--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-	--font-display: ui-serif, Georgia, serif;
+	/* One family, three jobs. The app used to pair a system serif for headings
+	   with a system sans for everything else, which is the pairing every
+	   framework hands you for free. Servizio uses a single grotesque and
+	   separates the roles by size, weight and tracking instead: a question at
+	   300/-0.035em cannot be mistaken for a label at 500/0. No webfont — the
+	   app is a static, offline-capable, third-party-request-free build and a
+	   Google Fonts link would be the only network call it makes. */
+	--font-sans: 'Helvetica Neue', Inter, 'Segoe UI', Roboto, system-ui, sans-serif;
+	--font-display: 'Helvetica Neue', Inter, 'Segoe UI', Roboto, system-ui, sans-serif;
 
 	--color-dough-50: #fdf8ef;
 	--color-dough-100: #f8ecd0;
@@ -38,39 +45,69 @@
 	--color-basil-700: #2c5722;
 	--color-basil-800: #20401a;
 	--color-basil-900: #142810;
+
+	/* The five surface roles, indirected through the --kt-* variables below so
+	   one set of utilities serves both themes. Never write a raw stone-* or
+	   white here again: the reason the old palette read as "cream plus one red"
+	   is that half the tree reached past the tokens for `bg-white/80` and
+	   `text-stone-600`. */
+	--color-ground: var(--kt-ground);
+	--color-plane: var(--kt-plane);
+	--color-ink: var(--kt-ink);
+	--color-ink-soft: var(--kt-ink-soft);
+	--color-line: var(--kt-line);
+	--color-line-soft: var(--kt-line-soft);
 }
 
-/* These are element defaults, so they belong in @layer base — and being in a
-   layer is what lets a utility override them. Unlayered, they outranked every
-   Tailwind utility no matter how specific, because unlayered CSS wins over any
-   @layer. Two things were silently broken by that: `font-sans` or `tracking-*`
-   on an h1-h3 did nothing (a heading could not be restyled without a
-   component-scoped rule to fight back), and `focus:outline-none` on an input
-   did nothing either. Both are the obvious class to reach for, and both were
-   being ignored with no error anywhere. */
 @layer base {
+	/* Limewashed plaster with a green cast, not cookbook cream: the warm colour
+	   in this app is dough, and dough is reserved for the parts of the plan
+	   that are actually fermenting. The ground stays out of the way. */
+	:root {
+		--kt-ground: #e9ece1;
+		--kt-plane: #fbfcf7;
+		--kt-ink: #1e2419;
+		--kt-ink-soft: #5b6152;
+		--kt-line: #ccd2bf;
+		--kt-line-soft: #dde2d4;
+	}
+
+	.dark {
+		--kt-ground: #141711;
+		--kt-plane: #1d211a;
+		--kt-ink: #e8e9df;
+		--kt-ink-soft: #9ba393;
+		--kt-line: #333a2c;
+		--kt-line-soft: #262c21;
+	}
+
+	/* These are element defaults, so they belong in @layer base — and being in a
+	   layer is what lets a utility override them. Unlayered, they outranked every
+	   Tailwind utility no matter how specific, because unlayered CSS wins over any
+	   @layer. Two things were silently broken by that: `font-sans` or `tracking-*`
+	   on an h1-h3 did nothing (a heading could not be restyled without a
+	   component-scoped rule to fight back), and `focus:outline-none` on an input
+	   did nothing either. Both are the obvious class to reach for, and both were
+	   being ignored with no error anywhere. */
 	html {
 		font-family: var(--font-sans);
 		-webkit-font-smoothing: antialiased;
-		background: radial-gradient(
-				ellipse at top,
-				var(--color-dough-100) 0%,
-				var(--color-dough-50) 60%
-			)
-			fixed;
+		background: var(--kt-ground);
 	}
 
 	html.dark {
-		background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
 		color-scheme: dark;
 	}
 
+	/* Headings carry the family and the tightening; the size and weight are the
+	   caller's, because a question at 4.5 rem and a step title at 0.9 rem are
+	   the same face doing two different jobs. */
 	h1,
 	h2,
 	h3,
 	.font-display {
 		font-family: var(--font-display);
-		letter-spacing: -0.01em;
+		letter-spacing: -0.02em;
 	}
 
 	input[type='number'] {
@@ -95,28 +132,107 @@
 }
 
 @layer components {
-	.card {
-		@apply border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70;
+	/* ---- Structure -------------------------------------------------------
+	   There are no cards. A region is separated from its neighbour by space
+	   and, where the eye needs a seam, by one hairline in the ground's own
+	   hue. The only elements that get a plane and a radius are the ones that
+	   genuinely float above the page — the adjust sheet, the actions menu, the
+	   two dialogs — so radius reads as elevation rather than as decoration.
+	   Do not put `.plane` on something that sits in the flow of the page. */
+	.plane {
+		@apply border-line bg-plane rounded-[1.25rem] border shadow-[0_18px_48px_-24px_rgba(20,28,16,0.45)];
 	}
 
-	.btn-tomato {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50;
+	/* A full-height view. Exactly one of these is mounted at a time — the ask
+	   flow, the plan, or the library — which is what makes the app a sequence
+	   of places rather than one long scroll. */
+	.view {
+		@apply flex min-h-[100dvh] w-full flex-col;
 	}
 
-	.btn-tomato-sm {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-3 py-1 text-xs font-semibold text-white;
+	.view-pad {
+		@apply mx-auto w-full max-w-6xl px-5 sm:px-8;
 	}
 
-	.menu-item {
-		@apply hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700;
+	/* The seam. One hairline, one hue, everywhere. */
+	.rule {
+		@apply border-line-soft border-t;
+	}
+
+	/* ---- Type roles ------------------------------------------------------ */
+
+	/* The one loud thing in the app: a single question, set large enough that
+	   nothing can compete with it. Weight 300 and tight tracking keep it from
+	   reading as a slide-deck headline. */
+	.question {
+		@apply font-display text-ink text-[clamp(2.5rem,8.5vw,4.5rem)] leading-[0.98] font-light tracking-[-0.035em];
+	}
+
+	/* The sentence under a question, and every other piece of running help. */
+	.lede {
+		@apply text-ink-soft max-w-[46ch] text-base leading-relaxed sm:text-lg;
+	}
+
+	/* Anything the reader treats as a number: times, grams, hours, counts.
+	   Tabular so a column of them lines up and a changing value does not jitter. */
+	.data {
+		@apply font-display font-medium tabular-nums;
+	}
+
+	/* Names a field or a group. Sentence case on purpose — a tracked-out
+	   uppercase eyebrow above every heading is chrome, not information. */
+	.field-label {
+		@apply text-ink text-sm font-medium;
+	}
+
+	.section-head {
+		@apply text-ink-soft text-sm font-semibold;
 	}
 
 	.text-accent {
 		@apply text-tomato-700 dark:text-tomato-300;
 	}
 
+	.text-time {
+		@apply text-basil-700 dark:text-basil-300;
+	}
+
+	/* ---- Controls -------------------------------------------------------- */
+
+	/* Red is for acting and for danger, and for nothing else. */
+	.btn-tomato {
+		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50;
+	}
+
+	.btn-tomato-sm {
+		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-3 py-1 text-xs font-semibold text-white;
+	}
+
+	/* An action with no weight of its own: Back, Cancel, the quiet half of a
+	   pair. Outlined rather than filled so it cannot be mistaken for the
+	   primary move. */
+	.btn-ghost {
+		@apply border-line text-ink hover:border-ink-soft rounded-full border px-5 py-2.5 text-sm font-medium disabled:opacity-50;
+	}
+
+	.btn-quiet {
+		@apply text-ink-soft hover:text-ink rounded-full px-3 py-2 text-xs;
+	}
+
+	/* A value in the plan that can be edited: tap it and the adjust sheet opens
+	   on that field. The dotted underline is the affordance — a plan full of
+	   buttons would look like a form again, which is the thing this redesign
+	   exists to undo. */
+	.chip {
+		@apply text-ink hover:decoration-tomato-500 decoration-line inline-flex items-baseline gap-1.5 rounded-md underline decoration-dotted decoration-1 underline-offset-4;
+	}
+
+	.menu-item {
+		@apply text-ink hover:bg-ground block w-full px-4 py-2.5 text-left text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50;
+	}
+
 	.row-divider {
-		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
+		@apply border-line-soft border-b last:border-0;
 	}
 
 	/* A boxed message under the control that caused it. Danger is the same red
@@ -138,7 +254,7 @@
 	/* The rounded switch strip: language, theme, schedule verbosity. Rendered by
 	   SegmentedControl.svelte, which owns the markup as well as the look. */
 	.pill-group {
-		@apply border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70;
+		@apply border-line bg-plane/70 m-0 inline-flex overflow-hidden rounded-full border p-0 text-xs font-semibold tracking-wide;
 	}
 
 	.pill {
@@ -150,13 +266,19 @@
 	}
 
 	.pill-off {
-		@apply hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700;
+		@apply text-ink-soft hover:bg-ground hover:text-ink;
 	}
 
 	/* Every box the form types into. Size and width stay with the caller — the
 	   date pair splits a row, the rest fill it. */
 	.input {
-		@apply border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100;
+		@apply border-line focus:border-tomato-500 bg-plane text-ink rounded-lg border px-3 py-2;
+	}
+
+	/* The answer boxes on the ask flow. Same control, three times the presence:
+	   a question set at 4 rem cannot be answered in a 14 px field. */
+	.input-lg {
+		@apply border-line focus:border-tomato-500 bg-plane text-ink font-display rounded-xl border px-4 py-3 text-2xl font-medium tabular-nums sm:text-3xl;
 	}
 
 	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
@@ -179,11 +301,74 @@
 	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
 	   Width is the caller's, everything else is shared. */
 	.dialog-panel {
-		@apply border-dough-200 rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200;
+		@apply border-line bg-plane text-ink rounded-[1.25rem] border p-0 text-sm shadow-xl backdrop:bg-[rgba(20,28,16,0.45)];
 	}
 
-	/* The way out of a dialog: quieter than the action beside it. */
-	.btn-quiet {
-		@apply rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200;
+	/* The app's name, in the masthead of every view. */
+	.wordmark {
+		@apply font-display text-ink text-lg font-medium tracking-[-0.03em] whitespace-nowrap;
+	}
+
+	/* One of a small set of mutually exclusive answers, sized to be hit with a
+	   thumb. The radio itself stays visible: a tile that hides its own control
+	   has to reinvent the selected state, and reinventing it is how these end
+	   up unreadable to anyone not going by colour. */
+	.tile {
+		@apply border-line hover:border-ink-soft has-checked:border-tomato-500 has-checked:bg-tomato-50 dark:has-checked:bg-tomato-900/25 flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3.5;
+	}
+
+	/* The minus/plus on the pizza-count answer. */
+	.stepper {
+		@apply border-line text-ink hover:border-ink-soft flex h-14 w-14 shrink-0 items-center justify-center rounded-full border text-2xl;
+	}
+
+	/* One question on the ask flow's progress rail. The visible mark is drawn by
+	   ::after so the button itself can stay 24 px square — the dot is 10 px, and
+	   a 10 px target passes WCAG 2.5.8 only by the spacing exception, which is a
+	   property of the current layout rather than of the control. */
+	.dot {
+		@apply flex h-6 w-6 items-center justify-center rounded-full;
+	}
+
+	.dot::after {
+		content: '';
+		@apply bg-line h-2.5 w-2.5 rounded-full transition-all;
+	}
+
+	.dot-on::after {
+		@apply bg-tomato-500 w-6;
+	}
+
+	/* The fermentation-window control. Named, because five e2e specs address it
+	   and because it is the one place in the app where a rail, two markers, a
+	   tick row and a thumb all have to share one coordinate system. */
+	.window-card {
+		@apply border-line bg-plane/60 rounded-2xl border p-4;
+	}
+}
+
+/* The one piece of non-user-triggered motion in the app: moving between two
+   questions slides the whole question block, so the flow reads as one surface
+   travelling rather than as five pages loading. `--kt-dir` is +1 going forward
+   and −1 going back, set by whichever control moved us. Nothing else animates
+   on its own; everything below responds to something the reader did. */
+@keyframes kt-enter {
+	from {
+		opacity: 0;
+		transform: translate3d(calc(var(--kt-dir, 1) * 2rem), 0, 0);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.kt-enter {
+	animation: kt-enter 320ms cubic-bezier(0.22, 0.8, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kt-enter {
+		animation: none;
 	}
 }

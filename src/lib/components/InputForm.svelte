@@ -1,20 +1,20 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
-	import {
-		DEFAULT_FLOUR_W,
-		FLOUR_PRESETS,
-		flourPresetForW,
-		flourPresetGroups
-	} from '$lib/dough/flour';
 	import { INFO_SECTIONS } from '$lib/infoSections';
 	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import FieldHelp from './FieldHelp.svelte';
+	import FlourSelect from './FlourSelect.svelte';
 	import FormField from './FormField.svelte';
 	import FermentWindowSlider from './FermentWindowSlider.svelte';
-	import Warnings from './Warnings.svelte';
 
+	// Every input in DoughInputs, in one dense surface. The ask flow asks five
+	// of these one screen at a time; this is the other door — a baker who
+	// already knows all twelve numbers opens the adjust sheet and fills them in
+	// without stepping through anything. Field order is still one list, expert
+	// simply reveals more of it, so the two doors never disagree about what
+	// comes first.
 	let { form }: { form: FormState } = $props();
 
 	const t = $derived(i18n.t);
@@ -49,45 +49,20 @@
 	function resetStartAtToNow() {
 		startAtClamped = form.setStartAt(new Date());
 	}
-
-	// The select has no state of its own — it reads back off flourW, so typing
-	// a strength no preset matches simply lands on "custom".
-	const flourChoice = $derived(
-		form.flourW === null ? 'none' : (flourPresetForW(form.flourW) ?? 'custom')
-	);
-
-	// The flour is the other half of what makes a window ideal, so picking one
-	// re-answers it just as changing the bake time does. "Not specified" has no
-	// band to aim at, so it leaves the window alone.
-	function setFlourChoice(choice: string) {
-		if (choice === 'none') {
-			form.setFlour(null);
-			return;
-		}
-		if (choice === 'custom') {
-			form.flourW ??= DEFAULT_FLOUR_W;
-		} else {
-			form.flourW = FLOUR_PRESETS.find((p) => p.id === choice)?.w ?? DEFAULT_FLOUR_W;
-		}
-		form.repickWindow();
-	}
 </script>
 
-<form class="space-y-8" onsubmit={(e) => e.preventDefault()}>
-	<fieldset class="space-y-3">
-		<legend class="font-display text-accent text-lg">
-			{t.form.section_when}
-		</legend>
+<form class="space-y-10" onsubmit={(e) => e.preventDefault()}>
+	<fieldset class="space-y-4">
+		<legend class="section-head">{t.adjust.group_when}</legend>
 		<!-- A fieldset, not a label: a label names its FIRST labelable
 		     descendant, so wrapping a date and a time box in one left the time
 		     box with no accessible name at all. The legend names the moment,
 		     each input names its own half. -->
 		<fieldset class="group block min-w-0">
-			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.startAt}
-			</legend>
+			<legend class="field-label block">{t.form.startAt}</legend>
 			<div class="mt-1 flex gap-2">
 				<input
+					id="field-startAt"
 					type="date"
 					class={dateInputClass}
 					value={startAtDate}
@@ -116,11 +91,10 @@
 			{/if}
 		</fieldset>
 		<fieldset class="group block min-w-0">
-			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.readyBy}
-			</legend>
+			<legend class="field-label block">{t.form.readyBy}</legend>
 			<div class="mt-1 flex gap-2">
 				<input
+					id="field-readyBy"
 					type="date"
 					class={dateInputClass}
 					value={readyByDate}
@@ -142,28 +116,8 @@
 		     directly above the rail that paints its tolerance band. The W number
 		     behind it stays expert-only — the presets already carry it. -->
 		<label class="group block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.flour}
-			</span>
-			<select
-				class={selectClass}
-				value={flourChoice}
-				onchange={(e) => setFlourChoice(e.currentTarget.value)}
-			>
-				<!-- Grouped by what each strength is sold for rather than listed flat:
-				     twelve bag names in a row say nothing about which one suits the
-				     plan. Shelves are cut on W (see flourBand) because the tolerance
-				     model clamps above W 310 and could not separate the strong ones. -->
-				{#each flourPresetGroups() as group (group.band)}
-					<optgroup label={t.form[`flour_band_${group.band}`]}>
-						{#each group.presets as preset (preset.id)}
-							<option value={preset.id}>{t.form[`flour_${preset.id}`]} (W {preset.w})</option>
-						{/each}
-					</optgroup>
-				{/each}
-				<option value="custom">{t.form.flour_custom}</option>
-				<option value="none">{t.form.flour_none}</option>
-			</select>
+			<span class="field-label block">{t.form.flour}</span>
+			<FlourSelect {form} id="field-flour" class={selectClass} />
 			<FieldHelp text={t.form.flour_help} />
 		</label>
 		{#if uiMode.current === 'expert' && form.flourW !== null}
@@ -178,21 +132,25 @@
 			/>
 		{/if}
 
-		<!-- The window spans the two times above and rewrites startAt as you
-		     drag it, so it belongs with them rather than over in the schedule.
-		     Its own explanation always shows, like every other field's help
-		     text — the schedule's short/detailed toggle is in the other column
-		     and must not reach across into this one. -->
+		<!-- The window rewrites startAt as you drag it, so it belongs with the two
+		     times above rather than beside the schedule it produces. Its warnings
+		     stay off here: the plan behind this sheet already carries them. -->
 		<FermentWindowSlider {form} />
 	</fieldset>
 
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-accent col-span-full text-lg">
-			{t.form.section_recipe}
-		</legend>
-		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={form.pizzaCount} />
+		<legend class="section-head col-span-full">{t.adjust.group_batch}</legend>
+		<FormField
+			id="field-pizzaCount"
+			label={t.form.pizzaCount}
+			min={1}
+			max={100}
+			step={1}
+			bind:value={form.pizzaCount}
+		/>
 		{#if uiMode.current === 'expert'}
 			<FormField
+				id="field-ballWeight"
 				label={t.form.ballWeight}
 				min={100}
 				max={600}
@@ -200,9 +158,13 @@
 				bind:value={form.ballWeight}
 			/>
 		{/if}
+	</fieldset>
 
+	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+		<legend class="section-head col-span-full">{t.adjust.group_dough}</legend>
 		{#if uiMode.current === 'expert'}
 			<FormField
+				id="field-hydration"
 				label={t.form.hydration}
 				min={50}
 				max={90}
@@ -211,7 +173,14 @@
 				bind:value={form.hydration}
 			/>
 
-			<FormField label={t.form.salt} min={0} max={5} step={0.1} bind:value={form.saltPercent} />
+			<FormField
+				id="field-salt"
+				label={t.form.salt}
+				min={0}
+				max={5}
+				step={0.1}
+				bind:value={form.saltPercent}
+			/>
 
 			<FormField
 				label={t.form.oil}
@@ -232,22 +201,22 @@
 			/>
 		{/if}
 
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.mixingMethod}
-			</span>
-			<select class={selectClass} bind:value={form.mixingMethod}>
+		<label class="group block">
+			<span class="field-label block">{t.form.mixingMethod}</span>
+			<select id="field-mixingMethod" class={selectClass} bind:value={form.mixingMethod}>
 				<option value="spiral">{t.form.mixing_spiral}</option>
 				<option value="stand">{t.form.mixing_stand}</option>
 				<option value="hand">{t.form.mixing_hand}</option>
 			</select>
 			<FieldHelp text={t.form.mixingMethod_help} />
 		</label>
-		{#if uiMode.current === 'expert'}
+	</fieldset>
+
+	{#if uiMode.current === 'expert'}
+		<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+			<legend class="section-head col-span-full">{t.adjust.group_leaven}</legend>
 			<label class="block">
-				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-					{t.form.yeastType}
-				</span>
+				<span class="field-label block">{t.form.yeastType}</span>
 				<select class={selectClass} bind:value={form.yeastType}>
 					<option value="fresh">{t.form.yeast_fresh}</option>
 					<option value="instant">{t.form.yeast_instant}</option>
@@ -255,7 +224,7 @@
 					<option value="sourdough">{t.form.yeast_sourdough}</option>
 				</select>
 				{#if form.yeastType === 'active-dry'}
-					<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					<span class="text-ink-soft mt-1 block text-xs">
 						{t.form.yeast_active_dry_help}
 					</span>
 				{/if}
@@ -272,10 +241,8 @@
 				/>
 			{:else}
 				<fieldset class="space-y-2">
-					<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-						{t.form.preFerment}
-					</legend>
-					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+					<legend class="field-label block">{t.form.preFerment}</legend>
+					<label class="text-ink flex items-center gap-2 text-sm">
 						<input type="checkbox" class="accent-tomato-500" bind:checked={form.bigaEnabled} />
 						{t.form.preFerment_biga}
 					</label>
@@ -288,7 +255,7 @@
 							bind:value={form.bigaFlourPercent}
 						/>
 					{/if}
-					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+					<label class="text-ink flex items-center gap-2 text-sm">
 						<input type="checkbox" class="accent-tomato-500" bind:checked={form.poolishEnabled} />
 						{t.form.preFerment_poolish}
 					</label>
@@ -302,12 +269,10 @@
 						/>
 					{/if}
 					{#if form.bigaEnabled && form.poolishEnabled}
-						<span class="block text-xs text-stone-500 dark:text-stone-400">
-							{t.form.preFerment_sum_help}
-						</span>
+						<span class="text-ink-soft block text-xs">{t.form.preFerment_sum_help}</span>
 					{/if}
 					{#if form.bigaEnabled || form.poolishEnabled}
-						<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+						<label class="text-ink flex items-center gap-2 text-sm">
 							<input
 								type="checkbox"
 								class="accent-tomato-500"
@@ -332,20 +297,21 @@
 			<!-- Autolyse applies only with no pre-ferment (sourdough always
 			     qualifies — its starter is not a schedule pre-ferment). -->
 			{#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
-				<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+				<label class="group text-ink flex items-center gap-2 text-sm">
 					<input type="checkbox" class="accent-tomato-500" bind:checked={form.autolyse} />
 					<span>
 						{t.form.autolyse_toggle}
-						<span
-							class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
-						>
+						<span class="text-ink-soft hidden text-xs font-normal group-focus-within:block">
 							{t.form.autolyse_help}
 						</span>
 					</span>
 				</label>
 			{/if}
+		</fieldset>
 
-			<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+		<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+			<legend class="section-head col-span-full">{t.adjust.group_proof}</legend>
+			<label class="group text-ink col-span-full flex items-center gap-2 text-sm">
 				<input
 					type="checkbox"
 					class="accent-tomato-500"
@@ -354,15 +320,14 @@
 				/>
 				<span>
 					{t.form.ballProof_toggle}
-					<span
-						class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
-					>
+					<span class="text-ink-soft hidden text-xs font-normal group-focus-within:block">
 						{t.form.ballProof_help}
 					</span>
 				</span>
 			</label>
 
 			<FormField
+				id="field-roomTemp"
 				label={t.form.roomTemp}
 				min={10}
 				max={35}
@@ -379,16 +344,10 @@
 				help={t.form.fridgeTemp_help}
 				bind:value={form.fridgeTempC}
 			/>
+		</fieldset>
+	{/if}
 
-			<!-- too-cold / too-warm fire on roomTempC alone. Full width so the
-			     two-column grid does not split the temperature pair above. -->
-			<div class="col-span-full">
-				<Warnings warnings={form.schedule.warnings} place="temperature" />
-			</div>
-		{/if}
-	</fieldset>
-
-	<div>
+	<div class="rule pt-6">
 		<button
 			type="button"
 			class="text-accent inline-block cursor-pointer py-0.5 text-sm font-medium underline-offset-2 hover:underline"
@@ -397,21 +356,17 @@
 			{uiMode.current === 'beginner' ? t.form.mode_expert : t.form.mode_beginner}
 		</button>
 		{#if uiMode.current === 'beginner'}
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.mode_help}
-			</span>
+			<span class="text-ink-soft mt-1 block text-xs">{t.form.mode_help}</span>
 		{/if}
 	</div>
 
 	{#if uiMode.current === 'expert'}
-		<details
-			class="border-dough-300 bg-dough-50/60 group min-w-0 rounded-lg border border-dashed p-3 text-xs text-stone-700 open:bg-white/70 dark:border-stone-600 dark:bg-stone-800/40 dark:text-stone-300 dark:open:bg-stone-900/60"
-		>
+		<details class="border-line text-ink group min-w-0 rounded-xl border border-dashed p-3 text-xs">
 			<summary
 				class="text-accent flex cursor-pointer list-none items-center gap-2 font-medium select-none"
 			>
 				<span
-					class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
+					class="text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
 					aria-hidden="true">▶</span
 				>
 				<span>{t.form.info_heading}</span>
@@ -425,9 +380,7 @@
 				     Thirteen hand-written blocks could not be checked that way. -->
 				{#each INFO_SECTIONS as section (section.title)}
 					<div class="min-w-0">
-						<p class="font-semibold text-stone-900 dark:text-stone-100">
-							{t.form[section.title]}
-						</p>
+						<p class="text-ink font-semibold">{t.form[section.title]}</p>
 						{#each section.parts as part, i (i)}
 							{#if part.kind === 'text'}
 								<p class="mt-1">{t.form[part.key]}</p>
@@ -439,7 +392,7 @@
 								</ul>
 							{:else}
 								<pre
-									class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">{part.formula}</pre>
+									class="border-line bg-ground text-ink mt-1 overflow-x-auto rounded border px-2 py-1 font-mono text-[0.72rem]">{part.formula}</pre>
 							{/if}
 						{/each}
 					</div>

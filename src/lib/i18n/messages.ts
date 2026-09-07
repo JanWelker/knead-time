@@ -11,6 +11,58 @@ export interface Messages {
 		theme_light: string;
 		theme_dark: string;
 	};
+	nav: {
+		plan: string;
+		library: string;
+		adjust: string;
+		back: string;
+		next: string;
+		see_plan: string;
+		skip: string;
+		restart: string;
+		progress: string;
+		questions: string;
+	};
+	ask: {
+		when_question: string;
+		when_lede: string;
+		pizzas_question: string;
+		pizzas_lede: string;
+		flour_question: string;
+		flour_lede: string;
+		window_question: string;
+		window_lede: string;
+		method_question: string;
+		method_lede: string;
+		running_heading: string;
+		running_start: string;
+		running_ferment: string;
+		running_flour: string;
+		running_steps: string;
+		fewer: string;
+		more: string;
+	};
+	plan: {
+		heading: string;
+		ready_label: string;
+		batch: string;
+		edit_hint: string;
+	};
+	adjust: {
+		heading: string;
+		live: string;
+		group_when: string;
+		group_batch: string;
+		group_dough: string;
+		group_leaven: string;
+		group_proof: string;
+		done: string;
+	};
+	library: {
+		heading: string;
+		intro: string;
+		back: string;
+	};
 	form: {
 		// Names the input card. Rendered sr-only: its siblings carry visible
 		// headings, and this card already shows its two group legends.
@@ -843,6 +895,61 @@ const en: Messages = {
 		details_label: 'Details',
 		list_italy: 'IT',
 		list_world: 'W'
+	},
+	nav: {
+		plan: 'Your plan',
+		library: 'Recipes',
+		adjust: 'Adjust',
+		back: 'Back',
+		next: 'Next',
+		see_plan: 'See the plan',
+		skip: 'Skip to the plan',
+		restart: 'Plan another bake',
+		progress: 'Question {n} of {total}',
+		questions: 'Questions'
+	},
+	ask: {
+		when_question: 'When are you eating?',
+		when_lede:
+			'Every step is counted backwards from this moment, so it is the one thing worth getting right.',
+		pizzas_question: 'How many pizzas?',
+		pizzas_lede: 'One ball of dough each. You can change how big they are later.',
+		flour_question: 'Which flour is in your cupboard?',
+		flour_lede:
+			'Strength is what decides how long the dough can ferment before the gluten gives out.',
+		window_question: 'How long should it ferment?',
+		window_lede:
+			'Longer tastes better, up to the point your flour can carry. The green stretch is where this bag is happy.',
+		method_question: 'How will you knead it?',
+		method_lede: 'This sets how long the mixing takes and how cold your water needs to be.',
+		running_heading: 'Your plan so far',
+		running_start: 'You start',
+		running_ferment: 'It ferments',
+		running_flour: 'Flour',
+		running_steps: '{n} steps',
+		fewer: 'One fewer',
+		more: 'One more'
+	},
+	plan: {
+		heading: 'Your plan',
+		ready_label: 'Ready to bake',
+		batch: '{n} pizzas at {weight} g',
+		edit_hint: 'Every underlined value opens for editing.'
+	},
+	adjust: {
+		heading: 'Adjust the recipe',
+		live: 'As it stands',
+		group_when: 'When',
+		group_batch: 'Batch',
+		group_dough: 'Dough',
+		group_leaven: 'What leavens it',
+		group_proof: 'Where it proofs',
+		done: 'Done'
+	},
+	library: {
+		heading: 'Start from a recipe',
+		intro: 'Open one and it becomes yours: change anything you like, and the plan follows.',
+		back: 'Back to your plan'
 	}
 };
 
@@ -1306,6 +1413,61 @@ const de: Messages = {
 		details_label: 'Details',
 		list_italy: 'IT',
 		list_world: 'Welt'
+	},
+	nav: {
+		plan: 'Dein Plan',
+		library: 'Rezepte',
+		adjust: 'Anpassen',
+		back: 'Zurück',
+		next: 'Weiter',
+		see_plan: 'Zum Plan',
+		skip: 'Direkt zum Plan',
+		restart: 'Noch einen Backtag planen',
+		progress: 'Frage {n} von {total}',
+		questions: 'Fragen'
+	},
+	ask: {
+		when_question: 'Wann willst du essen?',
+		when_lede:
+			'Jeder Schritt wird von diesem Moment rückwärts gerechnet — das ist die eine Angabe, die sitzen sollte.',
+		pizzas_question: 'Wie viele Pizzen?',
+		pizzas_lede: 'Ein Teigling pro Pizza. Wie groß die werden, kannst du später ändern.',
+		flour_question: 'Welches Mehl steht in deinem Schrank?',
+		flour_lede:
+			'Die Stärke entscheidet, wie lange der Teig gären kann, bevor das Klebergerüst nachgibt.',
+		window_question: 'Wie lange soll er gären?',
+		window_lede:
+			'Länger schmeckt besser — so weit, wie dein Mehl es trägt. Im grünen Bereich fühlt sich diese Packung wohl.',
+		method_question: 'Wie knetest du?',
+		method_lede: 'Das bestimmt, wie lange das Kneten dauert und wie kalt dein Wasser sein muss.',
+		running_heading: 'Dein Plan bisher',
+		running_start: 'Du startest',
+		running_ferment: 'Er gärt',
+		running_flour: 'Mehl',
+		running_steps: '{n} Schritte',
+		fewer: 'Eine weniger',
+		more: 'Eine mehr'
+	},
+	plan: {
+		heading: 'Dein Plan',
+		ready_label: 'Bereit zum Backen',
+		batch: '{n} Pizzen zu je {weight} g',
+		edit_hint: 'Jeder unterstrichene Wert lässt sich bearbeiten.'
+	},
+	adjust: {
+		heading: 'Rezept anpassen',
+		live: 'Aktueller Stand',
+		group_when: 'Wann',
+		group_batch: 'Menge',
+		group_dough: 'Teig',
+		group_leaven: 'Was den Teig treibt',
+		group_proof: 'Wo er gärt',
+		done: 'Fertig'
+	},
+	library: {
+		heading: 'Mit einem Rezept starten',
+		intro: 'Öffne eins und es gehört dir: Ändere, was du willst — der Plan zieht mit.',
+		back: 'Zurück zu deinem Plan'
 	}
 };
 
@@ -1771,6 +1933,61 @@ const it: Messages = {
 		docs: 'Documentazione',
 		support: 'Supporto',
 		license: '© {year} Jan Welker · Concesso in licenza con Apache 2.0'
+	},
+	nav: {
+		plan: 'Il tuo programma',
+		library: 'Ricette',
+		adjust: 'Modifica',
+		back: 'Indietro',
+		next: 'Avanti',
+		see_plan: 'Vedi il programma',
+		skip: 'Vai direttamente al programma',
+		restart: 'Programma un’altra cottura',
+		progress: 'Domanda {n} di {total}',
+		questions: 'Domande'
+	},
+	ask: {
+		when_question: 'Quando si mangia?',
+		when_lede:
+			'Ogni passo si calcola a ritroso da questo momento, quindi è l’unica cosa che vale davvero la pena azzeccare.',
+		pizzas_question: 'Quante pizze?',
+		pizzas_lede: 'Un panetto a testa. Quanto pesano lo puoi cambiare dopo.',
+		flour_question: 'Che farina hai in dispensa?',
+		flour_lede: 'La forza decide quanto a lungo l’impasto può lievitare prima che il glutine ceda.',
+		window_question: 'Quanto deve lievitare?',
+		window_lede:
+			'Più lunga, più buona — fino a dove arriva la tua farina. Il tratto verde è dove questa farina si trova bene.',
+		method_question: 'Come lo impasti?',
+		method_lede:
+			'Questo stabilisce quanto dura l’impastamento e quanto fredda deve essere l’acqua.',
+		running_heading: 'Il tuo programma finora',
+		running_start: 'Inizi',
+		running_ferment: 'Lievita',
+		running_flour: 'Farina',
+		running_steps: '{n} passi',
+		fewer: 'Una in meno',
+		more: 'Una in più'
+	},
+	plan: {
+		heading: 'Il tuo programma',
+		ready_label: 'Pronto da infornare',
+		batch: '{n} pizze da {weight} g',
+		edit_hint: 'Ogni valore sottolineato si può modificare.'
+	},
+	adjust: {
+		heading: 'Modifica la ricetta',
+		live: 'Come sta ora',
+		group_when: 'Quando',
+		group_batch: 'Quantità',
+		group_dough: 'Impasto',
+		group_leaven: 'Cosa lo fa lievitare',
+		group_proof: 'Dove lievita',
+		done: 'Fatto'
+	},
+	library: {
+		heading: 'Parti da una ricetta',
+		intro: 'Aprine una e diventa tua: cambia quello che vuoi e il programma si adatta.',
+		back: 'Torna al tuo programma'
 	}
 };
 
@@ -2241,6 +2458,62 @@ const fr: Messages = {
 		details_label: 'Détails',
 		list_italy: 'IT',
 		list_world: 'Monde'
+	},
+	nav: {
+		plan: 'Votre programme',
+		library: 'Recettes',
+		adjust: 'Ajuster',
+		back: 'Retour',
+		next: 'Suivant',
+		see_plan: 'Voir le programme',
+		skip: 'Aller directement au programme',
+		restart: 'Planifier une autre cuisson',
+		progress: 'Question {n} sur {total}',
+		questions: 'Questions'
+	},
+	ask: {
+		when_question: 'Quand allez-vous manger ?',
+		when_lede:
+			'Chaque étape se calcule à rebours à partir de ce moment — c’est donc la seule chose qu’il vaut vraiment la peine de bien choisir.',
+		pizzas_question: 'Combien de pizzas ?',
+		pizzas_lede: 'Un pâton pour chacune. Vous pourrez changer leur taille plus tard.',
+		flour_question: 'Quelle farine avez-vous dans le placard ?',
+		flour_lede:
+			'C’est la force qui détermine combien de temps la pâte peut fermenter avant que le gluten ne lâche.',
+		window_question: 'Combien de temps doit-elle fermenter ?',
+		window_lede:
+			'Plus c’est long, meilleur c’est — jusqu’à la limite que votre farine peut porter. La zone verte est celle où ce paquet se sent bien.',
+		method_question: 'Comment allez-vous la pétrir ?',
+		method_lede: 'Cela fixe la durée du pétrissage et la fraîcheur que doit avoir votre eau.',
+		running_heading: 'Votre programme jusqu’ici',
+		running_start: 'Vous commencez',
+		running_ferment: 'Elle fermente',
+		running_flour: 'Farine',
+		running_steps: '{n} étapes',
+		fewer: 'Une de moins',
+		more: 'Une de plus'
+	},
+	plan: {
+		heading: 'Votre programme',
+		ready_label: 'Prêt à enfourner',
+		batch: '{n} pizzas de {weight} g',
+		edit_hint: 'Chaque valeur soulignée s’ouvre pour être modifiée.'
+	},
+	adjust: {
+		heading: 'Ajuster la recette',
+		live: 'En l’état',
+		group_when: 'Quand',
+		group_batch: 'Fournée',
+		group_dough: 'Pâte',
+		group_leaven: 'Ce qui la fait lever',
+		group_proof: 'Où elle pousse',
+		done: 'Terminé'
+	},
+	library: {
+		heading: 'Partir d’une recette',
+		intro:
+			'Ouvrez-en une et elle devient la vôtre : changez ce que vous voulez, le programme suit.',
+		back: 'Retour à votre programme'
 	}
 };
 
@@ -2705,6 +2978,61 @@ const nl: Messages = {
 		details_label: 'Details',
 		list_italy: 'IT',
 		list_world: 'Wereld'
+	},
+	nav: {
+		plan: 'Jouw plan',
+		library: 'Recepten',
+		adjust: 'Aanpassen',
+		back: 'Terug',
+		next: 'Volgende',
+		see_plan: 'Bekijk het plan',
+		skip: 'Direct naar het plan',
+		restart: 'Nog een bakdag plannen',
+		progress: 'Vraag {n} van {total}',
+		questions: 'Vragen'
+	},
+	ask: {
+		when_question: 'Wanneer ga je eten?',
+		when_lede:
+			'Elke stap wordt vanaf dit moment teruggerekend, dus dit is het enige waar het echt op aankomt.',
+		pizzas_question: 'Hoeveel pizza’s?',
+		pizzas_lede: 'Eén deegbol per pizza. Hoe groot ze worden, kies je later.',
+		flour_question: 'Welk meel heb je in de kast?',
+		flour_lede:
+			'De sterkte bepaalt hoe lang het deeg de rijs verdraagt voordat het gluten het begeeft.',
+		window_question: 'Hoe lang moet het rijzen?',
+		window_lede:
+			'Langer smaakt beter, tot waar je meel het nog draagt. In de groene strook voelt deze zak zich thuis.',
+		method_question: 'Hoe ga je kneden?',
+		method_lede: 'Dit bepaalt hoe lang het kneden duurt en hoe koud je water moet zijn.',
+		running_heading: 'Je plan tot nu toe',
+		running_start: 'Je begint',
+		running_ferment: 'Het rijst',
+		running_flour: 'Meel',
+		running_steps: '{n} stappen',
+		fewer: 'Eén minder',
+		more: 'Eén meer'
+	},
+	plan: {
+		heading: 'Jouw plan',
+		ready_label: 'Klaar om te bakken',
+		batch: '{n} pizza’s van {weight} g',
+		edit_hint: 'Elke onderstreepte waarde opent om aan te passen.'
+	},
+	adjust: {
+		heading: 'Recept aanpassen',
+		live: 'Zoals het nu staat',
+		group_when: 'Wanneer',
+		group_batch: 'Hoeveelheid',
+		group_dough: 'Deeg',
+		group_leaven: 'Wat het laat rijzen',
+		group_proof: 'Waar het rijst',
+		done: 'Klaar'
+	},
+	library: {
+		heading: 'Begin met een recept',
+		intro: 'Open er een en hij is van jou: verander wat je wilt, het plan volgt.',
+		back: 'Terug naar je plan'
 	}
 };
 

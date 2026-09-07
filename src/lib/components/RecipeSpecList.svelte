@@ -14,9 +14,7 @@
 	const t = $derived(i18n.t);
 </script>
 
-<dl
-	class="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-stone-600 dark:text-stone-300"
->
+<dl class="text-ink-soft mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">
 	<dt class="font-medium">{labels.col_pizzas}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.pizzaCount)}</dd>
 	<dt class="font-medium">{labels.col_ball}</dt>

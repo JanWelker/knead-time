@@ -14,38 +14,67 @@ export async function openRecipe(page: Page, query: string) {
 }
 
 // The app ships as prerendered HTML carrying build-time defaults; `onMount`
-// then decodes the URL. Reading before that swap is how a check can "pass"
-// against numbers that were never on screen, so every spec waits for the
-// decoded recipe to land rather than for `load`.
+// then decodes the URL, picks the view and stamps the fragment. Reading before
+// that swap is how a check can "pass" against numbers that were never on
+// screen, so every spec waits for the decoded recipe rather than for `load`.
 export async function waitForHydration(page: Page) {
-	await expect(page.locator('form input[type="range"]')).toBeEnabled();
+	await expect(view(page)).toBeVisible();
 	await expect
 		.poll(async () => new URL(page.url()).searchParams.get('sa'), { timeout: 10_000 })
 		.not.toBeNull();
 }
 
-/** A top-level card, addressed by its heading. */
-export function card(page: Page, heading: string) {
-	return page.locator('.card').filter({ has: page.getByRole('heading', { name: heading }) });
+/**
+ * Whichever of the three views is mounted. Exactly one ever is — the app is a
+ * sequence of places, not one page and a scroll — and each stamps its own name,
+ * so a spec can assert where the visitor landed.
+ */
+export function view(page: Page) {
+	return page.locator('main [data-view]');
 }
 
-/** The card holding the form (it has no heading of its own). */
-export function formCard(page: Page) {
-	return page.locator('.card').filter({ has: page.locator('input[type="range"]') });
+export async function currentView(page: Page): Promise<string | null> {
+	return view(page).getAttribute('data-view');
 }
 
-/** The fermentation-window card. */
+/** A titled region of the plan or the library, addressed by its heading. */
+export function region(page: Page, heading: string) {
+	return page
+		.locator('section, aside')
+		.filter({ has: page.getByRole('heading', { name: heading }) });
+}
+
+/** The adjust sheet: every input in DoughInputs, on one surface. */
+export function sheet(page: Page) {
+	return page.locator('dialog[open]').filter({ has: page.locator('form') });
+}
+
+/** Open the adjust sheet from the plan, the way a user would. */
+export async function openAdjust(page: Page) {
+	await page.getByRole('button', { name: 'Adjust', exact: true }).click();
+	await expect(sheet(page)).toBeVisible();
+	return sheet(page);
+}
+
+/** Walk the ask flow to one of its questions. */
+export async function openQuestion(page: Page, step: string, query = '') {
+	await page.clock.install({ time: NOW });
+	await page.goto(`/?${query}#ask/${step}`);
+	await waitForHydration(page);
+}
+
+/** The fermentation-window control, wherever it currently lives. */
 export function windowCard(page: Page) {
-	return page.locator('form div.rounded-2xl').filter({ has: page.locator('input[type="range"]') });
+	return page.locator('.window-card');
 }
 
 /** The big duration readout, e.g. "40 h". */
 export async function chosenWindow(page: Page): Promise<string> {
-	return (await windowCard(page).locator('.font-display').innerText()).trim();
+	return (await windowCard(page).locator('.data').first().innerText()).trim();
 }
 
 export function slider(page: Page) {
-	return page.locator('form input[type="range"]');
+	return page.locator('#field-window');
 }
 
 /** Drag the slider to a stop index the way a user would: focus and arrow-key. */
@@ -69,17 +98,22 @@ export async function allStops(page: Page): Promise<string[]> {
 	return out;
 }
 
-/** Date part of an input pair, as the form shows it. */
+/** Date part of an input pair, as the adjust sheet shows it. */
 export function dateField(page: Page, which: 'start' | 'bake') {
-	return page.locator('form input[type="date"]').nth(which === 'start' ? 0 : 1);
+	return page.locator('dialog input[type="date"]').nth(which === 'start' ? 0 : 1);
 }
 
 export function timeField(page: Page, which: 'start' | 'bake') {
-	return page.locator('form input[type="time"]').nth(which === 'start' ? 0 : 1);
+	return page.locator('dialog input[type="time"]').nth(which === 'start' ? 0 : 1);
 }
 
 export async function setBakeDate(page: Page, value: string) {
 	await dateField(page, 'bake').fill(value);
+}
+
+/** A field in the adjust sheet, addressed by the label above it. */
+export function sheetField(page: Page, label: string | RegExp) {
+	return sheet(page).locator('label', { hasText: label }).locator('input');
 }
 
 /**

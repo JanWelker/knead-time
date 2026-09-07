@@ -44,7 +44,7 @@
 		</h2>
 
 		<label class="block space-y-1">
-			<span class="text-xs font-medium text-stone-600 dark:text-stone-300">
+			<span class="text-ink-soft text-xs font-medium">
 				{t.actions.save_recipe_prompt}
 			</span>
 			<input
@@ -52,7 +52,7 @@
 				type="text"
 				autocomplete="off"
 				bind:value={name}
-				class="input w-full text-sm text-stone-900 dark:bg-stone-900"
+				class="input w-full text-sm"
 			/>
 		</label>
 

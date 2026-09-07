@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openRecipe, slider, windowCard } from './helpers';
+import { openAdjust, openRecipe, slider, windowCard } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -62,6 +62,7 @@ test('the TRMNL dialog is named by its own heading', async ({ page }) => {
 // aria-hidden decoration, so the slider announced a duration and nothing else.
 test('the slider is described by the words that judge the window', async ({ page }) => {
 	await openRecipe(page, RECIPE);
+	await openAdjust(page);
 
 	const ids = await slider(page).getAttribute('aria-describedby');
 	expect(ids).toBe('window-band window-benefit');

@@ -31,7 +31,7 @@
 </script>
 
 <label class="group block" for={id}>
-	<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">{label}</span>
+	<span class="field-label block">{label}</span>
 	<input
 		{type}
 		{min}

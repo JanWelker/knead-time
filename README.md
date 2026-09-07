@@ -5,6 +5,8 @@
 
 A time-anchored Neapolitan pizza dough calculator — [try it live](https://kneadtime.pizza). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
+New in v6.11 — **Servizio**: the app stopped being a form. It opens with one question set large — _when are you eating?_ — and walks through four more, each answerable in a single gesture, with the plan forming beside you. The answer is a **plan you return to**: a full-screen schedule you open at 07:00 with flour on your hands, where every value is underlined and opens for editing in place. Anyone arriving with a share link or a saved recipe lands **straight on the plan** and is never asked the questions again; anyone who already knows all twelve numbers opens the **Adjust** sheet and fills them in at once. My recipes, Community and 50 Top Pizza moved out of the foot of the page into a **Recipes** view of their own, one press from anywhere. Which view you are on lives in the URL fragment, so it is linkable, survives a reload and walks with the back button — the recipe query is untouched and every old share-link still resolves, gram for gram.
+
 New in v6: **flour strength (W)** and a **fermentation-window slider**.
 
 Pick your flour and the schedule paints the window that flour actually tolerates. Twelve presets are shelved by what each strength is for — same-day, ~24 h, ~48 h, 48–72 h, plus a too-weak and a too-strong shelf, with the AVPN spec's W 220–380 as the outer edges — covering Caputo (Doppio Zero, Pizzeria, Nuvola, Saccorosso, Cuoco, Nuvola Super), Dallagiovanna (Classica Oro, La Napoletana, Uniqua Blu), Le 5 Stagioni Pizza Napoletana, Polselli Classica and a generic supermarket tipo 00. Or type a W yourself.
@@ -65,13 +67,15 @@ src/
 │   │   ├── quality.ts         recipe-fit score (0–100 → 0–5 stars)
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
-│   ├── components/       ← Svelte 5 UI (uses runes)
+│   ├── components/       ← Svelte 5 UI (uses runes); AskFlow / PlanView / LibraryView are the three views,
+│   │                        AdjustPanel is the sheet that holds every input
 │   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
-│   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
+│   ├── community/        ← community.md (data) + parser, rendered as a table in the Recipes view
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
-│   ├── warningSlots.ts   ← which card each schedule warning is rendered in
+│   ├── view.ts           ← the three views (ask / plan / library) and where a visitor lands
+│   ├── warningSlots.ts   ← which surface each schedule warning is rendered on
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
@@ -80,7 +84,7 @@ src/
 ├── routes/
 │   ├── +layout.svelte    ← global styles, language bootstrap
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
-│   ├── +page.svelte      ← the entire calculator UI
+│   ├── +page.svelte      ← the router: mounts exactly one of the three views
 │   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
 ├── app.css               ← Tailwind v4 entrypoint + @theme palette
 └── app.html              ← shell
@@ -103,19 +107,19 @@ playwright.config.ts      ← Playwright (builds and serves the real static outp
 
 ### npm scripts
 
-| Command                 | What it does                                               |
-| ----------------------- | ---------------------------------------------------------- |
-| `npm run dev`           | Vite dev server on port 5173 with HMR                      |
-| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)      |
-| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                |
-| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build  |
-| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                    |
-| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage     |
-| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check) |
-| `npm run lint`          | Prettier check + ESLint                                    |
-| `npm run format`        | Prettier write                                             |
-| `npm run build`         | Production build → `./build/` (static site)                |
-| `npm run preview`       | Serve the built site locally                               |
+| Command                 | What it does                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| `npm run dev`           | Vite dev server on port 5173 with HMR                                                                   |
+| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)                                                   |
+| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                             |
+| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` moves the preview server off 4173 |
+| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                                 |
+| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage                                                  |
+| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                              |
+| `npm run lint`          | Prettier check + ESLint                                                                                 |
+| `npm run format`        | Prettier write                                                                                          |
+| `npm run build`         | Production build → `./build/` (static site)                                                             |
+| `npm run preview`       | Serve the built site locally                                                                            |
 
 ### Pre-commit hooks
 
@@ -125,7 +129,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 
 1. **Math/logic first.** Add or extend a module in `src/lib/dough/`. Keep it pure (no Svelte imports). Add a `*.test.ts` next to it. Run `npm test` until green.
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
-3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
+3. **UI.** Add fields to `src/lib/components/InputForm.svelte` — the dense form inside the Adjust sheet, which is where every `DoughInputs` field lives; render results in `PlanView.svelte` or its children. A field worth putting on the plan gets an `id="field-…"` so a chip can open the sheet focused on it. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
 5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`.
 
@@ -137,7 +141,7 @@ If you touch the printed layout, check it in your browser's print preview — do
 
 ### TRMNL e-ink view
 
-The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the schedule menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
+The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the plan's actions menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
 
 Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the setup walkthrough and the Liquid template are in `docs/trmnl-setup.md`. The payload uses 1–2 character keys to stay under the free tier's 2 KB cap in every locale — a regression test measures the wire size, so adding fields without measuring fails CI. There is **no `/trmnl` route** any more: the earlier screenshot-plugin approach failed because TRMNL's renderer doesn't reliably execute JS, so every capture showed build-time defaults.
 
@@ -185,7 +189,7 @@ The `main` runs exist so Codecov gets a main-branch baseline (the badge at the t
 
 ## Contributing a community recipe
 
-The bottom of the page lists recipes other bakers have shared. Each entry is a
+The **Recipes** view lists recipes other bakers have shared. Each entry is a
 single row in [`src/lib/community/community.md`](src/lib/community/community.md):
 
 ```md

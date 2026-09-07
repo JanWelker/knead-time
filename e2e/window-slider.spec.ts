@@ -4,11 +4,21 @@ import {
 	arrowCentreX,
 	chosenWindow,
 	dragTo,
+	openAdjust,
 	openRecipe,
+	sheet,
 	slider,
 	thumbCentreX,
 	windowCard
 } from './helpers';
+
+// The window control lives in the recipe sheet on the plan (and gets a whole
+// screen of its own on the ask flow — see ask-flow.spec.ts). Every geometry
+// rule below is the same one, reached through the sheet.
+async function openForm(page: import('@playwright/test').Page, query: string) {
+	await openRecipe(page, query);
+	await openAdjust(page);
+}
 
 // Caputo Pizzeria (W 265): cold band tops out at 40 h, which is not one of the
 // canonical stops — the case the ideal-as-its-own-stop work exists for.
@@ -30,7 +40,7 @@ const IDEAL_RECIPE = `${CAPUTO}&r=2026-09-02T17%3A30%3A00.000Z`;
  */
 async function tickRowBoxes(page: Page): Promise<{ t: string; left: number; right: number }[]> {
 	return page.evaluate(() => {
-		const card = document.querySelector('form div.rounded-2xl')!;
+		const card = document.querySelector('.window-card')!;
 		const spans = [...card.querySelectorAll('span')]
 			.filter((s) => /^\d+\s*h$/.test(s.textContent!.trim()) && s.checkVisibility())
 			.map((s) => {
@@ -53,7 +63,7 @@ async function tickRowBoxes(page: Page): Promise<{ t: string; left: number; righ
 test('a decoded link reproduces its own window, without re-picking', async ({ page }) => {
 	// The share-link contract: opening someone's recipe must not quietly rewrite
 	// it to what this app would have chosen. 32 h is deliberately not the ideal.
-	await openRecipe(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	await openForm(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
 
 	expect(await chosenWindow(page)).toBe('32 h');
 	await expect(windowCard(page).locator('[role="status"]')).toHaveCount(0);
@@ -62,16 +72,16 @@ test('a decoded link reproduces its own window, without re-picking', async ({ pa
 test('the ideal window is a stop the slider can reach', async ({ page }) => {
 	// The reported bug: the app picked the ideal on arrival, and once you dragged
 	// away no slider position could return to it.
-	await openRecipe(page, `${CAPUTO}&${FAR_BAKE}`);
-	await page.locator('form input[type="date"]').nth(1).fill('2026-09-06');
+	await openForm(page, `${CAPUTO}&${FAR_BAKE}`);
+	await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-06');
 
 	await expect.poll(() => chosenWindow(page)).toBe('40 h');
 	expect(await allStops(page)).toContain('40 h');
 });
 
 test('the ideal marker names the same window the app picks', async ({ page }) => {
-	await openRecipe(page, `${CAPUTO}&${FAR_BAKE}`);
-	await page.locator('form input[type="date"]').nth(1).fill('2026-09-06');
+	await openForm(page, `${CAPUTO}&${FAR_BAKE}`);
+	await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-06');
 	await expect.poll(() => chosenWindow(page)).toBe('40 h');
 
 	await expect(windowCard(page)).toContainText('40 h');
@@ -81,14 +91,14 @@ test('the ideal marker names the same window the app picks', async ({ page }) =>
 test('no ideal marker for a flour the rail cannot serve', async ({ page }) => {
 	// Supermarket 00 tolerates 2–4 h at room temperature and cannot reach the
 	// cold switch at all, so no slider position is inside its band.
-	await openRecipe(page, `v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=180&${FAR_BAKE}`);
+	await openForm(page, `v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=180&${FAR_BAKE}`);
 
 	expect(await arrowCentreX(page, 'up')).toBeNull();
 });
 
 test('dragging past the bake deadline is refused, out loud', async ({ page }) => {
 	// Bake is ~34 h out, so the long stops would have to start before now.
-	await openRecipe(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
+	await openForm(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
 
 	const max = Number(await slider(page).getAttribute('max'));
 	await dragTo(page, max);
@@ -106,7 +116,7 @@ test('dragging past the bake deadline is refused, out loud', async ({ page }) =>
 });
 
 test('a legal drag clears the refusal', async ({ page }) => {
-	await openRecipe(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
+	await openForm(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
 	const max = Number(await slider(page).getAttribute('max'));
 
 	await dragTo(page, max);
@@ -128,15 +138,15 @@ test('the ideal arrow sits on the thumb, at both ends of the rail', async ({ pag
 		expect(Math.abs(arrow! - (await thumbCentreX(page)))).toBeLessThanOrEqual(1);
 	};
 
-	await openRecipe(page, `${NAPOLETANA}&${FAR_BAKE}`);
-	await page.locator('form input[type="date"]').nth(1).fill('2026-09-06');
+	await openForm(page, `${NAPOLETANA}&${FAR_BAKE}`);
+	await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-06');
 	// 72 h sits past the 88 % pivot threshold — an end-anchored caption
 	await expect.poll(() => chosenWindow(page)).toBe('72 h');
 	await arrowIsOnTheThumb();
 
 	// now pull the bake in so the ideal lands near the left end instead
-	await page.locator('form input[type="date"]').nth(1).fill('2026-09-01');
-	await page.locator('form input[type="time"]').nth(1).fill('20:00');
+	await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-01');
+	await sheet(page).locator('input[type="time"]').nth(1).fill('20:00');
 	await expect.poll(() => chosenWindow(page)).not.toBe('72 h');
 	await arrowIsOnTheThumb();
 });
@@ -145,7 +155,7 @@ test('the rail marker names a ceiling, not the bake moment', async ({ page }) =>
 	// It used to reuse the form's "Ready to bake" label, which read as if the
 	// arrow pointed at the bake itself rather than at the longest window it
 	// allows. The moment stays on the line beneath.
-	await openRecipe(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
+	await openForm(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
 
 	const marker = windowCard(page).locator('div.absolute').filter({ hasText: 'Limit set by' });
 	await expect(marker).toContainText('Limit set by ‘ready to bake’ time');
@@ -153,8 +163,8 @@ test('the rail marker names a ceiling, not the bake moment', async ({ page }) =>
 });
 
 test('the "use best" button restores the ideal, then gets out of the way', async ({ page }) => {
-	await openRecipe(page, `${CAPUTO}&${FAR_BAKE}`);
-	await page.locator('form input[type="date"]').nth(1).fill('2026-09-06');
+	await openForm(page, `${CAPUTO}&${FAR_BAKE}`);
+	await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-06');
 	await expect.poll(() => chosenWindow(page)).toBe('40 h');
 
 	// already at the ideal, so there is nothing to restore
@@ -171,13 +181,13 @@ test('the "use best" button restores the ideal, then gets out of the way', async
 });
 
 test('no "use best" button when the flour has no ideal to offer', async ({ page }) => {
-	await openRecipe(page, `v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=180&${FAR_BAKE}`);
+	await openForm(page, `v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=180&${FAR_BAKE}`);
 
 	await expect(windowCard(page).getByRole('button', { name: 'Use best' })).toHaveCount(0);
 });
 
 test('every marker caption stays inside the rail', async ({ page }) => {
-	await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
+	await openForm(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
 
 	const rail = await windowCard(page).locator('.overflow-hidden.rounded-full').boundingBox();
 	for (const caption of await windowCard(page).locator('span.whitespace-nowrap').all()) {
@@ -195,7 +205,7 @@ test.describe('tick labels on a phone', () => {
 	test.use({ viewport: { width: 390, height: 844 } });
 
 	test('the rail labels never run into each other', async ({ page }) => {
-		await openRecipe(page, IDEAL_RECIPE);
+		await openForm(page, IDEAL_RECIPE);
 
 		const boxes = await tickRowBoxes(page);
 		expect(boxes.length).toBeGreaterThanOrEqual(3);
@@ -215,7 +225,7 @@ test.describe('tick labels with room', () => {
 	test.use({ viewport: { width: 1280, height: 900 } });
 
 	test('all four labels come back once there is width for them', async ({ page }) => {
-		await openRecipe(page, IDEAL_RECIPE);
+		await openForm(page, IDEAL_RECIPE);
 
 		const boxes = await tickRowBoxes(page);
 		expect(boxes.map((b) => b.t)).toContain('48 h');
@@ -231,7 +241,7 @@ test.describe('tick labels with room', () => {
 // ideal capped by the bake time rather than the flour is SHORTER than the
 // window in hand, so the button offered to throw away the extra minutes.
 test('no "use best" while the thumb already sits on the ideal', async ({ page }) => {
-	await openRecipe(page, IDEAL_RECIPE);
+	await openForm(page, IDEAL_RECIPE);
 
 	// Precondition: the two really are on the same pixel, so a pass cannot be
 	// an accident of the button being absent for some other reason.
@@ -247,7 +257,7 @@ test('no "use best" while the thumb already sits on the ideal', async ({ page })
 
 // The rail painted two green stretches and nothing said what the colour meant.
 test('the band caption carries a swatch in the band colour', async ({ page }) => {
-	await openRecipe(page, IDEAL_RECIPE);
+	await openForm(page, IDEAL_RECIPE);
 
 	const swatch = windowCard(page).locator('p span.size-2');
 	await expect(swatch).toHaveCount(1);
