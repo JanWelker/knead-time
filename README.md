@@ -82,7 +82,7 @@ src/
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
 │   ├── +page.svelte      ← the entire calculator UI
 │   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
-├── app.css               ← Tailwind v4 entrypoint + @theme palette
+├── app.css               ← Tailwind v4 entrypoint: palette, semantic surface/ink tokens, component classes
 └── app.html              ← shell
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
@@ -103,19 +103,19 @@ playwright.config.ts      ← Playwright (builds and serves the real static outp
 
 ### npm scripts
 
-| Command                 | What it does                                               |
-| ----------------------- | ---------------------------------------------------------- |
-| `npm run dev`           | Vite dev server on port 5173 with HMR                      |
-| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)      |
-| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                |
-| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build  |
-| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                    |
-| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage     |
-| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check) |
-| `npm run lint`          | Prettier check + ESLint                                    |
-| `npm run format`        | Prettier write                                             |
-| `npm run build`         | Production build → `./build/` (static site)                |
-| `npm run preview`       | Serve the built site locally                               |
+| Command                 | What it does                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------ |
+| `npm run dev`           | Vite dev server on port 5173 with HMR                                                            |
+| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)                                            |
+| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                      |
+| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` overrides the preview port |
+| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                          |
+| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage                                           |
+| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                       |
+| `npm run lint`          | Prettier check + ESLint                                                                          |
+| `npm run format`        | Prettier write                                                                                   |
+| `npm run build`         | Production build → `./build/` (static site)                                                      |
+| `npm run preview`       | Serve the built site locally                                                                     |
 
 ### Pre-commit hooks
 
@@ -125,7 +125,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 
 1. **Math/logic first.** Add or extend a module in `src/lib/dough/`. Keep it pure (no Svelte imports). Add a `*.test.ts` next to it. Run `npm test` until green.
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
-3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
+3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`). Reach for the semantic classes in `src/app.css` (`.card`, `.well`, `.chip`, `.field-label`, `bg-surface`, `text-ink-soft`, …) rather than picking a grey by hand — they carry both themes, and a hand-picked pair is how the dark theme drifts out of contrast.
 4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
 5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`.
 

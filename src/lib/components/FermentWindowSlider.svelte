@@ -159,28 +159,66 @@
 	);
 </script>
 
-<div
-	class="border-dough-200 rounded-2xl border bg-white/60 p-4 dark:border-stone-700 dark:bg-stone-800/40"
->
-	<div class="flex flex-wrap items-baseline justify-between gap-2">
-		<span class="text-sm font-medium text-stone-700 dark:text-stone-200">
-			{t.schedule.window_label}
-		</span>
-		<span class="font-display text-xl text-stone-900 dark:text-stone-100">
-			{formatWindow(windowHours)}
-		</span>
+<!-- The one decision that changes everything, so it gets the loudest surface in
+     the form: a raised slab with a groove cut into it, rather than a hairline
+     range input in a small box. `.window-card` is how e2e/helpers.ts finds it. -->
+<div class="window-card rounded-2xl">
+	<div class="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+		<div class="min-w-0">
+			<span class="eyebrow">{t.schedule.window_label}</span>
+			<!-- The readout is the figure, not a caption above the rail. It is also
+			     the only .font-display in this card — chosenWindow() reads it. -->
+			<p class="figure font-display mt-0.5">{formatWindow(windowHours)}</p>
+		</div>
+		<!-- Only when there is something to go back to. A button that is already
+		     at its destination is noise, and its disappearance is the receipt
+		     that the click landed. -->
+		{#if ideal !== null && !atIdeal}
+			<button type="button" class="btn-tomato-sm mb-1 shrink-0" onclick={() => form.repickWindow()}>
+				{t.schedule.window_use_ideal}
+			</button>
+		{/if}
 	</div>
 
+	<!-- Described by, not merely displayed beside: everything on the rail that
+	     says whether this window is a GOOD one — the tolerance bands, the ideal
+	     marker, the tick labels — is aria-hidden decoration, so a screen reader
+	     got a bare duration and no way to judge it. This line is that judgement,
+	     in words. -->
+	<p id="window-band" class="text-ink-soft mt-1 text-xs">
+		{#if band}
+			<!-- A swatch in the same green as the band it describes. The rail
+			     painted two green stretches and nothing ever said what the colour
+			     meant; this sentence was already the explanation, it just had no
+			     way to point at itself. -->
+			<span
+				class="mr-0.5 inline-block size-2 rounded-[2px] align-baseline {form.schedule.mode ===
+				'cold'
+					? 'bg-basil-400 dark:bg-basil-600'
+					: 'bg-basil-300 dark:bg-basil-700'}"
+				aria-hidden="true"
+			></span>
+			{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
+			<span class="whitespace-nowrap">
+				({formatBandEdge(band.min)} – {formatBandEdge(band.max)})
+			</span>
+		{:else if form.flourW !== null}
+			{t.schedule.window_no_band}
+		{:else}
+			{t.schedule.window_no_flour}
+		{/if}
+	</p>
+
 	<!-- The bake time anchors everything here: the window is measured back from
-	     it, and it is where the rail's greyed-out stretch begins. Reuses the
-	     rail the flag names a *ceiling on the window*, not a moment, so it gets
-	     its own wording rather than reusing the form's field label — which read
-	     as if the arrow pointed at the bake itself. The line under it still
-	     shows the moment that sets the ceiling. With the bake days off there is
-	     nothing on the rail to point at, and the fallback below does name the
-	     moment, so it keeps the field's own label. -->
+	     it, and it is where the rail's greyed-out stretch begins. The flag names
+	     a *ceiling on the window*, not a moment, so it gets its own wording
+	     rather than reusing the form's field label — which read as if the arrow
+	     pointed at the bake itself. The line under it still shows the moment
+	     that sets the ceiling. With the bake days off there is nothing on the
+	     rail to point at, and the fallback below does name the moment, so it
+	     keeps the field's own label. -->
 	{#if unreachableFromPct < 100}
-		<div class="relative mx-2.5 mt-2 h-9" aria-hidden="true">
+		<div class="relative mx-3.5 mt-4 h-9" aria-hidden="true">
 			<!-- Caption and arrow are placed separately on purpose: the caption
 			     pivots near the ends so it cannot hang off the rail, and the
 			     arrow never does, because pivoting it too would point it away
@@ -193,57 +231,53 @@
 						: 'items-center'}"
 				style="left:{unreachableFromPct}%;transform:{markerShift}"
 			>
-				<span
-					class="text-tomato-700 dark:text-tomato-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="text-accent text-[0.65rem] leading-tight font-semibold whitespace-nowrap">
 					{t.schedule.window_limit_label}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="text-ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatDateTime(form.readyBy, i18n.locale)}
 				</span>
 			</div>
 			<svg
 				class="fill-tomato-500 absolute bottom-0 -translate-x-1/2"
 				style="left:{unreachableFromPct}%"
-				width="9"
-				height="6"
+				width="10"
+				height="7"
 				viewBox="0 0 10 6"
 			>
 				<path d="M5 6 0 0h10z" />
 			</svg>
 		</div>
 	{:else}
-		<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-faint mt-4 text-xs">
 			{t.form.readyBy}:
-			<span class="font-medium text-stone-700 dark:text-stone-200">
+			<span class="text-ink-soft font-medium">
 				{formatDateTime(form.readyBy, i18n.locale)}
 			</span>
 		</p>
 	{/if}
 
-	<div class="relative mt-3 h-6">
+	<div class="relative mt-2 h-8">
 		<!-- Rail + the flour's tolerance zones behind the thumb. aria-hidden:
 		     the range input below carries the accessible value and description.
-		     Inset by half a thumb (2.5 = 0.625rem, the thumb is 1.25rem): a
+		     Inset by half a thumb (3.5 = 0.875rem, the thumb is 1.75rem): a
 		     native range thumb's centre travels from `radius` to `width -
 		     radius`, so anything positioned at a plain `left: p%` of the full
 		     width drifts from the thumb by up to that radius, worst at the ends.
-		     Every marker row below carries the same inset for the same reason. -->
+		     Every marker row above and below carries the same inset. -->
 		<div
-			class="bg-dough-200 absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full dark:bg-stone-700"
+			class="kt-groove absolute inset-x-3.5 top-1/2 h-5 -translate-y-1/2 overflow-hidden rounded-full"
 			aria-hidden="true"
 		>
 			{#if zones?.room}
 				<div
-					class="bg-basil-300 dark:bg-basil-700 absolute inset-y-0"
+					class="bg-basil-300 dark:bg-basil-700 absolute inset-y-0 transition-[left,width] duration-300"
 					style="left:{axis(zones.room.min)}%;width:{axis(zones.room.max) - axis(zones.room.min)}%"
 				></div>
 			{/if}
 			{#if zones?.cold}
 				<div
-					class="bg-basil-400 dark:bg-basil-600 absolute inset-y-0"
+					class="bg-basil-400 dark:bg-basil-600 absolute inset-y-0 transition-[left,width] duration-300"
 					style="left:{axis(zones.cold.min)}%;width:{axis(zones.cold.max) - axis(zones.cold.min)}%"
 				></div>
 			{/if}
@@ -252,7 +286,7 @@
 			{#each stops as stop, i (stop)}
 				{#if i > 0 && i < stops.length - 1}
 					<div
-						class="absolute inset-y-0 w-px bg-white/70 dark:bg-stone-900/50"
+						class="absolute inset-y-1 w-px bg-white/60 dark:bg-black/40"
 						style="left:{axis(stop)}%"
 					></div>
 				{/if}
@@ -264,7 +298,7 @@
 			     fact. -->
 			{#if unreachableFromPct < 100}
 				<div
-					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
+					class="kt-past-deadline absolute inset-y-0 right-0"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
@@ -301,42 +335,38 @@
 	     deadline flagged from above. It is a real stop on the rail, so the
 	     arrow always sits on a position the thumb can land on. -->
 	{#if idealPct !== null}
-		<div class="relative mx-2.5 mt-1 h-9" aria-hidden="true">
+		<div class="relative mx-3.5 mt-1 h-9" aria-hidden="true">
 			<svg
 				class="fill-basil-500 absolute top-0 -translate-x-1/2"
 				style="left:{idealPct}%"
-				width="9"
-				height="6"
+				width="10"
+				height="7"
 				viewBox="0 0 10 6"
 			>
 				<path d="M5 0 0 6h10z" />
 			</svg>
 			<div
-				class="absolute top-2 flex flex-col {idealAnchor === 'start'
+				class="absolute top-2.5 flex flex-col {idealAnchor === 'start'
 					? 'items-start'
 					: idealAnchor === 'end'
 						? 'items-end'
 						: 'items-center'}"
 				style="left:{idealPct}%;transform:{idealShift}"
 			>
-				<span
-					class="text-basil-700 dark:text-basil-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="text-leaf text-[0.65rem] leading-tight font-semibold whitespace-nowrap">
 					{t.schedule.window_ideal}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="text-ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatWindow(ideal as number)}
 				</span>
 			</div>
 		</div>
 	{/if}
 
-	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
+	<div class="relative mx-3.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400 {narrowLabelledStops.includes(
+				class="text-ink-faint absolute -translate-x-1/2 text-[0.65rem] {narrowLabelledStops.includes(
 					stop
 				)
 					? ''
@@ -346,48 +376,8 @@
 		{/each}
 	</div>
 
-	<div class="mt-2 flex items-start justify-between gap-2">
-		<!-- Described by, not merely displayed beside: everything on the rail that
-		     says whether this window is a GOOD one — the tolerance bands, the
-		     ideal marker, the tick labels — is aria-hidden decoration, so a
-		     screen reader got a bare duration and no way to judge it. These two
-		     lines are that judgement, in words. -->
-		<p id="window-band" class="text-xs text-stone-500 dark:text-stone-400">
-			{#if band}
-				<!-- A swatch in the same green as the band it describes. The rail
-				     painted two green stretches and nothing ever said what the
-				     colour meant; this sentence was already the explanation, it
-				     just had no way to point at itself. Inline, so it costs no
-				     height in a card that is long enough already. -->
-				<span
-					class="mr-0.5 inline-block size-2 rounded-[2px] align-baseline {form.schedule.mode ===
-					'cold'
-						? 'bg-basil-400 dark:bg-basil-600'
-						: 'bg-basil-300 dark:bg-basil-700'}"
-					aria-hidden="true"
-				></span>
-				{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
-				<span class="whitespace-nowrap">
-					({formatBandEdge(band.min)} – {formatBandEdge(band.max)})
-				</span>
-			{:else if form.flourW !== null}
-				{t.schedule.window_no_band}
-			{:else}
-				{t.schedule.window_no_flour}
-			{/if}
-		</p>
-		<!-- Only when there is something to go back to. A button that is already
-		     at its destination is noise, and its disappearance is the receipt
-		     that the click landed. -->
-		{#if ideal !== null && !atIdeal}
-			<button type="button" class="btn-tomato-sm shrink-0" onclick={() => form.repickWindow()}>
-				{t.schedule.window_use_ideal}
-			</button>
-		{/if}
-	</div>
-
 	{#if overrun && reachableIndex >= 0}
-		<p class="notice notice-danger mt-2" role="alert">
+		<p class="notice notice-danger mt-3" role="alert">
 			{interpolate(t.schedule.window_overrun, {
 				max: formatWindow(stops[reachableIndex])
 			})}
@@ -395,7 +385,7 @@
 	{/if}
 
 	{#if form.startDayMoved}
-		<p class="notice notice-info mt-2" role="status">
+		<p class="notice notice-info mt-3" role="status">
 			{interpolate(t.schedule.window_start_moved, {
 				start: formatDateTime(form.startAt, i18n.locale)
 			})}
@@ -405,12 +395,12 @@
 	<!-- The schedule's own window warnings — too short, a step at night, past
 	     what the flour tolerates — read here, next to the control that both
 	     caused them and fixes them. -->
-	<div class="mt-2">
+	<div class="mt-3 empty:mt-0">
 		<Warnings warnings={form.schedule.warnings} place="window" />
 	</div>
 
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
-		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-faint mt-3 text-xs">
 			{interpolate(t.schedule.window_capped_by_bake, {
 				max: formatBandEdge(stops[reachableIndex]),
 				band: formatBandEdge(band.max)
@@ -419,38 +409,59 @@
 	{/if}
 
 	{#if startedAgoMin !== null}
-		<p class="text-tomato-700 dark:text-tomato-300 mt-2 text-xs font-medium">
+		<p class="text-accent mt-3 text-xs font-medium">
 			{interpolate(t.schedule.window_started_ago, {
 				ago: formatDuration(startedAgoMin, i18n.locale)
 			})}
 		</p>
 	{/if}
 
-	<p id="window-benefit" class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
+	<p id="window-benefit" class="text-ink-faint mt-3 text-xs leading-relaxed">{benefit}</p>
 </div>
 
 <style>
 	/* The rail is drawn by the div behind the input, so the native track is
 	   transparent and only the thumb is styled. Both vendor pseudo-elements
 	   need the rule spelled out separately — a combined selector is dropped
-	   wholesale by each engine that doesn't recognise the other half. */
+	   wholesale by each engine that doesn't recognise the other half.
+
+	   1.75 rem: a 28 px target that a floury thumb can actually hit, and big
+	   enough to overhang the 20 px groove so it reads as a knob sitting in a
+	   channel rather than a dot on a line. e2e/helpers.ts hard-codes half of
+	   this as the thumb radius — change one and you must change the other. */
 	input[type='range']::-webkit-slider-thumb {
 		appearance: none;
-		width: 1.25rem;
-		height: 1.25rem;
+		width: 1.75rem;
+		height: 1.75rem;
 		border-radius: 9999px;
 		background: var(--color-tomato-500);
-		border: 2px solid white;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+		border: 3px solid var(--kt-raised);
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 0.25),
+			0 4px 10px -2px rgb(0 0 0 / 0.3);
 		cursor: pointer;
 	}
 	input[type='range']::-moz-range-thumb {
-		width: 1.25rem;
-		height: 1.25rem;
+		width: 1.75rem;
+		height: 1.75rem;
 		border-radius: 9999px;
 		background: var(--color-tomato-500);
-		border: 2px solid white;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+		border: 3px solid var(--kt-raised);
+		box-shadow:
+			0 1px 2px rgb(0 0 0 / 0.25),
+			0 4px 10px -2px rgb(0 0 0 / 0.3);
 		cursor: pointer;
+	}
+
+	/* The channel itself: pressed into the card, not drawn on it. */
+	.kt-groove {
+		background: var(--kt-sunk);
+		box-shadow: var(--kt-press);
+	}
+
+	/* Past the bake deadline. Opaque enough that a zone underneath cannot show
+	   through and read as available. */
+	.kt-past-deadline {
+		background: color-mix(in oklab, var(--kt-ink-faint) 45%, var(--kt-sunk));
 	}
 </style>

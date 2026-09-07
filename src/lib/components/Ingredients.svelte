@@ -28,7 +28,7 @@
 				<header class="mb-2">
 					<h3 class="font-display text-accent text-base">{section.heading}</h3>
 					{#if section.help}
-						<p class="text-xs text-stone-500 dark:text-stone-400">{section.help}</p>
+						<p class="text-ink-faint text-xs">{section.help}</p>
 					{/if}
 				</header>
 			{/if}
@@ -36,15 +36,15 @@
 				<tbody>
 					{#each section.rows as row (row.label)}
 						<tr class="row-divider">
-							<th class="py-2 pr-3 text-left font-medium text-stone-700 dark:text-stone-200">
+							<th class="text-ink-soft py-2 pr-3 text-left font-medium">
 								{row.label}
 								{#if row.hint}
-									<span class="text-xs font-normal text-stone-500 dark:text-stone-400">
+									<span class="text-ink-faint text-xs font-normal">
 										({row.hint})
 									</span>
 								{/if}
 							</th>
-							<td class="py-2 text-right tabular-nums dark:text-stone-100">{row.amount}</td>
+							<td class="text-ink py-2 text-right font-medium tabular-nums">{row.amount}</td>
 						</tr>
 					{/each}
 					{#if section.total}
@@ -61,6 +61,6 @@
 	{/each}
 
 	{#if needsFineScale(ingredients)}
-		<p class="text-xs text-stone-500 italic dark:text-stone-400">{t.ingredients.scale_hint}</p>
+		<p class="text-ink-faint text-xs italic">{t.ingredients.scale_hint}</p>
 	{/if}
 </div>

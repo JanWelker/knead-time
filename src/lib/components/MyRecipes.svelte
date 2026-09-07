@@ -18,32 +18,40 @@
      mirroring the community table's pattern. -->
 <details class="group" open={recipes.length > 0}>
 	<summary class="flex cursor-pointer list-none items-start gap-2 select-none">
-		<span
-			class="text-accent mt-2 font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
-			aria-hidden="true">▶</span
+		<svg
+			class="disclosure-caret"
+			viewBox="0 0 16 16"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			aria-hidden="true"
 		>
+			<path d="m6 3 5 5-5 5" />
+		</svg>
 		<header>
-			<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+			<h2 class="font-display text-ink text-2xl">
 				{t.myRecipes.heading}
 			</h2>
-			<p class="mt-1 text-sm text-stone-500 dark:text-stone-400">{t.myRecipes.intro}</p>
+			<p class="text-ink-faint mt-1 text-sm">{t.myRecipes.intro}</p>
 		</header>
 	</summary>
 
 	<div class="mt-4">
 		{#if recipes.length === 0}
-			<p class="text-sm text-stone-500 dark:text-stone-400">{t.myRecipes.empty}</p>
+			<p class="text-ink-faint text-sm">{t.myRecipes.empty}</p>
 		{:else}
 			<ul class="flex flex-col gap-2">
 				{#each recipes as recipe (recipe.name)}
 					<li
-						class="border-dough-200/70 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 dark:border-stone-700/70"
+						class="border-hairline flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3"
 					>
 						<div class="min-w-0">
-							<span class="block truncate font-medium text-stone-800 dark:text-stone-100">
+							<span class="text-ink block truncate font-medium">
 								{recipe.name}
 							</span>
-							<span class="block text-xs text-stone-500 dark:text-stone-400">
+							<span class="text-ink-faint block text-xs">
 								{dateFormatter.format(new Date(recipe.savedAt))}
 							</span>
 						</div>
@@ -57,7 +65,7 @@
 							</a>
 							<button
 								type="button"
-								class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-block py-0.5 text-sm text-stone-500 underline-offset-2 hover:underline dark:text-stone-400"
+								class="hover:text-tomato-600 dark:hover:text-tomato-300 text-ink-faint inline-block py-0.5 text-sm underline-offset-2 hover:underline"
 								onclick={() => onDelete(recipe.name)}
 							>
 								{t.myRecipes.delete_label}

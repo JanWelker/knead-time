@@ -9,6 +9,7 @@
 	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
 	import type { ScheduleVerbosity } from '$lib/storedVerbosity';
 	import { interpolate } from '$lib/i18n/interpolate';
+	import StepGlyph from './StepGlyph.svelte';
 
 	let {
 		schedule,
@@ -104,23 +105,21 @@
 	}
 </script>
 
-<div class="text-stone-800 dark:text-stone-200">
+<div class="text-ink-soft">
 	{#each days as day (day.key)}
 		<!-- A heading, not a span: the date is what groups the steps under it, and
 		     as plain text it left a multi-day plan looking like one flat run of
 		     step titles to anything navigating by heading. `font-sans` is
-		     load-bearing — app.css gives every h1-h3 the display serif, which
+		     load-bearing — app.css gives every h1-h3 the display face, which
 		     this label has never used. -->
-		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<h3
-				class="font-sans text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
-			>
+		<div class="flex items-center gap-3 pt-7 pb-3 first:pt-0">
+			<h3 class="text-ink-faint font-sans text-xs font-bold tracking-[0.14em]">
 				{day.label}
 			</h3>
-			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
+			<span class="bg-hairline h-px flex-1"></span>
 		</div>
 
-		<ol class="tabular-nums">
+		<ol class="space-y-2 tabular-nums">
 			<!-- preFermentType disambiguates the two parallel pre-ferment mixes,
 			     which can share a start time when both shrink to the wall budget. -->
 			{#each day.steps as step, si (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
@@ -135,123 +134,114 @@
 				     rather than as information. The fermentation-window card says
 				     outright when the schedule opens before now. `past` still mutes
 				     the accent on an already-missed bake moment below. -->
-				<li class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3">
+				<li class="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-3">
 					<!-- Rail: a vertical line threading every node within the day. -->
 					<div class="relative">
 						{#if si > 0}
-							<span
-								class="bg-dough-300 absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2 dark:bg-stone-700"
-							></span>
+							<span class="bg-hairline absolute top-0 left-1/2 h-3 w-px -translate-x-1/2"></span>
 						{/if}
 						{#if si < day.steps.length - 1}
 							<span
-								class="absolute top-2.5 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
-									? 'border-dough-400/80 border-dashed dark:border-stone-600'
-									: 'border-dough-300 border-solid dark:border-stone-700'}"
+								class="border-hairline absolute top-8 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
+									? 'border-dashed'
+									: 'border-solid'}"
 							></span>
 						{/if}
+						<!-- The node carries the glyph AND the active/passive meaning:
+						     a filled tomato disc for something to do, a hollow basil
+						     ring for time passing on its own. -->
 						<span
-							class="absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
+							class="absolute top-3 left-1/2 flex size-7 -translate-x-1/2 items-center justify-center rounded-full {current
 								? 'kt-node-now'
 								: ''} {isReady
-								? 'bg-tomato-600 ring-tomato-500/25'
+								? 'bg-tomato-600 text-white'
 								: active
-									? 'bg-tomato-500'
-									: 'border-dough-400 border-2 bg-white dark:border-stone-500 dark:bg-stone-900'}"
+									? 'bg-tomato-500 text-white'
+									: 'border-basil-300 text-leaf dark:border-basil-700 border-2 bg-transparent'}"
 							role="img"
 							aria-label={isReady
 								? stepTitle(step, t)
 								: active
 									? t.schedule.icon_active
 									: t.schedule.icon_passive}
-						></span>
+						>
+							<span class="size-4"><StepGlyph kind={step.kind} /></span>
+						</span>
 					</div>
 
-					<!-- Time -->
-					<div
-						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
-							? 'text-accent'
-							: 'text-stone-600 dark:text-stone-300'}"
-					>
-						{formatTime(step.at, locale)}
-					</div>
-
-					<!-- Step -->
-					<div class="pb-6">
-						<div class="flex items-start justify-between gap-3">
-							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-								<!-- h4, under the day heading above. `font-display` is
-								     load-bearing: as an h3 this inherited the serif from
-								     app.css, and demoting the level alone would silently
-								     drop it to sans. -->
-								<h4
-									class="font-display text-[0.9375rem] leading-5 font-semibold {current ||
-									(isReady && !past)
-										? 'text-accent'
-										: 'text-stone-900 dark:text-stone-100'}"
-								>
-									{stepTitle(step, t)}
-								</h4>
-								{#if current}
-									<span
-										class="bg-tomato-500 rounded px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-white uppercase"
-									>
-										{t.schedule.now}
-									</span>
-								{/if}
-								{#if flags.length > 0}
-									<span
-										class="text-accent inline-flex items-center"
-										title="{t.quality.step_imperfect} {flagTooltip(flags)}"
-										aria-label="{t.quality.step_imperfect} {flagTooltip(flags)}"
-									>
-										<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-											<path
-												d="M6 1.2 L11 10.8 H1 Z"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="1.4"
-												stroke-linejoin="round"
-											/>
-											<rect x="5.4" y="4.5" width="1.2" height="3.2" fill="currentColor" />
-											<rect x="5.4" y="8.3" width="1.2" height="1.2" fill="currentColor" />
-										</svg>
-									</span>
-								{/if}
-							</div>
-							{#if step.durationMinutes > 0}
+					<!-- The step itself, as a card in the feed. Raised for the one
+					     step that is running, flat for the rest. -->
+					<div class="kt-step {current ? 'kt-step-now' : ''} min-w-0 rounded-2xl px-3 py-2.5">
+						<div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+							<span
+								class="font-display text-base leading-6 font-semibold tabular-nums {current ||
+								(isReady && !past)
+									? 'text-accent'
+									: 'text-ink-soft'}"
+							>
+								{formatTime(step.at, locale)}
+							</span>
+							<!-- h4, under the day heading above. `font-display` is
+							     load-bearing: as an h3 this inherited the display face from
+							     app.css, and demoting the level alone would silently
+							     drop it to sans. -->
+							<h4
+								class="font-display min-w-0 text-base leading-6 font-semibold {current ||
+								(isReady && !past)
+									? 'text-accent'
+									: 'text-ink'}"
+							>
+								{stepTitle(step, t)}
+							</h4>
+							{#if current}
+								<span class="chip chip-now">{t.schedule.now}</span>
+							{/if}
+							{#if flags.length > 0}
 								<span
-									class="bg-dough-100 mt-px shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-stone-600 dark:bg-stone-800 dark:text-stone-300"
+									class="text-accent inline-flex items-center"
+									title="{t.quality.step_imperfect} {flagTooltip(flags)}"
+									aria-label="{t.quality.step_imperfect} {flagTooltip(flags)}"
 								>
+									<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+										<path
+											d="M6 1.2 L11 10.8 H1 Z"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="1.4"
+											stroke-linejoin="round"
+										/>
+										<rect x="5.4" y="4.5" width="1.2" height="3.2" fill="currentColor" />
+										<rect x="5.4" y="8.3" width="1.2" height="1.2" fill="currentColor" />
+									</svg>
+								</span>
+							{/if}
+							{#if step.durationMinutes > 0}
+								<span class="chip ml-auto">
 									{formatDuration(step.durationMinutes, locale)}
 								</span>
 							{/if}
 						</div>
 
 						{#if ingredients.length > 0}
-							<ul
-								class="bg-dough-50 border-dough-100 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border px-3 py-2 dark:border-stone-700/60 dark:bg-stone-800/40"
-							>
+							<ul class="well mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 px-3 py-2">
 								{#each ingredients as ing (ing.name)}
 									<li class="contents">
-										<span
-											class="text-right text-xs font-semibold text-stone-700 dark:text-stone-200"
-										>
+										<span class="text-ink text-right text-xs font-semibold tabular-nums">
 											{ing.amount}
 										</span>
-										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
+										<span class="text-ink-soft text-xs">{ing.name}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
+						<p class="text-ink-soft mt-1.5 text-sm leading-snug">
 							{stepDescription(step, t, schedule)}
 						</p>
 
 						{#if verbosity === 'descriptive'}
 							<p
-								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
+								class="border-basil-300 text-ink-faint dark:border-basil-800 mt-2 border-l-2 pl-2.5 text-xs leading-relaxed italic"
 							>
 								{stepDetail(step, t)}
 							</p>
@@ -275,6 +265,18 @@
 </div>
 
 <style>
+	/* A step reads as a card, but a very quiet one: nine identical raised boxes
+	   would be the card soup this redesign exists to undo. Only the running
+	   step lifts out of the feed. */
+	.kt-step {
+		transition: background-color 200ms ease;
+	}
+
+	.kt-step-now {
+		background: var(--kt-now);
+		box-shadow: var(--kt-lift-1);
+	}
+
 	/* A gentle halo on the current step's node — "you are here". */
 	@keyframes kt-node-pulse {
 		0%,
@@ -282,7 +284,7 @@
 			box-shadow: 0 0 0 0 rgba(200, 64, 26, 0.4);
 		}
 		70% {
-			box-shadow: 0 0 0 6px rgba(200, 64, 26, 0);
+			box-shadow: 0 0 0 8px rgba(200, 64, 26, 0);
 		}
 	}
 	.kt-node-now {

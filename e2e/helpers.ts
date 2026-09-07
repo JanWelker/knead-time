@@ -24,9 +24,16 @@ export async function waitForHydration(page: Page) {
 		.not.toBeNull();
 }
 
-/** A top-level card, addressed by its heading. */
+/**
+ * A top-level region, addressed by its heading. Two classes, because the
+ * regions are no longer all the same box: `.card` is a lifted panel (form,
+ * schedule, ingredients) and `.card-quiet` is the flat kind the reference
+ * collections sit in.
+ */
 export function card(page: Page, heading: string) {
-	return page.locator('.card').filter({ has: page.getByRole('heading', { name: heading }) });
+	return page
+		.locator('.card, .card-quiet')
+		.filter({ has: page.getByRole('heading', { name: heading }) });
 }
 
 /** The card holding the form (it has no heading of its own). */
@@ -36,7 +43,10 @@ export function formCard(page: Page) {
 
 /** The fermentation-window card. */
 export function windowCard(page: Page) {
-	return page.locator('form div.rounded-2xl').filter({ has: page.locator('input[type="range"]') });
+	// Addressed by its own component class rather than by "the rounded div in
+	// the form": the form now has several rounded surfaces, so that description
+	// stopped identifying anything in particular.
+	return page.locator('form .window-card');
 }
 
 /** The big duration readout, e.g. "40 h". */
@@ -90,7 +100,7 @@ export async function setBakeDate(page: Page, value: string) {
 export async function thumbCentreX(page: Page): Promise<number> {
 	return slider(page).evaluate((el: HTMLInputElement) => {
 		const r = el.getBoundingClientRect();
-		const radius = 10; // half the 1.25rem thumb
+		const radius = 14; // half the 1.75rem thumb
 		const frac = Number(el.value) / Number(el.max);
 		return r.left + radius + frac * (r.width - 2 * radius);
 	});

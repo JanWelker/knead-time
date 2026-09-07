@@ -25,6 +25,7 @@
 		type SavedRecipe
 	} from '$lib/storedRecipes';
 	import ActionsMenu from '$lib/components/ActionsMenu.svelte';
+	import BakeBoard from '$lib/components/BakeBoard.svelte';
 	import MyRecipes from '$lib/components/MyRecipes.svelte';
 	import SaveRecipeDialog from '$lib/components/SaveRecipeDialog.svelte';
 	import Community from '$lib/components/Community.svelte';
@@ -170,17 +171,32 @@
 	<title>{t.app.title} — {t.app.tagline}</title>
 </svelte:head>
 
-<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-	<header class="mb-8 flex flex-wrap items-start justify-between gap-4">
-		<div>
-			<h1 class="font-display text-accent text-4xl sm:text-5xl">{t.app.title}</h1>
-			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300">{t.app.tagline}</p>
+<main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+	<!-- The wordmark is small and the answer is large. The app's name is not
+	     what a baker at the counter needs to read first. -->
+	<header class="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+		<div class="min-w-0">
+			<h1 class="font-display text-accent text-2xl leading-none font-semibold sm:text-[1.75rem]">
+				{t.app.title}
+			</h1>
+			<p class="text-ink-faint mt-1 max-w-md text-sm">{t.app.tagline}</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-2">
 			<LangSwitcher />
 			<ThemeSwitcher />
 		</div>
 	</header>
+
+	<!-- Answer first. What you are baking, when, and what to do next — above
+	     everything you can change. It computes nothing of its own; it reads the
+	     schedule the form has already produced. -->
+	<div class="mb-6 sm:mb-8">
+		<BakeBoard
+			schedule={form.schedule}
+			readyBy={form.readyBy}
+			windowHours={form.fermentWindowHours}
+		/>
+	</div>
 
 	<!-- lg+: When + Ingredients stack in the left column, Schedule spans the
 	     right; below lg everything collapses to one column in DOM order.
@@ -206,9 +222,7 @@
 			     can never wrap the button out of place (issue #189). -->
 			<div class="relative mb-4">
 				<div class="flex flex-wrap items-start justify-between gap-3">
-					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-						{t.schedule.heading}
-					</h2>
+					<h2 class="section-title">{t.schedule.heading}</h2>
 					<ActionsMenu
 						feasible={form.schedule.feasible}
 						shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
@@ -266,9 +280,7 @@
 
 		<div class="card lg:col-start-1 lg:row-start-2">
 			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-					{t.ingredients.heading}
-				</h2>
+				<h2 class="section-title">{t.ingredients.heading}</h2>
 				<button
 					type="button"
 					class="btn-tomato-sm inline-flex items-center gap-1"
@@ -296,27 +308,25 @@
 		</div>
 	</div>
 
-	<section class="card mt-8">
+	<section class="card-quiet mt-6">
 		<MyRecipes
 			recipes={savedRecipes}
 			onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
 		/>
 	</section>
 
-	<section class="card mt-8">
+	<section class="card-quiet mt-4">
 		<Community />
 	</section>
 
-	<section class="card mt-8">
+	<section class="card-quiet mt-4">
 		<Pizzerias />
 	</section>
 
-	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400">
+	<footer class="text-ink-faint mt-12 text-center text-xs">
 		<p>{t.footer.about}</p>
-		<p class="mt-1 text-stone-500 dark:text-stone-400">{t.actions.share_help}</p>
-		<p
-			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-500 dark:text-stone-400"
-		>
+		<p class="mt-1">{t.actions.share_help}</p>
+		<p class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1">
 			<a
 				href="https://github.com/JanWelker/knead-time"
 				target="_blank"
@@ -344,7 +354,7 @@
 				{t.footer.support}
 			</a>
 		</p>
-		<p class="mt-2 text-stone-500 dark:text-stone-400">
+		<p class="mt-2">
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
 				target="_blank"

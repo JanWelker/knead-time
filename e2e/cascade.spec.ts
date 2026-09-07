@@ -19,8 +19,8 @@ test('a utility can restyle a heading', async ({ page }) => {
 			return { font: cs.fontFamily.split(',')[0].trim(), tracking: cs.letterSpacing };
 		});
 
-	// Untouched headings keep the display serif from the base rule...
-	expect((await face(card(page, 'Schedule').locator('h2'))).font).toBe('ui-serif');
+	// Untouched headings keep the display face from the base rule...
+	expect((await face(card(page, 'Schedule').locator('h2'))).font).toBe('ui-rounded');
 	// ...while the day label, which asks for sans and wide tracking with nothing
 	// but utilities, actually gets them.
 	const day = await face(card(page, 'Schedule').locator('h3'));
@@ -28,6 +28,12 @@ test('a utility can restyle a heading', async ({ page }) => {
 	expect(day.tracking).toBe('1.68px');
 });
 
+// This also guards a second, less obvious way to lose the ring: `outline-color`
+// is one of the properties `transition-colors` animates, so a control carrying
+// that utility fades its own focus indicator in over 150 ms. The assertion
+// reads the outline immediately after focus, which is exactly when a
+// transitioned ring is still the colour it was before.
+//
 // The TRMNL uuid field carried `focus:outline-none`. It never took effect —
 // the unlayered focus rule outranked it — so the field has always shown the
 // ring. Layering would have handed that class its wish and left the input with

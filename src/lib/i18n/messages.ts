@@ -11,6 +11,12 @@ export interface Messages {
 		theme_light: string;
 		theme_dark: string;
 	};
+	hero: {
+		next: string;
+		left: string;
+		starts_in: string;
+		done: string;
+	};
 	form: {
 		// Names the input card. Rendered sr-only: its siblings carry visible
 		// headings, and this card already shows its two group legends.
@@ -400,6 +406,12 @@ const en: Messages = {
 		theme_auto: 'System theme',
 		theme_light: 'Light theme',
 		theme_dark: 'Dark theme'
+	},
+	hero: {
+		next: 'Next',
+		left: '{t} left',
+		starts_in: 'in {t}',
+		done: 'Pizza time!'
 	},
 	form: {
 		heading: 'Your recipe',
@@ -855,6 +867,12 @@ const de: Messages = {
 		theme_auto: 'Systemeinstellung',
 		theme_light: 'Helles Design',
 		theme_dark: 'Dunkles Design'
+	},
+	hero: {
+		next: 'Als Nächstes',
+		left: 'noch {t}',
+		starts_in: 'in {t}',
+		done: 'Pizzazeit!'
 	},
 	form: {
 		heading: 'Dein Rezept',
@@ -1318,6 +1336,12 @@ const it: Messages = {
 		theme_auto: 'Tema di sistema',
 		theme_light: 'Tema chiaro',
 		theme_dark: 'Tema scuro'
+	},
+	hero: {
+		next: 'Prossimo',
+		left: 'ancora {t}',
+		starts_in: 'tra {t}',
+		done: 'È ora di cuocere!'
 	},
 	form: {
 		heading: 'La tua ricetta',
@@ -1783,6 +1807,12 @@ const fr: Messages = {
 		theme_auto: 'Thème du système',
 		theme_light: 'Thème clair',
 		theme_dark: 'Thème sombre'
+	},
+	hero: {
+		next: 'À suivre',
+		left: 'encore {t}',
+		starts_in: 'dans {t}',
+		done: 'Au four !'
 	},
 	form: {
 		heading: 'Votre recette',
@@ -2253,6 +2283,12 @@ const nl: Messages = {
 		theme_auto: 'Systeemthema',
 		theme_light: 'Licht thema',
 		theme_dark: 'Donker thema'
+	},
+	hero: {
+		next: 'Volgende',
+		left: 'nog {t}',
+		starts_in: 'over {t}',
+		done: 'Tijd om te bakken!'
 	},
 	form: {
 		heading: 'Jouw recept',

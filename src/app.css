@@ -2,9 +2,35 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ---------------------------------------------------------------------------
+   Impasto: the design system.
+
+   Two ideas hold it together.
+
+   1. Depth comes from LIGHT, not from lines. A panel is lighter than the
+      ground it sits on and casts a soft warm shadow; it does not draw a box
+      around itself. In the dark theme that trick alone would leave surfaces
+      unbounded (a soft shadow on a dark ground is invisible), so every raised
+      surface also carries a hairline that is transparent in light and faintly
+      warm in dark. Both halves of `--kt-lift-*` and `--kt-hairline` are
+      designed, never derived from one another.
+
+   2. Colour carries meaning. Tomato is ACTION — a step the baker performs, a
+      button, a refusal. Basil is TIME — fermentation, the flour's tolerance
+      band, the cold leg, anything that happens while you are not there. Dough
+      is the SUBSTRATE — every surface, well and hairline. The palette had been
+      cream plus one red; basil now has a job, so it earns its place.
+   --------------------------------------------------------------------------- */
+
 @theme {
 	--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-	--font-display: ui-serif, Georgia, serif;
+	/* Rounded, not serif. The app is a thing you hold at a counter with flour on
+	   your hands, and the numbers are the point — a soft geometric face reads as
+	   an instrument rather than a document. Falls back through the widest
+	   rounded stack the platforms offer before landing on the UI sans. */
+	--font-display:
+		ui-rounded, 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Nunito, 'Varela Round',
+		'Segoe UI Variable Display', system-ui, sans-serif;
 
 	--color-dough-50: #fdf8ef;
 	--color-dough-100: #f8ecd0;
@@ -38,39 +64,115 @@
 	--color-basil-700: #2c5722;
 	--color-basil-800: #20401a;
 	--color-basil-900: #142810;
+
+	/* Semantic surfaces and ink, as utilities. Each resolves to a --kt-* custom
+	   property that :root and html.dark both define — and since the theme class
+	   sits on <html>, which IS :root, one declaration serves both themes. This
+	   is what lets `bg-surface text-ink-soft` be written once instead of as a
+	   pair with a dark: twin, which is how the community tables ended up at
+	   2.71:1 in the dark theme without anyone seeing it. */
+	--color-ground: var(--kt-ground);
+	--color-surface: var(--kt-surface);
+	--color-raised: var(--kt-raised);
+	--color-sunk: var(--kt-sunk);
+	--color-hairline: var(--kt-hairline);
+	--color-ink: var(--kt-ink);
+	--color-ink-soft: var(--kt-ink-soft);
+	--color-ink-faint: var(--kt-ink-faint);
+	--color-accent: var(--kt-accent);
+	--color-leaf: var(--kt-leaf);
+
+	/* The type scale. Two sizes did the work of a system before; these are the
+	   steps the app actually needs, largest first, roughly a major third apart
+	   at the top and settling to a fourth by the time it reaches body copy. */
+	--text-figure: clamp(2.5rem, 11vw, 3.5rem);
+	--text-stat: clamp(1.5rem, 6vw, 1.875rem);
+	--text-title: 1.375rem;
+	--text-subtitle: 1.0625rem;
 }
 
-/* These are element defaults, so they belong in @layer base — and being in a
-   layer is what lets a utility override them. Unlayered, they outranked every
-   Tailwind utility no matter how specific, because unlayered CSS wins over any
-   @layer. Two things were silently broken by that: `font-sans` or `tracking-*`
-   on an h1-h3 did nothing (a heading could not be restyled without a
-   component-scoped rule to fight back), and `focus:outline-none` on an input
-   did nothing either. Both are the obvious class to reach for, and both were
-   being ignored with no error anywhere. */
 @layer base {
-	html {
-		font-family: var(--font-sans);
-		-webkit-font-smoothing: antialiased;
-		background: radial-gradient(
-				ellipse at top,
-				var(--color-dough-100) 0%,
-				var(--color-dough-50) 60%
-			)
-			fixed;
+	:root {
+		/* Warm off-white ground; panels sit LIGHTER than it, so they lift. */
+		--kt-ground: #f6efe4;
+		--kt-surface: #fffdfa;
+		--kt-raised: #ffffff;
+		--kt-sunk: #f0e7d9;
+		--kt-hairline: rgba(93, 59, 22, 0.1);
+		--kt-ink: #291c11;
+		/* Both are held above 4.5:1 against the SUNK surface, not just against
+		   the panel: the wells are the darkest ground either of them ever lands
+		   on, and #7d6857 sat at 4.29 there — caught by the axe suite. */
+		--kt-ink-soft: #5c4838;
+		--kt-ink-faint: #75604f;
+		--kt-accent: var(--color-tomato-600);
+		--kt-leaf: var(--color-basil-700);
+		/* A wash of dough over the panel — the one tint the system uses to say
+		   "this surface matters more than the ones around it". */
+		--kt-tint: #fdf6e7;
+		/* The one step that is happening right now. Tomato, not dough: a dough
+		   wash would be the same beige as the ingredient wells inside the other
+		   steps, and "now" has to be unmistakable across a nine-step feed. */
+		--kt-now: #fdeee8;
+
+		--kt-lift-1: 0 1px 2px rgba(74, 45, 18, 0.05), 0 4px 14px -6px rgba(74, 45, 18, 0.12);
+		--kt-lift-2:
+			0 1px 2px rgba(74, 45, 18, 0.05), 0 10px 24px -12px rgba(74, 45, 18, 0.22),
+			0 28px 56px -32px rgba(74, 45, 18, 0.24);
+		--kt-press: inset 0 1px 3px rgba(74, 45, 18, 0.13), inset 0 -1px 0 rgba(255, 255, 255, 0.6);
+		/* Transparent in light: the shadow already bounds the panel. */
+		--kt-edge: transparent;
 	}
 
 	html.dark {
-		background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
+		/* Warm dusk, not black. Every value keeps a red-brown cast so the dark
+		   theme reads as the same room after sundown. */
+		--kt-ground: #15100c;
+		--kt-surface: #211a15;
+		--kt-raised: #291f19;
+		--kt-sunk: #191310;
+		--kt-hairline: rgba(255, 238, 214, 0.11);
+		--kt-ink: #f3e8dc;
+		--kt-ink-soft: #c8b6a4;
+		--kt-ink-faint: #a89684;
+		--kt-accent: var(--color-tomato-300);
+		--kt-leaf: var(--color-basil-300);
+		--kt-tint: #2b2119;
+		--kt-now: #33211a;
+
+		--kt-lift-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px -10px rgba(0, 0, 0, 0.6);
+		--kt-lift-2: 0 2px 4px rgba(0, 0, 0, 0.45), 0 18px 40px -20px rgba(0, 0, 0, 0.7);
+		--kt-press: inset 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 -1px 0 rgba(255, 238, 214, 0.04);
+		/* Visible here, and load-bearing: a soft shadow on a dark ground does
+		   nothing, so without this every panel would bleed into the page. */
+		--kt-edge: rgba(255, 238, 214, 0.09);
+	}
+
+	html {
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		background: var(--kt-ground);
+		color: var(--kt-ink);
+	}
+
+	html.dark {
 		color-scheme: dark;
 	}
 
+	/* These are element defaults, so they belong in @layer base — and being in a
+	   layer is what lets a utility override them. Unlayered, they outranked every
+	   Tailwind utility no matter how specific, because unlayered CSS wins over any
+	   @layer. Two things were silently broken by that: `font-sans` or `tracking-*`
+	   on an h1-h3 did nothing (a heading could not be restyled without a
+	   component-scoped rule to fight back), and `focus:outline-none` on an input
+	   did nothing either. Both are the obvious class to reach for, and both were
+	   being ignored with no error anywhere. */
 	h1,
 	h2,
 	h3,
 	.font-display {
 		font-family: var(--font-display);
-		letter-spacing: -0.01em;
+		letter-spacing: -0.015em;
 	}
 
 	input[type='number'] {
@@ -95,28 +197,173 @@
 }
 
 @layer components {
+	/* ---- surfaces -------------------------------------------------------- */
+
+	/* The primary regions — form, schedule, ingredients. Lifted off the ground
+	   by light. e2e/helpers.ts addresses regions through this class, so it is
+	   closer to an API than a style; renaming it means grepping e2e/ too. */
 	.card {
-		@apply border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70;
+		background: var(--kt-surface);
+		border: 1px solid var(--kt-edge);
+		border-radius: 1.5rem;
+		box-shadow: var(--kt-lift-2);
+		@apply p-5 sm:p-7;
 	}
 
+	/* The reference collections — My recipes, Community, 50 Top Pizza. They are
+	   a detour from the calculate-my-dough flow, so they sit ON the ground
+	   rather than above it: no lift, a hairline only. Card soup was six identical
+	   boxes; this is the half of the fix that says "these three matter less". */
+	.card-quiet {
+		background: color-mix(in oklab, var(--kt-surface) 55%, transparent);
+		border: 1px solid var(--kt-hairline);
+		border-radius: 1.25rem;
+		@apply p-5 sm:p-6;
+	}
+
+	/* The fermentation window is the one decision that changes everything, so it
+	   gets its own surface inside the form: raised above the fields around it,
+	   with the slider's groove cut into it. e2e/helpers.ts finds the card by
+	   this class — it used to be "the div in the form that happens to be
+	   rounded-2xl", which no longer identifies anything once the form has more
+	   than one rounded surface in it. */
+	.window-card {
+		/* Tinted, not just raised: sitting on the form's near-white panel, a
+		   white slab with a shadow reads as nothing at all. A wash of dough
+		   colour is what separates it from the fields above and below. */
+		background: var(--kt-tint);
+		border: 1px solid var(--kt-hairline);
+		box-shadow: var(--kt-lift-1);
+		@apply p-4 sm:p-5;
+	}
+
+	/* An inset surface: the groove the slider runs in, the ingredient lists
+	   inside a step, the info panel. Pressed into the panel, not stacked on it. */
+	.well {
+		background: var(--kt-sunk);
+		border-radius: 1rem;
+		box-shadow: var(--kt-press);
+	}
+
+	/* ---- the numeric voice ----------------------------------------------- */
+
+	/* The one big number on a surface: the bake time, the chosen window. Tabular
+	   so a ticking value does not shuffle its own digits sideways. */
+	.figure {
+		font-family: var(--font-display);
+		font-size: var(--text-figure);
+		font-weight: 600;
+		line-height: 0.95;
+		letter-spacing: -0.04em;
+		font-variant-numeric: tabular-nums;
+		color: var(--kt-ink);
+	}
+
+	/* A stat tile: value over label, repeated across the bake board and anywhere
+	   else a single number has to be read at a glance. */
+	.stat-value {
+		font-family: var(--font-display);
+		font-size: var(--text-stat);
+		font-weight: 600;
+		line-height: 1.1;
+		letter-spacing: -0.03em;
+		font-variant-numeric: tabular-nums;
+		color: var(--kt-ink);
+	}
+
+	.stat-label {
+		@apply mt-0.5 block text-xs leading-tight;
+		color: var(--kt-ink-faint);
+	}
+
+	/* ---- small parts ------------------------------------------------------ */
+
+	/* One rounded token, three jobs: a duration, a mode, a state. Neutral by
+	   default; the two modifiers below carry the tomato/basil meaning. */
+	.chip {
+		@apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap;
+		background: var(--kt-sunk);
+		color: var(--kt-ink-soft);
+	}
+
+	.chip-action {
+		@apply bg-tomato-100 text-tomato-800 dark:bg-tomato-900/50 dark:text-tomato-200;
+	}
+
+	.chip-time {
+		@apply bg-basil-100 text-basil-800 dark:bg-basil-900/50 dark:text-basil-200;
+	}
+
+	/* "Now" — the only chip that is a solid fill, because it marks exactly one
+	   row in the whole schedule. */
+	.chip-now {
+		@apply bg-tomato-500 px-2 text-[0.6875rem] tracking-wide text-white;
+	}
+
+	/* Every transition below names its properties instead of using
+	   `transition-colors`, which includes `outline-color` — a control carrying
+	   it animates its own focus ring into existence, leaving 150 ms of no
+	   visible focus after a Tab. e2e/cascade.spec.ts is what catches it. */
 	.btn-tomato {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50;
+		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50;
+		transition: background-color 150ms ease;
 	}
 
 	.btn-tomato-sm {
 		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-3 py-1 text-xs font-semibold text-white;
+		transition: background-color 150ms ease;
 	}
 
 	.menu-item {
-		@apply hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700;
+		@apply block w-full px-4 py-2.5 text-left text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50;
+		color: var(--kt-ink-soft);
+		transition:
+			background-color 150ms ease,
+			color 150ms ease;
+	}
+
+	.menu-item:hover:not(:disabled) {
+		background: var(--kt-sunk);
+		color: var(--kt-ink);
 	}
 
 	.text-accent {
-		@apply text-tomato-700 dark:text-tomato-300;
+		color: var(--kt-accent);
 	}
 
 	.row-divider {
-		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
+		border-bottom: 1px solid var(--kt-hairline);
+	}
+
+	.row-divider:last-child {
+		border-bottom: 0;
+	}
+
+	/* Every field's name. Ten places wrote this list out by hand. */
+	.field-label {
+		@apply block text-sm font-medium;
+		color: var(--kt-ink-soft);
+	}
+
+	/* The name of a group of fields — "When", "Recipe". Quieter than a region
+	   title but still in the display face, so the form reads as chapters. */
+	.fieldset-legend {
+		font-family: var(--font-display);
+		@apply text-accent text-[1.0625rem] font-semibold;
+	}
+
+	/* A region's name — schedule, ingredients, the recipe collections. */
+	.section-title {
+		font-family: var(--font-display);
+		@apply text-[1.375rem] leading-tight font-semibold;
+		color: var(--kt-ink);
+	}
+
+	/* The quiet line above or beside a figure. Sentence case on purpose: this
+	   app has no tracked-out capitals anywhere. */
+	.eyebrow {
+		@apply text-xs font-medium;
+		color: var(--kt-ink-faint);
 	}
 
 	/* A boxed message under the control that caused it. Danger is the same red
@@ -124,39 +371,59 @@
 	   info is the dough colour, for a consequence worth reporting rather than a
 	   refusal. Four components wrote these two class lists out by hand. */
 	.notice {
-		@apply rounded-lg border px-3 py-2 text-sm;
+		@apply rounded-xl border px-3 py-2 text-sm;
 	}
 
 	.notice-danger {
-		@apply border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200;
+		@apply border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700/70 dark:bg-tomato-900/40 dark:text-tomato-200;
 	}
 
 	.notice-info {
-		@apply border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100;
+		@apply border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700/70 dark:bg-dough-900/40 dark:text-dough-100;
 	}
 
 	/* The rounded switch strip: language, theme, schedule verbosity. Rendered by
-	   SegmentedControl.svelte, which owns the markup as well as the look. */
+	   SegmentedControl.svelte, which owns the markup as well as the look. It is
+	   a well with buttons in it — the selected one lifts out of the groove. */
 	.pill-group {
-		@apply border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70;
+		@apply m-0 inline-flex overflow-hidden rounded-full p-0.5 text-xs font-semibold;
+		background: var(--kt-sunk);
+		box-shadow: var(--kt-press);
 	}
 
 	.pill {
-		@apply inline-flex items-center justify-center px-3 py-1.5 transition-colors;
+		@apply inline-flex items-center justify-center rounded-full px-3 py-1.5;
+		transition:
+			background-color 150ms ease,
+			color 150ms ease;
 	}
 
 	.pill-on {
-		@apply bg-tomato-500 text-white;
+		@apply bg-tomato-500 text-white shadow-sm;
 	}
 
 	.pill-off {
-		@apply hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700;
+		color: var(--kt-ink-soft);
 	}
 
-	/* Every box the form types into. Size and width stay with the caller — the
-	   date pair splits a row, the rest fill it. */
+	.pill-off:hover {
+		color: var(--kt-ink);
+		background: color-mix(in oklab, var(--kt-surface) 70%, transparent);
+	}
+
+	/* Every box the form types into: a well you write in, not a bordered box.
+	   Size and width stay with the caller — the date pair splits a row. */
 	.input {
-		@apply border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100;
+		@apply rounded-xl border px-3 py-2;
+		background: var(--kt-raised);
+		border-color: var(--kt-hairline);
+		color: var(--kt-ink);
+		box-shadow: var(--kt-lift-1);
+		transition: border-color 150ms ease;
+	}
+
+	.input:focus {
+		border-color: var(--color-tomato-500);
 	}
 
 	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
@@ -179,11 +446,54 @@
 	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
 	   Width is the caller's, everything else is shared. */
 	.dialog-panel {
-		@apply border-dough-200 rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200;
+		@apply rounded-3xl border p-0 text-sm backdrop:bg-stone-950/50;
+		background: var(--kt-surface);
+		border-color: var(--kt-edge);
+		color: var(--kt-ink-soft);
+		box-shadow: var(--kt-lift-2);
+	}
+
+	/* The two floating panels — the actions menu and the fit-score breakdown.
+	   They sit over content, so they need the highest lift and an opaque fill
+	   in both themes; the two had written the same six classes out separately. */
+	.popover-panel {
+		@apply overflow-hidden rounded-2xl border;
+		background: var(--kt-raised);
+		border-color: var(--kt-hairline);
+		box-shadow: var(--kt-lift-2);
+		color: var(--kt-ink-soft);
 	}
 
 	/* The way out of a dialog: quieter than the action beside it. */
 	.btn-quiet {
-		@apply rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200;
+		@apply rounded-full px-3 py-2 text-xs;
+		color: var(--kt-ink-faint);
+		transition: color 150ms ease;
+	}
+
+	.btn-quiet:hover {
+		color: var(--kt-ink);
+	}
+
+	/* The disclosure marker every collapsible section uses. A drawn caret rather
+	   than the ▶ glyph, which fell back to a different font — and so a different
+	   size and baseline — depending on the platform. */
+	.disclosure-caret {
+		@apply mt-1.5 size-4 shrink-0 transition-transform duration-200;
+		color: var(--kt-accent);
+	}
+
+	details[open] > summary .disclosure-caret {
+		transform: rotate(90deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
 	}
 }

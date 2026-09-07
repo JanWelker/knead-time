@@ -89,10 +89,7 @@
 		</svg>
 		<span>{t.actions.menu}</span>
 	</summary>
-	<div
-		role="menu"
-		class="border-dough-200 absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
-	>
+	<div role="menu" class="popover-panel absolute right-0 z-20 mt-2 min-w-[14rem] py-1">
 		<button type="button" role="menuitem" class="menu-item" onclick={onIcs} disabled={!feasible}>
 			{t.actions.download_ics}
 		</button>
