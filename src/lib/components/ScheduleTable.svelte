@@ -104,23 +104,20 @@
 	}
 </script>
 
-<div class="text-stone-800 dark:text-stone-200">
+<div class="text-ink">
 	{#each days as day (day.key)}
-		<!-- A heading, not a span: the date is what groups the steps under it, and
-		     as plain text it left a multi-day plan looking like one flat run of
-		     step titles to anything navigating by heading. `font-sans` is
-		     load-bearing — app.css gives every h1-h3 the display serif, which
-		     this label has never used. -->
-		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<h3
-				class="font-sans text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
-			>
-				{day.label}
-			</h3>
-			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
+		<!-- The dateline. A heading, not a span: the date is what groups the steps
+		     under it, and as plain text a multi-day plan read as one flat run of
+		     step titles to anything navigating by heading. Set as a chapter opener
+		     — capitals on a heavy rule — because on a cold ferment the day change
+		     is the single most important thing on the page. `.eyebrow` is
+		     load-bearing here: app.css gives every h1-h3 the display serif, and
+		     the tracking and caps come from the class, not from the level. -->
+		<div class="border-ink mt-10 border-t-2 pt-2.5 pb-5 first:mt-0">
+			<h3 class="eyebrow text-ink figure">{day.label}</h3>
 		</div>
 
-		<ol class="tabular-nums">
+		<ol>
 			<!-- preFermentType disambiguates the two parallel pre-ferment mixes,
 			     which can share a start time when both shrink to the wall budget. -->
 			{#each day.steps as step, si (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
@@ -135,29 +132,43 @@
 				     rather than as information. The fermentation-window card says
 				     outright when the schedule opens before now. `past` still mutes
 				     the accent on an already-missed bake moment below. -->
-				<li class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3">
-					<!-- Rail: a vertical line threading every node within the day. -->
+				<li
+					class="grid grid-cols-[4.25rem_0.75rem_minmax(0,1fr)] gap-x-3 sm:grid-cols-[5rem_1rem_minmax(0,1fr)] sm:gap-x-4"
+				>
+					<!-- The time is the step's mark. A schedule is anchored in moments,
+					     so the moment is what numbers the sequence — set in the display
+					     face, in the margin, the way a printed timetable sets it. -->
+					<div
+						class="figure font-display pt-px text-right text-[0.95rem] leading-6 font-medium tracking-tight {current ||
+						(isReady && !past)
+							? 'text-rubric'
+							: 'text-ink'}"
+					>
+						{formatTime(step.at, locale)}
+					</div>
+
+					<!-- Rail: a hairline threading every node within the day. The node
+					     is a square rather than a dot — a quad of type, not a UI bullet
+					     — filled for a step you do and hollow for a phase you wait out. -->
 					<div class="relative">
 						{#if si > 0}
-							<span
-								class="bg-dough-300 absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2 dark:bg-stone-700"
-							></span>
+							<span class="bg-rule absolute top-0 left-1/2 h-2 w-px -translate-x-1/2"></span>
 						{/if}
 						{#if si < day.steps.length - 1}
 							<span
-								class="absolute top-2.5 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
-									? 'border-dough-400/80 border-dashed dark:border-stone-600'
-									: 'border-dough-300 border-solid dark:border-stone-700'}"
+								class="absolute top-2 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
+									? 'border-rule-strong border-dashed'
+									: 'border-rule-strong border-solid'}"
 							></span>
 						{/if}
 						<span
-							class="absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
+							class="absolute top-1.5 left-1/2 size-[7px] -translate-x-1/2 {current
 								? 'kt-node-now'
 								: ''} {isReady
-								? 'bg-tomato-600 ring-tomato-500/25'
+								? 'bg-rubric'
 								: active
-									? 'bg-tomato-500'
-									: 'border-dough-400 border-2 bg-white dark:border-stone-500 dark:bg-stone-900'}"
+									? 'bg-ink'
+									: 'border-rule-strong bg-paper border'}"
 							role="img"
 							aria-label={isReady
 								? stepTitle(step, t)
@@ -167,41 +178,27 @@
 						></span>
 					</div>
 
-					<!-- Time -->
-					<div
-						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
-							? 'text-accent'
-							: 'text-stone-600 dark:text-stone-300'}"
-					>
-						{formatTime(step.at, locale)}
-					</div>
-
 					<!-- Step -->
-					<div class="pb-6">
-						<div class="flex items-start justify-between gap-3">
-							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-								<!-- h4, under the day heading above. `font-display` is
-								     load-bearing: as an h3 this inherited the serif from
-								     app.css, and demoting the level alone would silently
-								     drop it to sans. -->
+					<div class="pb-8">
+						<div class="flex items-baseline justify-between gap-3">
+							<div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+								<!-- h4, under the h3 dateline above. The display face is
+								     load-bearing: as an h3 this inherited it from app.css,
+								     and demoting the level alone would silently drop it. -->
 								<h4
-									class="font-display text-[0.9375rem] leading-5 font-semibold {current ||
+									class="font-display text-[1.0625rem] leading-6 font-semibold {current ||
 									(isReady && !past)
-										? 'text-accent'
-										: 'text-stone-900 dark:text-stone-100'}"
+										? 'text-rubric'
+										: 'text-ink'}"
 								>
 									{stepTitle(step, t)}
 								</h4>
 								{#if current}
-									<span
-										class="bg-tomato-500 rounded px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-white uppercase"
-									>
-										{t.schedule.now}
-									</span>
+									<span class="stamp">{t.schedule.now}</span>
 								{/if}
 								{#if flags.length > 0}
 									<span
-										class="text-accent inline-flex items-center"
+										class="text-rubric inline-flex items-center"
 										title="{t.quality.step_imperfect} {flagTooltip(flags)}"
 										aria-label="{t.quality.step_imperfect} {flagTooltip(flags)}"
 									>
@@ -220,45 +217,38 @@
 								{/if}
 							</div>
 							{#if step.durationMinutes > 0}
-								<span
-									class="bg-dough-100 mt-px shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-stone-600 dark:bg-stone-800 dark:text-stone-300"
-								>
+								<span class="eyebrow figure shrink-0 whitespace-nowrap">
 									{formatDuration(step.durationMinutes, locale)}
 								</span>
 							{/if}
 						</div>
 
 						{#if ingredients.length > 0}
-							<ul
-								class="bg-dough-50 border-dough-100 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border px-3 py-2 dark:border-stone-700/60 dark:bg-stone-800/40"
-							>
+							<!-- What this step newly puts on the scale, set as an
+							     ingredient column: the name left, the weight hard right in
+							     tabular figures, a dotted leader crossing the gap. Ruled
+							     off top and bottom rather than boxed. -->
+							<ul class="border-rule mt-3 max-w-[22rem] space-y-1 border-y py-2">
 								{#each ingredients as ing (ing.name)}
-									<li class="contents">
-										<span
-											class="text-right text-xs font-semibold text-stone-700 dark:text-stone-200"
-										>
-											{ing.amount}
-										</span>
-										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
+									<li class="flex items-baseline gap-2 text-[0.8125rem]">
+										<span class="text-ink">{ing.name}</span>
+										<span class="ing-leader" aria-hidden="true"></span>
+										<span class="figure text-ink shrink-0 font-semibold">{ing.amount}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
+						<p class="measure text-ink mt-3 text-[0.9375rem] leading-relaxed">
 							{stepDescription(step, t, schedule)}
 						</p>
 
 						{#if verbosity === 'descriptive'}
-							<p
-								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
-							>
-								{stepDetail(step, t)}
-							</p>
+							<p class="annotation measure mt-3">{stepDetail(step, t)}</p>
 						{/if}
 
 						{#if sourceTiming?.[step.kind] && step.durationMinutes > 0 && outsideSourceRange(step.durationMinutes, sourceTiming[step.kind]!.minMinutes, sourceTiming[step.kind]!.maxMinutes)}
-							<div class="text-accent mt-1.5 text-xs font-medium">
+							<div class="text-rubric figure mt-2 text-xs">
 								{interpolate(t.schedule.source_timing_label, {
 									duration: formatRange(
 										sourceTiming[step.kind]!.minMinutes,
@@ -275,14 +265,15 @@
 </div>
 
 <style>
-	/* A gentle halo on the current step's node — "you are here". */
+	/* A gentle halo on the current step's node — "you are here". Drawn in the
+	   rubric so it reads as the same ink as the step title beside it. */
 	@keyframes kt-node-pulse {
 		0%,
 		100% {
-			box-shadow: 0 0 0 0 rgba(200, 64, 26, 0.4);
+			box-shadow: 0 0 0 0 rgb(160 47 26 / 0.45);
 		}
 		70% {
-			box-shadow: 0 0 0 6px rgba(200, 64, 26, 0);
+			box-shadow: 0 0 0 6px rgb(160 47 26 / 0);
 		}
 	}
 	.kt-node-now {

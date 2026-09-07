@@ -39,25 +39,15 @@
 
 <dialog bind:this={dialogEl} aria-labelledby="save-recipe-heading" class="dialog-panel max-w-sm">
 	<form class="space-y-4 p-5" onsubmit={onSubmit}>
-		<h2 id="save-recipe-heading" class="font-display text-accent text-lg">
-			{t.actions.save_recipe}
-		</h2>
+		<h2 id="save-recipe-heading" class="opener text-xl">{t.actions.save_recipe}</h2>
 
 		<label class="block space-y-1">
-			<span class="text-xs font-medium text-stone-600 dark:text-stone-300">
-				{t.actions.save_recipe_prompt}
-			</span>
-			<input
-				bind:this={inputEl}
-				type="text"
-				autocomplete="off"
-				bind:value={name}
-				class="input w-full text-sm text-stone-900 dark:bg-stone-900"
-			/>
+			<span class="eyebrow block">{t.actions.save_recipe_prompt}</span>
+			<input bind:this={inputEl} type="text" autocomplete="off" bind:value={name} class="field" />
 		</label>
 
 		<div class="flex flex-wrap items-center gap-2">
-			<button type="submit" class="btn-tomato" disabled={name.trim().length === 0}>
+			<button type="submit" class="btn-ink" disabled={name.trim().length === 0}>
 				{t.actions.save_confirm}
 			</button>
 			<button type="button" class="btn-quiet ml-auto" onclick={close}>

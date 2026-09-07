@@ -24,24 +24,30 @@ export async function waitForHydration(page: Page) {
 		.not.toBeNull();
 }
 
-/** A top-level card, addressed by its heading. */
+// The page has no cards any more: `.leaf` is the top-level region and
+// `.window-instrument` is the one boxed thing on it (see the Design section of
+// CLAUDE.md). These three helpers used to reach for `.card` and for
+// `form div.rounded-2xl` — a border radius doubling as an API, which is why
+// the redesign broke them. The names they use now exist for this purpose.
+
+/** A top-level region of the page, addressed by its heading. */
 export function card(page: Page, heading: string) {
-	return page.locator('.card').filter({ has: page.getByRole('heading', { name: heading }) });
+	return page.locator('.leaf').filter({ has: page.getByRole('heading', { name: heading }) });
 }
 
-/** The card holding the form (it has no heading of its own). */
+/** The region holding the form (it has no visible heading of its own). */
 export function formCard(page: Page) {
-	return page.locator('.card').filter({ has: page.locator('input[type="range"]') });
+	return page.locator('.leaf').filter({ has: page.locator('input[type="range"]') });
 }
 
-/** The fermentation-window card. */
+/** The fermentation-window instrument. */
 export function windowCard(page: Page) {
-	return page.locator('form div.rounded-2xl').filter({ has: page.locator('input[type="range"]') });
+	return page.locator('.window-instrument');
 }
 
 /** The big duration readout, e.g. "40 h". */
 export async function chosenWindow(page: Page): Promise<string> {
-	return (await windowCard(page).locator('.font-display').innerText()).trim();
+	return (await windowCard(page).locator('.window-figure').innerText()).trim();
 }
 
 export function slider(page: Page) {

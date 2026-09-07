@@ -30,7 +30,7 @@ const IDEAL_RECIPE = `${CAPUTO}&r=2026-09-02T17%3A30%3A00.000Z`;
  */
 async function tickRowBoxes(page: Page): Promise<{ t: string; left: number; right: number }[]> {
 	return page.evaluate(() => {
-		const card = document.querySelector('form div.rounded-2xl')!;
+		const card = document.querySelector('.window-instrument')!;
 		const spans = [...card.querySelectorAll('span')]
 			.filter((s) => /^\d+\s*h$/.test(s.textContent!.trim()) && s.checkVisibility())
 			.map((s) => {
@@ -179,7 +179,7 @@ test('no "use best" button when the flour has no ideal to offer', async ({ page 
 test('every marker caption stays inside the rail', async ({ page }) => {
 	await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
 
-	const rail = await windowCard(page).locator('.overflow-hidden.rounded-full').boundingBox();
+	const rail = await windowCard(page).locator('.window-rail').boundingBox();
 	for (const caption of await windowCard(page).locator('span.whitespace-nowrap').all()) {
 		const box = await caption.boundingBox();
 		if (!box) continue;

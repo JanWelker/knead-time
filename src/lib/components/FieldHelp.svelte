@@ -17,7 +17,7 @@
 </script>
 
 <span
-	class="{extra} text-xs text-stone-500 dark:text-stone-400 {uiMode.current === 'beginner'
+	class="{extra} text-ink-soft text-xs italic {uiMode.current === 'beginner'
 		? 'block'
 		: 'hidden group-focus-within:block'}"
 >

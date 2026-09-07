@@ -21,36 +21,49 @@
 	const sections = $derived(ingredientSections(ingredients, yeastType, yeastPercent, flourW, t));
 </script>
 
-<div class="space-y-6">
+<!--
+  The ingredient column, set the way a printed recipe sets it: name left,
+  weight hard right in tabular figures, a dotted leader crossing the gap so the
+  eye can travel it. The leader lives inside the label cell as an empty span,
+  because it must add no text — the browser suite compares this table's cells
+  against the print sheet's, row for row, and any character here would make the
+  two disagree. It is still a <table> for the same reason.
+-->
+<div class="space-y-7">
 	{#each sections as section (section.key)}
 		<section>
 			{#if section.heading}
-				<header class="mb-2">
-					<h3 class="font-display text-accent text-base">{section.heading}</h3>
+				<header class="border-rule mb-2 border-b pb-1.5">
+					<h3 class="eyebrow text-rubric">{section.heading}</h3>
 					{#if section.help}
-						<p class="text-xs text-stone-500 dark:text-stone-400">{section.help}</p>
+						<p class="text-ink-soft mt-1 text-xs italic">{section.help}</p>
 					{/if}
 				</header>
 			{/if}
-			<table class="w-full border-collapse tabular-nums">
+			<table class="w-full border-collapse">
 				<tbody>
 					{#each section.rows as row (row.label)}
 						<tr class="row-divider">
-							<th class="py-2 pr-3 text-left font-medium text-stone-700 dark:text-stone-200">
-								{row.label}
-								{#if row.hint}
-									<span class="text-xs font-normal text-stone-500 dark:text-stone-400">
-										({row.hint})
+							<th class="w-full py-2 pr-3 text-left font-normal">
+								<span class="ing-name">
+									<span class="text-ink">
+										{row.label}
+										{#if row.hint}
+											<span class="text-ink-soft figure text-xs">({row.hint})</span>
+										{/if}
 									</span>
-								{/if}
+									<span class="ing-leader" aria-hidden="true"></span>
+								</span>
 							</th>
-							<td class="py-2 text-right tabular-nums dark:text-stone-100">{row.amount}</td>
+							<td class="figure text-ink py-2 text-right whitespace-nowrap">{row.amount}</td>
 						</tr>
 					{/each}
 					{#if section.total}
-						<tr>
-							<th class="font-display text-accent py-2 pr-3 text-left">{section.total.label}</th>
-							<td class="font-display text-accent py-2 text-right tabular-nums">
+						<tr class="sum-rule">
+							<th class="w-full pt-2.5 pr-3 text-left">
+								<span class="eyebrow text-ink">{section.total.label}</span>
+							</th>
+							<td class="figure text-ink pt-2.5 text-right font-semibold whitespace-nowrap">
 								{section.total.amount}
 							</td>
 						</tr>
@@ -61,6 +74,6 @@
 	{/each}
 
 	{#if needsFineScale(ingredients)}
-		<p class="text-xs text-stone-500 italic dark:text-stone-400">{t.ingredients.scale_hint}</p>
+		<p class="annotation">{t.ingredients.scale_hint}</p>
 	{/if}
 </div>

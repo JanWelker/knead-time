@@ -74,14 +74,15 @@ test('changing a heading level does not change its typeface', async ({ page }) =
 			const cs = getComputedStyle(el);
 			return { font: cs.fontFamily.split(',')[0].trim(), tracking: cs.letterSpacing };
 		});
-	// The date label has always been the sans face with wide tracking.
-	expect(day.font).toBe('ui-sans-serif');
-	expect(day.tracking).toBe('1.68px');
+	// The dateline is set by `.eyebrow`: the display face in letterspaced
+	// capitals. It has never inherited the plain heading treatment.
+	expect(day.font).toBe('"Bodoni Moda"');
+	expect(day.tracking).toBe('1.7408px');
 
 	const step = await page
 		.locator('main ol h4')
 		.first()
 		.evaluate((el) => getComputedStyle(el).fontFamily.split(',')[0].trim());
-	// Step titles have always been the display serif.
-	expect(step).toBe('ui-serif');
+	// Step titles have always been the display face.
+	expect(step).toBe('"Bodoni Moda"');
 });

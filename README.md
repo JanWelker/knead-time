@@ -71,7 +71,7 @@ src/
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
-│   ├── warningSlots.ts   ← which card each schedule warning is rendered in
+│   ├── warningSlots.ts   ← which region each schedule warning is rendered in
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
@@ -82,8 +82,9 @@ src/
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
 │   ├── +page.svelte      ← the entire calculator UI
 │   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
-├── app.css               ← Tailwind v4 entrypoint + @theme palette
-└── app.html              ← shell
+├── app.css               ← Tailwind v4 entrypoint: the Forno design tokens (paper/ink/rule/rubric,
+│                            redefined as a block under html.dark) + the component layer
+└── app.html              ← shell (theme boot script, Google Fonts link)
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
 scripts/

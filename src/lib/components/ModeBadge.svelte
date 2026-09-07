@@ -6,15 +6,20 @@
 	const t = $derived(i18n.t);
 </script>
 
-<div
-	class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wide {mode ===
-	'cold'
-		? 'bg-basil-100 text-basil-800 dark:bg-basil-900/40 dark:text-basil-200'
-		: 'bg-tomato-100 text-tomato-800 dark:bg-tomato-900/40 dark:text-tomato-200'}"
->
-	<span class="h-2 w-2 rounded-full {mode === 'cold' ? 'bg-basil-500' : 'bg-tomato-500'}"></span>
-	{mode === 'cold' ? t.mode.cold : t.mode.room}
+<!-- Which leg the schedule took, stated as a standing head rather than a
+     coloured pill: a square of the mode's own ink, the name in capitals, and
+     the sentence that explains it in italic underneath. Basil is the cold
+     fridge leg, rubric the warm room one — the same two inks the window rail
+     paints its bands with, so the colour means one thing in both places. -->
+<div class="flex items-baseline gap-2">
+	<span
+		class="mt-px size-2 shrink-0 {mode === 'cold' ? 'bg-basil' : 'bg-rubric'}"
+		aria-hidden="true"
+	></span>
+	<span class="eyebrow {mode === 'cold' ? 'text-basil' : 'text-rubric'}">
+		{mode === 'cold' ? t.mode.cold : t.mode.room}
+	</span>
 </div>
-<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+<p class="text-ink-soft measure mt-1 text-xs italic">
 	{mode === 'cold' ? t.mode.cold_blurb : t.mode.room_blurb}
 </p>

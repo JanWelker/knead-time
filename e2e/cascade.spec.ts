@@ -19,13 +19,13 @@ test('a utility can restyle a heading', async ({ page }) => {
 			return { font: cs.fontFamily.split(',')[0].trim(), tracking: cs.letterSpacing };
 		});
 
-	// Untouched headings keep the display serif from the base rule...
-	expect((await face(card(page, 'Schedule').locator('h2'))).font).toBe('ui-serif');
-	// ...while the day label, which asks for sans and wide tracking with nothing
-	// but utilities, actually gets them.
+	// Untouched headings keep the display face from the base rule...
+	expect((await face(card(page, 'Schedule').locator('h2'))).font).toBe('"Bodoni Moda"');
+	// ...while the dateline, which asks for letterspaced capitals with nothing
+	// but a component class, actually gets them.
 	const day = await face(card(page, 'Schedule').locator('h3'));
-	expect(day.font).toBe('ui-sans-serif');
-	expect(day.tracking).toBe('1.68px');
+	expect(day.font).toBe('"Bodoni Moda"');
+	expect(day.tracking).toBe('1.7408px');
 });
 
 // The TRMNL uuid field carried `focus:outline-none`. It never took effect —
@@ -42,8 +42,8 @@ test('every control keeps the focus ring, including the TRMNL uuid field', async
 			return getComputedStyle(el).outline;
 		});
 
-	expect(await ring(page.locator('form input[type="number"]'))).toBe('rgb(200, 64, 26) solid 2px');
-	expect(await ring(page.locator('form select'))).toBe('rgb(200, 64, 26) solid 2px');
+	expect(await ring(page.locator('form input[type="number"]'))).toBe('rgb(160, 47, 26) solid 2px');
+	expect(await ring(page.locator('form select'))).toBe('rgb(160, 47, 26) solid 2px');
 
 	// The trigger is a <summary>; Playwright does not expose it as a button.
 	await page.locator('summary').filter({ hasText: 'Actions' }).click();
@@ -52,5 +52,5 @@ test('every control keeps the focus ring, including the TRMNL uuid field', async
 	// in the page now, and "the input inside a dialog" stopped being unique.
 	const uuid = page.getByRole('textbox', { name: 'Plugin UUID' });
 	await expect(uuid).toBeVisible();
-	expect(await ring(uuid)).toBe('rgb(200, 64, 26) solid 2px');
+	expect(await ring(uuid)).toBe('rgb(160, 47, 26) solid 2px');
 });

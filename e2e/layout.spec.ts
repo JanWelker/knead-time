@@ -101,4 +101,25 @@ test.describe('tap targets', () => {
 		const fit = await page.locator('summary').filter({ hasText: 'fit' }).first().boundingBox();
 		expect(fit!.height).toBeGreaterThanOrEqual(24);
 	});
+
+	// The footer links were 16 px tall and conformed to WCAG 2.5.8 only through
+	// the spacing exception — nothing happened to sit within 24 px of them. The
+	// Forno redesign set the footer as two right-aligned rows, which put them
+	// four pixels apart and turned a passing page into a failing one. Exactly
+	// the reflow the note above warns about, and it happened within one change.
+	// `.link-quiet` carries its own 24 px now, so no arrangement can take it
+	// away again. Axe catches this too, but only in whatever layout it happens
+	// to scan; this names the rule.
+	test('the footer links are 24px tall without relying on their neighbours', async ({ page }) => {
+		await openRecipe(page, RECIPE);
+
+		const links = page.locator('footer a');
+		const count = await links.count();
+		expect(count).toBeGreaterThan(3);
+		for (let i = 0; i < count; i++) {
+			const box = await links.nth(i).boundingBox();
+			expect(box, `footer link ${i} is not on the page`).not.toBeNull();
+			expect(box!.height, await links.nth(i).innerText()).toBeGreaterThanOrEqual(24);
+		}
+	});
 });

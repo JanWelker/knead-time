@@ -24,10 +24,12 @@
 	let readyByDate = $derived(toDatePart(form.readyBy));
 	let readyByTime = $derived(toTimePart(form.readyBy));
 
-	// `.input` in app.css carries the box itself; only the sizing differs here.
-	const dateInputClass = 'input min-w-0 flex-1 text-base';
-	const timeInputClass = 'input w-28 text-base';
-	const selectClass = 'input mt-1 w-full text-base';
+	// `.field` in app.css carries the printed rule the value sits on; only the
+	// sizing differs here. A date and a time share one row, so the date takes
+	// the slack and the time keeps a fixed measure.
+	const dateInputClass = 'field min-w-0 flex-1 figure';
+	const timeInputClass = 'field w-24 shrink-0 figure';
+	const selectClass = 'field-select mt-1';
 
 	// True while the last start-time edit had to be pulled back to the bake
 	// time. Cleared by the next edit that lands legally, and by a new bake
@@ -73,19 +75,19 @@
 	}
 </script>
 
-<form class="space-y-8" onsubmit={(e) => e.preventDefault()}>
-	<fieldset class="space-y-3">
-		<legend class="font-display text-accent text-lg">
-			{t.form.section_when}
-		</legend>
+<form class="space-y-10" onsubmit={(e) => e.preventDefault()}>
+	<!-- Section openers are set as datelines, not as headings in a box: the
+	     name in letterspaced capitals sitting on a rule that runs the width of
+	     the column. `float-none` and the sibling rule keep it a real <legend>
+	     for the accessibility tree while reading as a printed standing head. -->
+	<fieldset class="space-y-5">
+		<legend class="section-head">{t.form.section_when}</legend>
 		<!-- A fieldset, not a label: a label names its FIRST labelable
 		     descendant, so wrapping a date and a time box in one left the time
 		     box with no accessible name at all. The legend names the moment,
 		     each input names its own half. -->
 		<fieldset class="group block min-w-0">
-			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.startAt}
-			</legend>
+			<legend class="eyebrow block">{t.form.startAt}</legend>
 			<div class="mt-1 flex gap-2">
 				<input
 					type="date"
@@ -105,7 +107,7 @@
 			</div>
 			<div class="mt-1 flex items-center justify-between gap-2">
 				<FieldHelp text={t.form.startAt_help} extra="" />
-				<button type="button" class="btn-tomato-sm ml-auto shrink-0" onclick={resetStartAtToNow}>
+				<button type="button" class="btn-ink-sm ml-auto shrink-0" onclick={resetStartAtToNow}>
 					{t.form.startAt_now}
 				</button>
 			</div>
@@ -116,9 +118,7 @@
 			{/if}
 		</fieldset>
 		<fieldset class="group block min-w-0">
-			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.readyBy}
-			</legend>
+			<legend class="eyebrow block">{t.form.readyBy}</legend>
 			<div class="mt-1 flex gap-2">
 				<input
 					type="date"
@@ -142,9 +142,7 @@
 		     directly above the rail that paints its tolerance band. The W number
 		     behind it stays expert-only — the presets already carry it. -->
 		<label class="group block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.flour}
-			</span>
+			<span class="eyebrow block">{t.form.flour}</span>
 			<select
 				class={selectClass}
 				value={flourChoice}
@@ -186,10 +184,8 @@
 		<FermentWindowSlider {form} />
 	</fieldset>
 
-	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-		<legend class="font-display text-accent col-span-full text-lg">
-			{t.form.section_recipe}
-		</legend>
+	<fieldset class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2">
+		<legend class="section-head col-span-full">{t.form.section_recipe}</legend>
 		<FormField label={t.form.pizzaCount} min={1} max={100} step={1} bind:value={form.pizzaCount} />
 		{#if uiMode.current === 'expert'}
 			<FormField
@@ -232,10 +228,8 @@
 			/>
 		{/if}
 
-		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-				{t.form.mixingMethod}
-			</span>
+		<label class="group block">
+			<span class="eyebrow block">{t.form.mixingMethod}</span>
 			<select class={selectClass} bind:value={form.mixingMethod}>
 				<option value="spiral">{t.form.mixing_spiral}</option>
 				<option value="stand">{t.form.mixing_stand}</option>
@@ -244,10 +238,8 @@
 			<FieldHelp text={t.form.mixingMethod_help} />
 		</label>
 		{#if uiMode.current === 'expert'}
-			<label class="block">
-				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-					{t.form.yeastType}
-				</span>
+			<label class="group block">
+				<span class="eyebrow block">{t.form.yeastType}</span>
 				<select class={selectClass} bind:value={form.yeastType}>
 					<option value="fresh">{t.form.yeast_fresh}</option>
 					<option value="instant">{t.form.yeast_instant}</option>
@@ -255,7 +247,7 @@
 					<option value="sourdough">{t.form.yeast_sourdough}</option>
 				</select>
 				{#if form.yeastType === 'active-dry'}
-					<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					<span class="text-ink-soft mt-1 block text-xs italic">
 						{t.form.yeast_active_dry_help}
 					</span>
 				{/if}
@@ -271,12 +263,10 @@
 					bind:value={form.starterHydration}
 				/>
 			{:else}
-				<fieldset class="space-y-2">
-					<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
-						{t.form.preFerment}
-					</legend>
-					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-						<input type="checkbox" class="accent-tomato-500" bind:checked={form.bigaEnabled} />
+				<fieldset class="space-y-2.5">
+					<legend class="eyebrow block">{t.form.preFerment}</legend>
+					<label class="text-ink flex min-h-[2.25rem] items-center gap-2.5 text-sm">
+						<input type="checkbox" class="accent-rubric size-4" bind:checked={form.bigaEnabled} />
 						{t.form.preFerment_biga}
 					</label>
 					{#if form.bigaEnabled}
@@ -288,8 +278,12 @@
 							bind:value={form.bigaFlourPercent}
 						/>
 					{/if}
-					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-						<input type="checkbox" class="accent-tomato-500" bind:checked={form.poolishEnabled} />
+					<label class="text-ink flex min-h-[2.25rem] items-center gap-2.5 text-sm">
+						<input
+							type="checkbox"
+							class="accent-rubric size-4"
+							bind:checked={form.poolishEnabled}
+						/>
 						{t.form.preFerment_poolish}
 					</label>
 					{#if form.poolishEnabled}
@@ -302,15 +296,15 @@
 						/>
 					{/if}
 					{#if form.bigaEnabled && form.poolishEnabled}
-						<span class="block text-xs text-stone-500 dark:text-stone-400">
+						<span class="text-ink-soft block text-xs italic">
 							{t.form.preFerment_sum_help}
 						</span>
 					{/if}
 					{#if form.bigaEnabled || form.poolishEnabled}
-						<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+						<label class="text-ink flex min-h-[2.25rem] items-center gap-2.5 text-sm">
 							<input
 								type="checkbox"
-								class="accent-tomato-500"
+								class="accent-rubric size-4"
 								bind:checked={form.preFermentTempEnabled}
 							/>
 							{t.form.preFermentTemp_toggle}
@@ -332,31 +326,27 @@
 			<!-- Autolyse applies only with no pre-ferment (sourdough always
 			     qualifies — its starter is not a schedule pre-ferment). -->
 			{#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
-				<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
-					<input type="checkbox" class="accent-tomato-500" bind:checked={form.autolyse} />
+				<label class="group text-ink flex min-h-[2.25rem] items-center gap-2.5 text-sm">
+					<input type="checkbox" class="accent-rubric size-4" bind:checked={form.autolyse} />
 					<span>
 						{t.form.autolyse_toggle}
-						<span
-							class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
-						>
+						<span class="text-ink-soft hidden text-xs font-normal italic group-focus-within:block">
 							{t.form.autolyse_help}
 						</span>
 					</span>
 				</label>
 			{/if}
 
-			<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+			<label class="group text-ink flex min-h-[2.25rem] items-center gap-2.5 text-sm">
 				<input
 					type="checkbox"
-					class="accent-tomato-500"
+					class="accent-rubric size-4"
 					checked={form.ballProof === 'cold'}
 					onchange={(e) => (form.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
 				/>
 				<span>
 					{t.form.ballProof_toggle}
-					<span
-						class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
-					>
+					<span class="text-ink-soft hidden text-xs font-normal italic group-focus-within:block">
 						{t.form.ballProof_help}
 					</span>
 				</span>
@@ -388,33 +378,27 @@
 		{/if}
 	</fieldset>
 
-	<div>
+	<div class="border-rule border-t pt-4">
 		<button
 			type="button"
-			class="text-accent inline-block cursor-pointer py-0.5 text-sm font-medium underline-offset-2 hover:underline"
+			class="link-action inline-block cursor-pointer py-1 text-sm"
 			onclick={() => uiMode.set(uiMode.current === 'beginner' ? 'expert' : 'beginner')}
 		>
 			{uiMode.current === 'beginner' ? t.form.mode_expert : t.form.mode_beginner}
 		</button>
 		{#if uiMode.current === 'beginner'}
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
-				{t.form.mode_help}
-			</span>
+			<span class="text-ink-soft mt-1 block text-xs italic">{t.form.mode_help}</span>
 		{/if}
 	</div>
 
 	{#if uiMode.current === 'expert'}
-		<details
-			class="border-dough-300 bg-dough-50/60 group min-w-0 rounded-lg border border-dashed p-3 text-xs text-stone-700 open:bg-white/70 dark:border-stone-600 dark:bg-stone-800/40 dark:text-stone-300 dark:open:bg-stone-900/60"
-		>
-			<summary
-				class="text-accent flex cursor-pointer list-none items-center gap-2 font-medium select-none"
-			>
+		<details class="border-rule text-ink-soft group min-w-0 border-t pt-4 text-xs">
+			<summary class="text-rubric flex cursor-pointer list-none items-center gap-2 select-none">
 				<span
-					class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
+					class="text-[0.7rem] leading-none transition-transform group-open:rotate-90"
 					aria-hidden="true">▶</span
 				>
-				<span>{t.form.info_heading}</span>
+				<span class="eyebrow text-rubric">{t.form.info_heading}</span>
 			</summary>
 			<div class="mt-3 min-w-0 space-y-4 leading-relaxed">
 				<p>{t.form.info_intro}</p>
@@ -425,9 +409,7 @@
 				     Thirteen hand-written blocks could not be checked that way. -->
 				{#each INFO_SECTIONS as section (section.title)}
 					<div class="min-w-0">
-						<p class="font-semibold text-stone-900 dark:text-stone-100">
-							{t.form[section.title]}
-						</p>
+						<p class="text-ink font-semibold">{t.form[section.title]}</p>
 						{#each section.parts as part, i (i)}
 							{#if part.kind === 'text'}
 								<p class="mt-1">{t.form[part.key]}</p>
@@ -439,7 +421,7 @@
 								</ul>
 							{:else}
 								<pre
-									class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">{part.formula}</pre>
+									class="border-rule bg-panel text-ink mt-1 overflow-x-auto border-l-2 px-2 py-1 font-mono text-[0.72rem]">{part.formula}</pre>
 							{/if}
 						{/each}
 					</div>

@@ -39,6 +39,7 @@
 	import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
 	import TrmnlPush from '$lib/components/TrmnlPush.svelte';
+	import { formatDateTime } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
@@ -170,45 +171,67 @@
 	<title>{t.app.title} — {t.app.tagline}</title>
 </svelte:head>
 
-<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-	<header class="mb-8 flex flex-wrap items-start justify-between gap-4">
-		<div>
-			<h1 class="font-display text-accent text-4xl sm:text-5xl">{t.app.title}</h1>
-			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300">{t.app.tagline}</p>
+<main class="mx-auto max-w-[78rem] px-5 pb-16 sm:px-8">
+	<!-- The masthead. A cover, not an <h1> with a <p> under it: a rubric rule
+	     across the top of the sheet, the name set large in the display face, and
+	     a dateline naming the moment the whole page is calculated back from.
+	     The bake time is the app's answer, so it is billed on the cover the way
+	     a magazine bills its issue — and it needs no new copy, because the
+	     form's own label already names it. -->
+	<header class="mb-10 pt-8">
+		<div class="bg-rubric mb-6 h-1.5"></div>
+		<div class="flex flex-wrap items-end justify-between gap-x-6 gap-y-5">
+			<h1 class="text-ink text-5xl leading-[0.95] font-medium sm:text-6xl">{t.app.title}</h1>
+			<div class="flex flex-wrap items-center gap-2">
+				<LangSwitcher />
+				<ThemeSwitcher />
+			</div>
 		</div>
-		<div class="flex flex-wrap items-center gap-2">
-			<LangSwitcher />
-			<ThemeSwitcher />
+		<div
+			class="border-ink mt-5 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-t pt-3"
+		>
+			<p class="text-ink-soft measure text-[0.95rem] italic">{t.app.tagline}</p>
+			<p class="flex items-baseline gap-2 whitespace-nowrap">
+				<span class="eyebrow">{t.form.readyBy}</span>
+				<span class="figure text-ink font-display text-[0.95rem] font-medium">
+					{formatDateTime(form.readyBy, locale)}
+				</span>
+			</p>
 		</div>
 	</header>
 
-	<!-- lg+: When + Ingredients stack in the left column, Schedule spans the
-	     right; below lg everything collapses to one column in DOM order.
-	     All three carry explicit col/row placement, so DOM order is free to
-	     serve the phone: the schedule comes second there, because it is what
-	     the app is for and it used to sit two screens below the fold, behind
-	     the form AND the ingredients. At lg+ the placement pins it back to
-	     the right-hand column regardless. -->
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
-		<section class="card lg:col-start-1 lg:row-start-1">
-			<!-- The input card was the one card with no heading, so the whole
-			     primary surface was missing from the heading outline. Kept
-			     sr-only: the two group legends below already label it on screen,
-			     and a visible "Your recipe" sitting directly above a "Recipe"
-			     legend reads as a duplicate. -->
+	<!-- The cookbook shape: a narrow sidebar carrying what you set and what you
+	     weigh, a wide body carrying the method. The columns are deliberately
+	     unequal — a 5/12 margin against a 7/12 measure — and the body hangs off
+	     a vertical rule rather than sitting in a box.
+
+	     All three regions carry explicit col/row placement, so DOM order is free
+	     to serve the phone: the schedule comes second there, because it is what
+	     the app is for and it used to sit two screens below the fold, behind the
+	     form AND the ingredients. At lg+ the placement pins it back to the
+	     right-hand column regardless. -->
+	<div
+		class="grid grid-cols-1 gap-x-10 gap-y-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start"
+	>
+		<section class="leaf lg:col-start-1 lg:row-start-1">
+			<!-- The input region was the one region with no heading, so the whole
+			     primary surface was missing from the heading outline. Kept sr-only:
+			     the two group legends below already label it on screen, and a
+			     visible "Your recipe" sitting directly above a "Recipe" legend
+			     reads as a duplicate. -->
 			<h2 class="sr-only">{t.form.heading}</h2>
 			<InputForm {form} />
 		</section>
 
-		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
+		<div class="leaf border-rule lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:border-l lg:pl-10">
 			<!-- Title row keeps Actions pinned top-right at every width; the badge/
 			     stars/verbosity strip lives on its own full-width row below so it
 			     can never wrap the button out of place (issue #189). -->
-			<div class="relative mb-4">
-				<div class="flex flex-wrap items-start justify-between gap-3">
-					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-						{t.schedule.heading}
-					</h2>
+			<!-- No rule under this header: the schedule's first dateline draws its
+			     own, and two heavy rules a few pixels apart read as a mistake. -->
+			<div class="relative pb-1">
+				<div class="flex flex-wrap items-baseline justify-between gap-3">
+					<h2 class="opener text-[1.9rem]">{t.schedule.heading}</h2>
 					<ActionsMenu
 						feasible={form.schedule.feasible}
 						shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
@@ -241,7 +264,7 @@
 					{#if copied === 'share'}{t.actions.copied}{:else if copied === 'failed'}{t.actions
 							.copy_failed}{/if}
 				</p>
-				<div class="mt-2 flex flex-wrap items-center gap-3">
+				<div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
 					<ModeBadge mode={form.schedule.mode} />
 					<FitScore schedule={form.schedule} inputs={form.serializable()} />
 					<SegmentedControl
@@ -255,7 +278,7 @@
 				</div>
 			</div>
 
-			<div class="mt-4">
+			<div class="mt-6">
 				<ScheduleTable
 					schedule={form.schedule}
 					sourceTiming={activePizzeria?.timing}
@@ -264,14 +287,12 @@
 			</div>
 		</div>
 
-		<div class="card lg:col-start-1 lg:row-start-2">
-			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-					{t.ingredients.heading}
-				</h2>
+		<div class="leaf leaf-ruled lg:col-start-1 lg:row-start-2">
+			<div class="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+				<h2 class="opener">{t.ingredients.heading}</h2>
 				<button
 					type="button"
-					class="btn-tomato-sm inline-flex items-center gap-1"
+					class="btn-ink-sm inline-flex items-center gap-1"
 					onclick={() => form.roundBallWeight()}
 					title={t.form.ballWeight_round_help}
 					aria-label={t.form.ballWeight_round_help}
@@ -296,72 +317,77 @@
 		</div>
 	</div>
 
-	<section class="card mt-8">
+	<!-- The back matter: three collapsed indexes, each opened by a rule. -->
+	<section class="leaf leaf-ruled mt-12">
 		<MyRecipes
 			recipes={savedRecipes}
 			onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
 		/>
 	</section>
 
-	<section class="card mt-8">
+	<section class="leaf leaf-ruled mt-8">
 		<Community />
 	</section>
 
-	<section class="card mt-8">
+	<section class="leaf leaf-ruled mt-8">
 		<Pizzerias />
 	</section>
 
-	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400">
-		<p>{t.footer.about}</p>
-		<p class="mt-1 text-stone-500 dark:text-stone-400">{t.actions.share_help}</p>
-		<p
-			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-500 dark:text-stone-400"
-		>
-			<a
-				href="https://github.com/JanWelker/knead-time"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="link-quiet"
-			>
-				{t.footer.source}
-			</a>
-			<span aria-hidden="true">·</span>
-			<a
-				href="https://github.com/JanWelker/knead-time#readme"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="link-quiet"
-			>
-				{t.footer.docs}
-			</a>
-			<span aria-hidden="true">·</span>
-			<a
-				href="https://github.com/JanWelker/knead-time/issues"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="link-quiet"
-			>
-				{t.footer.support}
-			</a>
-		</p>
-		<p class="mt-2 text-stone-500 dark:text-stone-400">
-			<a
-				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="link-quiet"
-			>
-				{interpolate(t.footer.license, { year: currentYear })}
-			</a>
-			<span aria-hidden="true">·</span>
-			<a
-				href="https://github.com/JanWelker/knead-time/releases/tag/v{appVersion}"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="link-quiet"
-			>
-				v{appVersion}
-			</a>
-		</p>
+	<footer class="border-ink text-ink-soft mt-16 border-t pt-5 text-xs">
+		<div class="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-3">
+			<div class="measure space-y-1">
+				<p>{t.footer.about}</p>
+				<p class="italic">{t.actions.share_help}</p>
+			</div>
+			<div class="space-y-1 sm:text-right">
+				<p class="flex flex-wrap items-baseline gap-x-3 sm:justify-end">
+					<a
+						href="https://github.com/JanWelker/knead-time"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="link-quiet"
+					>
+						{t.footer.source}
+					</a>
+					<span aria-hidden="true">·</span>
+					<a
+						href="https://github.com/JanWelker/knead-time#readme"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="link-quiet"
+					>
+						{t.footer.docs}
+					</a>
+					<span aria-hidden="true">·</span>
+					<a
+						href="https://github.com/JanWelker/knead-time/issues"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="link-quiet"
+					>
+						{t.footer.support}
+					</a>
+				</p>
+				<p class="flex flex-wrap items-baseline gap-x-3 sm:justify-end">
+					<a
+						href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="link-quiet"
+					>
+						{interpolate(t.footer.license, { year: currentYear })}
+					</a>
+					<span aria-hidden="true">·</span>
+					<a
+						href="https://github.com/JanWelker/knead-time/releases/tag/v{appVersion}"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="link-quiet figure"
+					>
+						v{appVersion}
+					</a>
+				</p>
+			</div>
+		</div>
 	</footer>
 </main>

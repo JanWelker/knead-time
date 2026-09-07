@@ -2,42 +2,78 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ---------------------------------------------------------------------------
+   Forno — the app set as a printed page.
+
+   Two decisions carry the whole system, and both are worth stating before the
+   values.
+
+   First, colour is SEMANTIC and flips as one block. Every token below names a
+   role on a printed page (paper, ink, rule, rubric), not a hue with a number
+   after it. `html.dark` redefines the same names — nothing else in the app
+   carries a `dark:` variant for colour any more. That is what makes the dark
+   theme a design rather than an inversion: it is warm-black stock with
+   paper-white type, chosen, not derived.
+
+   Second, the page has no cards. Structure comes from rules and space. Exactly
+   one region is boxed — the fermentation window, because it is an instrument
+   with a rail and two markers and needs an edge to be read against. If a
+   second box ever appears, one of the two is wrong.
+   --------------------------------------------------------------------------- */
+
 @theme {
-	--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-	--font-display: ui-serif, Georgia, serif;
+	/* Bodoni Moda: Parma, 1790, and the reason this app looks Italian rather
+	   than generically editorial. Reserved for the masthead, the datelines,
+	   the eyebrow labels and every figure a baker reads off a scale or a
+	   clock. Its hairlines break below ~14 px, so nothing small is set in it
+	   except letterspaced caps, where the caps are the strong part. */
+	--font-display: 'Bodoni Moda', ui-serif, Georgia, 'Times New Roman', serif;
+	/* Source Serif 4 carries the reading matter: step method, help text,
+	   ingredient names, form values. A text face with real optical sizes, so
+	   it holds at 14 px on a phone where the display face would not. */
+	--font-text: 'Source Serif 4', ui-serif, Georgia, 'Times New Roman', serif;
 
-	--color-dough-50: #fdf8ef;
-	--color-dough-100: #f8ecd0;
-	--color-dough-200: #f0d8a1;
-	--color-dough-300: #e6bd6e;
-	--color-dough-400: #dca246;
-	--color-dough-500: #c98828;
-	--color-dough-600: #a86d20;
-	--color-dough-700: #82531c;
-	--color-dough-800: #5d3b16;
-	--color-dough-900: #3d270f;
+	/* The light plate: warm uncoated stock, a brown-shifted black, and one
+	   red. Rubric is the printer's word for the second ink — the colour a
+	   press reserves for the parts of a page that direct the reader. It is
+	   spent on four things only: the masthead rule, the current step, a
+	   refusal, and the primary action. */
+	--color-paper: #faf6ee;
+	--color-panel: #f2ebdb;
+	--color-ink: #241a11;
+	--color-ink-soft: #6b5c4a;
+	--color-rule: #ddd0b6;
+	--color-rule-strong: #b3a184;
+	--color-rubric: #a02f1a;
+	--color-rubric-wash: #f6e5de;
+	/* Basil means one thing and only one: fermentation going well — the cold
+	   mode, the flour's tolerance band, the ideal marker. Never decoration. */
+	--color-basil: #3d6b28;
+	--color-basil-wash: #e8efdf;
+	/* The two band shades the window rail paints. They are separate tokens
+	   rather than a ramp because they carry a distinction (room band vs cold
+	   band) that has to survive the theme flip. */
+	--color-basil-300: #b6cfa2;
+	--color-basil-400: #7ca85f;
+}
 
-	--color-tomato-50: #fdf2ee;
-	--color-tomato-100: #fbded2;
-	--color-tomato-200: #f7b9a4;
-	--color-tomato-300: #f08a6b;
-	--color-tomato-400: #e35f3a;
-	--color-tomato-500: #c8401a;
-	--color-tomato-600: #a73213;
-	--color-tomato-700: #842712;
-	--color-tomato-800: #5d1a0c;
-	--color-tomato-900: #3a0f07;
-
-	--color-basil-50: #f0f7ed;
-	--color-basil-100: #dceed1;
-	--color-basil-200: #b8dca3;
-	--color-basil-300: #8cc472;
-	--color-basil-400: #65a94d;
-	--color-basil-500: #4a8d36;
-	--color-basil-600: #387029;
-	--color-basil-700: #2c5722;
-	--color-basil-800: #20401a;
-	--color-basil-900: #142810;
+/* The dark plate: ink on warm slate. Not the light palette inverted — the
+   stock is a brown-black rather than a grey, the type is paper-white rather
+   than pure white, and the rubric is lifted to a fired-clay red that carries
+   6.3:1 on it. Every ratio in here was measured, not eyeballed. */
+html.dark {
+	--color-paper: #17130f;
+	--color-panel: #211b15;
+	--color-ink: #f2e9db;
+	--color-ink-soft: #a89684;
+	--color-rule: #3b322a;
+	--color-rule-strong: #574a3e;
+	--color-rubric: #e2795c;
+	--color-rubric-wash: #35201a;
+	--color-basil: #8fbe73;
+	--color-basil-wash: #1f2a19;
+	--color-basil-300: #405732;
+	--color-basil-400: #6d9354;
 }
 
 /* These are element defaults, so they belong in @layer base — and being in a
@@ -50,31 +86,32 @@
    being ignored with no error anywhere. */
 @layer base {
 	html {
-		font-family: var(--font-sans);
+		font-family: var(--font-text);
 		-webkit-font-smoothing: antialiased;
-		background: radial-gradient(
-				ellipse at top,
-				var(--color-dough-100) 0%,
-				var(--color-dough-50) 60%
-			)
-			fixed;
+		background: var(--color-paper);
 	}
 
 	html.dark {
-		background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
 		color-scheme: dark;
 	}
 
+	/* Headings are the display face by default. Anything that wants otherwise
+	   says so with a utility, which now works — see the note above. */
 	h1,
 	h2,
 	h3,
 	.font-display {
 		font-family: var(--font-display);
-		letter-spacing: -0.01em;
 	}
 
-	input[type='number'] {
-		font-variant-numeric: tabular-nums;
+	/* Every number in this app is data a baker reads against another number:
+	   970 g under 679 g, 07:00 PM under 11:15 AM. Lining tabular figures make
+	   those columns line up; proportional oldstyle would make a schedule ripple.
+	   Applied to the input boxes and to `.figure` rather than globally, so
+	   running prose keeps the text face's own defaults. */
+	input[type='number'],
+	.figure {
+		font-variant-numeric: tabular-nums lining-nums;
 	}
 
 	/* Deliberately still :where() — zero specificity, so a component that needs
@@ -89,101 +126,227 @@
 	   falling back to the browser's default ring, which is a different shape
 	   and colour on every engine and invisible against a dark card in some. */
 	:where(a, summary, input, select, button, textarea):focus-visible {
-		outline: 2px solid var(--color-tomato-500);
+		outline: 2px solid var(--color-rubric);
 		outline-offset: 2px;
 	}
 }
 
 @layer components {
-	.card {
-		@apply border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70;
+	/* --- Page furniture ---------------------------------------------------
+	   A repeated Tailwind class list gets a name here, not a copy. Hand-copied
+	   lists drift silently — the window card's status box had ended up a
+	   different shade from the warning list directly below it. */
+
+	/* A region of the page. Deliberately styles nothing but its own minimum
+	   width: what used to be six identical cream boxes is now six passages of
+	   a page, separated by the rule and the space around them. The class stays
+	   because the browser suite addresses regions by it. */
+	.leaf {
+		@apply min-w-0;
 	}
 
-	.btn-tomato {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50;
+	/* The rule that ends a passage and starts the next. */
+	.leaf-ruled {
+		@apply border-rule border-t pt-8;
 	}
 
-	.btn-tomato-sm {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-3 py-1 text-xs font-semibold text-white;
+	/* The one place letterspaced caps are allowed: a label naming a field, a
+	   column or a date. Bodoni's capitals are the strong part of the face, so
+	   they hold at this size where its lowercase would not. Spelled out rather
+	   than @apply'ing `font-display`, so the class attribute stays free of it —
+	   the browser suite finds the window readout by `.window-figure`, and a
+	   second `font-display` in that subtree would make the match ambiguous. */
+	.eyebrow {
+		font-family: var(--font-display);
+		@apply text-ink-soft text-[0.68rem] leading-none font-semibold tracking-[0.16em] uppercase;
 	}
 
-	.menu-item {
-		@apply hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700;
+	/* A standing head over a group of fields: the name in capitals sitting on a
+	   rule that runs the column's width. It is a real <legend>, so the group is
+	   named in the accessibility tree; `block w-full` is what stops the browser
+	   from shrink-wrapping it into the box border it would otherwise notch. */
+	.section-head {
+		font-family: var(--font-display);
+		@apply text-ink border-ink mb-4 block w-full border-b pb-2 text-[0.72rem] font-semibold tracking-[0.18em] uppercase;
 	}
 
-	.text-accent {
-		@apply text-tomato-700 dark:text-tomato-300;
+	/* A region's title. One step below the masthead, one above the day. */
+	.opener {
+		font-family: var(--font-display);
+		@apply text-ink text-[1.6rem] leading-tight font-medium;
 	}
 
-	.row-divider {
-		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
+	/* Running prose stays inside a comfortable measure. Serif text takes a
+	   slightly longer line than sans, but not the 100+ characters a 7/12
+	   column would otherwise hand it. */
+	.measure {
+		@apply max-w-[62ch];
 	}
 
-	/* A boxed message under the control that caused it. Danger is the same red
-	   the schedule's warnings use — something is wrong and the bake is at risk;
-	   info is the dough colour, for a consequence worth reporting rather than a
-	   refusal. Four components wrote these two class lists out by hand. */
-	.notice {
-		@apply rounded-lg border px-3 py-2 text-sm;
+	/* The editor's marginal note: the "why this matters" paragraph under a
+	   step, and the scale hint under the ingredients. Italic, quieter, held
+	   off the text block by a hairline rather than indented into it. */
+	.annotation {
+		@apply border-rule text-ink-soft border-l pl-3 text-[0.8125rem] leading-relaxed italic;
 	}
 
-	.notice-danger {
-		@apply border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200;
+	/* --- Controls ---------------------------------------------------------
+	   The form recedes so the schedule can sing: every field is a value
+	   sitting on a printed rule, with no box, no fill and no shadow. The rule
+	   thickens and turns rubric on focus, which is the only state change. */
+	.field {
+		@apply border-rule text-ink placeholder:text-ink-soft w-full rounded-none border-0 border-b bg-transparent px-0 py-2.5 text-base;
+		@apply focus:border-rubric;
 	}
 
-	.notice-info {
-		@apply border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100;
+	/* A select is the same field with the native arrow left alone — a
+	   hand-drawn chevron on a form this size is one accessory too many. */
+	.field-select {
+		@apply border-rule text-ink w-full cursor-pointer rounded-none border-0 border-b bg-transparent px-0 py-2.5 text-base;
+		@apply focus:border-rubric;
 	}
 
-	/* The rounded switch strip: language, theme, schedule verbosity. Rendered by
-	   SegmentedControl.svelte, which owns the markup as well as the look. */
-	.pill-group {
-		@apply border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70;
+	/* The primary action: a rubric slab with letterspaced caps, square to the
+	   pixel. Rounded pills read as software; this reads as a stamp. */
+	.btn-ink {
+		font-family: var(--font-display);
+		@apply bg-rubric text-paper px-4 py-2.5 text-[0.7rem] font-semibold tracking-[0.14em] uppercase;
+		@apply hover:bg-ink disabled:opacity-50;
 	}
 
-	.pill {
-		@apply inline-flex items-center justify-center px-3 py-1.5 transition-colors;
+	.btn-ink-sm {
+		font-family: var(--font-display);
+		@apply bg-rubric text-paper px-2.5 py-1.5 text-[0.62rem] font-semibold tracking-[0.12em] uppercase;
+		@apply hover:bg-ink;
 	}
 
-	.pill-on {
-		@apply bg-tomato-500 text-white;
-	}
-
-	.pill-off {
-		@apply hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700;
-	}
-
-	/* Every box the form types into. Size and width stay with the caller — the
-	   date pair splits a row, the rest fill it. */
-	.input {
-		@apply border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100;
-	}
-
-	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
-	   Underlined on hover only; the surrounding paragraph carries the colour. */
-	.link-quiet {
-		@apply hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline;
-	}
-
-	/* A link that IS the action — "Open", "Source" in the recipe tables, where
-	   the row's other columns are all text and the link has to look clickable
-	   without a button's weight. The dark half is deliberate: `text-tomato-600`
-	   alone sat at 2.71:1 on a dark card until the axe suite caught it. */
-	.link-action {
-		/* The hover colour is spelled out rather than reusing .text-accent: a
-		   component class cannot take a variant inside @apply, and `hover:` on one
-		   only works from a class attribute. Same four colours as before. */
-		@apply text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline;
-	}
-
-	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
-	   Width is the caller's, everything else is shared. */
-	.dialog-panel {
-		@apply border-dough-200 rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200;
+	/* A rubric slab that is NOT a control: the schedule's "Now" flag. Same
+	   stamp as the small button, minus the hover state — a span that lights up
+	   under the pointer promises a click that does not exist. */
+	.stamp {
+		font-family: var(--font-display);
+		@apply bg-rubric text-paper px-1.5 py-0.5 text-[0.6rem] font-semibold tracking-[0.12em] uppercase;
 	}
 
 	/* The way out of a dialog: quieter than the action beside it. */
 	.btn-quiet {
-		@apply rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200;
+		@apply text-ink-soft hover:text-ink px-3 py-2 text-xs;
+	}
+
+	.menu-item {
+		@apply text-ink hover:bg-panel block w-full px-4 py-2.5 text-left text-sm disabled:cursor-not-allowed disabled:opacity-50;
+	}
+
+	/* The segmented switch: language, theme, schedule verbosity. Rendered by
+	   SegmentedControl.svelte, which owns the markup as well as the look. A
+	   hairline strip with a rubric slab for the live option — the same stamp
+	   the primary button uses, so "on" means one thing across the page. */
+	.pill-group {
+		font-family: var(--font-display);
+		@apply border-rule m-0 inline-flex overflow-hidden border p-0 text-[0.66rem] font-semibold tracking-[0.12em] uppercase;
+	}
+
+	.pill {
+		@apply inline-flex items-center justify-center px-3 py-2 transition-colors;
+	}
+
+	.pill-on {
+		@apply bg-rubric text-paper;
+	}
+
+	.pill-off {
+		@apply text-ink-soft hover:bg-panel hover:text-ink;
+	}
+
+	/* --- Messages ---------------------------------------------------------
+	   A message under the control that caused it. Not a box: a rule down the
+	   left in the colour of the thing being said, with a wash behind it faint
+	   enough to read as tinted paper rather than as a card. Danger is the
+	   rubric — something is wrong and the bake is at risk; info is basil, for
+	   a consequence worth reporting rather than a refusal. */
+	.notice {
+		@apply border-l-2 py-2 pr-3 pl-3 text-sm;
+	}
+
+	.notice-danger {
+		@apply border-rubric bg-rubric-wash text-ink;
+	}
+
+	.notice-info {
+		@apply border-basil bg-basil-wash text-ink;
+	}
+
+	/* --- Links ------------------------------------------------------------ */
+
+	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
+	   Underlined on hover only; the surrounding paragraph carries the colour.
+	   The vertical padding is not decoration: at 16 px tall these links passed
+	   WCAG 2.5.8 only through the spacing exception, which is a fact about
+	   whatever happens to sit near them rather than about the link. Tightening
+	   the footer took it away. 24 px is intrinsic to the control now. */
+	.link-quiet {
+		@apply hover:text-rubric inline-block py-1 underline-offset-2 hover:underline;
+	}
+
+	/* A link that IS the action — "Open", "Source" in the recipe tables, where
+	   the row's other columns are all text and the link has to look clickable
+	   without a button's weight. */
+	.link-action {
+		@apply text-rubric font-semibold underline-offset-2 hover:underline;
+	}
+
+	/* --- Tables and lists ------------------------------------------------- */
+
+	.row-divider {
+		@apply border-rule border-b last:border-0;
+	}
+
+	/* The ingredient column, set the way a printed recipe sets it: the name on
+	   the left, the weight hard right in tabular figures, and a dotted leader
+	   running between them so the eye can cross the gap. The leader is its own
+	   empty span inside the label cell — it must add no text, because the
+	   browser suite compares this table's cell text against the print sheet's
+	   row for row. */
+	.ing-name {
+		@apply flex items-baseline gap-2;
+	}
+
+	.ing-leader {
+		@apply border-rule flex-1 translate-y-[-0.28em] border-b border-dotted;
+	}
+
+	/* A sum, ruled off the way an account is: a heavier line above the total
+	   and nothing below it. */
+	.sum-rule {
+		@apply border-rule-strong border-t-2;
+	}
+
+	/* --- The one boxed region --------------------------------------------
+	   The fermentation window is an instrument: a rail, a deadline flag, a
+	   band, a thumb. It needs an edge to be read against, and it is the only
+	   thing on the page that gets one. The browser suite addresses it by this
+	   name — it used to find it by `form div.rounded-2xl`, which was a style
+	   doubling as an API. */
+	.window-instrument {
+		@apply border-rule bg-panel border p-4;
+	}
+
+	/* The chosen duration, the largest figure in the form column. */
+	.window-figure {
+		font-family: var(--font-display);
+		font-variant-numeric: tabular-nums lining-nums;
+		@apply text-ink text-2xl leading-none;
+	}
+
+	.window-rail {
+		@apply bg-rule relative h-2 overflow-hidden;
+	}
+
+	/* --- Dialogs ---------------------------------------------------------- */
+
+	/* Both modals: a native <dialog>, opened imperatively from the actions
+	   menu. Width is the caller's, everything else is shared. */
+	.dialog-panel {
+		@apply border-rule-strong bg-paper text-ink border p-0 text-sm shadow-xl backdrop:bg-stone-950/50;
 	}
 }
