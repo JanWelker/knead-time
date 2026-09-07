@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/pr-preview/pr-296/favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f4ece0" />
+		<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#100c09" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+		<script>
+			// Theme boot: apply dark before first paint. The legacy bare 'theme'
+			// slot is read as a fallback until loadStoredTheme migrates it to
+			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
+			// cookies") — only the reads are guarded so a blocked storage still
+			// honours the system preference.
+			(function () {
+				var stored = null;
+				try {
+					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+				} catch (e) {}
+				if (
+					stored === 'dark' ||
+					(stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+				) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
+		<link href="/pr-preview/pr-296/_app/immutable/entry/start.D2BVRQPp.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/chunks/Bt7u_Nd9.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/chunks/khlUOgSE.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/entry/app.D52kXlfZ.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/nodes/0.Q512ChWV.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/chunks/D5LuqX5D.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/chunks/B674XWPO.js" rel="modulepreload">
+		<link href="/pr-preview/pr-296/_app/immutable/chunks/BgavaQwQ.js" rel="modulepreload">
+		
+		<link href="/pr-preview/pr-296/_app/immutable/assets/0.4hsMBbAU.css" rel="stylesheet">
+	</head>
+	<body data-sveltekit-preload-data="hover" class="ink min-h-screen antialiased">
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_11pbqbi = {
+						base: "/pr-preview/pr-296",
+						assets: "/pr-preview/pr-296"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/pr-preview/pr-296/_app/immutable/entry/start.D2BVRQPp.js"),
+						import("/pr-preview/pr-296/_app/immutable/entry/app.D52kXlfZ.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
