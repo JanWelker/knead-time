@@ -4,6 +4,7 @@
 	import { formatDuration, formatShortDate, formatTime } from '$lib/format';
 	import { stepDescription, stepDetail, stepIngredients, stepTitle } from '$lib/stepCopy';
 	import { isActiveStep } from '$lib/dough/scheduleStatus';
+	import { isColdKind } from '$lib/timeline';
 	import { stepQualityFlags, type StepQualityFlag } from '$lib/dough/quality';
 	import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from '$lib/dough/types';
 	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
@@ -60,7 +61,7 @@
 	}
 
 	// The one step happening right now: started, not yet finished. Drives the
-	// "Now" pill and the pulsing node so a baker sees where they are at a glance.
+	// "Now" pill and the glowing node so a baker sees where they are at a glance.
 	function isCurrent(step: ScheduleStep): boolean {
 		const start = step.at.getTime();
 		return start <= now.getTime() && now.getTime() < start + step.durationMinutes * 60_000;
@@ -104,20 +105,18 @@
 	}
 </script>
 
-<div class="text-stone-800 dark:text-stone-200">
+<div class="ink">
 	{#each days as day (day.key)}
 		<!-- A heading, not a span: the date is what groups the steps under it, and
 		     as plain text it left a multi-day plan looking like one flat run of
 		     step titles to anything navigating by heading. `font-sans` is
-		     load-bearing — app.css gives every h1-h3 the display serif, which
-		     this label has never used. -->
-		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<h3
-				class="font-sans text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
-			>
+		     load-bearing — app.css gives every h1-h3 the display face, which this
+		     label has never used. -->
+		<div class="flex items-center gap-3 pt-6 pb-3 first:pt-0">
+			<h3 class="ink-faint font-sans text-xs font-semibold tracking-[0.08em]">
 				{day.label}
 			</h3>
-			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
+			<span class="h-px flex-1 bg-[var(--kt-line)]"></span>
 		</div>
 
 		<ol class="tabular-nums">
@@ -129,35 +128,41 @@
 				{@const past = isPast(step)}
 				{@const current = isCurrent(step)}
 				{@const wait = WAIT_KINDS.has(step.kind)}
+				{@const cold = isColdKind(step.kind)}
 				{@const flags = stepQualityFlags(step, schedule)}
 				{@const ingredients = stepIngredients(step, t, schedule)}
 				<!-- Past steps are NOT dimmed: fading them read as a rendering glitch
 				     rather than as information. The fermentation-window card says
 				     outright when the schedule opens before now. `past` still mutes
 				     the accent on an already-missed bake moment below. -->
-				<li class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3">
-					<!-- Rail: a vertical line threading every node within the day. -->
+				<li class="grid grid-cols-[1.25rem_4rem_minmax(0,1fr)] gap-x-2 sm:gap-x-4">
+					<!-- Rail: a vertical line threading every node within the day. It
+					     turns blue leaving a fridge step, so the eye can find the cold
+					     stretch in the list the same way it finds it on the overview
+					     bar above. -->
 					<div class="relative">
 						{#if si > 0}
 							<span
-								class="bg-dough-300 absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2 dark:bg-stone-700"
+								class="absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2 bg-[var(--kt-line-strong)]"
 							></span>
 						{/if}
 						{#if si < day.steps.length - 1}
 							<span
 								class="absolute top-2.5 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
-									? 'border-dough-400/80 border-dashed dark:border-stone-600'
-									: 'border-dough-300 border-solid dark:border-stone-700'}"
+									? 'border-dashed'
+									: 'border-solid'} {cold ? 'kt-rail-cold' : 'kt-rail'}"
 							></span>
 						{/if}
 						<span
-							class="absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
+							class="absolute top-1 left-1/2 size-3 -translate-x-1/2 rounded-full {current
 								? 'kt-node-now'
 								: ''} {isReady
-								? 'bg-tomato-600 ring-tomato-500/25'
+								? 'kt-node-ready'
 								: active
-									? 'bg-tomato-500'
-									: 'border-dough-400 border-2 bg-white dark:border-stone-500 dark:bg-stone-900'}"
+									? 'kt-node-active'
+									: cold
+										? 'kt-node-cold'
+										: 'kt-node-idle'}"
 							role="img"
 							aria-label={isReady
 								? stepTitle(step, t)
@@ -167,37 +172,35 @@
 						></span>
 					</div>
 
-					<!-- Time -->
+					<!-- Time. The instrument reading of the row: display face, lining
+					     tabular figures, so a column of them scans straight down. -->
 					<div
-						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
+						class="num text-[0.9375rem] leading-5 font-semibold whitespace-nowrap {current ||
+						(isReady && !past)
 							? 'text-accent'
-							: 'text-stone-600 dark:text-stone-300'}"
+							: 'ink-soft'}"
 					>
 						{formatTime(step.at, locale)}
 					</div>
 
 					<!-- Step -->
-					<div class="pb-6">
+					<div class="pb-7">
 						<div class="flex items-start justify-between gap-3">
 							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
 								<!-- h4, under the day heading above. `font-display` is
-								     load-bearing: as an h3 this inherited the serif from
-								     app.css, and demoting the level alone would silently
-								     drop it to sans. -->
+								     load-bearing: as an h3 this inherited the display face from
+								     app.css, and demoting the level alone would silently drop
+								     it to sans. -->
 								<h4
-									class="font-display text-[0.9375rem] leading-5 font-semibold {current ||
+									class="font-display text-base leading-5 font-semibold {current ||
 									(isReady && !past)
 										? 'text-accent'
-										: 'text-stone-900 dark:text-stone-100'}"
+										: 'ink'}"
 								>
 									{stepTitle(step, t)}
 								</h4>
 								{#if current}
-									<span
-										class="bg-tomato-500 rounded px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-white uppercase"
-									>
-										{t.schedule.now}
-									</span>
+									<span class="state-chip state-chip-live">{t.schedule.now}</span>
 								{/if}
 								{#if flags.length > 0}
 									<span
@@ -220,9 +223,7 @@
 								{/if}
 							</div>
 							{#if step.durationMinutes > 0}
-								<span
-									class="bg-dough-100 mt-px shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-stone-600 dark:bg-stone-800 dark:text-stone-300"
-								>
+								<span class="gauge mt-px shrink-0">
 									{formatDuration(step.durationMinutes, locale)}
 								</span>
 							{/if}
@@ -230,28 +231,24 @@
 
 						{#if ingredients.length > 0}
 							<ul
-								class="bg-dough-50 border-dough-100 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border px-3 py-2 dark:border-stone-700/60 dark:bg-stone-800/40"
+								class="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border border-[var(--kt-line)] bg-[var(--kt-inset)] px-3 py-2"
 							>
 								{#each ingredients as ing (ing.name)}
 									<li class="contents">
-										<span
-											class="text-right text-xs font-semibold text-stone-700 dark:text-stone-200"
-										>
-											{ing.amount}
-										</span>
-										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
+										<span class="num ink text-right text-xs font-semibold">{ing.amount}</span>
+										<span class="ink-soft text-xs">{ing.name}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
+						<p class="ink-soft mt-2 text-sm leading-snug">
 							{stepDescription(step, t, schedule)}
 						</p>
 
 						{#if verbosity === 'descriptive'}
 							<p
-								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
+								class="ink-faint mt-2 border-l-2 border-[var(--kt-line-strong)] pl-2.5 text-xs leading-relaxed"
 							>
 								{stepDetail(step, t)}
 							</p>
@@ -275,22 +272,76 @@
 </div>
 
 <style>
-	/* A gentle halo on the current step's node — "you are here". */
+	/* The rail and the nodes read the same surface tokens as everything else, but
+	   as :global-free component CSS rather than utilities — a node is five
+	   states of one shape, and spelling each out in a class attribute is how the
+	   previous version ended up with a nested ternary per element. */
+	.kt-rail {
+		border-color: var(--kt-line-strong);
+	}
+
+	.kt-rail-cold {
+		border-color: var(--kt-cold-band);
+	}
+
+	/* Baker-action step: solid, warm. This is where you do something. */
+	.kt-node-active {
+		background: var(--kt-accent-solid);
+		box-shadow: 0 0 0 3px var(--kt-panel);
+	}
+
+	/* Waiting phase at room temperature: hollow, so a glance down the rail counts
+	   the things that need hands. */
+	.kt-node-idle {
+		background: var(--kt-panel);
+		border: 2px solid var(--kt-line-strong);
+		box-shadow: 0 0 0 3px var(--kt-panel);
+	}
+
+	/* Waiting phase in the fridge. */
+	.kt-node-cold {
+		background: var(--kt-panel);
+		border: 2px solid var(--kt-cold-band);
+		box-shadow: 0 0 0 3px var(--kt-panel);
+	}
+
+	.kt-node-ready {
+		background: var(--kt-accent-solid);
+		box-shadow:
+			0 0 0 3px var(--kt-panel),
+			0 0 0 5px color-mix(in srgb, var(--kt-accent-solid) 35%, transparent);
+	}
+
+	/* The one emissive element in the list: you are here. Everything else on the
+	   page is at rest, which is what makes this readable across a kitchen. */
+	.kt-node-now {
+		background: var(--kt-accent-solid);
+		border: 0;
+		animation: kt-node-pulse 2.6s ease-in-out infinite;
+	}
+
 	@keyframes kt-node-pulse {
 		0%,
 		100% {
-			box-shadow: 0 0 0 0 rgba(200, 64, 26, 0.4);
+			box-shadow:
+				0 0 0 3px var(--kt-panel),
+				0 0 0 4px rgb(242 118 42 / 0.55),
+				0 0 14px 2px rgb(242 118 42 / 0.5);
 		}
-		70% {
-			box-shadow: 0 0 0 6px rgba(200, 64, 26, 0);
+		60% {
+			box-shadow:
+				0 0 0 3px var(--kt-panel),
+				0 0 0 8px rgb(242 118 42 / 0),
+				0 0 14px 2px rgb(242 118 42 / 0.2);
 		}
 	}
-	.kt-node-now {
-		animation: kt-node-pulse 2.4s ease-in-out infinite;
-	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.kt-node-now {
 			animation: none;
+			box-shadow:
+				0 0 0 3px var(--kt-panel),
+				0 0 0 4px rgb(242 118 42 / 0.55);
 		}
 	}
 </style>

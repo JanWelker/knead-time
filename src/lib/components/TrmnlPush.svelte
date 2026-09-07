@@ -90,27 +90,25 @@
 			<h2 id="trmnl-push-heading" class="font-display text-accent text-lg">
 				{t.trmnl_push.dialog_heading}
 			</h2>
-			<p class="text-xs text-stone-500 dark:text-stone-400">{t.trmnl_push.dialog_intro}</p>
+			<p class="ink-faint text-xs">{t.trmnl_push.dialog_intro}</p>
 		</header>
 
 		<label class="block space-y-1">
-			<span class="text-xs font-medium text-stone-600 dark:text-stone-300"
-				>{t.trmnl_push.uuid_label}</span
-			>
+			<span class="ink-soft text-xs font-medium">{t.trmnl_push.uuid_label}</span>
 			<input
 				type="text"
 				inputmode="text"
 				autocomplete="off"
 				bind:value={uuidInput}
 				placeholder="00000000-0000-0000-0000-000000000000"
-				class="input w-full font-mono text-sm tracking-tight text-stone-900 dark:bg-stone-900"
+				class="input w-full font-mono text-sm tracking-tight"
 			/>
 		</label>
 
 		<div class="flex flex-wrap items-center gap-2">
 			<button
 				type="submit"
-				class="btn-tomato"
+				class="btn-ember"
 				disabled={status === 'sending' || uuidInput.trim().length === 0}
 			>
 				{status === 'sending' ? t.trmnl_push.sending : t.trmnl_push.send}
@@ -118,7 +116,7 @@
 			{#if savedUuid}
 				<button
 					type="button"
-					class="rounded-full border border-stone-300 px-3 py-2 text-xs text-stone-600 hover:border-stone-400 dark:border-stone-600 dark:text-stone-300"
+					class="ink-soft rounded-full border border-[var(--kt-line)] px-3 py-2 text-xs hover:border-[var(--kt-line-strong)]"
 					onclick={disconnect}
 				>
 					{t.trmnl_push.disconnect}
@@ -136,7 +134,7 @@
 		<p
 			role="status"
 			class="text-xs {status === 'sent'
-				? 'text-basil-700 dark:text-basil-300'
+				? 'ink font-semibold'
 				: status === 'error'
 					? 'text-accent'
 					: 'sr-only'}"
@@ -144,9 +142,7 @@
 			{#if status === 'sent'}{t.trmnl_push.sent}{:else if status === 'error'}{t.trmnl_push.error}: {errorMessage}{/if}
 		</p>
 
-		<p
-			class="border-dough-200 border-t pt-3 text-xs text-stone-500 dark:border-stone-700 dark:text-stone-400"
-		>
+		<p class="ink-faint border-t border-[var(--kt-line)] pt-3 text-xs">
 			{t.trmnl_push.setup_hint}
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/docs/trmnl-setup.md"

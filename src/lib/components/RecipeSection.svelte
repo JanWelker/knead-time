@@ -32,17 +32,17 @@
 			aria-hidden="true">▶</span
 		>
 		<header>
-			<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">{copy.heading}</h2>
-			<p class="mt-1 text-sm text-stone-500 dark:text-stone-400">{copy.intro}</p>
+			<h2 class="font-display ink text-2xl">{copy.heading}</h2>
+			<p class="ink-faint mt-1 text-sm">{copy.intro}</p>
 		</header>
 	</summary>
 
 	<div class="mt-4">
 		{#if isEmpty}
-			<p class="text-sm text-stone-500 dark:text-stone-400">{copy.empty}</p>
+			<p class="ink-faint text-sm">{copy.empty}</p>
 		{:else}
 			{@render children()}
-			<p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
+			<p class="ink-faint mt-4 text-xs">
 				{copy.contribute.before_md}<a
 					href={sourceHref}
 					target="_blank"

@@ -9,7 +9,7 @@ import { defineConfig, devices } from '@playwright/test';
 // Runs against the real static build, not the dev server: the app ships as
 // prerendered HTML that hydrates and only then decodes the URL, and that
 // sequence is itself something worth testing.
-const PORT = 4173;
+const PORT = Number(process.env.E2E_PORT ?? 4173);
 
 export default defineConfig({
 	testDir: 'e2e',

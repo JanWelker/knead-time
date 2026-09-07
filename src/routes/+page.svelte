@@ -34,7 +34,7 @@
 	import InputForm from '$lib/components/InputForm.svelte';
 	import Warnings from '$lib/components/Warnings.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
-	import ModeBadge from '$lib/components/ModeBadge.svelte';
+	import NowBand from '$lib/components/NowBand.svelte';
 	import ScheduleTable from '$lib/components/ScheduleTable.svelte';
 	import SegmentedControl from '$lib/components/SegmentedControl.svelte';
 	import ThemeSwitcher from '$lib/components/ThemeSwitcher.svelte';
@@ -171,16 +171,26 @@
 </svelte:head>
 
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-	<header class="mb-8 flex flex-wrap items-start justify-between gap-4">
-		<div>
-			<h1 class="font-display text-accent text-4xl sm:text-5xl">{t.app.title}</h1>
-			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300">{t.app.tagline}</p>
+	<header
+		class="mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b border-[var(--kt-line)] pb-5"
+	>
+		<div class="min-w-0">
+			<h1 class="font-display text-accent text-3xl leading-none sm:text-4xl">{t.app.title}</h1>
+			<p class="ink-soft mt-2 max-w-md text-sm">{t.app.tagline}</p>
 		</div>
 		<div class="flex flex-wrap items-center gap-2">
 			<LangSwitcher />
 			<ThemeSwitcher />
 		</div>
 	</header>
+
+	<!-- The answer, before the questions. What you should be doing and how long
+	     is left is the one thing this app knows that nothing else does, and it
+	     used to be a 12 px pulsing dot inside a list two screens down on a
+	     phone. Full width, above the grid, in both layouts. -->
+	<div class="mb-8">
+		<NowBand schedule={form.schedule} />
+	</div>
 
 	<!-- lg+: When + Ingredients stack in the left column, Schedule spans the
 	     right; below lg everything collapses to one column in DOM order.
@@ -206,9 +216,7 @@
 			     can never wrap the button out of place (issue #189). -->
 			<div class="relative mb-4">
 				<div class="flex flex-wrap items-start justify-between gap-3">
-					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-						{t.schedule.heading}
-					</h2>
+					<h2 class="panel-heading">{t.schedule.heading}</h2>
 					<ActionsMenu
 						feasible={form.schedule.feasible}
 						shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
@@ -242,7 +250,6 @@
 							.copy_failed}{/if}
 				</p>
 				<div class="mt-2 flex flex-wrap items-center gap-3">
-					<ModeBadge mode={form.schedule.mode} />
 					<FitScore schedule={form.schedule} inputs={form.serializable()} />
 					<SegmentedControl
 						legend={t.schedule.verbosity_label}
@@ -266,12 +273,10 @@
 
 		<div class="card lg:col-start-1 lg:row-start-2">
 			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-					{t.ingredients.heading}
-				</h2>
+				<h2 class="panel-heading">{t.ingredients.heading}</h2>
 				<button
 					type="button"
-					class="btn-tomato-sm inline-flex items-center gap-1"
+					class="btn-ember-sm inline-flex items-center gap-1"
 					onclick={() => form.roundBallWeight()}
 					title={t.form.ballWeight_round_help}
 					aria-label={t.form.ballWeight_round_help}
@@ -296,27 +301,25 @@
 		</div>
 	</div>
 
-	<section class="card mt-8">
+	<section class="card card-quiet mt-8">
 		<MyRecipes
 			recipes={savedRecipes}
 			onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
 		/>
 	</section>
 
-	<section class="card mt-8">
+	<section class="card card-quiet mt-8">
 		<Community />
 	</section>
 
-	<section class="card mt-8">
+	<section class="card card-quiet mt-8">
 		<Pizzerias />
 	</section>
 
-	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400">
+	<footer class="ink-faint mt-12 border-t border-[var(--kt-line)] pt-6 text-center text-xs">
 		<p>{t.footer.about}</p>
-		<p class="mt-1 text-stone-500 dark:text-stone-400">{t.actions.share_help}</p>
-		<p
-			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-500 dark:text-stone-400"
-		>
+		<p class="mt-1">{t.actions.share_help}</p>
+		<p class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1">
 			<a
 				href="https://github.com/JanWelker/knead-time"
 				target="_blank"
@@ -344,7 +347,7 @@
 				{t.footer.support}
 			</a>
 		</p>
-		<p class="mt-2 text-stone-500 dark:text-stone-400">
+		<p class="mt-2">
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
 				target="_blank"

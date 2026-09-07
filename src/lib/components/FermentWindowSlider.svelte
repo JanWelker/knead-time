@@ -159,16 +159,10 @@
 	);
 </script>
 
-<div
-	class="border-dough-200 rounded-2xl border bg-white/60 p-4 dark:border-stone-700 dark:bg-stone-800/40"
->
+<div class="window-card">
 	<div class="flex flex-wrap items-baseline justify-between gap-2">
-		<span class="text-sm font-medium text-stone-700 dark:text-stone-200">
-			{t.schedule.window_label}
-		</span>
-		<span class="font-display text-xl text-stone-900 dark:text-stone-100">
-			{formatWindow(windowHours)}
-		</span>
+		<span class="field-label">{t.schedule.window_label}</span>
+		<span class="num font-display ink text-2xl leading-none">{formatWindow(windowHours)}</span>
 	</div>
 
 	<!-- The bake time anchors everything here: the window is measured back from
@@ -193,19 +187,15 @@
 						: 'items-center'}"
 				style="left:{unreachableFromPct}%;transform:{markerShift}"
 			>
-				<span
-					class="text-tomato-700 dark:text-tomato-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="text-accent text-[0.65rem] leading-tight font-semibold whitespace-nowrap">
 					{t.schedule.window_limit_label}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatDateTime(form.readyBy, i18n.locale)}
 				</span>
 			</div>
 			<svg
-				class="fill-tomato-500 absolute bottom-0 -translate-x-1/2"
+				class="absolute bottom-0 -translate-x-1/2 fill-[var(--kt-accent-solid)]"
 				style="left:{unreachableFromPct}%"
 				width="9"
 				height="6"
@@ -215,9 +205,9 @@
 			</svg>
 		</div>
 	{:else}
-		<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+		<p class="ink-faint mt-1 text-xs">
 			{t.form.readyBy}:
-			<span class="font-medium text-stone-700 dark:text-stone-200">
+			<span class="ink-soft font-medium">
 				{formatDateTime(form.readyBy, i18n.locale)}
 			</span>
 		</p>
@@ -232,18 +222,18 @@
 		     width drifts from the thumb by up to that radius, worst at the ends.
 		     Every marker row below carries the same inset for the same reason. -->
 		<div
-			class="bg-dough-200 absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full dark:bg-stone-700"
+			class="absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-[var(--kt-line)]"
 			aria-hidden="true"
 		>
 			{#if zones?.room}
 				<div
-					class="bg-basil-300 dark:bg-basil-700 absolute inset-y-0"
+					class="zone-room absolute inset-y-0"
 					style="left:{axis(zones.room.min)}%;width:{axis(zones.room.max) - axis(zones.room.min)}%"
 				></div>
 			{/if}
 			{#if zones?.cold}
 				<div
-					class="bg-basil-400 dark:bg-basil-600 absolute inset-y-0"
+					class="zone-cold absolute inset-y-0"
 					style="left:{axis(zones.cold.min)}%;width:{axis(zones.cold.max) - axis(zones.cold.min)}%"
 				></div>
 			{/if}
@@ -252,7 +242,7 @@
 			{#each stops as stop, i (stop)}
 				{#if i > 0 && i < stops.length - 1}
 					<div
-						class="absolute inset-y-0 w-px bg-white/70 dark:bg-stone-900/50"
+						class="absolute inset-y-0 w-px bg-[var(--kt-panel)]/70"
 						style="left:{axis(stop)}%"
 					></div>
 				{/if}
@@ -264,7 +254,7 @@
 			     fact. -->
 			{#if unreachableFromPct < 100}
 				<div
-					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
+					class="absolute inset-y-0 right-0 bg-[var(--kt-ground)]/90"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
@@ -303,7 +293,7 @@
 	{#if idealPct !== null}
 		<div class="relative mx-2.5 mt-1 h-9" aria-hidden="true">
 			<svg
-				class="fill-basil-500 absolute top-0 -translate-x-1/2"
+				class="absolute top-0 -translate-x-1/2 fill-[var(--kt-ink-faint)]"
 				style="left:{idealPct}%"
 				width="9"
 				height="6"
@@ -319,14 +309,10 @@
 						: 'items-center'}"
 				style="left:{idealPct}%;transform:{idealShift}"
 			>
-				<span
-					class="text-basil-700 dark:text-basil-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="ink-soft text-[0.65rem] leading-tight font-semibold whitespace-nowrap">
 					{t.schedule.window_ideal}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatWindow(ideal as number)}
 				</span>
 			</div>
@@ -336,7 +322,7 @@
 	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400 {narrowLabelledStops.includes(
+				class="num ink-faint absolute -translate-x-1/2 text-[0.65rem] {narrowLabelledStops.includes(
 					stop
 				)
 					? ''
@@ -352,7 +338,7 @@
 		     ideal marker, the tick labels — is aria-hidden decoration, so a
 		     screen reader got a bare duration and no way to judge it. These two
 		     lines are that judgement, in words. -->
-		<p id="window-band" class="text-xs text-stone-500 dark:text-stone-400">
+		<p id="window-band" class="ink-faint text-xs">
 			{#if band}
 				<!-- A swatch in the same green as the band it describes. The rail
 				     painted two green stretches and nothing ever said what the
@@ -362,8 +348,8 @@
 				<span
 					class="mr-0.5 inline-block size-2 rounded-[2px] align-baseline {form.schedule.mode ===
 					'cold'
-						? 'bg-basil-400 dark:bg-basil-600'
-						: 'bg-basil-300 dark:bg-basil-700'}"
+						? 'zone-cold'
+						: 'zone-room'}"
 					aria-hidden="true"
 				></span>
 				{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
@@ -380,7 +366,7 @@
 		     at its destination is noise, and its disappearance is the receipt
 		     that the click landed. -->
 		{#if ideal !== null && !atIdeal}
-			<button type="button" class="btn-tomato-sm shrink-0" onclick={() => form.repickWindow()}>
+			<button type="button" class="btn-ember-sm shrink-0" onclick={() => form.repickWindow()}>
 				{t.schedule.window_use_ideal}
 			</button>
 		{/if}
@@ -410,7 +396,7 @@
 	</div>
 
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
-		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+		<p class="ink-faint mt-2 text-xs">
 			{interpolate(t.schedule.window_capped_by_bake, {
 				max: formatBandEdge(stops[reachableIndex]),
 				band: formatBandEdge(band.max)
@@ -419,14 +405,14 @@
 	{/if}
 
 	{#if startedAgoMin !== null}
-		<p class="text-tomato-700 dark:text-tomato-300 mt-2 text-xs font-medium">
+		<p class="text-accent mt-2 text-xs font-medium">
 			{interpolate(t.schedule.window_started_ago, {
 				ago: formatDuration(startedAgoMin, i18n.locale)
 			})}
 		</p>
 	{/if}
 
-	<p id="window-benefit" class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
+	<p id="window-benefit" class="ink-faint mt-2 text-xs">{benefit}</p>
 </div>
 
 <style>
@@ -439,18 +425,18 @@
 		width: 1.25rem;
 		height: 1.25rem;
 		border-radius: 9999px;
-		background: var(--color-tomato-500);
-		border: 2px solid white;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+		background: var(--kt-accent-solid);
+		border: 2px solid var(--kt-panel);
+		box-shadow: 0 1px 4px rgb(0 0 0 / 0.45);
 		cursor: pointer;
 	}
 	input[type='range']::-moz-range-thumb {
 		width: 1.25rem;
 		height: 1.25rem;
 		border-radius: 9999px;
-		background: var(--color-tomato-500);
-		border: 2px solid white;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+		background: var(--kt-accent-solid);
+		border: 2px solid var(--kt-panel);
+		box-shadow: 0 1px 4px rgb(0 0 0 / 0.45);
 		cursor: pointer;
 	}
 </style>

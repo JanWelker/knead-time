@@ -2,75 +2,165 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ---------------------------------------------------------------------------
+   Notte.
+
+   The app's subject is elapsed time in the dark — a fridge at 4 °C for a day
+   and a half while you sleep — so the dark theme is the one that was designed
+   first and the light one is its daylight counterpart, not an inversion.
+
+   Three ramps, and only three:
+   - `notte` is the warm neutral, espresso rather than slate. It carries every
+     surface and every piece of text in both themes.
+   - `ember` is heat: room temperature, the active step, every primary control.
+   - `frost` is cold, and NOTHING else. A blue thing on this page is in the
+     fridge. Reserving it is what makes temperature legible as colour, so don't
+     spend it on a link or an info state.
+
+   Surfaces and ink are named once as custom properties below and flipped as a
+   set on `.dark`. Component classes read those names; they do not carry
+   `dark:` pairs of their own. Four shades of "nearly the card colour" is how
+   the previous palette drifted apart.
+   --------------------------------------------------------------------------- */
+
 @theme {
 	--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-	--font-display: ui-serif, Georgia, serif;
+	/* A condensed grotesque, for the same reason a station board and an oven
+	   timer use one: it holds a long time and a long duration in a narrow column
+	   without shrinking, and its figures line up. Every platform in the support
+	   matrix ships one — macOS/iOS Avenir Next Condensed, Windows Bahnschrift,
+	   Android Roboto Condensed — so nothing is downloaded and the app still
+	   works with the oven door open and no network. */
+	--font-display:
+		'Avenir Next Condensed', 'Bahnschrift', 'Roboto Condensed', 'Helvetica Neue', ui-sans-serif,
+		sans-serif;
 
-	--color-dough-50: #fdf8ef;
-	--color-dough-100: #f8ecd0;
-	--color-dough-200: #f0d8a1;
-	--color-dough-300: #e6bd6e;
-	--color-dough-400: #dca246;
-	--color-dough-500: #c98828;
-	--color-dough-600: #a86d20;
-	--color-dough-700: #82531c;
-	--color-dough-800: #5d3b16;
-	--color-dough-900: #3d270f;
+	--color-notte-50: #fdfaf5;
+	--color-notte-100: #f4ece0;
+	--color-notte-200: #e6d9c7;
+	--color-notte-300: #cdbca8;
+	--color-notte-400: #a9947e;
+	--color-notte-500: #6f5a47;
+	--color-notte-600: #5c4b3a;
+	--color-notte-700: #3d2e23;
+	--color-notte-800: #291d16;
+	--color-notte-900: #1a1310;
+	--color-notte-950: #100c09;
 
-	--color-tomato-50: #fdf2ee;
-	--color-tomato-100: #fbded2;
-	--color-tomato-200: #f7b9a4;
-	--color-tomato-300: #f08a6b;
-	--color-tomato-400: #e35f3a;
-	--color-tomato-500: #c8401a;
-	--color-tomato-600: #a73213;
-	--color-tomato-700: #842712;
-	--color-tomato-800: #5d1a0c;
-	--color-tomato-900: #3a0f07;
+	--color-ember-50: #fff4e8;
+	--color-ember-100: #ffe3c4;
+	--color-ember-200: #ffc68c;
+	--color-ember-300: #ffa95a;
+	--color-ember-400: #ff8c33;
+	--color-ember-500: #f2762a;
+	--color-ember-600: #ce551a;
+	--color-ember-700: #9e3d12;
+	--color-ember-800: #72290c;
+	--color-ember-900: #461906;
 
-	--color-basil-50: #f0f7ed;
-	--color-basil-100: #dceed1;
-	--color-basil-200: #b8dca3;
-	--color-basil-300: #8cc472;
-	--color-basil-400: #65a94d;
-	--color-basil-500: #4a8d36;
-	--color-basil-600: #387029;
-	--color-basil-700: #2c5722;
-	--color-basil-800: #20401a;
-	--color-basil-900: #142810;
+	--color-frost-50: #eef7fc;
+	--color-frost-100: #d5ebf7;
+	--color-frost-200: #add7ee;
+	--color-frost-300: #85c1e3;
+	--color-frost-400: #5aa6d2;
+	--color-frost-500: #3287ba;
+	--color-frost-600: #246b98;
+	--color-frost-700: #1b5074;
+	--color-frost-800: #133850;
+	--color-frost-900: #0c2331;
 }
 
-/* These are element defaults, so they belong in @layer base — and being in a
-   layer is what lets a utility override them. Unlayered, they outranked every
-   Tailwind utility no matter how specific, because unlayered CSS wins over any
-   @layer. Two things were silently broken by that: `font-sans` or `tracking-*`
-   on an h1-h3 did nothing (a heading could not be restyled without a
-   component-scoped rule to fight back), and `focus:outline-none` on an input
-   did nothing either. Both are the obvious class to reach for, and both were
-   being ignored with no error anywhere. */
 @layer base {
-	html {
-		font-family: var(--font-sans);
-		-webkit-font-smoothing: antialiased;
-		background: radial-gradient(
-				ellipse at top,
-				var(--color-dough-100) 0%,
-				var(--color-dough-50) 60%
-			)
-			fixed;
+	/* Daylight: paper panels lifted off a warmer work surface. The ground is
+	   deeper than the panels, which is the opposite of the old theme and is what
+	   stops a page of boxes reading as one flat sheet. */
+	:root {
+		--kt-ground: var(--color-notte-100);
+		--kt-ground-2: #ece0cf;
+		--kt-panel: var(--color-notte-50);
+		--kt-raised: #fffdfa;
+		--kt-inset: #f0e7d9;
+		--kt-line: var(--color-notte-200);
+		--kt-line-strong: var(--color-notte-300);
+
+		--kt-ink: #241a13;
+		--kt-ink-soft: var(--color-notte-600);
+		--kt-ink-faint: var(--color-notte-500);
+
+		--kt-accent: var(--color-ember-700);
+		--kt-accent-hover: var(--color-ember-800);
+		--kt-accent-solid: #ab400f;
+		--kt-accent-solid-hover: var(--color-ember-800);
+		--kt-on-accent: #fffaf4;
+		--kt-cold: var(--color-frost-700);
+
+		--kt-warm-band: var(--color-ember-300);
+		--kt-cold-band: var(--color-frost-400);
+		--kt-night-wash: rgb(38 28 52 / 0.2);
+
+		/* Glow is an emissive effect and there is nothing emissive about daylight,
+		   so in this theme the "glow" is a plain ring. */
+		--kt-glow: 0 0 0 3px rgb(206 85 26 / 0.22);
+		--kt-glow-soft: none;
 	}
 
-	html.dark {
-		background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
+	.dark {
+		--kt-ground: var(--color-notte-950);
+		--kt-ground-2: #080605;
+		--kt-panel: var(--color-notte-900);
+		--kt-raised: var(--color-notte-800);
+		--kt-inset: #0b0806;
+		--kt-line: var(--color-notte-700);
+		--kt-line-strong: #4c3a2c;
+
+		--kt-ink: #f4ebe0;
+		--kt-ink-soft: #c5b3a1;
+		--kt-ink-faint: #9a8877;
+
+		--kt-accent: var(--color-ember-300);
+		--kt-accent-hover: var(--color-ember-200);
+		--kt-accent-solid: var(--color-ember-500);
+		--kt-accent-solid-hover: var(--color-ember-400);
+		--kt-on-accent: #17100c;
+		--kt-cold: var(--color-frost-300);
+
+		--kt-warm-band: var(--color-ember-600);
+		--kt-cold-band: var(--color-frost-600);
+		--kt-night-wash: rgb(0 0 0 / 0.45);
+
+		--kt-glow: 0 0 0 1px rgb(242 118 42 / 0.45), 0 0 20px -2px rgb(242 118 42 / 0.65);
+		--kt-glow-soft: 0 0 26px -6px rgb(242 118 42 / 0.5);
+
 		color-scheme: dark;
 	}
 
+	html {
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		color: var(--kt-ink);
+		/* Two lights low on the horizon rather than a wash from the top: the page
+		   should feel lit by an oven, not by a gradient. */
+		background:
+			radial-gradient(80rem 40rem at 12% -10%, var(--kt-ground-2) 0%, transparent 60%),
+			radial-gradient(70rem 34rem at 108% 4%, var(--kt-ground-2) 0%, transparent 55%),
+			var(--kt-ground) fixed;
+		background-attachment: fixed;
+	}
+
+	/* These are element defaults, so they belong in @layer base — and being in a
+	   layer is what lets a utility override them. Unlayered, they outranked every
+	   Tailwind utility no matter how specific, because unlayered CSS wins over any
+	   @layer. Two things were silently broken by that: `font-sans` or `tracking-*`
+	   on an h1-h3 did nothing (a heading could not be restyled without a
+	   component-scoped rule to fight back), and `focus:outline-none` on an input
+	   did nothing either. Both are the obvious class to reach for, and both were
+	   being ignored with no error anywhere. */
 	h1,
 	h2,
 	h3,
 	.font-display {
 		font-family: var(--font-display);
-		letter-spacing: -0.01em;
+		letter-spacing: 0.01em;
 	}
 
 	input[type='number'] {
@@ -78,112 +168,498 @@
 	}
 
 	/* Deliberately still :where() — zero specificity, so a component that needs
-	   its own focus treatment can say so with one utility. Nothing does today:
-	   the one `focus:outline-none` in the tree was dead code that this change
-	   would have brought to life, removing that input's only focus indicator,
-	   so it went with it.
-
-	   `a` and `summary` are in the list because both are used here as primary
-	   controls, not as prose links: every disclosure in the app is a styled
-	   <summary>, and every "Open" in the recipe tables is an <a>. They were
-	   falling back to the browser's default ring, which is a different shape
-	   and colour on every engine and invisible against a dark card in some. */
+	   its own focus treatment can say so with one utility. The colour flips with
+	   the theme: one fixed ember sat at 1.97:1 against the daylight panel, below
+	   the 3:1 a focus indicator has to clear. */
 	:where(a, summary, input, select, button, textarea):focus-visible {
-		outline: 2px solid var(--color-tomato-500);
+		outline: 2px solid var(--kt-accent);
 		outline-offset: 2px;
 	}
 }
 
 @layer components {
-	.card {
-		@apply border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70;
+	/* --- Ink -------------------------------------------------------------- */
+
+	/* Three text roles, and every component picks one. Written out as
+	   `text-stone-600 dark:text-stone-300` they had drifted into eleven shades,
+	   half of which differed only by a step nobody had chosen on purpose. */
+	.ink {
+		color: var(--kt-ink);
 	}
 
-	.btn-tomato {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50;
+	.ink-soft {
+		color: var(--kt-ink-soft);
 	}
 
-	.btn-tomato-sm {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-3 py-1 text-xs font-semibold text-white;
-	}
-
-	.menu-item {
-		@apply hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700;
+	.ink-faint {
+		color: var(--kt-ink-faint);
 	}
 
 	.text-accent {
-		@apply text-tomato-700 dark:text-tomato-300;
+		color: var(--kt-accent);
+	}
+
+	/* Cold is a temperature, never an emphasis. Used by the fridge phases, the
+	   cold band on the window rail and the cold-mode gauge — nothing else. */
+	.text-cold {
+		color: var(--kt-cold);
+	}
+
+	/* --- Surfaces --------------------------------------------------------- */
+
+	/* The base panel. Not a card in the SaaS sense: no shadow, no fill contrast
+	   for its own sake, just a hairline and a ground one step off the page. */
+	.card {
+		border: 1px solid var(--kt-line);
+		border-radius: 1rem;
+		background: var(--kt-panel);
+		padding: 1.25rem;
+	}
+
+	@media (width >= 40rem) {
+		.card {
+			padding: 1.5rem;
+		}
+	}
+
+	/* A section that is closed most of the time — the recipe collections. It sits
+	   on the page rather than on a panel of its own, so a run of them at the foot
+	   of the page reads as a list, not as three more boxes of equal weight. */
+	.card-quiet {
+		border: 1px solid var(--kt-line);
+		border-radius: 1rem;
+		background: transparent;
+		padding: 1rem 1.25rem;
+	}
+
+	.panel-heading {
+		font-family: var(--font-display);
+		font-size: 1.375rem;
+		line-height: 1.15;
+		letter-spacing: 0.01em;
+		color: var(--kt-ink);
 	}
 
 	.row-divider {
-		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
+		border-bottom: 1px solid var(--kt-line);
 	}
 
-	/* A boxed message under the control that caused it. Danger is the same red
-	   the schedule's warnings use — something is wrong and the bake is at risk;
-	   info is the dough colour, for a consequence worth reporting rather than a
-	   refusal. Four components wrote these two class lists out by hand. */
-	.notice {
-		@apply rounded-lg border px-3 py-2 text-sm;
+	.row-divider:last-child {
+		border-bottom: 0;
 	}
 
-	.notice-danger {
-		@apply border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200;
+	/* --- Numbers ---------------------------------------------------------- */
+
+	/* Times, durations, weights and temperatures are the app's data, so they are
+	   set as data: the condensed face, lining tabular figures, and enough
+	   tracking that a column of them scans down rather than across. Anything
+	   wearing this class must be a figure — it is the one signal that separates
+	   a value from the prose around it. */
+	.num {
+		font-family: var(--font-display);
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.02em;
 	}
 
-	.notice-info {
-		@apply border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100;
+	/* --- Controls --------------------------------------------------------- */
+
+	.btn-ember {
+		border-radius: 9999px;
+		background: var(--kt-accent-solid);
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: var(--kt-on-accent);
+	}
+
+	.btn-ember:hover {
+		background: var(--kt-accent-solid-hover);
+	}
+
+	.btn-ember:disabled {
+		opacity: 0.5;
+	}
+
+	.btn-ember-sm {
+		border-radius: 9999px;
+		background: var(--kt-accent-solid);
+		padding: 0.25rem 0.75rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--kt-on-accent);
+	}
+
+	.btn-ember-sm:hover {
+		background: var(--kt-accent-solid-hover);
+	}
+
+	.btn-quiet {
+		border-radius: 9999px;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.75rem;
+		color: var(--kt-ink-faint);
+	}
+
+	.btn-quiet:hover {
+		color: var(--kt-ink);
+	}
+
+	.menu-item {
+		display: block;
+		width: 100%;
+		padding: 0.5rem 1rem;
+		text-align: left;
+		font-size: 0.875rem;
+		font-weight: 500;
+		color: var(--kt-ink-soft);
+	}
+
+	.menu-item:hover {
+		background: var(--kt-inset);
+		color: var(--kt-ink);
+	}
+
+	.menu-item:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	/* Every box the form types into. Inset rather than raised: the form is a
+	   control surface the timeline sits above, so its fields sink into the panel
+	   instead of floating on it. Size and width stay with the caller — the date
+	   pair splits a row, the rest fill it. */
+	.input {
+		border: 1px solid var(--kt-line);
+		border-radius: 0.5rem;
+		background: var(--kt-inset);
+		padding: 0.5rem 0.75rem;
+		color: var(--kt-ink);
+		box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.06);
+	}
+
+	.dark .input {
+		box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.5);
+	}
+
+	.input:focus {
+		border-color: var(--kt-accent-solid);
+	}
+
+	.field-label {
+		display: block;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		letter-spacing: 0.01em;
+		color: var(--kt-ink-soft);
 	}
 
 	/* The rounded switch strip: language, theme, schedule verbosity. Rendered by
 	   SegmentedControl.svelte, which owns the markup as well as the look. */
 	.pill-group {
-		@apply border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70;
+		margin: 0;
+		display: inline-flex;
+		overflow: hidden;
+		border-radius: 9999px;
+		border: 1px solid var(--kt-line);
+		background: var(--kt-inset);
+		padding: 0;
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.03em;
 	}
 
+	/* No colour transition. A segmented control should switch on the click, and a
+	   150 ms fade also animates the THEME flip — which left axe measuring the
+	   selected pill halfway between its two palettes and reporting a contrast
+	   ratio that is on screen for a tenth of a second and never at rest. */
 	.pill {
-		@apply inline-flex items-center justify-center px-3 py-1.5 transition-colors;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.375rem 0.75rem;
 	}
 
 	.pill-on {
-		@apply bg-tomato-500 text-white;
+		background: var(--kt-accent-solid);
+		color: var(--kt-on-accent);
 	}
 
 	.pill-off {
-		@apply hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700;
+		color: var(--kt-ink-soft);
 	}
 
-	/* Every box the form types into. Size and width stay with the caller — the
-	   date pair splits a row, the rest fill it. */
-	.input {
-		@apply border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100;
+	.pill-off:hover {
+		background: var(--kt-raised);
+		color: var(--kt-ink);
 	}
+
+	/* --- Messages --------------------------------------------------------- */
+
+	/* A boxed message under the control that caused it. Danger is ember at full
+	   heat — something is wrong and the bake is at risk. Info is the same hue
+	   held back to a hairline and no fill, for a consequence worth reporting
+	   rather than a refusal. Cold is not available here: blue means fridge. */
+	.notice {
+		border-radius: 0.5rem;
+		border: 1px solid;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.875rem;
+	}
+
+	.notice-danger {
+		border-color: var(--color-ember-600);
+		background: color-mix(in srgb, var(--color-ember-500) 12%, var(--kt-panel));
+		color: var(--kt-accent);
+	}
+
+	.notice-info {
+		border-color: var(--kt-line-strong);
+		background: var(--kt-inset);
+		color: var(--kt-ink-soft);
+	}
+
+	/* --- Links ------------------------------------------------------------ */
 
 	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
 	   Underlined on hover only; the surrounding paragraph carries the colour. */
 	.link-quiet {
-		@apply hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline;
+		text-underline-offset: 2px;
+	}
+
+	.link-quiet:hover {
+		color: var(--kt-accent);
+		text-decoration-line: underline;
 	}
 
 	/* A link that IS the action — "Open", "Source" in the recipe tables, where
 	   the row's other columns are all text and the link has to look clickable
-	   without a button's weight. The dark half is deliberate: `text-tomato-600`
-	   alone sat at 2.71:1 on a dark card until the axe suite caught it. */
+	   without a button's weight. Both halves come from --kt-accent, which is
+	   already the pair of shades that clear AA on their own theme's panel: one
+	   fixed tomato sat at 2.71:1 on the dark card until axe caught it. */
 	.link-action {
-		/* The hover colour is spelled out rather than reusing .text-accent: a
-		   component class cannot take a variant inside @apply, and `hover:` on one
-		   only works from a class attribute. Same four colours as before. */
-		@apply text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline;
+		font-weight: 600;
+		color: var(--kt-accent);
+		text-underline-offset: 2px;
+	}
+
+	.link-action:hover {
+		color: var(--kt-accent-hover);
+		text-decoration-line: underline;
 	}
 
 	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
 	   Width is the caller's, everything else is shared. */
 	.dialog-panel {
-		@apply border-dough-200 rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200;
+		border: 1px solid var(--kt-line);
+		border-radius: 1rem;
+		background: var(--kt-panel);
+		padding: 0;
+		font-size: 0.875rem;
+		color: var(--kt-ink-soft);
+		box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.55);
 	}
 
-	/* The way out of a dialog: quieter than the action beside it. */
-	.btn-quiet {
-		@apply rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200;
+	.dialog-panel::backdrop {
+		background: rgb(16 12 9 / 0.6);
+	}
+
+	/* A floating layer that must cover what is under it: the actions menu, the
+	   fit panel. Opaque on purpose — these are the only raised things on the
+	   page, so they are also the only ones with a shadow. */
+	.popover-panel {
+		border: 1px solid var(--kt-line);
+		border-radius: 0.875rem;
+		background: var(--kt-raised);
+		box-shadow: 0 18px 40px -20px rgb(0 0 0 / 0.55);
+	}
+
+	/* --- The instrument --------------------------------------------------- */
+
+	/* The now band. The loudest element on the page and the only one that is
+	   allowed to glow: it answers "what am I doing and how long is left", which
+	   is the single most valuable thing the app knows.
+
+	   It is a night face in BOTH themes — it redeclares the whole surface set for
+	   its own subtree rather than following the page. That is not a decorative
+	   inversion: in daylight the band is the one thing that has to be found
+	   across a kitchen, and on a page of warm paper a lit dark panel is the only
+	   way to say so without shouting in ember. It also means the light theme has
+	   a hero of its own rather than a paler copy of the dark one. Every class
+	   inside reads these names, so nothing in NowBand.svelte knows about it. */
+	.now-band {
+		--kt-panel: #1c1512;
+		--kt-raised: #291d16;
+		--kt-inset: #100c09;
+		--kt-line: #3d2e23;
+		--kt-line-strong: #52402f;
+
+		--kt-ink: #f4ebe0;
+		--kt-ink-soft: #c5b3a1;
+		--kt-ink-faint: #9a8877;
+
+		--kt-accent: var(--color-ember-300);
+		--kt-accent-solid: var(--color-ember-500);
+		--kt-on-accent: #17100c;
+		--kt-cold: var(--color-frost-300);
+
+		--kt-warm-band: var(--color-ember-500);
+		--kt-cold-band: var(--color-frost-500);
+		--kt-night-wash: rgb(0 0 0 / 0.5);
+		--kt-glow-soft: 0 0 26px -6px rgb(242 118 42 / 0.5);
+
+		position: relative;
+		overflow: hidden;
+		border: 1px solid var(--kt-line);
+		border-radius: 1.125rem;
+		color: var(--kt-ink);
+		background:
+			radial-gradient(70rem 24rem at 0% -20%, rgb(242 118 42 / 0.16) 0%, transparent 65%),
+			var(--kt-panel);
+		padding: 1rem 1.125rem 1.125rem;
+	}
+
+	@media (width >= 40rem) {
+		.now-band {
+			padding: 1.25rem 1.5rem 1.5rem;
+		}
+	}
+
+	/* The state word: what phase of the plan you are in. Ember while a step is
+	   running, quiet before and after — the page should be calm when there is
+	   nothing to do. */
+	.state-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		border-radius: 9999px;
+		padding: 0.2rem 0.6rem;
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.state-chip-live {
+		background: var(--kt-accent-solid);
+		color: var(--kt-on-accent);
+		box-shadow: var(--kt-glow-soft);
+	}
+
+	.state-chip-idle {
+		border: 1px solid var(--kt-line-strong);
+		color: var(--kt-ink-faint);
+	}
+
+	/* The proportional overview: one bar for the whole bake, warm and cold
+	   phases to scale, the night hours washed over the top, a playhead at now.
+	   Segments are deliberately not interactive — a 15-minute step is a 2 px
+	   sliver at 72 h and would be an unhittable target, so the step list below
+	   stays the thing you read and click. */
+	.night-bar {
+		position: relative;
+		height: 2.25rem;
+		width: 100%;
+		overflow: hidden;
+		border-radius: 0.5rem;
+		border: 1px solid var(--kt-line);
+		background: var(--kt-inset);
+	}
+
+	.night-seg {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		min-width: 2px;
+	}
+
+	.night-seg-warm {
+		background: var(--kt-warm-band);
+	}
+
+	.night-seg-cold {
+		background: var(--kt-cold-band);
+	}
+
+	/* The night hours, washed over whatever phase runs through them. A darkening
+	   rather than a third hue: a blue night beside a blue fridge would have made
+	   two different facts the same colour. */
+	.night-wash {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		background: var(--kt-night-wash);
+	}
+
+	/* The legend swatch shows the wash doing its job — night over a warm phase —
+	   because on its own the wash is a transparency and paints as nothing. */
+	.night-wash-swatch {
+		background-image: linear-gradient(var(--kt-night-wash), var(--kt-night-wash));
+		background-color: var(--kt-warm-band);
+	}
+
+	/* Now, on the bar. Ink rather than ember: it has to read against a warm
+	   segment and a cold one, and ember over ember is a line you cannot find —
+	   which is exactly what the first version did. It sits outside the bar's
+	   own clip so the cap can overhang. */
+	.playhead {
+		position: absolute;
+		top: -0.3rem;
+		bottom: -0.3rem;
+		width: 2px;
+		background: var(--kt-ink);
+		box-shadow:
+			0 0 0 1px var(--kt-panel),
+			var(--kt-glow-soft);
+	}
+
+	.playhead::before {
+		content: '';
+		position: absolute;
+		top: -1px;
+		left: 50%;
+		width: 0;
+		height: 0;
+		transform: translateX(-50%);
+		border-left: 4px solid transparent;
+		border-right: 4px solid transparent;
+		border-top: 5px solid var(--kt-ink);
+	}
+
+	/* The bands the window slider paints behind its thumb: what this flour
+	   tolerates at room temperature, and what it tolerates in the fridge. Same
+	   two colours as the overview bar, for the same two meanings. */
+	.zone-room {
+		background: var(--kt-warm-band);
+	}
+
+	.zone-cold {
+		background: var(--kt-cold-band);
+	}
+
+	/* The window card. Named, because three e2e specs address it and a
+	   `rounded-2xl` they happened to share is not something anyone can safely
+	   restyle. */
+	.window-card {
+		border-radius: 0.875rem;
+		border: 1px solid var(--kt-line);
+		background: var(--kt-inset);
+		padding: 0.875rem;
+	}
+
+	/* A duration or a temperature stated beside its label — the step durations,
+	   the source-timing note. Reads as a value, not as a badge. */
+	.gauge {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.25rem;
+		border-radius: 0.375rem;
+		border: 1px solid var(--kt-line);
+		padding: 0.1rem 0.4rem;
+		font-family: var(--font-display);
+		font-size: 0.8125rem;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.02em;
+		color: var(--kt-ink-soft);
+		white-space: nowrap;
 	}
 }

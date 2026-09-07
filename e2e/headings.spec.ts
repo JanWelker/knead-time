@@ -27,6 +27,9 @@ test('every card is reachable by heading, and the steps sit under their day', as
 
 	// The input card is named, even though its heading is visually hidden.
 	expect(heads.filter((h) => h.level === 2).map((h) => h.text)).toEqual([
+		// The now band is a region of its own, named but not shown: its state chip
+		// and step title already say what it is on screen.
+		'Where you are in the bake',
 		'Your recipe',
 		'Schedule',
 		'Ingredients',
@@ -58,11 +61,11 @@ test('no heading level is skipped', async ({ page }) => {
 	}
 });
 
-// app.css styles `h1, h2, h3, .font-display` from OUTSIDE any cascade layer, so
+// app.css styles `h1, h2, h3, .font-display` in @layer base, so
 // that rule beats every Tailwind utility — unlayered always wins over
-// @layer utilities. Turning the day label into an h3 silently made it serif and
-// dropped its wide tracking; turning the step title into an h4 silently dropped
-// the serif it had been inheriting. Both faces are pinned here because the
+// utilities. Turning the day label into an h3 silently made it the display face and
+// dropped its tracking; turning the step title into an h4 silently dropped the
+// display face it had been inheriting. Both faces are pinned here because the
 // markup gives no hint that the levels and the fonts are coupled.
 test('changing a heading level does not change its typeface', async ({ page }) => {
 	await openRecipe(page, RECIPE);
@@ -76,12 +79,12 @@ test('changing a heading level does not change its typeface', async ({ page }) =
 		});
 	// The date label has always been the sans face with wide tracking.
 	expect(day.font).toBe('ui-sans-serif');
-	expect(day.tracking).toBe('1.68px');
+	expect(day.tracking).toBe('0.96px');
 
 	const step = await page
 		.locator('main ol h4')
 		.first()
 		.evaluate((el) => getComputedStyle(el).fontFamily.split(',')[0].trim());
-	// Step titles have always been the display serif.
-	expect(step).toBe('ui-serif');
+	// Step titles have always been the display face.
+	expect(step).toBe('"Avenir Next Condensed"');
 });

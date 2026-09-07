@@ -34,9 +34,11 @@ export function formCard(page: Page) {
 	return page.locator('.card').filter({ has: page.locator('input[type="range"]') });
 }
 
-/** The fermentation-window card. */
+/** The fermentation-window card. `.window-card` is a name in app.css rather
+ * than the `rounded-2xl` it used to share with every other panel: the redesign
+ * gave the panels different radii, and a shape is not a handle. */
 export function windowCard(page: Page) {
-	return page.locator('form div.rounded-2xl').filter({ has: page.locator('input[type="range"]') });
+	return page.locator('form .window-card');
 }
 
 /** The big duration readout, e.g. "40 h". */

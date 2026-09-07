@@ -71,7 +71,7 @@
 
 <details bind:this={detailsRef} class="group relative inline-block">
 	<summary
-		class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex cursor-pointer list-none items-center gap-1.5 py-0.5 text-sm font-medium text-stone-600 select-none dark:text-stone-300"
+		class="ink-soft inline-flex cursor-pointer list-none items-center gap-1.5 py-0.5 text-sm font-medium select-none hover:text-[var(--kt-accent)]"
 		title={summaryTooltip}
 		aria-label={interpolate(t.quality.fit_aria, { stars })}
 	>
@@ -80,13 +80,11 @@
 		</span>
 		<span>{t.quality.fit_heading}</span>
 	</summary>
-	<div
-		class="border-dough-200 absolute z-20 mt-2 max-w-sm rounded-2xl border bg-white p-3 text-sm shadow-lg dark:border-stone-700 dark:bg-stone-800"
-	>
+	<div class="popover-panel absolute z-20 mt-2 max-w-sm p-3 text-sm">
 		{#if fit.factors.length === 0}
-			<p class="text-stone-600 dark:text-stone-300">{t.quality.fit_perfect}</p>
+			<p class="ink-soft">{t.quality.fit_perfect}</p>
 		{:else}
-			<ul class="space-y-1 text-stone-600 dark:text-stone-300">
+			<ul class="ink-soft space-y-1">
 				<!-- Key includes the index: with biga + poolish both clamped the same
 				     factor legitimately appears twice, once per pre-ferment. -->
 				{#each fit.factors as detail, i (detail.factor + '-' + i)}

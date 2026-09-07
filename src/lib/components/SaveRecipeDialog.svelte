@@ -44,7 +44,7 @@
 		</h2>
 
 		<label class="block space-y-1">
-			<span class="text-xs font-medium text-stone-600 dark:text-stone-300">
+			<span class="ink-soft text-xs font-medium">
 				{t.actions.save_recipe_prompt}
 			</span>
 			<input
@@ -52,12 +52,12 @@
 				type="text"
 				autocomplete="off"
 				bind:value={name}
-				class="input w-full text-sm text-stone-900 dark:bg-stone-900"
+				class="input w-full text-sm"
 			/>
 		</label>
 
 		<div class="flex flex-wrap items-center gap-2">
-			<button type="submit" class="btn-tomato" disabled={name.trim().length === 0}>
+			<button type="submit" class="btn-ember" disabled={name.trim().length === 0}>
 				{t.actions.save_confirm}
 			</button>
 			<button type="button" class="btn-quiet ml-auto" onclick={close}>

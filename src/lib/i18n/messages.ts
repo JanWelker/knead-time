@@ -215,6 +215,19 @@ export interface Messages {
 		window_benefit_medium: string;
 		window_benefit_long: string;
 		now: string;
+		now_region: string;
+		now_next: string;
+		now_done: string;
+		now_left: string;
+		now_until_start: string;
+		now_done_note: string;
+		now_since: string;
+		now_starts_at: string;
+		now_ready_at: string;
+		bar_label: string;
+		bar_warm: string;
+		bar_cold: string;
+		bar_night: string;
 	};
 	quality: {
 		step_imperfect: string;
@@ -658,7 +671,20 @@ const en: Messages = {
 			'Long enough for the enzymes to matter. Starch turns into sugars that deepen the flavour and colour the crust, and the gluten relaxes so the ball opens without fighting back. Long fermentation also breaks down some of the fructans in the flour, which is why many people find this dough easier to digest.',
 		window_benefit_long:
 			'The deep-flavour end: slow ripening builds aromas a short rise never reaches, the dough handles softly, and so little yeast is needed that nothing tastes of yeast. Returns flatten from here, and the flour’s own tolerance becomes the limit — that is what the band above is watching.',
-		now: 'Now'
+		now: 'Now',
+		now_region: 'Where you are in the bake',
+		now_next: 'Next',
+		now_done: 'Done',
+		now_left: 'left',
+		now_until_start: 'until you start',
+		now_done_note: 'The bake moment has passed',
+		now_since: 'Since {when}',
+		now_starts_at: 'Starts {when}',
+		now_ready_at: 'Ready {when}',
+		bar_label: 'The whole bake, to scale',
+		bar_warm: 'Room',
+		bar_cold: 'Fridge',
+		bar_night: 'Night'
 	},
 	quality: {
 		step_imperfect: 'This step deviates from the math’s natural schedule.',
@@ -1116,7 +1142,20 @@ const de: Messages = {
 			'Lang genug, dass die Enzyme etwas bewirken. Stärke wird zu Zucker, der Geschmack vertieft und die Kruste färbt, und der Teig entspannt sich, sodass sich der Ballen mühelos öffnen lässt. Lange Gare baut außerdem einen Teil der Fruktane im Mehl ab — deshalb empfinden viele diesen Teig als bekömmlicher.',
 		window_benefit_long:
 			'Das Ende mit dem meisten Geschmack: langsame Reife bildet Aromen, die eine kurze Gare nie erreicht, der Teig lässt sich weich verarbeiten, und es braucht so wenig Hefe, dass nichts nach Hefe schmeckt. Ab hier flacht der Gewinn ab, und die Mehlstärke wird zur Grenze — genau darauf achtet das Band oben.',
-		now: 'Jetzt'
+		now: 'Jetzt',
+		now_region: 'Wo du im Backablauf stehst',
+		now_next: 'Als Nächstes',
+		now_done: 'Fertig',
+		now_left: 'übrig',
+		now_until_start: 'bis zum Start',
+		now_done_note: 'Der Backzeitpunkt ist vorbei',
+		now_since: 'Seit {when}',
+		now_starts_at: 'Beginnt {when}',
+		now_ready_at: 'Fertig {when}',
+		bar_label: 'Der ganze Ablauf, maßstabsgetreu',
+		bar_warm: 'Raumtemperatur',
+		bar_cold: 'Kühlschrank',
+		bar_night: 'Nacht'
 	},
 	quality: {
 		step_imperfect: 'Dieser Schritt weicht vom natürlichen Zeitplan ab.',
@@ -1580,7 +1619,20 @@ const it: Messages = {
 			'Abbastanza lungo perché gli enzimi contino davvero. L’amido diventa zucchero, che approfondisce il gusto e colora il cornicione, e il glutine si rilassa così il panetto si stende senza opporre resistenza. La lievitazione lunga scompone anche parte dei fruttani della farina: per questo molti trovano l’impasto più digeribile.',
 		window_benefit_long:
 			'L’estremo del gusto: la maturazione lenta sviluppa aromi che una lievitazione breve non raggiunge mai, l’impasto si lavora morbido e serve così poco lievito che nulla sa di lievito. Da qui i vantaggi si appiattiscono e il limite diventa la forza della farina — è quello che sorveglia la banda qui sopra.',
-		now: 'Ora'
+		now: 'Ora',
+		now_region: 'A che punto sei della lievitazione',
+		now_next: 'Prossimo',
+		now_done: 'Finito',
+		now_left: 'rimanenti',
+		now_until_start: "all'inizio",
+		now_done_note: "L'ora della cottura è passata",
+		now_since: 'Da {when}',
+		now_starts_at: 'Inizia {when}',
+		now_ready_at: 'Pronto {when}',
+		bar_label: 'Tutto il piano, in scala',
+		bar_warm: 'Ambiente',
+		bar_cold: 'Frigorifero',
+		bar_night: 'Notte'
 	},
 	quality: {
 		step_imperfect: 'Questo passo si discosta dal programma naturale del calcolo.',
@@ -2049,7 +2101,20 @@ const fr: Messages = {
 			'Assez long pour que les enzymes comptent. L’amidon devient du sucre qui approfondit le goût et colore la croûte, et le gluten se détend : le pâton s’ouvre sans résister. Une fermentation longue dégrade aussi une partie des fructanes de la farine, ce qui explique pourquoi beaucoup trouvent cette pâte plus digeste.',
 		window_benefit_long:
 			'Le bout du spectre côté goût : la maturation lente développe des arômes qu’une pousse courte n’atteint jamais, la pâte se travaille tout en souplesse, et il faut si peu de levure que rien n’a le goût de levure. Au-delà, les gains s’aplatissent et c’est la force de la farine qui devient la limite — c’est ce que surveille la bande ci-dessus.',
-		now: 'Maintenant'
+		now: 'Maintenant',
+		now_region: 'Où vous en êtes dans la préparation',
+		now_next: 'Ensuite',
+		now_done: 'Terminé',
+		now_left: 'restant',
+		now_until_start: 'avant de commencer',
+		now_done_note: "L'heure de cuisson est passée",
+		now_since: 'Depuis {when}',
+		now_starts_at: 'Commence {when}',
+		now_ready_at: 'Prêt {when}',
+		bar_label: "Tout le planning, à l'échelle",
+		bar_warm: 'Ambiante',
+		bar_cold: 'Réfrigérateur',
+		bar_night: 'Nuit'
 	},
 	quality: {
 		step_imperfect: 'Cette étape s’écarte du programme naturel du calcul.',
@@ -2516,7 +2581,20 @@ const nl: Messages = {
 			'Lang genoeg om de enzymen te laten meetellen. Zetmeel wordt suiker die de smaak verdiept en de korst kleurt, en het gluten ontspant zodat de bol zich moeiteloos laat openen. Lange rijs breekt ook een deel van de fructanen in het meel af — daarom vinden veel mensen dit deeg beter verteerbaar.',
 		window_benefit_long:
 			'Het uiterste eind qua smaak: langzame rijping bouwt aroma’s op die een korte rijs nooit haalt, het deeg verwerkt zacht, en er is zo weinig gist nodig dat niets naar gist smaakt. Vanaf hier vlakt de winst af en wordt de meelsterkte de grens — daar let de band hierboven op.',
-		now: 'Nu'
+		now: 'Nu',
+		now_region: 'Waar je bent in het bakproces',
+		now_next: 'Hierna',
+		now_done: 'Klaar',
+		now_left: 'resterend',
+		now_until_start: 'tot je begint',
+		now_done_note: 'Het baktijdstip is voorbij',
+		now_since: 'Sinds {when}',
+		now_starts_at: 'Begint {when}',
+		now_ready_at: 'Klaar {when}',
+		bar_label: 'Het hele schema, op schaal',
+		bar_warm: 'Kamertemperatuur',
+		bar_cold: 'Koelkast',
+		bar_night: 'Nacht'
 	},
 	quality: {
 		step_imperfect: 'Deze stap wijkt af van het natuurlijke schema.',

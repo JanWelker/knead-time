@@ -72,6 +72,7 @@ src/
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
 │   ├── warningSlots.ts   ← which card each schedule warning is rendered in
+│   ├── timeline.ts       ← geometry for the overview bar: segments, night bands, where "now" is
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
@@ -82,7 +83,8 @@ src/
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
 │   ├── +page.svelte      ← the entire calculator UI
 │   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
-├── app.css               ← Tailwind v4 entrypoint + @theme palette
+├── app.css               ← Tailwind v4 entrypoint: the Notte palette, the --kt-* surface tokens
+│                            (flipped as a set on .dark) and the whole @layer components layer
 └── app.html              ← shell
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
@@ -127,7 +129,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
 3. **UI.** Add fields to `src/lib/components/InputForm.svelte`; render results in the existing components or add a new one. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
-5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`.
+5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`. The suite builds and previews on port 4173; set `E2E_PORT` to move it when something else already has that port.
 
 ### Print / PDF export
 

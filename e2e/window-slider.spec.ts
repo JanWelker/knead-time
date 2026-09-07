@@ -30,7 +30,7 @@ const IDEAL_RECIPE = `${CAPUTO}&r=2026-09-02T17%3A30%3A00.000Z`;
  */
 async function tickRowBoxes(page: Page): Promise<{ t: string; left: number; right: number }[]> {
 	return page.evaluate(() => {
-		const card = document.querySelector('form div.rounded-2xl')!;
+		const card = document.querySelector('form .window-card')!;
 		const spans = [...card.querySelectorAll('span')]
 			.filter((s) => /^\d+\s*h$/.test(s.textContent!.trim()) && s.checkVisibility())
 			.map((s) => {
@@ -253,7 +253,7 @@ test('the band caption carries a swatch in the band colour', async ({ page }) =>
 	await expect(swatch).toHaveCount(1);
 	const colour = await swatch.evaluate((el) => getComputedStyle(el).backgroundColor);
 	const rail = await windowCard(page)
-		.locator('div.bg-basil-400, div.bg-basil-300')
+		.locator('div.zone-cold, div.zone-room')
 		.last()
 		.evaluate((el) => getComputedStyle(el).backgroundColor);
 	expect(colour).toBe(rail);
