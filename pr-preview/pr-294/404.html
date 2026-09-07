@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/pr-preview/pr-294/favicon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#a02f1a" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+		<!-- Two faces, two jobs. Bodoni Moda is Parma, 1790 — an Italian
+		     printer's face, used here only for the masthead, the datelines and
+		     the figures a baker reads off a scale or a clock. Source Serif 4
+		     carries the prose. Both are variable and requested at the weights
+		     and optical sizes the page actually sets; `display=swap` means a
+		     blocked or slow CDN falls back to the stacks in app.css rather
+		     than holding the first paint of a recipe. -->
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..600&display=swap"
+		/>
+		<script>
+			// Theme boot: apply dark before first paint. The legacy bare 'theme'
+			// slot is read as a fallback until loadStoredTheme migrates it to
+			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
+			// cookies") — only the reads are guarded so a blocked storage still
+			// honours the system preference.
+			(function () {
+				var stored = null;
+				try {
+					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+				} catch (e) {}
+				if (
+					stored === 'dark' ||
+					(stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+				) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
+		<link href="/pr-preview/pr-294/_app/immutable/entry/start.njvfIRYA.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/chunks/DN5JjUdJ.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/chunks/khlUOgSE.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/entry/app.CfKPH4Qe.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/nodes/0.BdcQKijO.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/chunks/Dqdj9UHI.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/chunks/cddT-J3M.js" rel="modulepreload">
+		<link href="/pr-preview/pr-294/_app/immutable/chunks/D1fnd42B.js" rel="modulepreload">
+		
+		<link href="/pr-preview/pr-294/_app/immutable/assets/0.CqpHpFVq.css" rel="stylesheet">
+	</head>
+	<body data-sveltekit-preload-data="hover" class="bg-paper text-ink min-h-screen antialiased">
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_rhctg9 = {
+						base: "/pr-preview/pr-294",
+						assets: "/pr-preview/pr-294"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("/pr-preview/pr-294/_app/immutable/entry/start.njvfIRYA.js"),
+						import("/pr-preview/pr-294/_app/immutable/entry/app.CfKPH4Qe.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element);
+					});
+				}
+			</script>
+		</div>
+	</body>
+</html>
