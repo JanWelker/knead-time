@@ -147,7 +147,7 @@ test('the rail marker names a ceiling, not the bake moment', async ({ page }) =>
 	// allows. The moment stays on the line beneath.
 	await openRecipe(page, `${CAPUTO}&r=2026-09-02T19%3A00%3A00.000Z`);
 
-	const marker = windowCard(page).locator('div.absolute').filter({ hasText: 'Limit set by' });
+	const marker = windowCard(page).locator('.rail-caption').filter({ hasText: 'Limit set by' });
 	await expect(marker).toContainText('Limit set by ‘ready to bake’ time');
 	await expect(marker).toContainText('Sep 2');
 });
@@ -179,8 +179,11 @@ test('no "use best" button when the flour has no ideal to offer', async ({ page 
 test('every marker caption stays inside the rail', async ({ page }) => {
 	await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
 
+	// Every line of both markers, not only the ones that happen to carry
+	// `whitespace-nowrap`: the captions wrap now, and the class they used to be
+	// found by was the very thing that let them overflow.
 	const rail = await windowCard(page).locator('.overflow-hidden.rounded-full').boundingBox();
-	for (const caption of await windowCard(page).locator('span.whitespace-nowrap').all()) {
+	for (const caption of await windowCard(page).locator('.rail-caption span').all()) {
 		const box = await caption.boundingBox();
 		if (!box) continue;
 		expect(box.x).toBeGreaterThanOrEqual(rail!.x - 1);
@@ -188,42 +191,34 @@ test('every marker caption stays inside the rail', async ({ page }) => {
 	}
 });
 
-// Four tick labels do not fit a phone. The rail is linear in stop INDEX and
-// 48 h / 72 h are adjacent stops, so at 390 px the two labels ended up 3 px
-// apart and read as a single number. Only a browser can show that.
-test.describe('tick labels on a phone', () => {
-	test.use({ viewport: { width: 390, height: 844 } });
+// The rail is linear in stop INDEX, so two labels on adjacent stops sit about
+// one label-width apart and read as a single number: 48 h and 72 h used to,
+// which needed a phone-only label set to paper over and still came within two
+// pixels of colliding under a wider font. The set is a doubling ladder with two
+// stops of separation now, the same at every width — so this asks the same
+// question twice, at the width where it used to fail and at a comfortable one.
+for (const [name, width] of [
+	['a phone', 390],
+	['a desktop', 1280]
+] as const) {
+	test.describe(`tick labels on ${name}`, () => {
+		test.use({ viewport: { width, height: 900 } });
 
-	test('the rail labels never run into each other', async ({ page }) => {
-		await openRecipe(page, IDEAL_RECIPE);
+		test('the rail labels never run into each other', async ({ page }) => {
+			await openRecipe(page, IDEAL_RECIPE);
 
-		const boxes = await tickRowBoxes(page);
-		expect(boxes.length).toBeGreaterThanOrEqual(3);
-		for (let i = 1; i < boxes.length; i++) {
-			expect(
-				boxes[i].left - boxes[i - 1].right,
-				`${boxes[i - 1].t} to ${boxes[i].t}`
-			).toBeGreaterThan(8);
-		}
-		// 48 h is the one dropped; the ends stay so the rail keeps its scale.
-		expect(boxes.map((b) => b.t)).not.toContain('48 h');
-		expect(boxes.map((b) => b.t)).toContain('72 h');
+			const boxes = await tickRowBoxes(page);
+			// Every labelled stop, at both widths — none is dropped to make room.
+			expect(boxes.map((b) => b.t)).toEqual(['8 h', '18 h', '36 h', '72 h']);
+			for (let i = 1; i < boxes.length; i++) {
+				expect(
+					boxes[i].left - boxes[i - 1].right,
+					`${boxes[i - 1].t} to ${boxes[i].t}`
+				).toBeGreaterThan(20);
+			}
+		});
 	});
-});
-
-test.describe('tick labels with room', () => {
-	test.use({ viewport: { width: 1280, height: 900 } });
-
-	test('all four labels come back once there is width for them', async ({ page }) => {
-		await openRecipe(page, IDEAL_RECIPE);
-
-		const boxes = await tickRowBoxes(page);
-		expect(boxes.map((b) => b.t)).toContain('48 h');
-		for (let i = 1; i < boxes.length; i++) {
-			expect(boxes[i].left - boxes[i - 1].right).toBeGreaterThan(8);
-		}
-	});
-});
+}
 
 // The thumb snaps to stops and the ideal marker points at one, so when they are
 // the same stop the rail is already saying "you are here" — while a "Use best"

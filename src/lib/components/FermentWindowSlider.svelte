@@ -69,14 +69,39 @@
 
 	// The bake flag is centred on the deadline, except near the ends where a
 	// centred label would hang off the rail — there it pivots to sit inside,
-	// with the arrow itself staying on the exact spot either way.
+	// with the arrow itself staying on the exact spot either way. The pivot
+	// happens at a quarter of the rail rather than at a tenth: a centred
+	// caption only has twice the SHORTER side to spread into, so at 12 % it is
+	// allowed a quarter of the rail and has to wrap four times over.
+	const PIVOT_PCT = 25;
 	const markerAnchor = $derived(
-		unreachableFromPct < 12 ? 'start' : unreachableFromPct > 88 ? 'end' : 'center'
+		unreachableFromPct < PIVOT_PCT
+			? 'start'
+			: unreachableFromPct > 100 - PIVOT_PCT
+				? 'end'
+				: 'center'
 	);
 	const idealPct = $derived(ideal === null ? null : axis(ideal));
 	const idealAnchor = $derived(
-		idealPct === null ? 'center' : idealPct < 12 ? 'start' : idealPct > 88 ? 'end' : 'center'
+		idealPct === null
+			? 'center'
+			: idealPct < PIVOT_PCT
+				? 'start'
+				: idealPct > 100 - PIVOT_PCT
+					? 'end'
+					: 'center'
 	);
+
+	// How much of the rail a caption may occupy from where it is anchored.
+	// Without this the caption is as wide as its text wants to be, and a font
+	// that renders it wider than the design allowed simply hangs off the end.
+	function captionWidthPct(pct: number, anchor: string): number {
+		if (anchor === 'start') return 100 - pct;
+		if (anchor === 'end') return pct;
+		return 2 * Math.min(pct, 100 - pct);
+	}
+	const markerMaxPct = $derived(captionWidthPct(unreachableFromPct, markerAnchor));
+	const idealMaxPct = $derived(idealPct === null ? 100 : captionWidthPct(idealPct, idealAnchor));
 	const idealShift = $derived(
 		idealAnchor === 'start'
 			? 'translateX(0)'
@@ -127,13 +152,15 @@
 	// Labelled stops. Every stop gets a notch; only these carry text, so the
 	// rail stays readable at phone widths. The extremes are left unlabelled —
 	// a centred label at 0 % or 100 % would hang off the rail.
-	const labelledStops = [8, 24, 48, 72];
-	// Four of them do not fit a phone: the rail is linear in stop INDEX, and
-	// 48 h and 72 h are adjacent stops, so at 390 px their labels end up 3 px
-	// apart and read as one number. 48 h is the one that goes — dropping it
-	// leaves 8/24/72 evenly spread, and 72 h has to stay because it is the last
-	// canonical window before the rail's own ceiling.
-	const narrowLabelledStops = [8, 24, 72];
+	//
+	// A doubling ladder, and deliberately no two ADJACENT stops: the rail is
+	// linear in stop index, so neighbours sit about one label-width apart and
+	// read as a single number. 8/24/48/72 had 48 and 72 next to each other,
+	// which took a phone-only third set to paper over and still came within a
+	// couple of pixels of colliding on a runner whose font renders wider.
+	// Two stops of separation makes the collision impossible at any width, and
+	// 24 h and 48 h are still snap points — they just carry a notch, not text.
+	const labelledStops = [8, 18, 36, 72];
 
 	// The thumb snaps to stops, and the ideal marker points at one. When they
 	// are the same stop the button is offering to send the user where the rail
@@ -178,25 +205,23 @@
 	     nothing on the rail to point at, and the fallback below does name the
 	     moment, so it keeps the field's own label. -->
 	{#if unreachableFromPct < 100}
-		<div class="relative mx-2.5 mt-2 h-9" aria-hidden="true">
+		<div class="relative mx-2.5 mt-2 h-12" aria-hidden="true">
 			<!-- Caption and arrow are placed separately on purpose: the caption
 			     pivots near the ends so it cannot hang off the rail, and the
 			     arrow never does, because pivoting it too would point it away
 			     from the moment it names. -->
 			<div
-				class="absolute top-0 flex flex-col {markerAnchor === 'start'
-					? 'items-start'
+				class="rail-caption top-0 {markerAnchor === 'start'
+					? 'items-start text-left'
 					: markerAnchor === 'end'
-						? 'items-end'
-						: 'items-center'}"
-				style="left:{unreachableFromPct}%;transform:{markerShift}"
+						? 'items-end text-right'
+						: 'items-center text-center'}"
+				style="left:{unreachableFromPct}%;transform:{markerShift};max-width:{markerMaxPct}%"
 			>
-				<span
-					class="text-tomato-700 dark:text-tomato-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="text-tomato-700 dark:text-tomato-300 font-semibold">
 					{t.schedule.window_limit_label}
 				</span>
-				<span class="text-ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
+				<span class="text-ink-faint">
 					{formatDateTime(form.readyBy, i18n.locale)}
 				</span>
 			</div>
@@ -294,7 +319,7 @@
 	     deadline flagged from above. It is a real stop on the rail, so the
 	     arrow always sits on a position the thumb can land on. -->
 	{#if idealPct !== null}
-		<div class="relative mx-2.5 mt-1 h-9" aria-hidden="true">
+		<div class="relative mx-2.5 mt-1 h-12" aria-hidden="true">
 			<svg
 				class="fill-basil-500 absolute top-0 -translate-x-1/2"
 				style="left:{idealPct}%"
@@ -305,19 +330,17 @@
 				<path d="M5 0 0 6h10z" />
 			</svg>
 			<div
-				class="absolute top-2 flex flex-col {idealAnchor === 'start'
-					? 'items-start'
+				class="rail-caption top-2 {idealAnchor === 'start'
+					? 'items-start text-left'
 					: idealAnchor === 'end'
-						? 'items-end'
-						: 'items-center'}"
-				style="left:{idealPct}%;transform:{idealShift}"
+						? 'items-end text-right'
+						: 'items-center text-center'}"
+				style="left:{idealPct}%;transform:{idealShift};max-width:{idealMaxPct}%"
 			>
-				<span
-					class="text-basil-700 dark:text-basil-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="text-basil-700 dark:text-basil-300 font-semibold">
 					{t.schedule.window_ideal}
 				</span>
-				<span class="text-ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
+				<span class="text-ink-faint">
 					{formatWindow(ideal as number)}
 				</span>
 			</div>
@@ -327,11 +350,7 @@
 	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="text-ink-faint absolute -translate-x-1/2 text-[0.65rem] {narrowLabelledStops.includes(
-					stop
-				)
-					? ''
-					: 'max-sm:hidden'}"
+				class="text-ink-faint absolute -translate-x-1/2 text-[0.65rem]"
 				style="left:{axis(stop)}%">{formatWindow(stop)}</span
 			>
 		{/each}

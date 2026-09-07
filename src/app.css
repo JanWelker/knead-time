@@ -289,6 +289,16 @@
 		@apply text-ink-soft hover:text-ink rounded-full px-3 py-2 text-xs;
 	}
 
+	/* A marker's words on the window rail — the bake-limit flag above it and
+	   the ideal flag below. The caller sets `left`, the pivot and a max-width;
+	   this is the shape the two share. The text WRAPS: the same caption is
+	   about 6 % wider under the CI runner's font than under the one it was
+	   designed against, which is exactly enough to hang off the rail, and a
+	   one-line caption has no way to absorb that. */
+	.rail-caption {
+		@apply absolute flex flex-col text-[0.65rem] leading-tight break-words;
+	}
+
 	/* A swatch that says which temperature a colour means. Used by the dial's
 	   legend and by the window card's band caption. */
 	.legend-dot {
