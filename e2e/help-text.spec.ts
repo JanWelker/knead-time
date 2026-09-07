@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { formCard, openRecipe, windowCard } from './helpers';
+import { openAdjust, openRecipe, sheet, windowCard } from './helpers';
+
+// Field help is a property of the recipe sheet, so every test opens it.
+async function openForm(page: import('@playwright/test').Page, query: string) {
+	await openRecipe(page, query);
+	await openAdjust(page);
+}
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -13,22 +19,22 @@ const AUTOLYSE_HELP = 'Rest flour and water for 30 min';
 // Assertions are about VISIBILITY, not text: the copy is in the DOM either
 // way, which is the whole point of it still being reachable.
 test('beginner shows the help standing', async ({ page }) => {
-	await openRecipe(page, `${RECIPE}&md=b`);
+	await openForm(page, `${RECIPE}&md=b`);
 	await expect(page.getByText(START_HELP)).toBeVisible();
-	await expect(formCard(page).getByText('A spiral mixer kneads most efficiently')).toBeVisible();
+	await expect(sheet(page).getByText('A spiral mixer kneads most efficiently')).toBeVisible();
 });
 
 test('expert shows nothing at rest, and the field being edited explains itself', async ({
 	page
 }) => {
-	await openRecipe(page, RECIPE);
+	await openForm(page, RECIPE);
 	await expect(page.getByText(START_HELP)).toBeHidden();
 
-	await page.locator('form input[type="date"]').first().focus();
+	await sheet(page).locator('input[type="date"]').first().focus();
 	await expect(page.getByText(START_HELP)).toBeVisible();
 
 	// ...and it goes away again, so the form does not accumulate height.
-	await page.locator('form select').first().focus();
+	await sheet(page).locator('select').first().focus();
 	await expect(page.getByText(START_HELP)).toBeHidden();
 });
 
@@ -36,7 +42,7 @@ test('expert shows nothing at rest, and the field being edited explains itself',
 // never renders, so hiding help in expert left them with no view at all —
 // `oil` in particular carries a number a reader cannot infer from the label.
 test('the notes on expert-only fields are reachable again', async ({ page }) => {
-	await openRecipe(page, RECIPE);
+	await openForm(page, RECIPE);
 
 	const oil = page.getByText(OIL_HELP);
 	await expect(oil).toBeHidden();
@@ -53,7 +59,7 @@ test('the notes on expert-only fields are reachable again', async ({ page }) => 
 // benefit paragraph was kept visible on purpose. Neither may follow the rest.
 test('the window card keeps its band caption and benefit in both views', async ({ page }) => {
 	for (const query of [RECIPE, `${RECIPE}&md=b`]) {
-		await openRecipe(page, query);
+		await openForm(page, query);
 		await expect(windowCard(page).getByText(/tolerates/)).toBeVisible();
 		await expect(windowCard(page).getByText(/enzymes/)).toBeVisible();
 	}
@@ -62,12 +68,12 @@ test('the window card keeps its band caption and benefit in both views', async (
 // A notice that appears in response to a choice is not a description of a
 // field: both of these are needed at the moment they show up, so they stand.
 test('conditional notices stay visible in the expert view', async ({ page }) => {
-	await openRecipe(
+	await openForm(
 		page,
 		'v=6&n=6&b=280&h=70&s=3&y=a&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z'
 	);
-	await expect(formCard(page).getByText('Dissolve active dry yeast')).toBeVisible();
+	await expect(sheet(page).getByText('Dissolve active dry yeast')).toBeVisible();
 
-	await openRecipe(page, `${RECIPE}&p=b30_p20`);
-	await expect(formCard(page).getByText(/at most 80%/)).toBeVisible();
+	await openForm(page, `${RECIPE}&p=b30_p20`);
+	await expect(sheet(page).getByText(/at most 80%/)).toBeVisible();
 });

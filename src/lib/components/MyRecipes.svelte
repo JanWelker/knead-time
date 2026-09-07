@@ -16,34 +16,31 @@
 <!-- Device-local recipe book. Collapsed like the reference sections; the Open
      link reloads the page with the saved query string so onMount re-decodes,
      mirroring the community table's pattern. -->
-<details class="group" open={recipes.length > 0}>
-	<summary class="flex cursor-pointer list-none items-start gap-2 select-none">
+<!-- Its own sheet on the rack: the heading is the ink band across the top and
+     the tickets sit in the body under it. -->
+<details class="group card" open={recipes.length > 0}>
+	<summary class="card-header cursor-pointer">
 		<span
-			class="text-accent mt-2 font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
+			class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
 			aria-hidden="true">▶</span
 		>
-		<header>
-			<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-				{t.myRecipes.heading}
-			</h2>
-			<p class="mt-1 text-sm text-stone-500 dark:text-stone-400">{t.myRecipes.intro}</p>
-		</header>
+		<h2 class="card-header-title">{t.myRecipes.heading}</h2>
 	</summary>
-
-	<div class="mt-4">
+	<div class="card-body">
+		<p class="text-ink-soft mb-4 text-sm">{t.myRecipes.intro}</p>
 		{#if recipes.length === 0}
-			<p class="text-sm text-stone-500 dark:text-stone-400">{t.myRecipes.empty}</p>
+			<p class="text-ink-soft text-sm">{t.myRecipes.empty}</p>
 		{:else}
 			<ul class="flex flex-col gap-2">
 				{#each recipes as recipe (recipe.name)}
 					<li
-						class="border-dough-200/70 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 dark:border-stone-700/70"
+						class="border-rule bg-paper flex flex-wrap items-center justify-between gap-3 rounded-[2px] border-2 p-3"
 					>
 						<div class="min-w-0">
-							<span class="block truncate font-medium text-stone-800 dark:text-stone-100">
+							<span class="text-ink block truncate font-bold">
 								{recipe.name}
 							</span>
-							<span class="block text-xs text-stone-500 dark:text-stone-400">
+							<span class="text-ink-soft block text-xs">
 								{dateFormatter.format(new Date(recipe.savedAt))}
 							</span>
 						</div>
@@ -55,11 +52,7 @@
 							>
 								{t.myRecipes.open_link}
 							</a>
-							<button
-								type="button"
-								class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-block py-0.5 text-sm text-stone-500 underline-offset-2 hover:underline dark:text-stone-400"
-								onclick={() => onDelete(recipe.name)}
-							>
+							<button type="button" class="btn-quiet" onclick={() => onDelete(recipe.name)}>
 								{t.myRecipes.delete_label}
 							</button>
 						</div>

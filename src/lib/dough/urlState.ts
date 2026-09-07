@@ -18,8 +18,15 @@ export type SerializableInputs = DoughInputs;
 // (rename/remove a field, change a unit, change defaults that links should
 // preserve). Keep decode() understanding every published key shape so links
 // shared before the change still resolve to a working recipe.
-const CURRENT_VERSION = 6;
+const CURRENT_VERSION = 7;
 const VERSION_KEY = 'v';
+
+// v=7 adds NO key and NO gate. It exists because the app took a major bump for
+// a redesign that moved every control on the page, and the major version is
+// pinned to this constant so "which Knead Time wrote this link" stays
+// answerable from the app version alone. A v=7 link is a v=6 link with a
+// different stamp: same keys, same defaults, and both existing gates (`al` at
+// v < 5, `fw` at v < 6) let it through the same side as v=6.
 
 // v=6 adds 'fw' (flour W). Like 'al' it is version-gated rather than
 // add-only, because it has a non-null default: a v=6 link OMITS 'fw' when the

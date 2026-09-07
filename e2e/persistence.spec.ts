@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { NOW, waitForHydration } from './helpers';
+import { NOW, currentView, openAdjust, openMenu, sheet, waitForHydration } from './helpers';
 
 // Everything here is a fix that already shipped once. Each has a bug number
 // because each was found in a browser and could only ever have been found there.
@@ -13,14 +13,27 @@ async function open(page: import('@playwright/test').Page, query = '') {
 	await waitForHydration(page);
 }
 
+// The recipe fields live in the adjust sheet; a bare visit lands on the first
+// question, so it is walked to the plan before the sheet is opened.
+async function openForm(page: import('@playwright/test').Page, query = '') {
+	await open(page, query);
+	if ((await currentView(page)) === 'ask') {
+		await page.getByRole('button', { name: 'Skip to the plan' }).click();
+	}
+	await openAdjust(page);
+}
+
+const pizzas = (page: import('@playwright/test').Page) =>
+	sheet(page).locator('label', { hasText: 'Pizzas' }).locator('input');
+
 const remembered = (page: import('@playwright/test').Page) =>
 	page.evaluate(() => localStorage.getItem('kneadtime:lastRecipe'));
 
 test('merely opening someone else’s link never overwrites your recipe memory', async ({ page }) => {
 	// issue #201. The saved recipe is snapshotted at hydration and the save is
 	// skipped while it still matches, so a visit alone must leave it untouched.
-	await open(page, MINE);
-	await page.locator('form label', { hasText: 'Pizzas' }).locator('input').fill('7');
+	await openForm(page, MINE);
+	await pizzas(page).fill('7');
 	await expect.poll(() => remembered(page)).toContain('n=7');
 	const mine = await remembered(page);
 
@@ -29,22 +42,22 @@ test('merely opening someone else’s link never overwrites your recipe memory',
 });
 
 test('a real edit does update the memory, and a bare visit restores it', async ({ page }) => {
-	await open(page, MINE);
-	await page.locator('form label', { hasText: 'Pizzas' }).locator('input').fill('9');
+	await openForm(page, MINE);
+	await pizzas(page).fill('9');
 	await expect.poll(() => remembered(page)).toContain('n=9');
 
-	await open(page);
-	await expect(page.locator('form label', { hasText: 'Pizzas' }).locator('input')).toHaveValue('9');
+	await openForm(page);
+	await expect(pizzas(page)).toHaveValue('9');
 });
 
 test('the restored memory keeps the recipe but not its stale dates', async ({ page }) => {
-	await open(page, MINE);
-	await page.locator('form label', { hasText: 'Pizzas' }).locator('input').fill('5');
+	await openForm(page, MINE);
+	await pizzas(page).fill('5');
 	await expect.poll(() => remembered(page)).toContain('n=5');
 
-	await open(page);
+	await openForm(page);
 	// today's default bake time, not the one baked into the remembered query
-	await expect(page.locator('form input[type="date"]').nth(1)).not.toHaveValue('2026-09-06');
+	await expect(sheet(page).locator('input[type="date"]').nth(1)).not.toHaveValue('2026-09-06');
 });
 
 test('the app still works with localStorage blocked entirely', async ({ page, context }) => {
@@ -61,12 +74,12 @@ test('the app still works with localStorage blocked entirely', async ({ page, co
 	});
 	await open(page, MINE);
 
-	await expect(page.locator('form input[type="range"]')).toBeEnabled();
 	await expect(page.getByRole('heading', { name: 'Schedule' })).toBeVisible();
 	await expect(page.locator('ol li').first()).toBeVisible();
 
 	// and it still responds to input rather than being a frozen shell
-	await page.locator('form label', { hasText: 'Pizzas' }).locator('input').fill('8');
+	await openAdjust(page);
+	await pizzas(page).fill('8');
 	await expect.poll(() => page.url()).toContain('n=8');
 });
 
@@ -74,7 +87,8 @@ test('a chosen locale survives a full reload', async ({ page }) => {
 	// 28e24bd: community "Open" links do a full reload, which used to reset the
 	// language back to the browser's.
 	await open(page, MINE);
-	await page.getByRole('button', { name: 'DE', exact: true }).click();
+	await openMenu(page);
+	await page.getByRole('menuitemradio', { name: 'Deutsch', exact: true }).click();
 	await expect(page.getByRole('heading', { name: 'Zeitplan' })).toBeVisible();
 
 	await open(page, MINE);

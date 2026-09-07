@@ -39,12 +39,12 @@
 
 <dialog bind:this={dialogEl} aria-labelledby="save-recipe-heading" class="dialog-panel max-w-sm">
 	<form class="space-y-4 p-5" onsubmit={onSubmit}>
-		<h2 id="save-recipe-heading" class="font-display text-accent text-lg">
+		<h2 id="save-recipe-heading" class="banner">
 			{t.actions.save_recipe}
 		</h2>
 
 		<label class="block space-y-1">
-			<span class="text-xs font-medium text-stone-600 dark:text-stone-300">
+			<span class="label-caps">
 				{t.actions.save_recipe_prompt}
 			</span>
 			<input
@@ -52,7 +52,7 @@
 				type="text"
 				autocomplete="off"
 				bind:value={name}
-				class="input w-full text-sm text-stone-900 dark:bg-stone-900"
+				class="input w-full"
 			/>
 		</label>
 

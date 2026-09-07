@@ -305,7 +305,27 @@ describe('legacy encoder-produced links keep their exact meaning', () => {
 
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=6');
+		expect(encodeInputs(base)).toContain('v=7');
+	});
+
+	// v=7 was taken for a redesign, not for a schema change: the major version is
+	// pinned to CURRENT_VERSION, so a major bump raises the stamp whether or not
+	// a key moved. These two hold it to that — a stamp and nothing else.
+	it('v=7 adds no key to the encoding', () => {
+		const keysAt7 = [...new URLSearchParams(encodeInputs(base)).keys()].sort();
+		// The same recipe hand-stamped as v=6: every key the previous schema had.
+		const asV6 = new URLSearchParams(encodeInputs(base));
+		asV6.set('v', '6');
+		expect(keysAt7).toEqual([...asV6.keys()].sort());
+	});
+
+	it('a v=7 link decodes exactly like the same link stamped v=6', () => {
+		const query = 'n=6&b=280&h=70&s=3&y=f&t=22&ft=4&r=2026-05-12T19:00:00.000Z';
+		expect(decodeInputs(`?v=7&${query}`)).toEqual(decodeInputs(`?v=6&${query}`));
+		// Including the two fields that ARE version-gated: both gates sit below 6,
+		// so 7 falls on the same side as 6 and neither default moved.
+		expect(decodeInputs(`?v=7&${query}`).autolyse).toBe(decodeInputs(`?v=6&${query}`).autolyse);
+		expect(decodeInputs(`?v=7&${query}`).flourW).toBe(decodeInputs(`?v=6&${query}`).flourW);
 	});
 
 	it('decodes legacy links that predate the v parameter as v1', () => {

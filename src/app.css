@@ -3,8 +3,12 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-	--font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-	--font-display: ui-serif, Georgia, serif;
+	/* Archivo is a variable grotesque with a width axis, which is what lets one
+	   family carry both the reading copy and the condensed caps the labels are
+	   set in — no third face for micro-type. Anton is the sign painter: one
+	   weight, very heavy, very narrow, only ever used large or short. */
+	--font-sans: 'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+	--font-display: 'Anton', 'Haettenschweiler', 'Arial Narrow', ui-sans-serif, sans-serif;
 
 	--color-dough-50: #fdf8ef;
 	--color-dough-100: #f8ecd0;
@@ -40,6 +44,76 @@
 	--color-basil-900: #142810;
 }
 
+/* The press. Two inks on one stock: everything structural is INK, the accent is
+   the red the shop's own sign is painted in, and basil is the expensive third
+   colour — it is spent only on fermentation quality (tolerance bands, the ideal
+   marker, the cold stamp) and on the tricolore, and nowhere else.
+
+   `@theme inline` below maps these onto real utilities (`bg-sheet`, `border-ink`,
+   `text-ink-soft`), and because the utility keeps the var reference rather than
+   a copy, the whole page re-inks itself from this block alone — a component
+   almost never needs a `dark:` variant. Light and dark are two authored
+   palettes, not one derived from the other: dark is the night shift on the same
+   press, warm black stock with cream ink, so the edges stay just as hard. */
+:root {
+	--kt-paper: #efe7d5;
+	--kt-sheet: #fbf7ef;
+	--kt-field: #ffffff;
+	--kt-ink: #1a1613;
+	--kt-rule: #1a1613;
+	--kt-ink-soft: #5c534a;
+	--kt-ink-faint: #a4988a;
+	--kt-accent: #c8401a;
+	--kt-accent-ink: #a5300f;
+	--kt-accent-wash: #f7e2d8;
+	--kt-on-accent: #ffffff;
+	--kt-herb: #4a8d36;
+	--kt-herb-ink: #2c5722;
+	--kt-herb-wash: #e3f0da;
+	--kt-grain: rgba(26, 22, 19, 0.05);
+	/* The colour the flag's middle panel is printed in. In light it is simply
+	   the stock, the way a tricolore leaves the paper showing; on the dark press
+	   the stock is black, so the panel has to be laid down in a cream ink or the
+	   flag reads as green, a hole, and red. */
+	--kt-stock: #fbf7ef;
+}
+
+html.dark {
+	--kt-paper: #14110e;
+	--kt-sheet: #1e1a16;
+	--kt-field: #100e0b;
+	--kt-ink: #f2e9d8;
+	--kt-rule: #b8ab95;
+	--kt-ink-soft: #b3a794;
+	--kt-ink-faint: #6e6455;
+	--kt-accent: #e35f3a;
+	--kt-accent-ink: #f0876a;
+	--kt-accent-wash: #3a1a11;
+	--kt-on-accent: #14110e;
+	--kt-herb: #8cc472;
+	--kt-herb-ink: #a9d493;
+	--kt-herb-wash: #1d2a16;
+	--kt-grain: rgba(242, 233, 216, 0.05);
+	--kt-stock: #e6dbc6;
+}
+
+@theme inline {
+	--color-paper: var(--kt-paper);
+	--color-sheet: var(--kt-sheet);
+	--color-field: var(--kt-field);
+	--color-ink: var(--kt-ink);
+	--color-rule: var(--kt-rule);
+	--color-ink-soft: var(--kt-ink-soft);
+	--color-ink-faint: var(--kt-ink-faint);
+	--color-accent: var(--kt-accent);
+	--color-accent-ink: var(--kt-accent-ink);
+	--color-accent-wash: var(--kt-accent-wash);
+	--color-on-accent: var(--kt-on-accent);
+	--color-herb: var(--kt-herb);
+	--color-herb-ink: var(--kt-herb-ink);
+	--color-herb-wash: var(--kt-herb-wash);
+}
+
 /* These are element defaults, so they belong in @layer base — and being in a
    layer is what lets a utility override them. Unlayered, they outranked every
    Tailwind utility no matter how specific, because unlayered CSS wins over any
@@ -52,16 +126,20 @@
 	html {
 		font-family: var(--font-sans);
 		-webkit-font-smoothing: antialiased;
-		background: radial-gradient(
-				ellipse at top,
-				var(--color-dough-100) 0%,
-				var(--color-dough-50) 60%
-			)
-			fixed;
+		color: var(--kt-ink);
+		/* Stock, not decoration: a halftone speckle plus the faintest laid line,
+		   both at 5 % of the ink so nothing sitting on them loses contrast. Two
+		   gradients and no image file — the whole texture costs a few bytes. */
+		background-color: var(--kt-paper);
+		background-image:
+			radial-gradient(var(--kt-grain) 0.5px, transparent 0.6px),
+			repeating-linear-gradient(90deg, var(--kt-grain) 0 1px, transparent 1px 7px);
+		background-size:
+			5px 5px,
+			auto;
 	}
 
 	html.dark {
-		background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
 		color-scheme: dark;
 	}
 
@@ -70,7 +148,8 @@
 	h3,
 	.font-display {
 		font-family: var(--font-display);
-		letter-spacing: -0.01em;
+		font-weight: 400;
+		letter-spacing: 0.01em;
 	}
 
 	input[type='number'] {
@@ -79,7 +158,7 @@
 
 	/* Deliberately still :where() — zero specificity, so a component that needs
 	   its own focus treatment can say so with one utility. Nothing does today:
-	   the one `focus:outline-none` in the tree was dead code that this change
+	   the one `focus:outline-none` in the tree was dead code that layering
 	   would have brought to life, removing that input's only focus indicator,
 	   so it went with it.
 
@@ -87,103 +166,697 @@
 	   controls, not as prose links: every disclosure in the app is a styled
 	   <summary>, and every "Open" in the recipe tables is an <a>. They were
 	   falling back to the browser's default ring, which is a different shape
-	   and colour on every engine and invisible against a dark card in some. */
+	   and colour on every engine and invisible against a dark card in some.
+
+	   3 px, because every border in this design is already 2 px of ink: a
+	   2 px ring reads as one more rule rather than as the thing you are on. */
 	:where(a, summary, input, select, button, textarea):focus-visible {
-		outline: 2px solid var(--color-tomato-500);
+		outline: 3px solid var(--kt-accent);
 		outline-offset: 2px;
 	}
 }
 
+/* Micro-type: the condensed caps every field label, column head, stamp and
+   switch is set in — the width axis of Archivo rather than a second face. A
+   @utility rather than a component class so the other component classes can
+   `@apply` it, and so a caller can still override it with one utility. */
+@utility label-caps {
+	color: var(--kt-ink);
+	font-size: 0.6875rem;
+	line-height: 1.25;
+	font-weight: 700;
+	text-transform: uppercase;
+	font-stretch: 84%;
+	letter-spacing: 0.1em;
+}
+
 @layer components {
+	/* ---- Views ----------------------------------------------------------
+
+	   The app is three places — the questions, the plan, the library — and
+	   exactly one of them is mounted at a time. Each is a full sheet fed
+	   through the press, so it fills the viewport and stamps its own name for
+	   the browser suite to address it by. */
+	/* `overflow-x: clip`, not `hidden`: the question block slides in from 2 rem
+	   to the right of where it lands (`.kt-enter`), and for those 320 ms it
+	   paints past the trimmed edge of the sheet — enough to put a horizontal
+	   scrollbar under a phone on every move between questions. Clip is the one
+	   that trims it without turning the view into a scroll container, which
+	   `hidden` would, taking the ingredient ticket's `position: sticky` with it. */
+	.view {
+		@apply flex min-h-[100dvh] w-full flex-col;
+		overflow-x: clip;
+	}
+
+	.view-pad {
+		@apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+	}
+
+	/* ---- Surfaces ------------------------------------------------------- */
+
+	/* A sheet of stock: flat fill, hard 2 px ink rule, no blur anywhere. The
+	   corner is 2 px rather than 0 so it reads as trimmed paper instead of as a
+	   browser default table. Cards are deliberately NOT all equally loud — the
+	   two things you read at the counter — the schedule and the ingredients
+	   ticket — get .card-loud on top of this, and nothing else does.
+
+	   It carries no padding, because most regions open with a header band that
+	   has to run edge to edge — the band is what the eye reads as the top of the
+	   sheet, and it must not float inside a margin. The padding is .card-body,
+	   either on an inner element or as a second class where the card is its own
+	   body. */
 	.card {
-		@apply border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70;
+		@apply border-rule bg-sheet rounded-[2px] border-2;
 	}
 
-	.btn-tomato {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-4 py-2 text-sm font-semibold text-white disabled:opacity-50;
+	.card-body {
+		@apply p-5 sm:p-6;
 	}
 
-	.btn-tomato-sm {
-		@apply bg-tomato-500 hover:bg-tomato-600 rounded-full px-3 py-1 text-xs font-semibold text-white;
+	/* Every region announces itself with a band of ink across the top of its
+	   sheet, the heading reversed out of it — a menu board, not a heading with
+	   a bottom border. Full-bleed, so it has to cancel the card's own padding;
+	   that is exactly why it is a class and not a hand-copied list. */
+	.card-header {
+		@apply text-paper flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-2.5 sm:px-6;
+		list-style: none;
+		background: var(--kt-rule);
 	}
 
-	.menu-item {
-		@apply hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700;
+	.card-header::-webkit-details-marker {
+		display: none;
 	}
 
-	.text-accent {
-		@apply text-tomato-700 dark:text-tomato-300;
+	/* The heading inside that band. Anton, reversed, tracked just enough to stop
+	   the counters closing up at this weight. */
+	.card-header-title {
+		@apply font-display text-xl leading-none uppercase sm:text-2xl;
+		letter-spacing: 0.045em;
+	}
+
+	/* The fermentation window's own panel. A gauge printed on the sheet rather
+	   than another card: it sits on the page stock so the rail reads as an
+	   instrument laid on paper. Named, because the browser suite addresses it. */
+	.window-card {
+		@apply border-rule bg-paper rounded-[2px] border-2 p-4;
+	}
+
+	/* The rail itself, and the hatching that closes off everything past the bake
+	   time. Diagonal ink at 45 degrees is how a printed schedule says "not
+	   available" — a flat grey block just looks like a different colour. */
+	.window-rail {
+		@apply border-rule relative overflow-hidden rounded-[1px] border-2;
+	}
+
+	.window-closed {
+		background-image: repeating-linear-gradient(
+			45deg,
+			var(--kt-rule) 0 2px,
+			var(--kt-paper) 2px 6px
+		);
+	}
+
+	/* The one surface allowed to shout: a solid offset block instead of a
+	   shadow, the way a second pass of ink sits beside the first when the plate
+	   is out of register. The schedule is what the app is FOR. */
+	.card-loud {
+		box-shadow: 5px 5px 0 0 var(--kt-rule);
+	}
+
+	.block-shadow {
+		box-shadow: 4px 4px 0 0 var(--kt-rule);
+	}
+
+	.block-shadow-sm {
+		box-shadow: 3px 3px 0 0 var(--kt-rule);
+	}
+
+	/* Both modals and the adjust sheet: a native <dialog>. Width and position
+	   are the caller's, everything else is shared. */
+	.dialog-panel {
+		@apply border-rule bg-sheet text-ink rounded-[2px] border-2 p-0 text-sm backdrop:bg-stone-950/50;
+		box-shadow: 6px 6px 0 0 var(--kt-rule);
+	}
+
+	/* ---- Bands and rules ------------------------------------------------ */
+
+	/* Reversed out of ink: the section name printed as a solid band, the way a
+	   menu board separates its courses. Carries the display face itself so a
+	   <legend> and an <h2> band look identical. */
+	.banner {
+		@apply bg-rule text-paper font-display inline-block rounded-[1px] px-2.5 py-1 text-sm leading-none uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	/* The flag. Green / stock / red at 7 px, printed under the masthead of every
+	   view and again above the colophon — a third colour is expensive, so it is
+	   spent here and on fermentation quality, nowhere else. */
+	.tricolore {
+		height: 7px;
+		background: linear-gradient(
+			90deg,
+			var(--kt-herb) 0 33.333%,
+			var(--kt-stock) 33.333% 66.666%,
+			var(--kt-accent) 66.666% 100%
+		);
+	}
+
+	/* A seam between two regions of one sheet. Two ink hairlines, the way a
+	   printed form separates one block of fields from the next. */
+	.rule {
+		border-top: 2px solid var(--kt-rule);
+	}
+
+	/* Under a ticket's total: two rules, the way an invoice closes a column.
+	   `double` is one property doing the whole job — at 4 px it paints two
+	   hairlines with a hairline of stock between them. */
+	.rule-double {
+		border-top: 4px double var(--kt-rule);
+	}
+
+	/* Where the stub tears off. A dashed rule with a half-round bite out of each
+	   margin — drawn with two pseudo-elements filled in the page stock, so it
+	   costs no image and reads on any width. */
+	.perforation {
+		@apply relative border-t-2 border-dashed;
+		border-color: var(--kt-ink-faint);
+	}
+
+	/* The bites are half-round holes punched INTO the card's side rules, so the
+	   element has to be full-bleed (`-mx-5 sm:-mx-6`) for `left: 0` to land on
+	   the card's own border. Filled in the page stock, so the hole reads as a
+	   hole. */
+	.perforation::before,
+	.perforation::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		width: 0.9rem;
+		height: 0.9rem;
+		border-radius: 9999px;
+		background: var(--kt-paper);
+		border: 2px solid var(--kt-rule);
+	}
+
+	.perforation::before {
+		left: 0;
+		transform: translate(-50%, -50%);
+	}
+
+	.perforation::after {
+		right: 0;
+		transform: translate(50%, -50%);
 	}
 
 	.row-divider {
-		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
+		@apply border-b border-dotted last:border-0;
+		border-color: var(--kt-ink-faint);
 	}
 
-	/* A boxed message under the control that caused it. Danger is the same red
-	   the schedule's warnings use — something is wrong and the bake is at risk;
-	   info is the dough colour, for a consequence worth reporting rather than a
-	   refusal. Four components wrote these two class lists out by hand. */
-	.notice {
-		@apply rounded-lg border px-3 py-2 text-sm;
+	/* A caption on the fermentation rail — the bake deadline above it, the ideal
+	   window below. Four spans shared the same three utilities, and the browser
+	   suite needs to be able to say "the captions ON the rail" without also
+	   catching the band caption in the paragraph underneath, which is not inset
+	   by half a thumb and may legitimately run wider. */
+	.rail-caption {
+		@apply text-[0.65rem] leading-tight whitespace-nowrap;
 	}
 
-	.notice-danger {
-		@apply border-tomato-300 bg-tomato-50 text-tomato-800 dark:border-tomato-700 dark:bg-tomato-900/40 dark:text-tomato-200;
+	/* A dotted leader that keeps working when the label wraps. `.leader` below is
+	   a flex child sized with flex-1, and a flex item cannot sit on the last line
+	   of a sibling that wrapped — a two-line flour name ("Dallagiovanna La
+	   Napoletana") squeezed it to its min-width and left a four-dot stub floating
+	   in the middle of the row. Drawing the dots as a background on the cell puts
+	   them on the cell's last line by construction, at any number of lines; the
+	   label paints the sheet colour over the run it covers, which is how a
+	   printed leader actually works. Clipped to the content box so the dots stop
+	   at the cell's own right padding rather than running into the figure. */
+	.leader-cell {
+		background-image: repeating-linear-gradient(
+			to right,
+			var(--kt-ink-faint) 0 2px,
+			transparent 2px 6px
+		);
+		background-repeat: repeat-x;
+		background-size: 100% 2px;
+		background-origin: content-box;
+		background-clip: content-box;
+		background-position: left bottom 0.32em;
 	}
 
-	.notice-info {
-		@apply border-dough-300 bg-dough-100 text-dough-900 dark:border-dough-700 dark:bg-dough-900/40 dark:text-dough-100;
+	.leader-text {
+		@apply pr-2;
+		background: var(--kt-sheet);
 	}
 
-	/* The rounded switch strip: language, theme, schedule verbosity. Rendered by
-	   SegmentedControl.svelte, which owns the markup as well as the look. */
-	.pill-group {
-		@apply border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70;
+	/* The dotted leader that walks a price list from its label to its number.
+	   A flex child, so it takes whatever width the two ends leave it. */
+	.leader {
+		@apply mx-2 min-w-4 flex-1 self-end;
+		border-bottom: 2px dotted var(--kt-ink-faint);
+		transform: translateY(-0.28em);
 	}
 
-	.pill {
-		@apply inline-flex items-center justify-center px-3 py-1.5 transition-colors;
+	/* ---- Type roles ----------------------------------------------------- */
+
+	/* The one loud thing in the app: a single question on a sheet of stock, set
+	   in the sign painter's face at a size nothing else can compete with. 72 px
+	   on a desktop, still 40 px on a phone. Leading below 1 because Anton's caps
+	   have almost no extender to clear. */
+	.question {
+		@apply font-display text-ink text-[clamp(2.5rem,7.6vw,4.5rem)] leading-[0.92] uppercase;
+		letter-spacing: 0.005em;
 	}
 
-	.pill-on {
-		@apply bg-tomato-500 text-white;
+	/* The sentence under a question, and every other piece of running help. */
+	.lede {
+		@apply text-ink-soft max-w-[46ch] text-base leading-relaxed sm:text-lg;
 	}
 
-	.pill-off {
-		@apply hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700;
+	/* Anything the reader treats as a number: times, grams, hours, counts. The
+	   display face, tabular, so a column of them lines up and a changing value
+	   does not jitter. */
+	.data {
+		@apply font-display tabular-nums;
 	}
 
-	/* Every box the form types into. Size and width stay with the caller — the
-	   date pair splits a row, the rest fill it. */
-	.input {
-		@apply border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100;
+	/* What names a field. Every label, legend and column head in the form is
+	   this one class — eight components had written the same three utilities
+	   out by hand, and two of them had already drifted a shade apart. */
+	.field-label {
+		@apply label-caps mb-1 block;
 	}
 
-	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
-	   Underlined on hover only; the surrounding paragraph carries the colour. */
-	.link-quiet {
-		@apply hover:text-tomato-600 dark:hover:text-tomato-300 underline-offset-2 hover:underline;
+	/* Names a group of fields, or a region of the plan, where a full ink band
+	   would be too loud for the space. */
+	.section-head {
+		@apply label-caps;
 	}
 
-	/* A link that IS the action — "Open", "Source" in the recipe tables, where
-	   the row's other columns are all text and the link has to look clickable
-	   without a button's weight. The dark half is deliberate: `text-tomato-600`
-	   alone sat at 2.71:1 on a dark card until the axe suite caught it. */
-	.link-action {
-		/* The hover colour is spelled out rather than reusing .text-accent: a
-		   component class cannot take a variant inside @apply, and `hover:` on one
-		   only works from a class attribute. Same four colours as before. */
-		@apply text-tomato-600 hover:text-tomato-700 dark:text-tomato-300 dark:hover:text-tomato-200 font-semibold underline-offset-2 hover:underline;
+	/* ---- Stamps, chips, seals ------------------------------------------- */
+
+	/* A rubber stamp: hard border in its own colour, condensed caps, and a
+	   degree and a half off square because a hand pressed it. Non-interactive
+	   by contract — nothing rotated may be a tap target. */
+
+	/* The one stamp left: the "Now" mark on the step the clock is standing in.
+	   The mode and the fit outgrew this shape and became GuildSeal roundels, but
+	   a running step wants a small hand-pressed mark, not a certificate. Off
+	   square by a degree and a half, because a hand pressed it. */
+	.stamp {
+		@apply label-caps inline-flex items-center gap-1.5 rounded-[1px] border-2 border-current px-2 py-1;
+		color: var(--kt-accent-ink);
+		transform: rotate(-1.7deg);
 	}
 
-	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
-	   Width is the caller's, everything else is shared. */
-	.dialog-panel {
-		@apply border-dough-200 rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200;
+	/* The panel a seal opens: what the mark means, in prose. Both seals use it,
+	   so it is one width in one place — `max-w-sm` let the box shrink to its
+	   longest unbreakable run and set two-thirds of a sentence per line. It is
+	   sized against the viewport too, so it cannot hang off a phone. */
+	.seal-panel {
+		/* NOT `@apply … block-shadow …`: @apply takes utilities, and reaching for
+		   another @layer components class makes Tailwind drop the WHOLE
+		   declaration without erroring. This box lost its position, its border,
+		   its fill and its shadow at once, and the build stayed green — the text
+		   simply sat loose on the card. Spell the shadow out instead. */
+		@apply border-rule bg-sheet text-ink-soft absolute z-20 mt-2 rounded-[2px] border-2 p-4 text-sm leading-snug;
+		width: min(26rem, calc(100vw - 2.5rem));
+		box-shadow: 4px 4px 0 0 var(--kt-rule);
+	}
+
+	/* A stamped-on duration or count. Square, ruled, tabular — a figure that has
+	   been measured rather than a soft grey pill. */
+	.chip {
+		@apply border-rule text-ink inline-flex items-center rounded-[1px] border-2 px-2 py-0.5 text-xs font-bold tabular-nums;
+	}
+
+	/* A value on the plan that can be changed: a blank on a printed order form,
+	   its name stamped above the rule and the answer written on it. Tapping it
+	   opens the adjust sheet with that field focused. A plan full of buttons
+	   would look like a form again, which is the thing this layout exists to
+	   undo — so the affordance is the ruled blank, not a border all the way
+	   round. */
+	.chip-field {
+		@apply text-ink inline-flex flex-col items-start gap-0.5 rounded-[1px] px-1 pb-0.5 text-left;
+		border-bottom: 2px solid var(--kt-ink-faint);
+	}
+
+	.chip-field:hover {
+		border-bottom-color: var(--kt-accent);
+		background: var(--kt-accent-wash);
+	}
+
+	/* ---- Controls ------------------------------------------------------- */
+
+	/* The press: ink border, red face, and a solid offset block that collapses
+	   under the pointer so the button physically goes down. Instant, no
+	   transition — this is the answer to a press, not an entrance. */
+	.btn-tomato {
+		@apply font-display border-rule text-on-accent rounded-[2px] border-2 px-4 py-2 text-sm leading-tight uppercase disabled:opacity-45;
+		background: var(--kt-accent);
+		letter-spacing: 0.06em;
+		box-shadow: 3px 3px 0 0 var(--kt-rule);
+	}
+
+	.btn-tomato:active:not(:disabled) {
+		transform: translate(3px, 3px);
+		box-shadow: none;
+	}
+
+	.btn-tomato-sm {
+		@apply font-display border-rule text-on-accent rounded-[2px] border-2 px-2.5 py-1 text-xs leading-tight uppercase;
+		background: var(--kt-accent);
+		letter-spacing: 0.06em;
+		box-shadow: 2px 2px 0 0 var(--kt-rule);
+	}
+
+	.btn-tomato-sm:active {
+		transform: translate(2px, 2px);
+		box-shadow: none;
+	}
+
+	/* The plan's primary control, and the only thing in the masthead allowed to
+	   shout. Editing the recipe is what you come back to the plan to do, so it
+	   is a filled plaque one size up from every other button, with a deeper
+	   offset block — the press equivalent of a stamped-on overprint. Nothing
+	   else on the page carries a 4 px shadow, which is what makes it read as
+	   the end of the line rather than as one more ghost box. */
+	.btn-edit {
+		@apply font-display border-rule text-on-accent inline-flex items-center gap-2 rounded-[2px] border-2 px-4 py-2 text-base leading-tight uppercase;
+		background: var(--kt-accent);
+		letter-spacing: 0.06em;
+		box-shadow: 4px 4px 0 0 var(--kt-rule);
+	}
+
+	.btn-edit:hover {
+		background: var(--kt-accent-ink);
+	}
+
+	/* Pressed: the plaque travels onto its own shadow. Same gesture as
+	   .btn-tomato, one pixel deeper because the shadow is one pixel deeper. */
+	.btn-edit:active {
+		transform: translate(4px, 4px);
+		box-shadow: none;
+	}
+
+	/* The third way in: it starts the questions over. Ruled rather than filled —
+	   three solid plaques in one corner is a wall, and this one leaves the plan
+	   rather than acting on it, so it is the quiet one of the three. */
+	.btn-guide {
+		@apply font-display border-rule text-ink inline-flex items-center gap-2 rounded-[2px] border-2 px-4 py-2 text-base leading-tight uppercase;
+		background: var(--kt-sheet);
+		letter-spacing: 0.06em;
+		box-shadow: 4px 4px 0 0 var(--kt-rule);
+	}
+
+	.btn-guide:hover {
+		background: var(--kt-accent-wash);
+	}
+
+	.btn-guide:active {
+		transform: translate(4px, 4px);
+		box-shadow: none;
+	}
+
+	/* The same plaque at label size, for a control that sits inside a header band
+	   rather than under one. The offset block is ink on ink there and simply does
+	   not show, which is correct — the fill is what marks it as the action. */
+	.btn-edit-sm {
+		@apply font-display border-rule text-on-accent inline-flex items-center gap-1.5 rounded-[2px] border-2 px-2.5 py-1 text-xs leading-tight uppercase;
+		background: var(--kt-accent);
+		letter-spacing: 0.06em;
+		box-shadow: 2px 2px 0 0 var(--kt-rule);
+	}
+
+	.btn-edit-sm:hover {
+		background: var(--kt-accent-ink);
+	}
+
+	.btn-edit-sm:active {
+		transform: translate(2px, 2px);
+		box-shadow: none;
+	}
+
+	/* A control that sits ON a header band, where the ink border of .btn-tomato
+	   would be invisible against the ink ground: it reverses instead — paper
+	   rule, paper letters — and inverts on hover. */
+	.btn-band {
+		@apply label-caps border-paper text-paper inline-flex items-center gap-1.5 rounded-[1px] border-2 px-2.5 py-1.5;
+	}
+
+	.btn-band:hover {
+		background: var(--kt-paper);
+		color: var(--kt-ink);
+	}
+
+	/* An outlined control: the same hard rule as everything else, no fill. For
+	   actions that are not the page's business end — Back, Recipes, switching
+	   view mode. */
+	.btn-ghost {
+		@apply label-caps border-rule text-ink inline-flex items-center gap-1.5 rounded-[2px] border-2 px-3 py-1.5 disabled:opacity-45;
+	}
+
+	.btn-ghost:hover:not(:disabled) {
+		background: var(--kt-rule);
+		color: var(--kt-paper);
 	}
 
 	/* The way out of a dialog: quieter than the action beside it. */
 	.btn-quiet {
-		@apply rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200;
+		@apply label-caps rounded-[2px] px-3 py-2;
+		color: var(--kt-ink-soft);
+	}
+
+	.btn-quiet:hover {
+		color: var(--kt-ink);
+	}
+
+	.menu-item {
+		@apply text-ink block w-full px-4 py-2.5 text-left text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-45;
+	}
+
+	/* A named block inside the menu. The rule is what separates one group from
+	   the next; the first group carries none, so the panel does not open with a
+	   line across its top. */
+	.menu-group + .menu-group {
+		@apply border-rule mt-1 border-t-2 pt-1;
+	}
+
+	.menu-heading {
+		@apply label-caps text-ink-soft px-4 pt-2 pb-1;
+	}
+
+	/* A row that reports a choice rather than performing one. The mark column is
+	   always there so the labels line up whether or not a row is the chosen one,
+	   and it is a filled square rather than a tick because everything else that
+	   means "this one" in this design is a filled square. */
+	.menu-item-choice {
+		@apply flex items-center gap-2.5;
+	}
+
+	.menu-mark {
+		@apply inline-block h-2 w-2 shrink-0 border-2;
+		border-color: transparent;
+	}
+
+	[aria-checked='true'] > .menu-mark {
+		background: var(--kt-accent);
+		border-color: var(--kt-rule);
+	}
+
+	.menu-item:hover:not(:disabled) {
+		background: var(--kt-rule);
+		color: var(--kt-paper);
+	}
+
+	/* Every box the form types into. Hard-ruled, but roomy: a dozen numbers get
+	   typed in here at a time, so the ink stays on the outside of the box.
+	   Size and width stay with the caller. */
+	.input {
+		@apply border-rule bg-field text-ink rounded-[2px] border-2 px-3 py-2 text-base;
+	}
+
+	.input:focus {
+		border-color: var(--kt-accent);
+	}
+
+	/* The answer boxes on the ask flow. Same control, three times the presence
+	   and a block of ink behind it: a question set at 72 px cannot be answered
+	   in a 14 px field. */
+	.input-lg {
+		@apply border-rule bg-field text-ink font-display rounded-[2px] border-2 px-3 py-2.5 text-2xl tabular-nums sm:text-3xl;
+		box-shadow: 3px 3px 0 0 var(--kt-rule);
+	}
+
+	.input-lg:focus {
+		border-color: var(--kt-accent);
+	}
+
+	/* One of a small set of mutually exclusive answers, sized to be hit with a
+	   thumb: a ruled box on an order pad, ticked. The radio itself stays
+	   visible — a tile that hides its own control has to reinvent the selected
+	   state, and reinventing it is how these end up unreadable to anyone not
+	   going by colour. */
+	.tile {
+		@apply border-rule text-ink flex cursor-pointer items-center gap-3 rounded-[2px] border-2 px-4 py-3.5;
+		background: var(--kt-sheet);
+	}
+
+	.tile:hover {
+		background: var(--kt-accent-wash);
+	}
+
+	.tile:has(:checked) {
+		background: var(--kt-accent-wash);
+		box-shadow: 3px 3px 0 0 var(--kt-rule);
+	}
+
+	/* The minus/plus on the pizza-count answer. Square and ruled, so it belongs
+	   to the same press as the box between them. */
+	.stepper {
+		@apply border-rule text-ink font-display flex h-14 w-14 shrink-0 items-center justify-center rounded-[2px] border-2 text-2xl leading-none;
+		background: var(--kt-sheet);
+		box-shadow: 3px 3px 0 0 var(--kt-rule);
+	}
+
+	.stepper:hover {
+		background: var(--kt-accent-wash);
+	}
+
+	.stepper:active {
+		transform: translate(3px, 3px);
+		box-shadow: none;
+	}
+
+	/* ---- The progress rule ----------------------------------------------
+
+	   Five grey dots would have been the default and would have said nothing
+	   about where you are in a printed sequence. This is the flag being painted
+	   across the sheet: the answered stretch carries the tricolore, stretched to
+	   whatever has been answered so far, and the measure is ruled over the top
+	   of it in ink. Nothing about it is a progress bar — it is a rule with paint
+	   under it.
+
+	   Every division is a button, because the flow is jumpable, so the target is
+	   the full 24 px of the strip. */
+	/* What is not yet printed is hatched, not blank. The flag's middle panel is
+	   the stock itself, so against a blank rail it disappears — on the dark
+	   press that made a four-fifths-answered flow read as two-fifths, because
+	   the white of the tricolore and the unpainted rail were the same colour.
+	   Hatching is what a printed schedule uses for "nothing here yet", and it
+	   tells the two apart in both themes. */
+	.progress-rule {
+		@apply border-rule relative flex overflow-hidden rounded-[1px] border-2;
+		background-color: var(--kt-sheet);
+		background-image: repeating-linear-gradient(
+			45deg,
+			var(--kt-ink-faint) 0 1px,
+			transparent 1px 5px
+		);
+	}
+
+	.progress-paint {
+		@apply absolute inset-y-0 left-0;
+		background: linear-gradient(
+			90deg,
+			var(--kt-herb) 0 33.333%,
+			var(--kt-stock) 33.333% 66.666%,
+			var(--kt-accent) 66.666% 100%
+		);
+	}
+
+	.progress-seg {
+		@apply relative h-6 flex-1;
+	}
+
+	.progress-seg + .progress-seg {
+		border-left: 2px solid var(--kt-rule);
+	}
+
+	.progress-seg:hover {
+		background: color-mix(in srgb, var(--kt-ink) 14%, transparent);
+	}
+
+	/* ---- Messages ------------------------------------------------------- */
+
+	/* A boxed message under the control that caused it, ruled like everything
+	   else and carrying a 6 px bar of its own colour on the left — the mark a
+	   proof reader puts in the margin. Danger is the red the schedule's
+	   warnings use: something is wrong and the bake is at risk. Info is ink on
+	   the stock, for a consequence worth reporting rather than a refusal. */
+	.notice {
+		@apply border-rule text-ink rounded-[2px] border-2 border-l-[6px] px-3 py-2 text-sm;
+	}
+
+	.notice-danger {
+		background: var(--kt-accent-wash);
+		border-left-color: var(--kt-accent);
+	}
+
+	.notice-info {
+		background: color-mix(in srgb, var(--kt-ink-faint) 18%, transparent);
+		border-left-color: var(--kt-ink-faint);
+	}
+
+	/* ---- Text -----------------------------------------------------------
+
+	   There is deliberately no `.text-accent` component class. The palette above
+	   registers `--color-accent` and `--color-accent-ink` as theme colours, which
+	   makes Tailwind generate `text-accent` as a UTILITY — and a utility beats a
+	   component class of the same name silently, which is how ten call sites
+	   quietly switched from the text-safe red to the fill red and failed the
+	   contrast gate. Say which ink you mean: `text-accent-ink` reads,
+	   `bg-accent` fills. */
+
+	/* The app's name on the masthead of every view: a painted enamel plaque,
+	   ink-ruled, with the offset block of a sign screwed to a wall. */
+	.wordmark {
+		@apply font-display border-rule bg-accent text-on-accent inline-block rounded-[2px] border-2 px-2.5 py-1 text-lg leading-none uppercase sm:text-xl;
+		letter-spacing: 0.04em;
+		box-shadow: 3px 3px 0 0 var(--kt-rule);
+	}
+
+	/* A link in running text — the colophon, the setup hint in the TRMNL dialog. */
+	.link-quiet {
+		@apply underline-offset-2 hover:underline;
+	}
+
+	.link-quiet:hover {
+		color: var(--kt-accent-ink);
+	}
+
+	/* A link that IS the action — "Open", "Source" in the recipe tables, where
+	   the row's other columns are all text and the link has to look clickable
+	   without a button's weight. */
+	.link-action {
+		@apply label-caps underline-offset-4 hover:underline;
+		color: var(--kt-accent-ink);
+	}
+}
+
+/* The one piece of non-user-triggered motion in the app: moving between two
+   questions slides the whole question block, so the flow reads as one sheet
+   travelling through the press rather than as five pages loading. `--kt-dir` is
+   +1 going forward and −1 going back, set by whichever control moved us.
+   Nothing else animates on its own; everything below responds to something the
+   reader did. */
+@keyframes kt-enter {
+	from {
+		opacity: 0;
+		transform: translate3d(calc(var(--kt-dir, 1) * 2rem), 0, 0);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+.kt-enter {
+	animation: kt-enter 320ms cubic-bezier(0.22, 0.8, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kt-enter {
+		animation: none;
 	}
 }

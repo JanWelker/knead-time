@@ -14,31 +14,29 @@
 	const t = $derived(i18n.t);
 </script>
 
-<dl
-	class="mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1 text-stone-600 dark:text-stone-300"
->
-	<dt class="font-medium">{labels.col_pizzas}</dt>
+<dl class="text-ink-soft mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">
+	<dt class="label-caps self-center">{labels.col_pizzas}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.pizzaCount)}</dd>
-	<dt class="font-medium">{labels.col_ball}</dt>
+	<dt class="label-caps self-center">{labels.col_ball}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.ballWeight, ' g')}</dd>
-	<dt class="font-medium">{labels.col_hydration}</dt>
+	<dt class="label-caps self-center">{labels.col_hydration}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.hydration, '%')}</dd>
-	<dt class="font-medium">{labels.col_salt}</dt>
+	<dt class="label-caps self-center">{labels.col_salt}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.saltPercent, '%')}</dd>
 	{#if labels.col_oil && (inputs.oilPercent ?? 0) > 0}
-		<dt class="font-medium">{labels.col_oil}</dt>
+		<dt class="label-caps self-center">{labels.col_oil}</dt>
 		<dd class="tabular-nums">{numLabel(inputs.oilPercent, '%')}</dd>
 	{/if}
 	{#if labels.col_sugar && (inputs.sugarPercent ?? 0) > 0}
-		<dt class="font-medium">{labels.col_sugar}</dt>
+		<dt class="label-caps self-center">{labels.col_sugar}</dt>
 		<dd class="tabular-nums">{numLabel(inputs.sugarPercent, '%')}</dd>
 	{/if}
-	<dt class="font-medium">{labels.col_yeast}</dt>
+	<dt class="label-caps self-center">{labels.col_yeast}</dt>
 	<dd>{yeastLabel(inputs, t)}</dd>
-	<dt class="font-medium">{labels.col_temp}</dt>
+	<dt class="label-caps self-center">{labels.col_temp}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.roomTempC, '°C')}</dd>
-	<dt class="font-medium">{labels.col_fridge}</dt>
+	<dt class="label-caps self-center">{labels.col_fridge}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.fridgeTempC, '°C')}</dd>
-	<dt class="font-medium">{labels.col_preFerment}</dt>
+	<dt class="label-caps self-center">{labels.col_preFerment}</dt>
 	<dd>{preFermentLabel(inputs, t)}</dd>
 </dl>
