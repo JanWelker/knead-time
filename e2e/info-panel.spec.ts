@@ -18,7 +18,10 @@ test('the nerdy panel renders every section and every formula', async ({ page })
 	await panel.locator('summary').click();
 
 	// Each section is one heading paragraph plus its parts.
-	await expect(panel.locator('p.font-semibold')).toHaveCount(INFO_SECTIONS.length);
+	// `.label-caps` is the named micro-type class every label in the app is set
+	// in (app.css) — the section titles are addressed through it, the same way
+	// the rest of the suite addresses `.card` and `.window-card`.
+	await expect(panel.locator('p.label-caps')).toHaveCount(INFO_SECTIONS.length);
 
 	const formulas = INFO_SECTIONS.flatMap((s) =>
 		s.parts.filter((p) => p.kind === 'formula').map((p) => p.formula)

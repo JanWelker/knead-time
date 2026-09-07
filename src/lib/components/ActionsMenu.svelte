@@ -78,7 +78,7 @@
 
 <details bind:this={ref} bind:open>
 	<summary
-		class="btn-tomato flex cursor-pointer list-none items-center gap-2 select-none"
+		class="btn-band cursor-pointer list-none select-none"
 		aria-haspopup="menu"
 		aria-label={t.actions.menu}
 	>
@@ -91,7 +91,7 @@
 	</summary>
 	<div
 		role="menu"
-		class="border-dough-200 absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
+		class="border-rule bg-sheet block-shadow absolute right-0 z-20 mt-2 min-w-[15rem] overflow-hidden rounded-[2px] border-2 py-1"
 	>
 		<button type="button" role="menuitem" class="menu-item" onclick={onIcs} disabled={!feasible}>
 			{t.actions.download_ics}

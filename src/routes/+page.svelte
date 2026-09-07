@@ -171,15 +171,30 @@
 </svelte:head>
 
 <main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-	<header class="mb-8 flex flex-wrap items-start justify-between gap-4">
-		<div>
-			<h1 class="font-display text-accent text-4xl sm:text-5xl">{t.app.title}</h1>
-			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300">{t.app.tagline}</p>
+	<!-- The masthead is a sign, not a heading: the title is painted onto a
+	     bordered plaque in the shop's own red, and the tricolore hairline runs
+	     under it the width of the page. The tagline is the sign-painter's
+	     subtitle — set in the workhorse face at reading size, because it is the
+	     one sentence that says what the whole app does. -->
+	<header class="mb-8 sm:mb-10">
+		<div class="flex flex-wrap items-end justify-between gap-4">
+			<div
+				class="border-rule bg-accent text-on-accent block-shadow rounded-[2px] border-[3px] px-4 py-2.5 sm:px-6 sm:py-3"
+			>
+				<h1
+					class="font-display text-4xl leading-[0.92] uppercase sm:text-6xl"
+					style="letter-spacing:0.02em"
+				>
+					{t.app.title}
+				</h1>
+			</div>
+			<div class="flex flex-wrap items-center gap-2 pb-1">
+				<LangSwitcher />
+				<ThemeSwitcher />
+			</div>
 		</div>
-		<div class="flex flex-wrap items-center gap-2">
-			<LangSwitcher />
-			<ThemeSwitcher />
-		</div>
+		<div class="tricolore border-rule mt-4 border-2"></div>
+		<p class="text-ink-soft mt-3 max-w-xl text-base leading-snug">{t.app.tagline}</p>
 	</header>
 
 	<!-- lg+: When + Ingredients stack in the left column, Schedule spans the
@@ -190,7 +205,7 @@
 	     the form AND the ingredients. At lg+ the placement pins it back to
 	     the right-hand column regardless. -->
 	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
-		<section class="card lg:col-start-1 lg:row-start-1">
+		<section class="card card-body lg:col-start-1 lg:row-start-1">
 			<!-- The input card was the one card with no heading, so the whole
 			     primary surface was missing from the heading outline. Kept
 			     sr-only: the two group legends below already label it on screen,
@@ -200,24 +215,29 @@
 			<InputForm {form} />
 		</section>
 
-		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
-			<!-- Title row keeps Actions pinned top-right at every width; the badge/
+		<!-- The one loud surface in the design: the schedule is what the app is
+		     for, so it alone carries the offset block of ink behind its sheet.
+		     Everything else is a plain ruled card. -->
+		<div class="card card-loud lg:col-start-2 lg:row-span-2 lg:row-start-1">
+			<!-- Title band keeps Actions pinned top-right at every width; the badge/
 			     stars/verbosity strip lives on its own full-width row below so it
 			     can never wrap the button out of place (issue #189). -->
-			<div class="relative mb-4">
-				<div class="flex flex-wrap items-start justify-between gap-3">
-					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+			<div class="relative">
+				<div class="card-header">
+					<h2 class="card-header-title">
 						{t.schedule.heading}
 					</h2>
-					<ActionsMenu
-						feasible={form.schedule.feasible}
-						shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
-						onIcs={downloadIcs}
-						onPrint={printPage}
-						onShare={() => copy(window.location.href)}
-						onSaveRecipe={() => saveDialog?.open()}
-						onTrmnl={() => trmnlPush?.open()}
-					/>
+					<div class="ml-auto">
+						<ActionsMenu
+							feasible={form.schedule.feasible}
+							shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
+							onIcs={downloadIcs}
+							onPrint={printPage}
+							onShare={() => copy(window.location.href)}
+							onSaveRecipe={() => saveDialog?.open()}
+							onTrmnl={() => trmnlPush?.open()}
+						/>
+					</div>
 					<!-- The modal lives outside the role="menu" container: a dialog is
 					     invalid ARIA-menu content, and the menu closes before it opens. -->
 					<TrmnlPush
@@ -228,6 +248,9 @@
 					/>
 					<SaveRecipeDialog bind:this={saveDialog} onsave={saveCurrentRecipe} />
 				</div>
+			</div>
+
+			<div class="card-body">
 				<!-- Always in the DOM, so the live region exists before it has
 				     anything to say — one created together with its first message
 				     is not announced by most screen readers. Success is visible
@@ -241,7 +264,7 @@
 					{#if copied === 'share'}{t.actions.copied}{:else if copied === 'failed'}{t.actions
 							.copy_failed}{/if}
 				</p>
-				<div class="mt-2 flex flex-wrap items-center gap-3">
+				<div class="flex flex-wrap items-center gap-x-4 gap-y-3">
 					<ModeBadge mode={form.schedule.mode} />
 					<FitScore schedule={form.schedule} inputs={form.serializable()} />
 					<SegmentedControl
@@ -253,25 +276,27 @@
 							v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
 					/>
 				</div>
-			</div>
 
-			<div class="mt-4">
-				<ScheduleTable
-					schedule={form.schedule}
-					sourceTiming={activePizzeria?.timing}
-					verbosity={scheduleVerbosity.current}
-				/>
+				<div class="mt-6">
+					<ScheduleTable
+						schedule={form.schedule}
+						sourceTiming={activePizzeria?.timing}
+						verbosity={scheduleVerbosity.current}
+					/>
+				</div>
 			</div>
 		</div>
 
+		<!-- The deli ticket: header band, dotted-leader rows, a perforated stub
+		     above the total. See Ingredients.svelte. -->
 		<div class="card lg:col-start-1 lg:row-start-2">
-			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
+			<div class="card-header">
+				<h2 class="card-header-title">
 					{t.ingredients.heading}
 				</h2>
 				<button
 					type="button"
-					class="btn-tomato-sm inline-flex items-center gap-1"
+					class="btn-band ml-auto"
 					onclick={() => form.roundBallWeight()}
 					title={t.form.ballWeight_round_help}
 					aria-label={t.form.ballWeight_round_help}
@@ -280,18 +305,20 @@
 					{t.form.ballWeight_round}
 				</button>
 			</div>
-			<Ingredients
-				ingredients={form.schedule.ingredients}
-				yeastType={form.yeastType}
-				yeastPercent={form.schedule.yeastPercent}
-				flourW={form.flourW}
-			/>
-			<!-- The yeast warnings are about the number you weigh out ("measure
+			<div class="card-body">
+				<Ingredients
+					ingredients={form.schedule.ingredients}
+					yeastType={form.yeastType}
+					yeastPercent={form.schedule.yeastPercent}
+					flourW={form.flourW}
+				/>
+				<!-- The yeast warnings are about the number you weigh out ("measure
 			     carefully", "double-check the inputs"), so they belong with the
 			     weights. Visible in beginner view too, where the yeast field
 			     itself is hidden but the window can still reach both extremes. -->
-			<div class="mt-4">
-				<Warnings warnings={form.schedule.warnings} place="ingredients" />
+				<div class="mt-5">
+					<Warnings warnings={form.schedule.warnings} place="ingredients" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -311,12 +338,11 @@
 		<Pizzerias />
 	</section>
 
-	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400">
+	<footer class="text-ink-soft mt-12 text-center text-xs">
+		<div class="tricolore border-rule mx-auto mb-6 max-w-xs border-2"></div>
 		<p>{t.footer.about}</p>
-		<p class="mt-1 text-stone-500 dark:text-stone-400">{t.actions.share_help}</p>
-		<p
-			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-500 dark:text-stone-400"
-		>
+		<p class="mt-1">{t.actions.share_help}</p>
+		<p class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1">
 			<a
 				href="https://github.com/JanWelker/knead-time"
 				target="_blank"
@@ -344,7 +370,7 @@
 				{t.footer.support}
 			</a>
 		</p>
-		<p class="mt-2 text-stone-500 dark:text-stone-400">
+		<p class="mt-2">
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
 				target="_blank"

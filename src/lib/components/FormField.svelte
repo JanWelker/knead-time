@@ -31,7 +31,7 @@
 </script>
 
 <label class="group block" for={id}>
-	<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">{label}</span>
+	<span class="field-label">{label}</span>
 	<input
 		{type}
 		{min}
@@ -49,7 +49,7 @@
 			}
 			oncommit?.();
 		}}
-		class="input mt-1 w-full text-base"
+		class="input w-full"
 	/>
 	{#if help}
 		<FieldHelp text={help} />

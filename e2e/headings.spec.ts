@@ -58,11 +58,11 @@ test('no heading level is skipped', async ({ page }) => {
 	}
 });
 
-// app.css styles `h1, h2, h3, .font-display` from OUTSIDE any cascade layer, so
-// that rule beats every Tailwind utility — unlayered always wins over
-// @layer utilities. Turning the day label into an h3 silently made it serif and
-// dropped its wide tracking; turning the step title into an h4 silently dropped
-// the serif it had been inheriting. Both faces are pinned here because the
+// app.css styles `h1, h2, h3, .font-display` for the whole app, so that rule
+// reaches every heading whether or not it wants it. Turning the day label into
+// an h3 silently made it the display face and dropped its wide tracking;
+// turning the step title into an h4 silently dropped the display face it had
+// been inheriting. Both faces are pinned here because the
 // markup gives no hint that the levels and the fonts are coupled.
 test('changing a heading level does not change its typeface', async ({ page }) => {
 	await openRecipe(page, RECIPE);
@@ -74,14 +74,14 @@ test('changing a heading level does not change its typeface', async ({ page }) =
 			const cs = getComputedStyle(el);
 			return { font: cs.fontFamily.split(',')[0].trim(), tracking: cs.letterSpacing };
 		});
-	// The date label has always been the sans face with wide tracking.
-	expect(day.font).toBe('ui-sans-serif');
+	// The date label has always been the workhorse face with wide tracking.
+	expect(day.font).toBe('Archivo');
 	expect(day.tracking).toBe('1.68px');
 
 	const step = await page
 		.locator('main ol h4')
 		.first()
 		.evaluate((el) => getComputedStyle(el).fontFamily.split(',')[0].trim());
-	// Step titles have always been the display serif.
-	expect(step).toBe('ui-serif');
+	// Step titles have always been the display face.
+	expect(step).toBe('Anton');
 });

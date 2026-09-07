@@ -102,3 +102,63 @@ test.describe('tap targets', () => {
 		expect(fit!.height).toBeGreaterThanOrEqual(24);
 	});
 });
+
+// This design draws with hard edges instead of shadows: a solid offset block
+// beside the schedule card, header bands and day dividers pulled out of their
+// card's padding with negative margins, and perforation notches hung off the
+// card's own rule. Every one of those paints OUTSIDE the box it belongs to, so
+// any of them can widen the document by a few pixels and put a horizontal
+// scrollbar under a phone — which is exactly the width the app has to read at.
+// Nothing in the markup hints at it; only a rendered page can say.
+test.describe('nothing paints past the edge of the page', () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test('the phone layout never scrolls sideways', async ({ page }) => {
+		// Biga + poolish + cold: the longest schedule and the widest ingredient
+		// ticket (two pre-doughs, a main dough and a totals block), every band and
+		// every perforation in play at once.
+		await openRecipe(
+			page,
+			'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&o=2&sg=1&p=b30_p20&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-03T09%3A00%3A00.000Z'
+		);
+
+		const { scrollWidth, clientWidth } = await page.evaluate(() => ({
+			scrollWidth: document.documentElement.scrollWidth,
+			clientWidth: document.documentElement.clientWidth
+		}));
+		expect(scrollWidth).toBeLessThanOrEqual(clientWidth);
+	});
+});
+
+// A header band and a day divider are reversed out of the ink and have to run
+// the full width of their sheet — that is what makes them read as a band rather
+// than as a heading with a background colour. They get there by cancelling the
+// card's own padding (`-mx-5 sm:-mx-6` against `.card-body`'s `p-5 sm:p-6`), so
+// those two numbers are coupled with nothing in the markup to say so: change the
+// padding and the bands quietly inset by a few pixels, which just reads as a
+// mistake.
+test('the header band and the day divider run the full width of the schedule card', async ({
+	page
+}) => {
+	await openRecipe(page, RECIPE);
+
+	const card = await page.locator('.card-loud').boundingBox();
+	const band = await page.locator('.card-loud .card-header').boundingBox();
+	const day = await page.locator('.card-loud h3').first().boundingBox();
+
+	// Flush inside the card's own 2 px rule, and nowhere short of it.
+	expect(band!.x).toBeCloseTo(card!.x + 2, 0);
+	expect(band!.width).toBeCloseTo(card!.width - 4, 0);
+	// The day divider sits inside the padded body, so it is the band around the
+	// date rather than the date itself that has to reach the edges.
+	const divider = await page
+		.locator('.card-loud h3')
+		.first()
+		.evaluate((el) => {
+			const b = el.parentElement!.getBoundingClientRect();
+			return { x: b.x, width: b.width };
+		});
+	expect(divider.x).toBeCloseTo(card!.x + 2, 0);
+	expect(divider.width).toBeCloseTo(card!.width - 4, 0);
+	expect(day!.x).toBeGreaterThan(divider.x);
+});

@@ -82,8 +82,10 @@ src/
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
 │   ├── +page.svelte      ← the entire calculator UI
 │   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
-├── app.css               ← Tailwind v4 entrypoint + @theme palette
-└── app.html              ← shell
+├── app.css               ← Tailwind v4 entrypoint: the Bottega palette (ink / paper /
+│                           accent tokens, one set per theme) and the component layer
+│                           every surface, band, stamp and control is built from
+└── app.html              ← shell (Google Fonts: Anton + Archivo, loaded non-blocking)
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
 scripts/

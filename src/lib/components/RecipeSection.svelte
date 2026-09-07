@@ -26,23 +26,20 @@
 </script>
 
 <details class="group">
-	<summary class="flex cursor-pointer list-none items-start gap-2 select-none">
+	<summary class="card-header cursor-pointer">
 		<span
-			class="text-accent mt-2 font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
+			class="font-mono text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
 			aria-hidden="true">▶</span
 		>
-		<header>
-			<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">{copy.heading}</h2>
-			<p class="mt-1 text-sm text-stone-500 dark:text-stone-400">{copy.intro}</p>
-		</header>
+		<h2 class="card-header-title">{copy.heading}</h2>
 	</summary>
-
-	<div class="mt-4">
+	<div class="card-body">
+		<p class="text-ink-soft mb-4 text-sm">{copy.intro}</p>
 		{#if isEmpty}
-			<p class="text-sm text-stone-500 dark:text-stone-400">{copy.empty}</p>
+			<p class="text-ink-soft text-sm">{copy.empty}</p>
 		{:else}
 			{@render children()}
-			<p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
+			<p class="text-ink-soft mt-5 text-xs">
 				{copy.contribute.before_md}<a
 					href={sourceHref}
 					target="_blank"

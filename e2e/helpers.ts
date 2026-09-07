@@ -34,9 +34,10 @@ export function formCard(page: Page) {
 	return page.locator('.card').filter({ has: page.locator('input[type="range"]') });
 }
 
-/** The fermentation-window card. */
+/** The fermentation-window card. `.window-card` is a named component class in
+ *  app.css, not incidental styling — see the Design section of CLAUDE.md. */
 export function windowCard(page: Page) {
-	return page.locator('form div.rounded-2xl').filter({ has: page.locator('input[type="range"]') });
+	return page.locator('form .window-card').filter({ has: page.locator('input[type="range"]') });
 }
 
 /** The big duration readout, e.g. "40 h". */

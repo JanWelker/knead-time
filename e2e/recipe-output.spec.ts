@@ -130,6 +130,12 @@ test('the print sheet weighs exactly what the screen weighs', async ({ page }) =
 		window.print = () => {};
 	});
 	await page.goto(`/print/en?${RICH}`);
+	// Wait for the decoded recipe, exactly as waitForHydration does on the main
+	// route: the print page ships prerendered with DEFAULT_INPUTS and swaps in
+	// the URL's recipe on hydration, so reading straight after `goto` could
+	// compare the paper against numbers that were never asked for. It did, once,
+	// under parallel load — the run reported the defaults as "the paper".
+	await expect(page.locator('.printpage-ingredients').last()).toContainText('Oil');
 	// The summary block beside it is a table too — only the ingredient ones count.
 	const onPaper = await rows(page.locator('.printpage-ingredients'));
 

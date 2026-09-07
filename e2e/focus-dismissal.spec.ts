@@ -4,7 +4,7 @@ import { card, openRecipe } from './helpers';
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
 
-const RING = 'rgb(200, 64, 26) solid 2px';
+const RING = 'rgb(200, 64, 26) solid 3px';
 
 // The global focus rule listed input, select, button and textarea. Both of the
 // element types it left out are used here as primary controls, not as prose:

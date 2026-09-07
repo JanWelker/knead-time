@@ -67,30 +67,42 @@
 	// so the rail shows exactly where the deadline falls.
 	const unreachableFromPct = $derived(axis(hoursUntilBake));
 
-	// The bake flag is centred on the deadline, except near the ends where a
-	// centred label would hang off the rail — there it pivots to sit inside,
-	// with the arrow itself staying on the exact spot either way.
-	const markerAnchor = $derived(
-		unreachableFromPct < 12 ? 'start' : unreachableFromPct > 88 ? 'end' : 'center'
-	);
-	const idealPct = $derived(ideal === null ? null : axis(ideal));
-	const idealAnchor = $derived(
-		idealPct === null ? 'center' : idealPct < 12 ? 'start' : idealPct > 88 ? 'end' : 'center'
-	);
-	const idealShift = $derived(
-		idealAnchor === 'start'
-			? 'translateX(0)'
-			: idealAnchor === 'end'
-				? 'translateX(-100%)'
-				: 'translateX(-50%)'
-	);
+	// The bake flag is centred on the deadline, except where a centred caption
+	// would hang off the rail — there it slides along until it fits, with the
+	// arrow itself staying on the exact spot either way.
+	//
+	// Where it lands is measured, not thresholded. It used to pivot to one end
+	// at 12 % / 88 %, and those numbers were chosen against a desktop rail: on a
+	// phone the rail is ~240 px while this caption is 188 px of it, so a deadline
+	// at 62 % still counted as "centred" and hung the caption over the edge of
+	// the card — and pivoting it fully to the end would have hung the other side
+	// off instead. Clamping the caption's own box into the rail is the same rule
+	// stated in the units that decide it, and it holds at every width, in every
+	// locale, for a caption of any length.
+	let railPx = $state(0);
+	let markerCaptionPx = $state(0);
+	let idealCaptionPx = $state(0);
 
-	const markerShift = $derived(
-		markerAnchor === 'start'
-			? 'translateX(0)'
-			: markerAnchor === 'end'
-				? 'translateX(-100%)'
-				: 'translateX(-50%)'
+	type CaptionPlacement = { style: string; align: string };
+
+	function captionPlacement(pct: number, captionPx: number): CaptionPlacement {
+		// Before the first measurement (SSR, first paint) there is nothing to
+		// clamp against, so centre it the way it will most often end up anyway.
+		if (railPx === 0 || captionPx === 0) {
+			return { style: `left:${pct}%;transform:translateX(-50%)`, align: 'items-center' };
+		}
+		const max = Math.max(0, railPx - captionPx);
+		const left = Math.min(Math.max((pct / 100) * railPx - captionPx / 2, 0), max);
+		return {
+			style: `left:${left}px`,
+			align: left === 0 ? 'items-start' : left === max ? 'items-end' : 'items-center'
+		};
+	}
+
+	const markerCaption = $derived(captionPlacement(unreachableFromPct, markerCaptionPx));
+	const idealPct = $derived(ideal === null ? null : axis(ideal));
+	const idealCaption = $derived(
+		idealPct === null ? null : captionPlacement(idealPct, idealCaptionPx)
 	);
 
 	// A drag into the greyed stretch is refused, not obeyed — but a control
@@ -159,14 +171,14 @@
 	);
 </script>
 
-<div
-	class="border-dough-200 rounded-2xl border bg-white/60 p-4 dark:border-stone-700 dark:bg-stone-800/40"
->
+<div class="window-card">
 	<div class="flex flex-wrap items-baseline justify-between gap-2">
-		<span class="text-sm font-medium text-stone-700 dark:text-stone-200">
+		<span class="label-caps">
 			{t.schedule.window_label}
 		</span>
-		<span class="font-display text-xl text-stone-900 dark:text-stone-100">
+		<!-- The readout is the largest figure in the form: it is the number the
+		     whole rail exists to set. -->
+		<span class="font-display text-ink text-2xl leading-none tabular-nums">
 			{formatWindow(windowHours)}
 		</span>
 	</div>
@@ -180,32 +192,25 @@
 	     nothing on the rail to point at, and the fallback below does name the
 	     moment, so it keeps the field's own label. -->
 	{#if unreachableFromPct < 100}
-		<div class="relative mx-2.5 mt-2 h-9" aria-hidden="true">
+		<div class="relative mx-2.5 mt-2 h-9" bind:clientWidth={railPx} aria-hidden="true">
 			<!-- Caption and arrow are placed separately on purpose: the caption
 			     pivots near the ends so it cannot hang off the rail, and the
 			     arrow never does, because pivoting it too would point it away
 			     from the moment it names. -->
 			<div
-				class="absolute top-0 flex flex-col {markerAnchor === 'start'
-					? 'items-start'
-					: markerAnchor === 'end'
-						? 'items-end'
-						: 'items-center'}"
-				style="left:{unreachableFromPct}%;transform:{markerShift}"
+				class="absolute top-0 flex flex-col {markerCaption.align}"
+				style={markerCaption.style}
+				bind:clientWidth={markerCaptionPx}
 			>
-				<span
-					class="text-tomato-700 dark:text-tomato-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="rail-caption text-accent-ink font-bold uppercase">
 					{t.schedule.window_limit_label}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="rail-caption text-ink-soft">
 					{formatDateTime(form.readyBy, i18n.locale)}
 				</span>
 			</div>
 			<svg
-				class="fill-tomato-500 absolute bottom-0 -translate-x-1/2"
+				class="fill-accent absolute bottom-0 -translate-x-1/2"
 				style="left:{unreachableFromPct}%"
 				width="9"
 				height="6"
@@ -215,9 +220,9 @@
 			</svg>
 		</div>
 	{:else}
-		<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-soft mt-1 text-xs">
 			{t.form.readyBy}:
-			<span class="font-medium text-stone-700 dark:text-stone-200">
+			<span class="text-ink font-bold">
 				{formatDateTime(form.readyBy, i18n.locale)}
 			</span>
 		</p>
@@ -232,18 +237,18 @@
 		     width drifts from the thumb by up to that radius, worst at the ends.
 		     Every marker row below carries the same inset for the same reason. -->
 		<div
-			class="bg-dough-200 absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full dark:bg-stone-700"
+			class="window-rail bg-sheet absolute inset-x-2.5 top-1/2 h-3 -translate-y-1/2"
 			aria-hidden="true"
 		>
 			{#if zones?.room}
 				<div
-					class="bg-basil-300 dark:bg-basil-700 absolute inset-y-0"
+					class="bg-basil-300 dark:bg-basil-800 absolute inset-y-0"
 					style="left:{axis(zones.room.min)}%;width:{axis(zones.room.max) - axis(zones.room.min)}%"
 				></div>
 			{/if}
 			{#if zones?.cold}
 				<div
-					class="bg-basil-400 dark:bg-basil-600 absolute inset-y-0"
+					class="bg-basil-400 dark:bg-basil-700 absolute inset-y-0"
 					style="left:{axis(zones.cold.min)}%;width:{axis(zones.cold.max) - axis(zones.cold.min)}%"
 				></div>
 			{/if}
@@ -251,10 +256,7 @@
 			     rail carries no label. -->
 			{#each stops as stop, i (stop)}
 				{#if i > 0 && i < stops.length - 1}
-					<div
-						class="absolute inset-y-0 w-px bg-white/70 dark:bg-stone-900/50"
-						style="left:{axis(stop)}%"
-					></div>
+					<div class="bg-rule absolute inset-y-0 w-0.5" style="left:{axis(stop)}%"></div>
 				{/if}
 			{/each}
 			<!-- Everything past the bake deadline, drawn over the zones and
@@ -264,7 +266,7 @@
 			     fact. -->
 			{#if unreachableFromPct < 100}
 				<div
-					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
+					class="window-closed absolute inset-y-0 right-0"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
@@ -301,9 +303,9 @@
 	     deadline flagged from above. It is a real stop on the rail, so the
 	     arrow always sits on a position the thumb can land on. -->
 	{#if idealPct !== null}
-		<div class="relative mx-2.5 mt-1 h-9" aria-hidden="true">
+		<div class="relative mx-2.5 mt-1 h-9" bind:clientWidth={railPx} aria-hidden="true">
 			<svg
-				class="fill-basil-500 absolute top-0 -translate-x-1/2"
+				class="fill-herb absolute top-0 -translate-x-1/2"
 				style="left:{idealPct}%"
 				width="9"
 				height="6"
@@ -312,21 +314,14 @@
 				<path d="M5 0 0 6h10z" />
 			</svg>
 			<div
-				class="absolute top-2 flex flex-col {idealAnchor === 'start'
-					? 'items-start'
-					: idealAnchor === 'end'
-						? 'items-end'
-						: 'items-center'}"
-				style="left:{idealPct}%;transform:{idealShift}"
+				class="absolute top-2 flex flex-col {idealCaption!.align}"
+				style={idealCaption!.style}
+				bind:clientWidth={idealCaptionPx}
 			>
-				<span
-					class="text-basil-700 dark:text-basil-300 text-[0.65rem] leading-tight font-semibold whitespace-nowrap"
-				>
+				<span class="rail-caption text-herb-ink font-bold uppercase">
 					{t.schedule.window_ideal}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="rail-caption text-ink-soft">
 					{formatWindow(ideal as number)}
 				</span>
 			</div>
@@ -336,7 +331,7 @@
 	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400 {narrowLabelledStops.includes(
+				class="text-ink-soft absolute -translate-x-1/2 text-[0.65rem] font-bold tabular-nums {narrowLabelledStops.includes(
 					stop
 				)
 					? ''
@@ -352,7 +347,7 @@
 		     ideal marker, the tick labels — is aria-hidden decoration, so a
 		     screen reader got a bare duration and no way to judge it. These two
 		     lines are that judgement, in words. -->
-		<p id="window-band" class="text-xs text-stone-500 dark:text-stone-400">
+		<p id="window-band" class="text-ink-soft text-xs">
 			{#if band}
 				<!-- A swatch in the same green as the band it describes. The rail
 				     painted two green stretches and nothing ever said what the
@@ -360,10 +355,10 @@
 				     just had no way to point at itself. Inline, so it costs no
 				     height in a card that is long enough already. -->
 				<span
-					class="mr-0.5 inline-block size-2 rounded-[2px] align-baseline {form.schedule.mode ===
-					'cold'
-						? 'bg-basil-400 dark:bg-basil-600'
-						: 'bg-basil-300 dark:bg-basil-700'}"
+					class="border-rule mr-0.5 inline-block size-2 border align-baseline {form.schedule
+						.mode === 'cold'
+						? 'bg-basil-400 dark:bg-basil-700'
+						: 'bg-basil-300 dark:bg-basil-800'}"
 					aria-hidden="true"
 				></span>
 				{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
@@ -410,7 +405,7 @@
 	</div>
 
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
-		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-soft mt-2 text-xs">
 			{interpolate(t.schedule.window_capped_by_bake, {
 				max: formatBandEdge(stops[reachableIndex]),
 				band: formatBandEdge(band.max)
@@ -419,38 +414,40 @@
 	{/if}
 
 	{#if startedAgoMin !== null}
-		<p class="text-tomato-700 dark:text-tomato-300 mt-2 text-xs font-medium">
+		<p class="text-accent-ink mt-2 text-xs font-semibold">
 			{interpolate(t.schedule.window_started_ago, {
 				ago: formatDuration(startedAgoMin, i18n.locale)
 			})}
 		</p>
 	{/if}
 
-	<p id="window-benefit" class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
+	<p id="window-benefit" class="text-ink-soft mt-2 text-xs leading-snug">{benefit}</p>
 </div>
 
 <style>
 	/* The rail is drawn by the div behind the input, so the native track is
 	   transparent and only the thumb is styled. Both vendor pseudo-elements
 	   need the rule spelled out separately — a combined selector is dropped
-	   wholesale by each engine that doesn't recognise the other half. */
+	   wholesale by each engine that doesn't recognise the other half.
+
+	   A square block with a hard ink rule, not a soft circle: it is the cursor
+	   on a printed slide rule. Width stays 1.25rem because every marker on the
+	   rail is positioned against that radius (see e2e/helpers.ts). */
 	input[type='range']::-webkit-slider-thumb {
 		appearance: none;
 		width: 1.25rem;
 		height: 1.25rem;
-		border-radius: 9999px;
-		background: var(--color-tomato-500);
-		border: 2px solid white;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+		border-radius: 2px;
+		background: var(--kt-accent);
+		border: 2px solid var(--kt-rule);
 		cursor: pointer;
 	}
 	input[type='range']::-moz-range-thumb {
 		width: 1.25rem;
 		height: 1.25rem;
-		border-radius: 9999px;
-		background: var(--color-tomato-500);
-		border: 2px solid white;
-		box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+		border-radius: 2px;
+		background: var(--kt-accent);
+		border: 2px solid var(--kt-rule);
 		cursor: pointer;
 	}
 </style>

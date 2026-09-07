@@ -60,10 +60,19 @@
 	}
 
 	// The one step happening right now: started, not yet finished. Drives the
-	// "Now" pill and the pulsing node so a baker sees where they are at a glance.
+	// "Now" stamp and the pulsing ticket number so a baker sees where they are
+	// at a glance.
 	function isCurrent(step: ScheduleStep): boolean {
 		const start = step.at.getTime();
 		return start <= now.getTime() && now.getTime() < start + step.durationMinutes * 60_000;
+	}
+
+	// The ticket's line numbers run across the whole plan rather than per day: a
+	// schedule is one sequence of steps that happens to cross midnight, and
+	// restarting at 01 under every date band would say otherwise. Two digits, so
+	// the column never reflows when a biga + poolish plan reaches step 10.
+	function stepNumber(step: ScheduleStep): string {
+		return String(schedule.steps.indexOf(step) + 1).padStart(2, '0');
 	}
 
 	// Format a duration range. Single-value ranges (min === max) collapse to
@@ -104,20 +113,21 @@
 	}
 </script>
 
-<div class="text-stone-800 dark:text-stone-200">
+<div class="text-ink">
 	{#each days as day (day.key)}
-		<!-- A heading, not a span: the date is what groups the steps under it, and
+		<!-- The day divider is a band, not a label: full-bleed out of the card's
+		     padding, with the date reversed out of the ink the way a job ticket
+		     separates one shift from the next.
+
+		     A heading, not a span: the date is what groups the steps under it, and
 		     as plain text it left a multi-day plan looking like one flat run of
 		     step titles to anything navigating by heading. `font-sans` is
-		     load-bearing — app.css gives every h1-h3 the display serif, which
-		     this label has never used. -->
-		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<h3
-				class="font-sans text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
-			>
+		     load-bearing — app.css gives every h1-h3 the display face, which this
+		     label has never used. -->
+		<div class="bg-rule -mx-5 mt-7 mb-4 px-5 py-1.5 first:mt-0 sm:-mx-6 sm:px-6">
+			<h3 class="text-paper font-sans text-xs font-bold tracking-[0.14em] uppercase">
 				{day.label}
 			</h3>
-			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
 		</div>
 
 		<ol class="tabular-nums">
@@ -135,82 +145,83 @@
 				     rather than as information. The fermentation-window card says
 				     outright when the schedule opens before now. `past` still mutes
 				     the accent on an already-missed bake moment below. -->
-				<li class="grid grid-cols-[1.5rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3">
-					<!-- Rail: a vertical line threading every node within the day. -->
+				<li class="grid grid-cols-[1.75rem_4.25rem_minmax(0,1fr)] gap-x-2 sm:gap-x-3">
+					<!-- Rail: on a ticket the line number IS the node. A filled square is
+					     something the baker does, a hollow one is time passing, and the
+					     rule between two of them goes dashed while nothing happens. -->
 					<div class="relative">
 						{#if si > 0}
-							<span
-								class="bg-dough-300 absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2 dark:bg-stone-700"
-							></span>
+							<span class="bg-rule absolute top-0 left-1/2 h-2 w-0.5 -translate-x-1/2"></span>
 						{/if}
 						{#if si < day.steps.length - 1}
 							<span
-								class="absolute top-2.5 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
-									? 'border-dough-400/80 border-dashed dark:border-stone-600'
-									: 'border-dough-300 border-solid dark:border-stone-700'}"
+								class="border-rule absolute top-2 bottom-0 left-1/2 -translate-x-1/2 border-l-2 {wait
+									? 'border-dashed'
+									: 'border-solid'}"
 							></span>
 						{/if}
 						<span
-							class="absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
+							class="border-rule absolute top-2 left-1/2 flex size-7 -translate-x-1/2 items-center justify-center rounded-[2px] border-2 text-[0.7rem] leading-none font-bold tabular-nums {current
 								? 'kt-node-now'
 								: ''} {isReady
-								? 'bg-tomato-600 ring-tomato-500/25'
+								? 'bg-accent text-on-accent'
 								: active
-									? 'bg-tomato-500'
-									: 'border-dough-400 border-2 bg-white dark:border-stone-500 dark:bg-stone-900'}"
+									? 'bg-rule text-paper'
+									: 'bg-sheet text-ink'}"
 							role="img"
 							aria-label={isReady
 								? stepTitle(step, t)
 								: active
 									? t.schedule.icon_active
 									: t.schedule.icon_passive}
-						></span>
+						>
+							{stepNumber(step)}
+						</span>
 					</div>
 
-					<!-- Time -->
+					<!-- Time: the departures-board column, set in the display face so it
+					     can be read from across the kitchen. -->
 					<div
-						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
-							? 'text-accent'
-							: 'text-stone-600 dark:text-stone-300'}"
+						class="font-display pt-2 text-base leading-none tabular-nums sm:text-lg {current ||
+						(isReady && !past)
+							? 'text-accent-ink'
+							: 'text-ink'}"
 					>
 						{formatTime(step.at, locale)}
 					</div>
 
-					<!-- Step -->
-					<div class="pb-6">
+					<!-- Step. The hard rule down its left edge is the ticket's column
+					     divider; it runs the full height of every row. -->
+					<div class="border-rule border-l-2 pt-1 pb-7 pl-3">
 						<div class="flex items-start justify-between gap-3">
 							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
 								<!-- h4, under the day heading above. `font-display` is
-								     load-bearing: as an h3 this inherited the serif from
-								     app.css, and demoting the level alone would silently
-								     drop it to sans. -->
+								     load-bearing: as an h3 this inherited the display face from
+								     app.css, and demoting the level alone would silently drop
+								     it to the workhorse. -->
 								<h4
-									class="font-display text-[0.9375rem] leading-5 font-semibold {current ||
+									class="font-display text-base leading-tight uppercase {current ||
 									(isReady && !past)
-										? 'text-accent'
-										: 'text-stone-900 dark:text-stone-100'}"
+										? 'text-accent-ink'
+										: 'text-ink'}"
 								>
 									{stepTitle(step, t)}
 								</h4>
 								{#if current}
-									<span
-										class="bg-tomato-500 rounded px-1.5 py-0.5 text-[0.625rem] font-bold tracking-wide text-white uppercase"
-									>
-										{t.schedule.now}
-									</span>
+									<span class="stamp">{t.schedule.now}</span>
 								{/if}
 								{#if flags.length > 0}
 									<span
-										class="text-accent inline-flex items-center"
+										class="text-accent-ink inline-flex items-center"
 										title="{t.quality.step_imperfect} {flagTooltip(flags)}"
 										aria-label="{t.quality.step_imperfect} {flagTooltip(flags)}"
 									>
-										<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+										<svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true">
 											<path
 												d="M6 1.2 L11 10.8 H1 Z"
 												fill="none"
 												stroke="currentColor"
-												stroke-width="1.4"
+												stroke-width="1.6"
 												stroke-linejoin="round"
 											/>
 											<rect x="5.4" y="4.5" width="1.2" height="3.2" fill="currentColor" />
@@ -220,9 +231,7 @@
 								{/if}
 							</div>
 							{#if step.durationMinutes > 0}
-								<span
-									class="bg-dough-100 mt-px shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-stone-600 dark:bg-stone-800 dark:text-stone-300"
-								>
+								<span class="chip mt-0.5 shrink-0 whitespace-nowrap">
 									{formatDuration(step.durationMinutes, locale)}
 								</span>
 							{/if}
@@ -230,35 +239,33 @@
 
 						{#if ingredients.length > 0}
 							<ul
-								class="bg-dough-50 border-dough-100 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border px-3 py-2 dark:border-stone-700/60 dark:bg-stone-800/40"
+								class="border-rule bg-paper mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-[2px] border-2 px-3 py-2"
 							>
 								{#each ingredients as ing (ing.name)}
 									<li class="contents">
-										<span
-											class="text-right text-xs font-semibold text-stone-700 dark:text-stone-200"
-										>
+										<span class="text-ink text-right text-xs font-bold tabular-nums">
 											{ing.amount}
 										</span>
-										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
+										<span class="text-ink-soft text-xs">{ing.name}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
+						<p class="text-ink-soft mt-2 text-sm leading-snug">
 							{stepDescription(step, t, schedule)}
 						</p>
 
 						{#if verbosity === 'descriptive'}
 							<p
-								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
+								class="border-ink-faint text-ink-soft mt-2 border-l-2 pl-2 text-xs leading-relaxed"
 							>
 								{stepDetail(step, t)}
 							</p>
 						{/if}
 
 						{#if sourceTiming?.[step.kind] && step.durationMinutes > 0 && outsideSourceRange(step.durationMinutes, sourceTiming[step.kind]!.minMinutes, sourceTiming[step.kind]!.maxMinutes)}
-							<div class="text-accent mt-1.5 text-xs font-medium">
+							<div class="text-accent-ink mt-1.5 text-xs font-semibold">
 								{interpolate(t.schedule.source_timing_label, {
 									duration: formatRange(
 										sourceTiming[step.kind]!.minMinutes,
@@ -275,14 +282,16 @@
 </div>
 
 <style>
-	/* A gentle halo on the current step's node — "you are here". */
+	/* A halo on the current step's ticket number — "you are here". Square, like
+	   everything else on this sheet, and printed in the same red as the NOW
+	   stamp beside it. */
 	@keyframes kt-node-pulse {
 		0%,
 		100% {
-			box-shadow: 0 0 0 0 rgba(200, 64, 26, 0.4);
+			box-shadow: 0 0 0 0 var(--kt-accent);
 		}
 		70% {
-			box-shadow: 0 0 0 6px rgba(200, 64, 26, 0);
+			box-shadow: 0 0 0 5px transparent;
 		}
 	}
 	.kt-node-now {

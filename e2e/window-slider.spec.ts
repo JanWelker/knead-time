@@ -30,7 +30,7 @@ const IDEAL_RECIPE = `${CAPUTO}&r=2026-09-02T17%3A30%3A00.000Z`;
  */
 async function tickRowBoxes(page: Page): Promise<{ t: string; left: number; right: number }[]> {
 	return page.evaluate(() => {
-		const card = document.querySelector('form div.rounded-2xl')!;
+		const card = document.querySelector('form .window-card')!;
 		const spans = [...card.querySelectorAll('span')]
 			.filter((s) => /^\d+\s*h$/.test(s.textContent!.trim()) && s.checkVisibility())
 			.map((s) => {
@@ -176,16 +176,37 @@ test('no "use best" button when the flour has no ideal to offer', async ({ page 
 	await expect(windowCard(page).getByRole('button', { name: 'Use best' })).toHaveCount(0);
 });
 
-test('every marker caption stays inside the rail', async ({ page }) => {
-	await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
-
-	const rail = await windowCard(page).locator('.overflow-hidden.rounded-full').boundingBox();
-	for (const caption of await windowCard(page).locator('span.whitespace-nowrap').all()) {
+async function captionsInsideRail(page: import('@playwright/test').Page) {
+	const rail = await windowCard(page).locator('.window-rail').boundingBox();
+	// `.rail-caption` is the named class the two markers' captions share — not
+	// every nowrap span in the card. The band caption below the rail is one of
+	// those and is NOT inset by half a thumb, so it may run wider than the rail
+	// by a pixel or two without anything being wrong.
+	for (const caption of await windowCard(page).locator('span.rail-caption').all()) {
 		const box = await caption.boundingBox();
 		if (!box) continue;
 		expect(box.x).toBeGreaterThanOrEqual(rail!.x - 1);
 		expect(box.x + box.width).toBeLessThanOrEqual(rail!.x + rail!.width + 1);
 	}
+}
+
+test('every marker caption stays inside the rail', async ({ page }) => {
+	await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
+	await captionsInsideRail(page);
+});
+
+// The same rule, at the width that actually breaks it. The captions pivot to
+// sit inside the rail only past a threshold, and the old 12 % / 88 % pair was
+// chosen against a desktop rail: on a phone the rail is ~300 px while the bake
+// flag's caption is over half that, so a deadline at 85 % counted as "centred"
+// and the caption hung off the side of the card. Desktop never showed it.
+test.describe('marker captions on a phone', () => {
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test('a caption near the end of the rail does not hang off the card', async ({ page }) => {
+		await openRecipe(page, `${NAPOLETANA}&r=2026-09-01T20%3A00%3A00.000Z`);
+		await captionsInsideRail(page);
+	});
 });
 
 // Four tick labels do not fit a phone. The rail is linear in stop INDEX and
