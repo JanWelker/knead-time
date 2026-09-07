@@ -1,0 +1,1 @@
+import"./Bu4I2aDw.js";import{r as e}from"./B4B33AyR.js";var t={get data(){return e.data},get error(){return e.error},get form(){return e.form},get params(){return e.params},get route(){return e.route},get state(){return e.state},get status(){return e.status},get url(){return e.url}};export{t};
