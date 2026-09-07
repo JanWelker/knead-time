@@ -25,11 +25,14 @@ test('every card is reachable by heading, and the steps sit under their day', as
 	await openRecipe(page, RECIPE);
 	const heads = await outline(page);
 
-	// The input card is named, even though its heading is visually hidden.
+	// Every region is named, including the two whose headings are visually
+	// hidden (the dial's stage, which needs no title on screen, and the form,
+	// whose own group legends already label it).
 	expect(heads.filter((h) => h.level === 2).map((h) => h.text)).toEqual([
-		'Your recipe',
+		'Bake dial',
 		'Schedule',
 		'Ingredients',
+		'Your recipe',
 		'My recipes',
 		'Community recipes',
 		'50 Top Pizza recipes'

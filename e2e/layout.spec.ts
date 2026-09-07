@@ -1,49 +1,16 @@
 import { expect, test } from '@playwright/test';
-import { card, formCard, openRecipe } from './helpers';
+import { openRecipe } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
 
-// The schedule is what the app is for, and on a phone it used to sit behind
-// BOTH the form and the ingredients — measured at 2.2 screens down in beginner
-// view and 3.7 in expert, against a stated design goal of reading well on a
-// phone on the counter. All three cards carry explicit lg: col/row placement,
-// so DOM order is free to put the schedule second; only a browser can show
-// that the reorder actually reaches the phone and leaves the desktop alone.
-test.describe('phone', () => {
-	test.use({ viewport: { width: 390, height: 844 } });
-
-	test('the schedule comes before the ingredients on a phone', async ({ page }) => {
-		await openRecipe(page, RECIPE);
-
-		const schedule = await card(page, 'Schedule').boundingBox();
-		const ingredients = await card(page, 'Ingredients').boundingBox();
-		expect(schedule).not.toBeNull();
-		expect(ingredients).not.toBeNull();
-
-		// Single column here, so "before" is purely vertical.
-		expect(schedule!.y).toBeLessThan(ingredients!.y);
-	});
-});
-
-test.describe('desktop', () => {
-	test.use({ viewport: { width: 1440, height: 1000 } });
-
-	test('the schedule still shares the top row with the form at lg+', async ({ page }) => {
-		await openRecipe(page, RECIPE);
-
-		const form = await formCard(page).boundingBox();
-		const schedule = await card(page, 'Schedule').boundingBox();
-		const ingredients = await card(page, 'Ingredients').boundingBox();
-
-		// Right-hand column, top row — beside the form, not under it.
-		expect(schedule!.x).toBeGreaterThan(form!.x);
-		expect(Math.abs(schedule!.y - form!.y)).toBeLessThan(2);
-		// Ingredients stays in the left column, below the form.
-		expect(ingredients!.x).toBeCloseTo(form!.x, 0);
-		expect(ingredients!.y).toBeGreaterThan(form!.y + form!.height - 2);
-	});
-});
+// The two placement rules that used to live here — "the schedule comes before
+// the ingredients on a phone" and "the schedule shares the top row with the
+// form at lg+" — were about the form/schedule/ingredients grid that the dial
+// replaced. They are not gone: e2e/dial.spec.ts pins the same two questions
+// against the structure that exists now ("the plan comes before the weights,
+// and the settings are past both", "the settings are a rail beside the
+// instrument, not a column ahead of it").
 
 // A <label> names its FIRST labelable descendant, so wrapping a date box and a
 // time box in one label left both time boxes with no accessible name at all —

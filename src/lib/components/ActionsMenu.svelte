@@ -91,7 +91,7 @@
 	</summary>
 	<div
 		role="menu"
-		class="border-dough-200 absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg dark:border-stone-700 dark:bg-stone-800"
+		class="border-rule absolute right-0 z-20 mt-2 min-w-[14rem] overflow-hidden rounded-2xl border bg-white py-1 shadow-lg"
 	>
 		<button type="button" role="menuitem" class="menu-item" onclick={onIcs} disabled={!feasible}>
 			{t.actions.download_ics}

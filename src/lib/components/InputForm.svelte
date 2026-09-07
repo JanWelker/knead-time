@@ -83,7 +83,7 @@
 		     box with no accessible name at all. The legend names the moment,
 		     each input names its own half. -->
 		<fieldset class="group block min-w-0">
-			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+			<legend class="text-ink block text-sm font-medium">
 				{t.form.startAt}
 			</legend>
 			<div class="mt-1 flex gap-2">
@@ -116,7 +116,7 @@
 			{/if}
 		</fieldset>
 		<fieldset class="group block min-w-0">
-			<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+			<legend class="text-ink block text-sm font-medium">
 				{t.form.readyBy}
 			</legend>
 			<div class="mt-1 flex gap-2">
@@ -142,7 +142,7 @@
 		     directly above the rail that paints its tolerance band. The W number
 		     behind it stays expert-only — the presets already carry it. -->
 		<label class="group block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+			<span class="text-ink block text-sm font-medium">
 				{t.form.flour}
 			</span>
 			<select
@@ -233,7 +233,7 @@
 		{/if}
 
 		<label class="block">
-			<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+			<span class="text-ink block text-sm font-medium">
 				{t.form.mixingMethod}
 			</span>
 			<select class={selectClass} bind:value={form.mixingMethod}>
@@ -245,7 +245,7 @@
 		</label>
 		{#if uiMode.current === 'expert'}
 			<label class="block">
-				<span class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+				<span class="text-ink block text-sm font-medium">
 					{t.form.yeastType}
 				</span>
 				<select class={selectClass} bind:value={form.yeastType}>
@@ -255,7 +255,7 @@
 					<option value="sourdough">{t.form.yeast_sourdough}</option>
 				</select>
 				{#if form.yeastType === 'active-dry'}
-					<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+					<span class="text-ink-faint mt-1 block text-xs">
 						{t.form.yeast_active_dry_help}
 					</span>
 				{/if}
@@ -272,10 +272,10 @@
 				/>
 			{:else}
 				<fieldset class="space-y-2">
-					<legend class="block text-sm font-medium text-stone-700 dark:text-stone-200">
+					<legend class="text-ink block text-sm font-medium">
 						{t.form.preFerment}
 					</legend>
-					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+					<label class="text-ink flex items-center gap-2 text-sm">
 						<input type="checkbox" class="accent-tomato-500" bind:checked={form.bigaEnabled} />
 						{t.form.preFerment_biga}
 					</label>
@@ -288,7 +288,7 @@
 							bind:value={form.bigaFlourPercent}
 						/>
 					{/if}
-					<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+					<label class="text-ink flex items-center gap-2 text-sm">
 						<input type="checkbox" class="accent-tomato-500" bind:checked={form.poolishEnabled} />
 						{t.form.preFerment_poolish}
 					</label>
@@ -302,12 +302,12 @@
 						/>
 					{/if}
 					{#if form.bigaEnabled && form.poolishEnabled}
-						<span class="block text-xs text-stone-500 dark:text-stone-400">
+						<span class="text-ink-faint block text-xs">
 							{t.form.preFerment_sum_help}
 						</span>
 					{/if}
 					{#if form.bigaEnabled || form.poolishEnabled}
-						<label class="flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+						<label class="text-ink flex items-center gap-2 text-sm">
 							<input
 								type="checkbox"
 								class="accent-tomato-500"
@@ -332,20 +332,18 @@
 			<!-- Autolyse applies only with no pre-ferment (sourdough always
 			     qualifies — its starter is not a schedule pre-ferment). -->
 			{#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
-				<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+				<label class="group text-ink flex items-center gap-2 text-sm">
 					<input type="checkbox" class="accent-tomato-500" bind:checked={form.autolyse} />
 					<span>
 						{t.form.autolyse_toggle}
-						<span
-							class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
-						>
+						<span class="text-ink-faint hidden text-xs font-normal group-focus-within:block">
 							{t.form.autolyse_help}
 						</span>
 					</span>
 				</label>
 			{/if}
 
-			<label class="group flex items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+			<label class="group text-ink flex items-center gap-2 text-sm">
 				<input
 					type="checkbox"
 					class="accent-tomato-500"
@@ -354,9 +352,7 @@
 				/>
 				<span>
 					{t.form.ballProof_toggle}
-					<span
-						class="hidden text-xs font-normal text-stone-500 group-focus-within:block dark:text-stone-400"
-					>
+					<span class="text-ink-faint hidden text-xs font-normal group-focus-within:block">
 						{t.form.ballProof_help}
 					</span>
 				</span>
@@ -397,7 +393,7 @@
 			{uiMode.current === 'beginner' ? t.form.mode_expert : t.form.mode_beginner}
 		</button>
 		{#if uiMode.current === 'beginner'}
-			<span class="mt-1 block text-xs text-stone-500 dark:text-stone-400">
+			<span class="text-ink-faint mt-1 block text-xs">
 				{t.form.mode_help}
 			</span>
 		{/if}
@@ -405,7 +401,7 @@
 
 	{#if uiMode.current === 'expert'}
 		<details
-			class="border-dough-300 bg-dough-50/60 group min-w-0 rounded-lg border border-dashed p-3 text-xs text-stone-700 open:bg-white/70 dark:border-stone-600 dark:bg-stone-800/40 dark:text-stone-300 dark:open:bg-stone-900/60"
+			class="border-rule bg-face-deep/40 text-ink group open:bg-face/70 min-w-0 rounded-lg border border-dashed p-3 text-xs"
 		>
 			<summary
 				class="text-accent flex cursor-pointer list-none items-center gap-2 font-medium select-none"
@@ -425,7 +421,7 @@
 				     Thirteen hand-written blocks could not be checked that way. -->
 				{#each INFO_SECTIONS as section (section.title)}
 					<div class="min-w-0">
-						<p class="font-semibold text-stone-900 dark:text-stone-100">
+						<p class="text-ink font-semibold">
 							{t.form[section.title]}
 						</p>
 						{#each section.parts as part, i (i)}
@@ -438,8 +434,13 @@
 									{/each}
 								</ul>
 							{:else}
+								<!-- Wraps rather than scrolling sideways. In the settings rail
+								     these run past the edge, and a scrollable box has to be
+								     reachable from the keyboard — which for a formula means a
+								     tab stop that leads nowhere. Soft wrapping leaves the text
+								     identical, which is what the info-panel test reads. -->
 								<pre
-									class="border-dough-200 mt-1 overflow-x-auto rounded border bg-white px-2 py-1 font-mono text-[0.72rem] text-stone-900 dark:border-stone-700 dark:bg-stone-900 dark:text-stone-100">{part.formula}</pre>
+									class="border-rule bg-face-deep text-ink mt-1 rounded border px-2 py-1 font-mono text-[0.72rem] whitespace-pre-wrap">{part.formula}</pre>
 							{/if}
 						{/each}
 					</div>

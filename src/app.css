@@ -38,6 +38,39 @@
 	--color-basil-700: #2c5722;
 	--color-basil-800: #20401a;
 	--color-basil-900: #142810;
+
+	/* Cold. The app had no cold colour at all, so "in the fridge" was told in
+	   the same warm palette as "on the counter" — see the Design section of
+	   CLAUDE.md: on the dial, hue means temperature and nothing else. */
+	--color-frost-50: #eef5f8;
+	--color-frost-100: #d9e9f0;
+	--color-frost-200: #b2d1de;
+	--color-frost-300: #82b4c8;
+	--color-frost-400: #5493ab;
+	--color-frost-500: #3a778f;
+	--color-frost-600: #2d6076;
+	--color-frost-700: #264c5d;
+	--color-frost-800: #1e3947;
+	--color-frost-900: #15252f;
+
+	/* The instrument's own surfaces, mapped onto the --kt-* pair below so they
+	   come with the whole utility set (bg-face, text-ink, border-rule …) while
+	   still being swappable per theme. A utility compiles to var(--color-face),
+	   which resolves through var(--kt-face) — so redefining the --kt-* half
+	   under html.dark reaches every use at once, and neither theme is a
+	   careless derivative of the other. */
+	--color-ink: var(--kt-ink);
+	--color-ink-soft: var(--kt-ink-soft);
+	--color-ink-faint: var(--kt-ink-faint);
+	--color-face: var(--kt-face);
+	--color-face-deep: var(--kt-face-deep);
+	--color-rule: var(--kt-rule);
+	--color-rule-soft: var(--kt-rule-soft);
+	--color-warm: var(--kt-warm);
+	--color-warm-soft: var(--kt-warm-soft);
+	--color-cold: var(--kt-cold);
+	--color-cold-soft: var(--kt-cold-soft);
+	--color-night: var(--kt-night);
 }
 
 /* These are element defaults, so they belong in @layer base — and being in a
@@ -49,19 +82,48 @@
    did nothing either. Both are the obvious class to reach for, and both were
    being ignored with no error anywhere. */
 @layer base {
+	/* Light is the base palette; the dark block below redefines the same
+	   thirteen roles rather than filtering the light ones. */
+	:root {
+		--kt-ink: #2a2019;
+		--kt-ink-soft: #665649;
+		--kt-ink-faint: #6e5d4d;
+		--kt-face: #f7f0e3;
+		--kt-face-deep: #efe4d1;
+		--kt-rule: #e0d3bd;
+		--kt-rule-soft: #ece2d1;
+		--kt-warm: #b8761c;
+		--kt-warm-soft: #e9c98a;
+		--kt-cold: #2d6076;
+		--kt-cold-soft: #a9cddd;
+		--kt-night: #2a2019;
+	}
+
 	html {
 		font-family: var(--font-sans);
 		-webkit-font-smoothing: antialiased;
-		background: radial-gradient(
-				ellipse at top,
-				var(--color-dough-100) 0%,
-				var(--color-dough-50) 60%
-			)
-			fixed;
+		color: var(--color-ink);
+		/* Light falling on the instrument from above, rather than a flat fill:
+		   the page is a workbench, the dial is the thing on it. */
+		background: radial-gradient(125% 85% at 50% 6%, #fdfaf3 0%, #efe5d4 62%, #e8dcc7 100%) fixed;
 	}
 
 	html.dark {
-		background: radial-gradient(ellipse at top, #2a1f17 0%, #15110d 60%) fixed;
+		--kt-ink: #f0e7da;
+		--kt-ink-soft: #b9a996;
+		--kt-ink-faint: #9c8b79;
+		--kt-face: #221b15;
+		--kt-face-deep: #1a1410;
+		--kt-rule: #3d3128;
+		--kt-rule-soft: #2e2620;
+		/* Both accents step up in lightness against the dark face — the light
+		   values sit near 2.5:1 there, which is where the old link colour failed. */
+		--kt-warm: #e0ab54;
+		--kt-warm-soft: #6b4d1e;
+		--kt-cold: #82b4c8;
+		--kt-cold-soft: #26485a;
+		--kt-night: #0d0a07;
+		background: radial-gradient(125% 85% at 50% 6%, #241c15 0%, #17120e 62%, #100c09 100%) fixed;
 		color-scheme: dark;
 	}
 
@@ -87,16 +149,56 @@
 	   controls, not as prose links: every disclosure in the app is a styled
 	   <summary>, and every "Open" in the recipe tables is an <a>. They were
 	   falling back to the browser's default ring, which is a different shape
-	   and colour on every engine and invisible against a dark card in some. */
-	:where(a, summary, input, select, button, textarea):focus-visible {
+	   and colour on every engine and invisible against a dark card in some.
+	   `[tabindex]` joined them for the dial: its steps and its window handle
+	   are focusable SVG groups, which no element selector reaches. */
+	:where(a, summary, input, select, button, textarea, [tabindex]):focus-visible {
 		outline: 2px solid var(--color-tomato-500);
 		outline-offset: 2px;
+	}
+
+	html.dark :where(a, summary, input, select, button, textarea, [tabindex]):focus-visible {
+		outline-color: var(--color-tomato-300);
 	}
 }
 
 @layer components {
+	/* A surface that holds content. Hairline rule, no shadow, no blur: the
+	   instrument is the only thing on this page allowed to look like an object,
+	   and eight drop-shadowed boxes around it is what made the old layout read
+	   as a stack of widgets rather than a tool. */
 	.card {
-		@apply border-dough-200 rounded-2xl border bg-white/80 p-6 shadow-sm backdrop-blur dark:border-stone-700 dark:bg-stone-900/70;
+		@apply border-rule bg-face/70 rounded-xl border p-5;
+	}
+
+	/* The dial's stage. Deliberately NOT a card: a frame around the instrument
+	   competes with the instrument's own rim. */
+	.instrument {
+		@apply relative;
+	}
+
+	/* The plate under the dial that reads out one step in plain words. Its top
+	   rule is the join between the drawing and the writing. */
+	.readout {
+		@apply border-rule bg-face/80 rounded-xl border p-4;
+	}
+
+	/* One step in the plan, as a row you can select. The selected row carries
+	   the accent on its leading edge, so the coil and the list agree without
+	   the list having to shout. */
+	.step-row {
+		@apply -mx-2 block w-full rounded-lg border-l-2 border-transparent px-2 py-1.5 text-left;
+	}
+
+	.step-row-on {
+		@apply border-tomato-500 bg-tomato-50/70 dark:bg-tomato-900/25 border-l-2;
+	}
+
+	/* Small label above or beside a value. Sentence case with open tracking —
+	   the app is read at a counter, not on a control panel, and setting every
+	   label in capitals made the form look like a form. */
+	.field-label {
+		@apply text-ink text-sm font-medium;
 	}
 
 	.btn-tomato {
@@ -108,7 +210,7 @@
 	}
 
 	.menu-item {
-		@apply hover:bg-dough-100 block w-full px-4 py-2 text-left text-sm font-medium text-stone-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-stone-200 dark:hover:bg-stone-700;
+		@apply text-ink hover:bg-face-deep block w-full px-4 py-2 text-left text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50;
 	}
 
 	.text-accent {
@@ -116,7 +218,7 @@
 	}
 
 	.row-divider {
-		@apply border-dough-200/70 border-b last:border-0 dark:border-stone-700/70;
+		@apply border-rule-soft border-b last:border-0;
 	}
 
 	/* A boxed message under the control that caused it. Danger is the same red
@@ -138,7 +240,7 @@
 	/* The rounded switch strip: language, theme, schedule verbosity. Rendered by
 	   SegmentedControl.svelte, which owns the markup as well as the look. */
 	.pill-group {
-		@apply border-dough-300 m-0 inline-flex overflow-hidden rounded-full border bg-white/70 p-0 text-xs font-semibold tracking-wider shadow-sm dark:border-stone-700 dark:bg-stone-800/70;
+		@apply border-rule bg-face m-0 inline-flex overflow-hidden rounded-full border p-0 text-xs font-semibold tracking-wider;
 	}
 
 	.pill {
@@ -150,13 +252,13 @@
 	}
 
 	.pill-off {
-		@apply hover:bg-dough-100 text-stone-700 dark:text-stone-200 dark:hover:bg-stone-700;
+		@apply text-ink-soft hover:bg-face-deep hover:text-ink;
 	}
 
 	/* Every box the form types into. Size and width stay with the caller — the
 	   date pair splits a row, the rest fill it. */
 	.input {
-		@apply border-dough-300 focus:border-tomato-500 rounded-lg border bg-white px-3 py-2 shadow-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100;
+		@apply border-rule focus:border-tomato-500 text-ink rounded-lg border bg-white/80 px-3 py-2 dark:bg-black/25;
 	}
 
 	/* A link in running text — the footer, the setup hint in the TRMNL dialog.
@@ -179,11 +281,17 @@
 	/* Both modals: a native <dialog>, opened imperatively from the actions menu.
 	   Width is the caller's, everything else is shared. */
 	.dialog-panel {
-		@apply border-dough-200 rounded-2xl border bg-white p-0 text-sm text-stone-700 shadow-xl backdrop:bg-stone-950/40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200;
+		@apply border-rule bg-face text-ink rounded-xl border p-0 text-sm shadow-xl backdrop:bg-stone-950/50;
 	}
 
 	/* The way out of a dialog: quieter than the action beside it. */
 	.btn-quiet {
-		@apply rounded-full px-3 py-2 text-xs text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200;
+		@apply text-ink-soft hover:text-ink rounded-full px-3 py-2 text-xs;
+	}
+
+	/* A swatch that says which temperature a colour means. Used by the dial's
+	   legend and by the window card's band caption. */
+	.legend-dot {
+		@apply inline-block size-2 shrink-0 rounded-[2px] align-baseline;
 	}
 }

@@ -3,6 +3,7 @@
 	import { base } from '$app/paths';
 	import { onMount } from 'svelte';
 
+	import { stepKey } from '$lib/dial';
 	import { buildIcs } from '$lib/dough/ics';
 	import {
 		decodeInputs,
@@ -29,9 +30,11 @@
 	import SaveRecipeDialog from '$lib/components/SaveRecipeDialog.svelte';
 	import Community from '$lib/components/Community.svelte';
 	import Pizzerias from '$lib/components/Pizzerias.svelte';
+	import Dial from '$lib/components/Dial.svelte';
 	import FitScore from '$lib/components/FitScore.svelte';
 	import Ingredients from '$lib/components/Ingredients.svelte';
 	import InputForm from '$lib/components/InputForm.svelte';
+	import StepReadout from '$lib/components/StepReadout.svelte';
 	import Warnings from '$lib/components/Warnings.svelte';
 	import LangSwitcher from '$lib/components/LangSwitcher.svelte';
 	import ModeBadge from '$lib/components/ModeBadge.svelte';
@@ -61,6 +64,31 @@
 
 	// Ordered least-to-most detail, which is also the order the strip reads in.
 	const VERBOSITIES = ['short', 'descriptive'] as const;
+
+	// Which step the dial's readout is showing. `picked` is what the baker last
+	// chose; until they choose, and whenever their choice stops existing (a
+	// pre-ferment switched off, say), the dial opens on the step that is
+	// running — the answer to "what now?", which is what the app is for.
+	let picked = $state<string | null>(null);
+	let now = $state(new Date());
+	onMount(() => {
+		const id = setInterval(() => (now = new Date()), 60_000);
+		return () => clearInterval(id);
+	});
+
+	const stepKeys = $derived(form.schedule.steps.map(stepKey));
+	const liveKey = $derived.by(() => {
+		const steps = form.schedule.steps;
+		const at = now.getTime();
+		const running = steps.find(
+			(s) => s.at.getTime() <= at && at < s.at.getTime() + s.durationMinutes * 60_000
+		);
+		return stepKey(running ?? steps.find((s) => s.at.getTime() > at) ?? steps[0]);
+	});
+	const selectedKey = $derived(picked !== null && stepKeys.includes(picked) ? picked : liveKey);
+	const selectedStep = $derived(
+		form.schedule.steps.find((s) => stepKey(s) === selectedKey) ?? form.schedule.steps[0]
+	);
 
 	// Recipe-only encoding of the form as it left hydration. The save effect
 	// below compares against it so recipe memory only updates after a real
@@ -170,79 +198,77 @@
 	<title>{t.app.title} — {t.app.tagline}</title>
 </svelte:head>
 
-<main class="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
-	<header class="mb-8 flex flex-wrap items-start justify-between gap-4">
+<main class="mx-auto max-w-[84rem] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+	<!-- The masthead is a nameplate, not a hero: the instrument below it is the
+	     first thing on the page that deserves the eye. Everything that acts on
+	     the whole recipe — language, theme, the export menu — lives here. -->
+	<header
+		class="border-rule mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3 border-b pb-4"
+	>
 		<div>
-			<h1 class="font-display text-accent text-4xl sm:text-5xl">{t.app.title}</h1>
-			<p class="mt-2 max-w-xl text-stone-600 dark:text-stone-300">{t.app.tagline}</p>
+			<h1 class="text-accent font-display text-3xl leading-none sm:text-4xl">{t.app.title}</h1>
+			<p class="text-ink-soft mt-1.5 max-w-md text-sm">{t.app.tagline}</p>
 		</div>
-		<div class="flex flex-wrap items-center gap-2">
+		<div class="relative flex flex-wrap items-center gap-2">
 			<LangSwitcher />
 			<ThemeSwitcher />
+			<ActionsMenu
+				feasible={form.schedule.feasible}
+				shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
+				onIcs={downloadIcs}
+				onPrint={printPage}
+				onShare={() => copy(window.location.href)}
+				onSaveRecipe={() => saveDialog?.open()}
+				onTrmnl={() => trmnlPush?.open()}
+			/>
+			<!-- The modals live outside the role="menu" container: a dialog is
+			     invalid ARIA-menu content, and the menu closes before it opens. -->
+			<TrmnlPush
+				bind:this={trmnlPush}
+				inputs={form.serializable()}
+				schedule={form.schedule}
+				{locale}
+			/>
+			<SaveRecipeDialog bind:this={saveDialog} onsave={saveCurrentRecipe} />
 		</div>
+		<!-- Always in the DOM, so the live region exists before it has anything
+		     to say — one created together with its first message is not
+		     announced by most screen readers. Success is visible already (the
+		     menu item reads "Copied!"), so it stays sr-only; a refusal has no
+		     other signal at all, so it becomes visible. -->
+		<p
+			id="share-status"
+			role="status"
+			class={copied === 'failed' ? 'notice notice-danger w-full' : 'sr-only'}
+		>
+			{#if copied === 'share'}{t.actions.copied}{:else if copied === 'failed'}{t.actions
+					.copy_failed}{/if}
+		</p>
 	</header>
 
-	<!-- lg+: When + Ingredients stack in the left column, Schedule spans the
-	     right; below lg everything collapses to one column in DOM order.
-	     All three carry explicit col/row placement, so DOM order is free to
-	     serve the phone: the schedule comes second there, because it is what
-	     the app is for and it used to sit two screens below the fold, behind
-	     the form AND the ingredients. At lg+ the placement pins it back to
-	     the right-hand column regardless. -->
-	<div class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:items-start">
-		<section class="card lg:col-start-1 lg:row-start-1">
-			<!-- The input card was the one card with no heading, so the whole
-			     primary surface was missing from the heading outline. Kept
-			     sr-only: the two group legends below already label it on screen,
-			     and a visible "Your recipe" sitting directly above a "Recipe"
-			     legend reads as a duplicate. -->
-			<h2 class="sr-only">{t.form.heading}</h2>
-			<InputForm {form} />
-		</section>
+	<!-- lg+: the settings sit in a sticky rail on the left and the instrument
+	     owns the rest of the width. Below lg everything is one column in DOM
+	     order, which is why the dial comes first in the markup — a baker
+	     opening this on a phone should land on the answer, not on a form. -->
+	<div class="grid grid-cols-1 gap-6 lg:grid-cols-[27rem_minmax(0,1fr)] lg:items-start">
+		<!-- The instrument stage. At xl it splits again: the drawing on the left,
+		     the words about it on the right — the readout beside the dial rather
+		     than under it. The plan goes under the dial in the wide column,
+		     because a step's method copy needs the measure; the weights are a
+		     two-column table and fit the narrow one. Every child carries an
+		     explicit cell, so the markup order is free to serve the phone:
+		     dial, readout, plan, weights. -->
+		<div
+			class="grid grid-cols-1 gap-6 lg:col-start-2 lg:row-start-1 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start"
+		>
+			<section class="instrument xl:col-start-1 xl:row-start-1">
+				<h2 class="sr-only">{t.dial.heading}</h2>
+				<Dial {form} selected={selectedKey} onselect={(key) => (picked = key)} />
+			</section>
 
-		<div class="card lg:col-start-2 lg:row-span-2 lg:row-start-1">
-			<!-- Title row keeps Actions pinned top-right at every width; the badge/
-			     stars/verbosity strip lives on its own full-width row below so it
-			     can never wrap the button out of place (issue #189). -->
-			<div class="relative mb-4">
-				<div class="flex flex-wrap items-start justify-between gap-3">
-					<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-						{t.schedule.heading}
-					</h2>
-					<ActionsMenu
-						feasible={form.schedule.feasible}
-						shareLabel={copied === 'share' ? t.actions.copied : t.actions.share}
-						onIcs={downloadIcs}
-						onPrint={printPage}
-						onShare={() => copy(window.location.href)}
-						onSaveRecipe={() => saveDialog?.open()}
-						onTrmnl={() => trmnlPush?.open()}
-					/>
-					<!-- The modal lives outside the role="menu" container: a dialog is
-					     invalid ARIA-menu content, and the menu closes before it opens. -->
-					<TrmnlPush
-						bind:this={trmnlPush}
-						inputs={form.serializable()}
-						schedule={form.schedule}
-						{locale}
-					/>
-					<SaveRecipeDialog bind:this={saveDialog} onsave={saveCurrentRecipe} />
-				</div>
-				<!-- Always in the DOM, so the live region exists before it has
-				     anything to say — one created together with its first message
-				     is not announced by most screen readers. Success is visible
-				     already (the menu item reads "Copied!"), so it stays sr-only;
-				     a refusal has no other signal at all, so it becomes visible. -->
-				<p
-					id="share-status"
-					role="status"
-					class={copied === 'failed' ? 'notice notice-danger mt-2' : 'sr-only'}
-				>
-					{#if copied === 'share'}{t.actions.copied}{:else if copied === 'failed'}{t.actions
-							.copy_failed}{/if}
-				</p>
-				<div class="mt-2 flex flex-wrap items-center gap-3">
-					<ModeBadge mode={form.schedule.mode} />
+			<div class="space-y-3 xl:col-start-2 xl:row-start-1">
+				<ModeBadge mode={form.schedule.mode} />
+				<div class="flex flex-wrap items-center gap-3">
 					<FitScore schedule={form.schedule} inputs={form.serializable()} />
 					<SegmentedControl
 						legend={t.schedule.verbosity_label}
@@ -253,70 +279,87 @@
 							v === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
 					/>
 				</div>
+				<StepReadout
+					step={selectedStep}
+					schedule={form.schedule}
+					verbosity={scheduleVerbosity.current}
+				/>
 			</div>
 
-			<div class="mt-4">
+			<div class="card xl:col-start-1 xl:row-start-2">
+				<h2 class="font-display text-ink mb-4 text-xl">{t.schedule.heading}</h2>
 				<ScheduleTable
 					schedule={form.schedule}
 					sourceTiming={activePizzeria?.timing}
 					verbosity={scheduleVerbosity.current}
+					selected={selectedKey}
+					onselect={(key) => (picked = key)}
 				/>
 			</div>
+
+			<div class="card xl:col-start-2 xl:row-start-2">
+				<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+					<h2 class="font-display text-ink text-xl">{t.ingredients.heading}</h2>
+					<button
+						type="button"
+						class="btn-tomato-sm inline-flex items-center gap-1"
+						onclick={() => form.roundBallWeight()}
+						title={t.form.ballWeight_round_help}
+						aria-label={t.form.ballWeight_round_help}
+					>
+						<span aria-hidden="true">↻</span>
+						{t.form.ballWeight_round}
+					</button>
+				</div>
+				<Ingredients
+					ingredients={form.schedule.ingredients}
+					yeastType={form.yeastType}
+					yeastPercent={form.schedule.yeastPercent}
+					flourW={form.flourW}
+				/>
+				<!-- The yeast warnings are about the number you weigh out ("measure
+				     carefully", "double-check the inputs"), so they belong with the
+				     weights. Visible in beginner view too, where the yeast field
+				     itself is hidden but the window can still reach both extremes. -->
+				<div class="mt-4">
+					<Warnings warnings={form.schedule.warnings} place="ingredients" />
+				</div>
+			</div>
 		</div>
 
-		<div class="card lg:col-start-1 lg:row-start-2">
-			<div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 class="font-display text-2xl text-stone-900 dark:text-stone-100">
-					{t.ingredients.heading}
-				</h2>
-				<button
-					type="button"
-					class="btn-tomato-sm inline-flex items-center gap-1"
-					onclick={() => form.roundBallWeight()}
-					title={t.form.ballWeight_round_help}
-					aria-label={t.form.ballWeight_round_help}
-				>
-					<span aria-hidden="true">↻</span>
-					{t.form.ballWeight_round}
-				</button>
-			</div>
-			<Ingredients
-				ingredients={form.schedule.ingredients}
-				yeastType={form.yeastType}
-				yeastPercent={form.schedule.yeastPercent}
-				flourW={form.flourW}
-			/>
-			<!-- The yeast warnings are about the number you weigh out ("measure
-			     carefully", "double-check the inputs"), so they belong with the
-			     weights. Visible in beginner view too, where the yeast field
-			     itself is hidden but the window can still reach both extremes. -->
-			<div class="mt-4">
-				<Warnings warnings={form.schedule.warnings} place="ingredients" />
-			</div>
-		</div>
+		<!-- The instrument's settings. A rail rather than a column ahead of the
+		     answer: the form is how you adjust the plan, not how you reach it. -->
+		<section
+			class="card lg:sticky lg:top-6 lg:col-start-1 lg:row-start-1 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto"
+		>
+			<h2 class="font-display text-ink mb-4 text-xl">{t.form.heading}</h2>
+			<InputForm {form} />
+		</section>
 	</div>
 
-	<section class="card mt-8">
-		<MyRecipes
-			recipes={savedRecipes}
-			onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
-		/>
-	</section>
+	<!-- Other people's dough. A detour from the instrument, so it sits past it,
+	     collapsed, in one quiet stack. -->
+	<div class="mt-8 space-y-4">
+		<section class="card">
+			<MyRecipes
+				recipes={savedRecipes}
+				onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
+			/>
+		</section>
 
-	<section class="card mt-8">
-		<Community />
-	</section>
+		<section class="card">
+			<Community />
+		</section>
 
-	<section class="card mt-8">
-		<Pizzerias />
-	</section>
+		<section class="card">
+			<Pizzerias />
+		</section>
+	</div>
 
-	<footer class="mt-12 text-center text-xs text-stone-500 dark:text-stone-400">
+	<footer class="text-ink-faint mt-10 text-center text-xs">
 		<p>{t.footer.about}</p>
-		<p class="mt-1 text-stone-500 dark:text-stone-400">{t.actions.share_help}</p>
-		<p
-			class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-stone-500 dark:text-stone-400"
-		>
+		<p class="mt-1">{t.actions.share_help}</p>
+		<p class="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1">
 			<a
 				href="https://github.com/JanWelker/knead-time"
 				target="_blank"
@@ -344,7 +387,7 @@
 				{t.footer.support}
 			</a>
 		</p>
-		<p class="mt-2 text-stone-500 dark:text-stone-400">
+		<p class="mt-2">
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/LICENSE"
 				target="_blank"

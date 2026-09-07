@@ -35,7 +35,11 @@ test('links and disclosure triggers get the same focus ring as the rest', async 
 test('the fit-score panel closes on Escape and on an outside click', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 
-	const details = card(page, 'Schedule').locator('details').filter({ hasText: 'fit' });
+	// Filtered on the SUMMARY's text: the "Get nerdy" panel's body happens to
+	// contain the word too, and `hasText` reads a details' whole content.
+	const details = page
+		.locator('main details')
+		.filter({ has: page.locator('summary', { hasText: 'fit' }) });
 	const trigger = details.locator('summary');
 
 	await trigger.click();

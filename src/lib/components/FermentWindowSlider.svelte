@@ -159,14 +159,12 @@
 	);
 </script>
 
-<div
-	class="border-dough-200 rounded-2xl border bg-white/60 p-4 dark:border-stone-700 dark:bg-stone-800/40"
->
+<div class="border-rule bg-face-deep/40 rounded-2xl border p-4">
 	<div class="flex flex-wrap items-baseline justify-between gap-2">
-		<span class="text-sm font-medium text-stone-700 dark:text-stone-200">
+		<span class="text-ink text-sm font-medium">
 			{t.schedule.window_label}
 		</span>
-		<span class="font-display text-xl text-stone-900 dark:text-stone-100">
+		<span class="font-display text-ink text-xl">
 			{formatWindow(windowHours)}
 		</span>
 	</div>
@@ -198,9 +196,7 @@
 				>
 					{t.schedule.window_limit_label}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="text-ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatDateTime(form.readyBy, i18n.locale)}
 				</span>
 			</div>
@@ -215,9 +211,9 @@
 			</svg>
 		</div>
 	{:else}
-		<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-faint mt-1 text-xs">
 			{t.form.readyBy}:
-			<span class="font-medium text-stone-700 dark:text-stone-200">
+			<span class="text-ink font-medium">
 				{formatDateTime(form.readyBy, i18n.locale)}
 			</span>
 		</p>
@@ -232,7 +228,7 @@
 		     width drifts from the thumb by up to that radius, worst at the ends.
 		     Every marker row below carries the same inset for the same reason. -->
 		<div
-			class="bg-dough-200 absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full dark:bg-stone-700"
+			class="bg-rule absolute inset-x-2.5 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full"
 			aria-hidden="true"
 		>
 			{#if zones?.room}
@@ -251,10 +247,7 @@
 			     rail carries no label. -->
 			{#each stops as stop, i (stop)}
 				{#if i > 0 && i < stops.length - 1}
-					<div
-						class="absolute inset-y-0 w-px bg-white/70 dark:bg-stone-900/50"
-						style="left:{axis(stop)}%"
-					></div>
+					<div class="bg-face absolute inset-y-0 w-px" style="left:{axis(stop)}%"></div>
 				{/if}
 			{/each}
 			<!-- Everything past the bake deadline, drawn over the zones and
@@ -264,7 +257,7 @@
 			     fact. -->
 			{#if unreachableFromPct < 100}
 				<div
-					class="absolute inset-y-0 right-0 bg-stone-300/85 dark:bg-stone-700/85"
+					class="bg-ink-faint/35 absolute inset-y-0 right-0"
 					style="left:{unreachableFromPct}%"
 				></div>
 			{/if}
@@ -324,9 +317,7 @@
 				>
 					{t.schedule.window_ideal}
 				</span>
-				<span
-					class="text-[0.65rem] leading-tight whitespace-nowrap text-stone-500 dark:text-stone-400"
-				>
+				<span class="text-ink-faint text-[0.65rem] leading-tight whitespace-nowrap">
 					{formatWindow(ideal as number)}
 				</span>
 			</div>
@@ -336,7 +327,7 @@
 	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
-				class="absolute -translate-x-1/2 text-[0.65rem] text-stone-500 dark:text-stone-400 {narrowLabelledStops.includes(
+				class="text-ink-faint absolute -translate-x-1/2 text-[0.65rem] {narrowLabelledStops.includes(
 					stop
 				)
 					? ''
@@ -352,7 +343,7 @@
 		     ideal marker, the tick labels — is aria-hidden decoration, so a
 		     screen reader got a bare duration and no way to judge it. These two
 		     lines are that judgement, in words. -->
-		<p id="window-band" class="text-xs text-stone-500 dark:text-stone-400">
+		<p id="window-band" class="text-ink-faint text-xs">
 			{#if band}
 				<!-- A swatch in the same green as the band it describes. The rail
 				     painted two green stretches and nothing ever said what the
@@ -410,7 +401,7 @@
 	</div>
 
 	{#if reachableIndex >= 0 && band && sliderIndex >= reachableIndex && band.max > hoursUntilBake}
-		<p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+		<p class="text-ink-faint mt-2 text-xs">
 			{interpolate(t.schedule.window_capped_by_bake, {
 				max: formatBandEdge(stops[reachableIndex]),
 				band: formatBandEdge(band.max)
@@ -426,7 +417,7 @@
 		</p>
 	{/if}
 
-	<p id="window-benefit" class="mt-2 text-xs text-stone-500 dark:text-stone-400">{benefit}</p>
+	<p id="window-benefit" class="text-ink-faint mt-2 text-xs">{benefit}</p>
 </div>
 
 <style>

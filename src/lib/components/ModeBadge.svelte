@@ -15,6 +15,6 @@
 	<span class="h-2 w-2 rounded-full {mode === 'cold' ? 'bg-basil-500' : 'bg-tomato-500'}"></span>
 	{mode === 'cold' ? t.mode.cold : t.mode.room}
 </div>
-<p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+<p class="text-ink-faint mt-1 text-xs">
 	{mode === 'cold' ? t.mode.cold_blurb : t.mode.room_blurb}
 </p>

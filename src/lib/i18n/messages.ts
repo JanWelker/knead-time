@@ -134,6 +134,20 @@ export interface Messages {
 		mode_expert: string;
 		mode_help: string;
 	};
+	// The bake dial: the schedule drawn as a coil on a 24-hour face. Copy here
+	// names the instrument's own parts — everything about a step itself still
+	// comes from `steps` and `schedule`.
+	dial: {
+		heading: string;
+		plan_label: string;
+		step_label: string;
+		window_handle: string;
+		window_summary: string;
+		legend_warm: string;
+		legend_cold: string;
+		legend_night: string;
+		readout_hint: string;
+	};
 	mode: {
 		cold: string;
 		room: string;
@@ -546,6 +560,17 @@ const en: Messages = {
 		mode_expert: 'Show all options (expert)',
 		mode_help:
 			'The simple view makes 280 g dough balls and uses proven defaults for everything else: 70% hydration, 3% salt, fresh yeast.'
+	},
+	dial: {
+		heading: 'Bake dial',
+		plan_label: 'Steps of the plan',
+		step_label: '{title}, {date} {time}, lasts {duration}',
+		window_handle: 'Fermentation window — drag around the dial or use the arrow keys',
+		window_summary: '{window} from the first step to the bake',
+		legend_warm: 'On the counter',
+		legend_cold: 'In the fridge',
+		legend_night: 'Night',
+		readout_hint: 'Pick any step on the dial or in the plan below.'
 	},
 	mode: {
 		cold: 'Cold ferment',
@@ -1001,6 +1026,17 @@ const de: Messages = {
 		mode_expert: 'Alle Optionen anzeigen (Experten)',
 		mode_help:
 			'Die einfache Ansicht macht Teiglinge von 280 g und nutzt bewährte Standardwerte für alles Übrige: 70% Hydration, 3% Salz, Frischhefe.'
+	},
+	dial: {
+		heading: 'Backuhr',
+		plan_label: 'Schritte des Plans',
+		step_label: '{title}, {date} {time}, dauert {duration}',
+		window_handle: 'Gärfenster — am Zifferblatt ziehen oder mit den Pfeiltasten ändern',
+		window_summary: '{window} vom ersten Schritt bis zum Backen',
+		legend_warm: 'Auf der Arbeitsfläche',
+		legend_cold: 'Im Kühlschrank',
+		legend_night: 'Nacht',
+		readout_hint: 'Beliebigen Schritt auf der Uhr oder im Plan darunter auswählen.'
 	},
 	mode: {
 		cold: 'Kühlschrank-Gare',
@@ -1466,6 +1502,17 @@ const it: Messages = {
 		mode_expert: 'Mostra tutte le opzioni (esperto)',
 		mode_help:
 			'La vista semplice prepara panetti da 280 g e usa valori predefiniti collaudati per tutto il resto: 70% di idratazione, 3% di sale, lievito di birra fresco.'
+	},
+	dial: {
+		heading: 'Quadrante della cottura',
+		plan_label: 'Passaggi del programma',
+		step_label: '{title}, {date} {time}, dura {duration}',
+		window_handle: 'Finestra di lievitazione — trascina sul quadrante o usa i tasti freccia',
+		window_summary: '{window} dal primo passaggio alla cottura',
+		legend_warm: 'Sul banco',
+		legend_cold: 'In frigorifero',
+		legend_night: 'Notte',
+		readout_hint: 'Scegli un passaggio sul quadrante o nel programma qui sotto.'
 	},
 	mode: {
 		cold: 'Maturazione in frigo',
@@ -1935,6 +1982,17 @@ const fr: Messages = {
 		mode_help:
 			"La vue simple prépare des pâtons de 280 g et utilise des valeurs par défaut éprouvées pour tout le reste : 70% d'hydratation, 3% de sel, levure fraîche."
 	},
+	dial: {
+		heading: 'Cadran de la cuisson',
+		plan_label: 'Étapes du programme',
+		step_label: '{title}, {date} {time}, dure {duration}',
+		window_handle: 'Fenêtre de fermentation — faites glisser sur le cadran ou utilisez les flèches',
+		window_summary: '{window} de la première étape à la cuisson',
+		legend_warm: 'Sur le plan de travail',
+		legend_cold: 'Au réfrigérateur',
+		legend_night: 'Nuit',
+		readout_hint: 'Choisissez une étape sur le cadran ou dans le programme ci-dessous.'
+	},
 	mode: {
 		cold: 'Maturation au froid',
 		room: 'Maturation à température ambiante',
@@ -2401,6 +2459,17 @@ const nl: Messages = {
 		mode_expert: 'Alle opties tonen (expert)',
 		mode_help:
 			'De eenvoudige weergave maakt deegbollen van 280 g en gebruikt beproefde standaardwaarden voor al het andere: 70% hydratatie, 3% zout, verse gist.'
+	},
+	dial: {
+		heading: 'Wijzerplaat',
+		plan_label: 'Stappen van het plan',
+		step_label: '{title}, {date} {time}, duurt {duration}',
+		window_handle: 'Rijsvenster — sleep over de wijzerplaat of gebruik de pijltjestoetsen',
+		window_summary: '{window} van de eerste stap tot het bakken',
+		legend_warm: 'Op het aanrecht',
+		legend_cold: 'In de koelkast',
+		legend_night: 'Nacht',
+		readout_hint: 'Kies een stap op de wijzerplaat of in het plan hieronder.'
 	},
 	mode: {
 		cold: 'Koelkast-rijs',

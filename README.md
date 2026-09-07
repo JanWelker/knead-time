@@ -5,6 +5,15 @@
 
 A time-anchored Neapolitan pizza dough calculator — [try it live](https://kneadtime.pizza). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
 
+New in 6.11: **the bake dial**. The whole plan is drawn on a 24-hour face — one
+revolution per day, so a 32 h bake is a turn and a bit and a 72 h bake is three
+coils, and you see how long the dough takes before you read a number. The bake
+sits on the rim and the dough unwinds inward from it; the 22:00–08:00 night is a
+shaded wedge every coil passes through; warm phases are amber, fridge phases
+blue. Pick any arc (click, tap or arrow keys) and the panel beside it reads that
+step out in full; drag the coil's tail to lengthen the fermentation window. The
+step list is still there underneath, and the two always agree.
+
 New in v6: **flour strength (W)** and a **fermentation-window slider**.
 
 Pick your flour and the schedule paints the window that flour actually tolerates. Twelve presets are shelved by what each strength is for — same-day, ~24 h, ~48 h, 48–72 h, plus a too-weak and a too-strong shelf, with the AVPN spec's W 220–380 as the outer edges — covering Caputo (Doppio Zero, Pizzeria, Nuvola, Saccorosso, Cuoco, Nuvola Super), Dallagiovanna (Classica Oro, La Napoletana, Uniqua Blu), Le 5 Stagioni Pizza Napoletana, Polselli Classica and a generic supermarket tipo 00. Or type a W yourself.
@@ -66,12 +75,16 @@ src/
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes)
+│   │   ├── Dial.svelte        the instrument: the schedule as a coil on a 24-hour face
+│   │   ├── StepReadout.svelte the selected step in full, beside the dial
+│   │   └── ScheduleTable.svelte  the same plan as a day-grouped list
 │   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table at the bottom of the page
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
+│   ├── dial.ts           ← bake-dial geometry: angles, coil radii, night wedge, hit areas (pure)
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
-│   ├── warningSlots.ts   ← which card each schedule warning is rendered in
+│   ├── warningSlots.ts   ← which region each schedule warning is rendered in
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
@@ -80,9 +93,9 @@ src/
 ├── routes/
 │   ├── +layout.svelte    ← global styles, language bootstrap
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
-│   ├── +page.svelte      ← the entire calculator UI
+│   ├── +page.svelte      ← the whole app: masthead, settings rail, dial + readout, plan, weights
 │   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
-├── app.css               ← Tailwind v4 entrypoint + @theme palette
+├── app.css               ← Tailwind v4 entrypoint, --kt-* theme roles, component classes
 └── app.html              ← shell
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)

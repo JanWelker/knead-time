@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { stepKey } from '$lib/dial';
 	import { formatDuration, formatShortDate, formatTime } from '$lib/format';
 	import { stepDescription, stepDetail, stepIngredients, stepTitle } from '$lib/stepCopy';
 	import { isActiveStep } from '$lib/dough/scheduleStatus';
@@ -13,11 +14,16 @@
 	let {
 		schedule,
 		sourceTiming,
-		verbosity = 'short'
+		verbosity = 'short',
+		selected = null,
+		onselect
 	}: {
 		schedule: ComputedSchedule;
 		sourceTiming?: SourceTiming;
 		verbosity?: ScheduleVerbosity;
+		/** Key of the step the dial is showing, so both agree on where you are. */
+		selected?: string | null;
+		onselect?: (key: string) => void;
 	} = $props();
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
@@ -104,7 +110,7 @@
 	}
 </script>
 
-<div class="text-stone-800 dark:text-stone-200">
+<div class="text-ink">
 	{#each days as day (day.key)}
 		<!-- A heading, not a span: the date is what groups the steps under it, and
 		     as plain text it left a multi-day plan looking like one flat run of
@@ -112,18 +118,16 @@
 		     load-bearing — app.css gives every h1-h3 the display serif, which
 		     this label has never used. -->
 		<div class="flex items-center gap-3 pt-6 pb-2 first:pt-0">
-			<h3
-				class="font-sans text-xs font-bold tracking-[0.14em] text-stone-500 uppercase dark:text-stone-400"
-			>
+			<h3 class="text-ink-faint font-sans text-xs font-bold tracking-[0.14em] uppercase">
 				{day.label}
 			</h3>
-			<span class="bg-dough-200 h-px flex-1 dark:bg-stone-700/80"></span>
+			<span class="bg-rule h-px flex-1"></span>
 		</div>
 
 		<ol class="tabular-nums">
 			<!-- preFermentType disambiguates the two parallel pre-ferment mixes,
 			     which can share a start time when both shrink to the wall budget. -->
-			{#each day.steps as step, si (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
+			{#each day.steps as step, si (stepKey(step))}
 				{@const isReady = step.kind === 'ready'}
 				{@const active = isActiveStep(step.kind)}
 				{@const past = isPast(step)}
@@ -131,6 +135,7 @@
 				{@const wait = WAIT_KINDS.has(step.kind)}
 				{@const flags = stepQualityFlags(step, schedule)}
 				{@const ingredients = stepIngredients(step, t, schedule)}
+				{@const on = stepKey(step) === selected}
 				<!-- Past steps are NOT dimmed: fading them read as a rendering glitch
 				     rather than as information. The fermentation-window card says
 				     outright when the schedule opens before now. `past` still mutes
@@ -139,25 +144,23 @@
 					<!-- Rail: a vertical line threading every node within the day. -->
 					<div class="relative">
 						{#if si > 0}
-							<span
-								class="bg-dough-300 absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2 dark:bg-stone-700"
-							></span>
+							<span class="bg-rule absolute top-0 left-1/2 h-2.5 w-px -translate-x-1/2"></span>
 						{/if}
 						{#if si < day.steps.length - 1}
 							<span
 								class="absolute top-2.5 bottom-0 left-1/2 -translate-x-1/2 border-l {wait
-									? 'border-dough-400/80 border-dashed dark:border-stone-600'
-									: 'border-dough-300 border-solid dark:border-stone-700'}"
+									? 'border-rule border-dashed'
+									: 'border-rule border-solid'}"
 							></span>
 						{/if}
 						<span
-							class="absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 ring-white dark:ring-stone-900 {current
+							class="ring-face absolute top-1 left-1/2 h-3 w-3 -translate-x-1/2 rounded-full ring-2 {current
 								? 'kt-node-now'
 								: ''} {isReady
-								? 'bg-tomato-600 ring-tomato-500/25'
+								? 'bg-tomato-600'
 								: active
 									? 'bg-tomato-500'
-									: 'border-dough-400 border-2 bg-white dark:border-stone-500 dark:bg-stone-900'}"
+									: 'border-rule bg-face border-2'}"
 							role="img"
 							aria-label={isReady
 								? stepTitle(step, t)
@@ -171,13 +174,19 @@
 					<div
 						class="text-sm leading-5 font-semibold whitespace-nowrap {current || (isReady && !past)
 							? 'text-accent'
-							: 'text-stone-600 dark:text-stone-300'}"
+							: 'text-ink-soft'}"
 					>
 						{formatTime(step.at, locale)}
 					</div>
 
-					<!-- Step -->
-					<div class="pb-6">
+					<!-- Step. Selecting one here moves the dial's readout to it and
+					     vice versa — the drawing and the list are two views of one
+					     selection, never two independent ones. -->
+					<div
+						class="-mx-2 rounded-lg border-l-2 px-2 pb-6 {on
+							? 'border-tomato-500 bg-tomato-50/60 dark:bg-tomato-900/20'
+							: 'border-transparent'}"
+					>
 						<div class="flex items-start justify-between gap-3">
 							<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
 								<!-- h4, under the day heading above. `font-display` is
@@ -188,9 +197,16 @@
 									class="font-display text-[0.9375rem] leading-5 font-semibold {current ||
 									(isReady && !past)
 										? 'text-accent'
-										: 'text-stone-900 dark:text-stone-100'}"
+										: 'text-ink'}"
 								>
-									{stepTitle(step, t)}
+									<button
+										type="button"
+										class="font-display cursor-pointer text-left"
+										aria-pressed={on}
+										onclick={() => onselect?.(stepKey(step))}
+									>
+										{stepTitle(step, t)}
+									</button>
 								</h4>
 								{#if current}
 									<span
@@ -221,7 +237,7 @@
 							</div>
 							{#if step.durationMinutes > 0}
 								<span
-									class="bg-dough-100 mt-px shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-stone-600 dark:bg-stone-800 dark:text-stone-300"
+									class="border-rule text-ink-soft mt-px shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap"
 								>
 									{formatDuration(step.durationMinutes, locale)}
 								</span>
@@ -230,28 +246,26 @@
 
 						{#if ingredients.length > 0}
 							<ul
-								class="bg-dough-50 border-dough-100 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border px-3 py-2 dark:border-stone-700/60 dark:bg-stone-800/40"
+								class="border-rule-soft bg-face-deep/50 mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg border px-3 py-2"
 							>
 								{#each ingredients as ing (ing.name)}
 									<li class="contents">
-										<span
-											class="text-right text-xs font-semibold text-stone-700 dark:text-stone-200"
-										>
+										<span class="text-ink text-right text-xs font-semibold">
 											{ing.amount}
 										</span>
-										<span class="text-xs text-stone-600 dark:text-stone-300">{ing.name}</span>
+										<span class="text-ink-soft text-xs">{ing.name}</span>
 									</li>
 								{/each}
 							</ul>
 						{/if}
 
-						<p class="mt-2 text-sm leading-snug text-stone-600 dark:text-stone-300">
+						<p class="text-ink-soft mt-2 text-sm leading-snug">
 							{stepDescription(step, t, schedule)}
 						</p>
 
 						{#if verbosity === 'descriptive'}
 							<p
-								class="border-dough-300 mt-2 border-l-2 pl-2 text-xs leading-relaxed text-stone-600 italic dark:border-stone-600 dark:text-stone-300"
+								class="border-rule text-ink-soft mt-2 border-l-2 pl-2 text-xs leading-relaxed italic"
 							>
 								{stepDetail(step, t)}
 							</p>
