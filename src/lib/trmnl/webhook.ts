@@ -1,11 +1,5 @@
 import type { ComputedSchedule, DoughInputs } from '../dough/types';
-import {
-	formatBallWeight,
-	formatDateTime,
-	formatDuration,
-	formatShortDate,
-	formatTime
-} from '../format';
+import { formatBallWeight, formatDuration, formatShortDate, formatTime } from '../format';
 import type { Locale, Messages } from '../i18n/messages';
 import { stepTitle } from '../stepCopy';
 
@@ -104,7 +98,11 @@ export function buildMergeVariables(
 		t: msgs.app.title,
 		s: summary,
 		rl: msgs.form.readyBy,
-		rt: formatDateTime(inputs.readyBy, locale).replace(/,/g, ''),
+		// Built from the two pieces rather than from formatDateTime, which is the
+		// screen's string and punctuates for a headline. The device has 2 KB and
+		// a strip of its own, so it takes a plain "weekday date time" - and the
+		// payload stops moving whenever the UI changes a separator.
+		rt: `${formatShortDate(inputs.readyBy, locale)} ${formatTime(inputs.readyBy, locale)}`,
 		l: {
 			n: msgs.trmnl.now,
 			x: msgs.trmnl.next,

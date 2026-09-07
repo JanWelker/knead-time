@@ -2,6 +2,7 @@
 	import { browser } from '$app/environment';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
+	import GuildSeal from './GuildSeal.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import {
 		fitStars,
@@ -71,22 +72,37 @@
 
 <details bind:this={detailsRef} class="group relative inline-block">
 	<summary
-		class="hover:text-tomato-600 dark:hover:text-tomato-300 inline-flex cursor-pointer list-none items-center gap-1.5 py-0.5 text-sm font-medium text-stone-600 select-none dark:text-stone-300"
+		class="text-accent-ink cursor-pointer list-none select-none"
 		title={summaryTooltip}
 		aria-label={interpolate(t.quality.fit_aria, { stars })}
 	>
-		<span class="text-accent inline-block tracking-tight" aria-hidden="true">
-			{starRow}
-		</span>
-		<span>{t.quality.fit_heading}</span>
+		<GuildSeal label={t.quality.fit_heading}>
+			<!-- The grade as a figure rather than five ASCII stars: at seal size a
+			     row of ★☆ is a smear, and the star it is counting is drawn once,
+			     properly, above it. The full row is still in the tooltip and in the
+			     spoken name. -->
+			<path
+				d="M50 24l5.2 10.6 11.7 1.7-8.5 8.2 2 11.6L50 52.6l-10.4 5.5 2-11.6-8.5-8.2 11.7-1.7z"
+				fill="currentColor"
+			/>
+			<text
+				x="50"
+				y="82"
+				text-anchor="middle"
+				font-size="26"
+				font-weight="700"
+				fill="currentColor"
+				class="font-display"
+			>
+				{stars}/5
+			</text>
+		</GuildSeal>
 	</summary>
-	<div
-		class="border-dough-200 absolute z-20 mt-2 max-w-sm rounded-2xl border bg-white p-3 text-sm shadow-lg dark:border-stone-700 dark:bg-stone-800"
-	>
+	<div class="seal-panel">
 		{#if fit.factors.length === 0}
-			<p class="text-stone-600 dark:text-stone-300">{t.quality.fit_perfect}</p>
+			<p>{t.quality.fit_perfect}</p>
 		{:else}
-			<ul class="space-y-1 text-stone-600 dark:text-stone-300">
+			<ul class="space-y-1">
 				<!-- Key includes the index: with biga + poolish both clamped the same
 				     factor legitimately appears twice, once per pre-ferment. -->
 				{#each fit.factors as detail, i (detail.factor + '-' + i)}

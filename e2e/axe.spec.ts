@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
-import { openRecipe } from './helpers';
+import { expect, test, type Page } from '@playwright/test';
+import { openAdjust, openLibrary, openQuestion, openRecipe } from './helpers';
 
 // An automated sweep, not a substitute for the hand-written a11y specs beside
 // it: axe catches the mechanical rules (contrast, names, roles, structure) and
@@ -24,39 +24,80 @@ function summarise(violations: Awaited<ReturnType<AxeBuilder['analyze']>>['viola
 		.join('\n  ');
 }
 
+async function scan(page: Page) {
+	const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+	expect(violations, `\n  ${summarise(violations)}\n`).toEqual([]);
+}
+
+// Content disclosures only, never the popovers. The actions menu and the
+// fit-score panel are absolutely positioned and are MEANT to cover what is
+// beneath them while open, so forcing them open alongside everything else made
+// axe report the control under the menu as "partially obscured" — a true
+// observation about an arrangement no user is ever in, since opening either
+// popover is a deliberate act that dismisses on the next click. Their own
+// contents are covered by the menu-keyboard and dialog specs instead.
+async function openContentDisclosures(page: Page) {
+	await page.evaluate(() =>
+		document.querySelectorAll('details').forEach((d) => {
+			const panel = d.querySelector(':scope > :not(summary)');
+			const floats = panel !== null && getComputedStyle(panel).position === 'absolute';
+			if (!floats) d.open = true;
+		})
+	);
+}
+
 // Both themes, because the palette is defined twice and only one half is ever
 // on screen at a time. The dark half is how `text-tomato-600` links sat at
 // 2.71:1 in the community and pizzeria tables without anyone seeing it.
 for (const theme of ['light', 'dark'] as const) {
+	const applyTheme = async (page: Page) => {
+		if (theme === 'dark') {
+			await page.evaluate(() => document.documentElement.classList.add('dark'));
+		}
+	};
+
 	// Both view modes, because expert reveals roughly fourteen more controls
 	// that beginner never renders.
 	for (const mode of ['expert', 'beginner'] as const) {
-		test(`no accessibility violations: ${mode}, ${theme}`, async ({ page }) => {
+		test(`no accessibility violations: the plan, ${mode}, ${theme}`, async ({ page }) => {
 			await openRecipe(page, mode === 'beginner' ? `${RECIPE}&md=b` : RECIPE);
-			if (theme === 'dark') {
-				await page.evaluate(() => document.documentElement.classList.add('dark'));
-			}
-			// Community and 50 Top Pizza ship collapsed. Their rows are the
-			// densest markup in the app and would otherwise never be scanned.
-			//
-			// Content sections only, never the popovers. The actions menu and the
-			// fit-score panel are absolutely positioned and are MEANT to cover
-			// what is beneath them while open, so forcing them open alongside
-			// everything else made axe report the verbosity toggle under the menu
-			// as "partially obscured" — a true observation about an arrangement no
-			// user is ever in, since opening either popover is a deliberate act
-			// that dismisses on the next click. Their own contents are covered by
-			// the menu-keyboard and dialog specs instead.
-			await page.evaluate(() =>
-				document.querySelectorAll('details').forEach((d) => {
-					const panel = d.querySelector(':scope > :not(summary)');
-					const floats = panel !== null && getComputedStyle(panel).position === 'absolute';
-					if (!floats) d.open = true;
-				})
-			);
+			await applyTheme(page);
+			await openContentDisclosures(page);
+			await scan(page);
+		});
 
-			const { violations } = await new AxeBuilder({ page }).withTags(TAGS).analyze();
-			expect(violations, `\n  ${summarise(violations)}\n`).toEqual([]);
+		// The dense surface: every input in DoughInputs on one sheet, inside a
+		// modal <dialog>. It is where the app's densest markup now lives, and a
+		// closed dialog is invisible to axe, so it has to be opened deliberately.
+		test(`no accessibility violations: the recipe sheet, ${mode}, ${theme}`, async ({ page }) => {
+			await openRecipe(page, mode === 'beginner' ? `${RECIPE}&md=b` : RECIPE);
+			await applyTheme(page);
+			await openAdjust(page);
+			await openContentDisclosures(page);
+			await scan(page);
 		});
 	}
+
+	test(`no accessibility violations: the questions, ${theme}`, async ({ page }) => {
+		// The window question, because it carries the busiest control in the app.
+		await openQuestion(page, 'window', RECIPE);
+		await applyTheme(page);
+		// Let the entrance animation finish first. axe measures the colour it
+		// finds, and mid-fade every foreground on the screen is below its settled
+		// contrast — a real failure to report about a state nobody reads.
+		await page
+			.locator('.kt-enter')
+			.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+		await scan(page);
+	});
+
+	test(`no accessibility violations: the recipe library, ${theme}`, async ({ page }) => {
+		await openRecipe(page, RECIPE);
+		await openLibrary(page);
+		await applyTheme(page);
+		// Community and 50 Top Pizza ship collapsed. Their rows are the densest
+		// markup in the app and would otherwise never be scanned.
+		await openContentDisclosures(page);
+		await scan(page);
+	});
 }

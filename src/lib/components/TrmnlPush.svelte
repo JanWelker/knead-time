@@ -87,23 +87,21 @@
 <dialog bind:this={dialogEl} aria-labelledby="trmnl-push-heading" class="dialog-panel max-w-md">
 	<form class="space-y-4 p-5" onsubmit={onSubmit}>
 		<header class="space-y-1">
-			<h2 id="trmnl-push-heading" class="font-display text-accent text-lg">
+			<h2 id="trmnl-push-heading" class="banner">
 				{t.trmnl_push.dialog_heading}
 			</h2>
-			<p class="text-xs text-stone-500 dark:text-stone-400">{t.trmnl_push.dialog_intro}</p>
+			<p class="text-ink-soft text-xs">{t.trmnl_push.dialog_intro}</p>
 		</header>
 
 		<label class="block space-y-1">
-			<span class="text-xs font-medium text-stone-600 dark:text-stone-300"
-				>{t.trmnl_push.uuid_label}</span
-			>
+			<span class="label-caps">{t.trmnl_push.uuid_label}</span>
 			<input
 				type="text"
 				inputmode="text"
 				autocomplete="off"
 				bind:value={uuidInput}
 				placeholder="00000000-0000-0000-0000-000000000000"
-				class="input w-full font-mono text-sm tracking-tight text-stone-900 dark:bg-stone-900"
+				class="input w-full font-mono text-sm tracking-tight"
 			/>
 		</label>
 
@@ -116,11 +114,7 @@
 				{status === 'sending' ? t.trmnl_push.sending : t.trmnl_push.send}
 			</button>
 			{#if savedUuid}
-				<button
-					type="button"
-					class="rounded-full border border-stone-300 px-3 py-2 text-xs text-stone-600 hover:border-stone-400 dark:border-stone-600 dark:text-stone-300"
-					onclick={disconnect}
-				>
+				<button type="button" class="btn-ghost" onclick={disconnect}>
 					{t.trmnl_push.disconnect}
 				</button>
 			{/if}
@@ -136,17 +130,15 @@
 		<p
 			role="status"
 			class="text-xs {status === 'sent'
-				? 'text-basil-700 dark:text-basil-300'
+				? 'text-herb-ink'
 				: status === 'error'
-					? 'text-accent'
+					? 'text-accent-ink'
 					: 'sr-only'}"
 		>
 			{#if status === 'sent'}{t.trmnl_push.sent}{:else if status === 'error'}{t.trmnl_push.error}: {errorMessage}{/if}
 		</p>
 
-		<p
-			class="border-dough-200 border-t pt-3 text-xs text-stone-500 dark:border-stone-700 dark:text-stone-400"
-		>
+		<p class="border-rule text-ink-soft border-t-2 pt-3 text-xs">
 			{t.trmnl_push.setup_hint}
 			<a
 				href="https://github.com/JanWelker/knead-time/blob/main/docs/trmnl-setup.md"

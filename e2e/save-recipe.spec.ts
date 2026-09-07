@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { card, openRecipe } from './helpers';
+import { openLibrary, openRecipe, region } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
 
 async function openSaveDialog(page: import('@playwright/test').Page) {
-	await page.locator('summary').filter({ hasText: 'Actions' }).click();
+	await page.locator('summary').filter({ hasText: 'Menu' }).click();
 	await page.getByRole('menuitem', { name: 'Save recipe' }).click();
 	return page.getByRole('dialog', { name: 'Save recipe' });
 }
@@ -36,7 +36,9 @@ test('naming a recipe happens in the app, not in a browser prompt', async ({ pag
 	await dialog.getByRole('button', { name: 'Save' }).click();
 
 	await expect(dialog).not.toBeVisible();
-	await expect(card(page, 'My recipes')).toContainText('Saturday dough');
+	// The recipe book lives in the library now — one press from the plan.
+	await openLibrary(page);
+	await expect(region(page, 'My recipes')).toContainText('Saturday dough');
 });
 
 test('cancelling saves nothing, and Escape does the same', async ({ page }) => {
@@ -46,7 +48,6 @@ test('cancelling saves nothing, and Escape does the same', async ({ page }) => {
 	await dialog.locator('input[type="text"]').fill('Discard me');
 	await dialog.getByRole('button', { name: 'Cancel' }).click();
 	await expect(dialog).not.toBeVisible();
-	await expect(card(page, 'My recipes')).not.toContainText('Discard me');
 
 	// A native <dialog> gives Escape for free; pin it so a future refactor to a
 	// hand-rolled overlay cannot quietly drop it.
@@ -54,5 +55,9 @@ test('cancelling saves nothing, and Escape does the same', async ({ page }) => {
 	await dialog.locator('input[type="text"]').fill('Also discard');
 	await page.keyboard.press('Escape');
 	await expect(dialog).not.toBeVisible();
-	await expect(card(page, 'My recipes')).not.toContainText('Also discard');
+
+	await openLibrary(page);
+	const book = region(page, 'My recipes');
+	await expect(book).not.toContainText('Discard me');
+	await expect(book).not.toContainText('Also discard');
 });

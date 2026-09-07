@@ -53,8 +53,27 @@ const percentFormatter = perLocale(
 		})
 );
 
+// Intl punctuates this string for prose, and in a headline the punctuation
+// reads as debris: German comes out "Di., 8. Sept., 19:00" — three abbreviation
+// dots and two commas arguing with each other. Two rules clean it up in every
+// locale without touching the locale's own field order or its abbreviations.
+// A comma directly after a weekday that already ends in its own abbreviation
+// dot is redundant (de, fr), so it becomes a space; and the separator before
+// the clock becomes a middot, so the date and the time read as two things
+// rather than as the next item in a list. English keeps its comma, because
+// "Tue" carries no dot for the comma to collide with.
 export function formatDateTime(date: Date, locale: Locale): string {
-	return dayFormatter(locale).format(date);
+	const parts = dayFormatter(locale).formatToParts(date);
+	return parts
+		.map((part, i) => {
+			if (part.type !== 'literal') return part.value;
+			// Neither rule can look off the end: every locale here opens with the
+			// weekday and closes with the minute or the day period, so a literal
+			// always has a part on each side of it.
+			if (parts[i + 1].type === 'hour') return ' \u00b7 ';
+			return parts[i - 1].value.endsWith('.') ? ' ' : part.value;
+		})
+		.join('');
 }
 
 // Compact weekday + date, no time, no commas. Used in the TRMNL schedule

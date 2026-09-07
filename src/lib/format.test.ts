@@ -120,13 +120,44 @@ describe('formatPercent', () => {
 });
 
 describe('formatDateTime / formatTime', () => {
-	it('renders a localized weekday + time across supported locales', () => {
+	// Pinned as literals, one per locale. The previous version of this test
+	// asserted only that the string held a digit and matched /19|7/, which every
+	// plausible formatting passes — the punctuation it was meant to guard was
+	// free to move, and did: German rendered "Di., 8. Sept., 19:00", three
+	// abbreviation dots and two commas deep, and nothing failed.
+	// ICU puts a narrow no-break space (U+202F) before the English day period on
+	// newer builds and a plain space on older ones, so the raw literal differs
+	// between a dev machine and CI — it failed there and passed here. The space
+	// is worth keeping in the output (it is what stops "07:30" and "PM" wrapping
+	// apart), so the test normalises it rather than the formatter stripping it.
+	// Everything this test actually guards — field order, which commas survive,
+	// the middot — is unaffected.
+	const flat = (s: string) => s.replace(/\u202f/g, ' ');
+
+	it('punctuates weekday + date + time for a headline, in every locale', () => {
 		const d = new Date(2026, 4, 12, 19, 30);
-		for (const loc of ['en', 'de', 'it'] as const) {
-			const dt = formatDateTime(d, loc);
-			expect(dt).toMatch(/\d{1,2}/);
-			// 24h locales (de/it) print 19; en may render 7 PM — accept either.
-			expect(dt).toMatch(/19|7/);
+		expect(flat(formatDateTime(d, 'en'))).toBe('Tue, May 12 · 07:30 PM');
+		expect(formatDateTime(d, 'de')).toBe('Di. 12. Mai · 19:30');
+		expect(formatDateTime(d, 'it')).toBe('mar 12 mag · 19:30');
+		expect(formatDateTime(d, 'fr')).toBe('mar. 12 mai · 19:30');
+		expect(formatDateTime(d, 'nl')).toBe('di 12 mei · 19:30');
+	});
+
+	// The two rules the formatter applies, each named by the case that proves it.
+	it('drops the comma after a weekday that already ends in its abbreviation dot', () => {
+		const d = new Date(2026, 4, 12, 19, 30);
+		// de and fr abbreviate the weekday with a dot; a comma straight after it
+		// is two marks doing one job.
+		expect(formatDateTime(d, 'de')).not.toContain('.,');
+		expect(formatDateTime(d, 'fr')).not.toContain('.,');
+		// en does not, so its comma is the ordinary one and stays.
+		expect(formatDateTime(d, 'en')).toContain('Tue, May');
+	});
+
+	it('separates the clock from the date with a middot, not a list comma', () => {
+		const d = new Date(2026, 4, 12, 19, 30);
+		for (const loc of ['en', 'de', 'it', 'fr', 'nl'] as const) {
+			expect(formatDateTime(d, loc)).toContain(' · ');
 		}
 	});
 
