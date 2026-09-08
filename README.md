@@ -21,6 +21,8 @@ New in v4: a **beginner view** (just "how many, when, how you knead, and which f
 
 Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, five languages (EN / DE / IT / FR / NL), shareable recipes via URL.
 
+**Everything is served from one origin.** No backend, no analytics, no CDN — the two faces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app, so opening Knead Time tells nobody but your own browser that you are baking. The single outbound request in the whole app is the TRMNL webhook, and it happens only when you click **Send to TRMNL**. `e2e/self-hosted.spec.ts` fails if anything else ever reaches for another host, and the font notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+
 ---
 
 ## Requirements
@@ -89,7 +91,7 @@ src/
 ├── app.css               ← Tailwind v4 entrypoint: the press (ink / paper / accent tokens,
 │                           one authored set per theme) and the component layer every
 │                           surface, band, stamp and control is built from
-└── app.html              ← shell (Google Fonts: Anton + Archivo, loaded non-blocking)
+└── app.html              ← shell (theme boot; no third-party links — the faces are self-hosted)
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
 scripts/
