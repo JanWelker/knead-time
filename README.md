@@ -23,6 +23,8 @@ Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, five langu
 
 **Everything is served from one origin.** No backend, no analytics, no CDN — the two faces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app, so opening Knead Time tells nobody but your own browser that you are baking. The single outbound request in the whole app is the TRMNL webhook, and it happens only when you click **Send to TRMNL**. `e2e/self-hosted.spec.ts` fails if anything else ever reaches for another host, and the font notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
+It also ships as **one bundle and one stylesheet** (`kit.output.bundleStrategy: 'single'`): a visit is five requests — the page, the bundle, the stylesheet and the two font subsets it actually needs.
+
 ---
 
 ## Requirements
