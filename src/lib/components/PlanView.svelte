@@ -350,43 +350,14 @@
 			<Warnings warnings={form.schedule.warnings} place="temperature" />
 		</div>
 
-		<!-- The ticket is on the left and the schedule takes the wide column on
-		     the right. DOM order is the other way round on purpose: on a phone
-		     this is one column and the schedule has to come first, so the two
-		     cards are placed explicitly into row 1 rather than reordered, and
-		     reading order stays schedule-then-weights at every width. -->
+		<!-- The ticket is the narrow column and the schedule the wide one, and
+		     the ticket comes first: on a phone this is one column, and what you
+		     reach for at 07:00 is the weights — the schedule is what you come
+		     back to between steps. Source order IS the order at every width, so
+		     nothing has to be placed against the grid and reading order can
+		     never disagree with what is on screen. -->
 		<div class="mt-10 grid gap-8 xl:grid-cols-[21rem_minmax(0,1fr)] xl:gap-10">
-			<!-- The one surface allowed to shout: an offset block of ink behind the
-			     sheet, the way a second pass sits beside the first when the plate is
-			     out of register. The schedule is what the app is FOR. -->
-			<section class="card card-loud min-w-0 xl:col-start-2 xl:row-start-1">
-				<!-- Both marks are facts about this schedule, so they are pressed onto
-				     its own band rather than floating in a status row above it. -->
-				<h2 class="card-header card-header-title">{t.schedule.heading}</h2>
-				<div class="card-body">
-					<!-- The lede: what the maths chose and why, directly under the stamp
-					     that names it. It had been left behind in a strip above the card
-					     when the stamp moved onto the band, a sentence with nothing
-					     around it and nothing to attach to. -->
-					<!-- Two marks, and each opens what it means. The mode's sentence used
-					     to sit beside them as running prose, which made the row a caption
-					     with two icons rather than two seals; it reads the same way the
-					     fit's factors do now. -->
-					<div class="mb-6 flex flex-wrap items-center gap-x-7 gap-y-4">
-						<ModeBadge mode={form.schedule.mode} explain />
-						<FitScore schedule={form.schedule} inputs={form.serializable()} />
-					</div>
-					<ScheduleTable
-						schedule={form.schedule}
-						{sourceTiming}
-						verbosity={scheduleVerbosity.current}
-					/>
-				</div>
-			</section>
-
-			<aside
-				class="card card-loud min-w-0 self-start xl:sticky xl:top-6 xl:col-start-1 xl:row-start-1"
-			>
+			<aside class="card card-loud min-w-0 self-start xl:sticky xl:top-6">
 				<div class="card-header justify-between">
 					<h2 class="card-header-title">{t.ingredients.heading}</h2>
 					<button
@@ -416,6 +387,33 @@
 					</div>
 				</div>
 			</aside>
+			<!-- The one surface allowed to shout: an offset block of ink behind the
+			     sheet, the way a second pass sits beside the first when the plate is
+			     out of register. The schedule is what the app is FOR. -->
+			<section class="card card-loud min-w-0">
+				<!-- Both marks are facts about this schedule, so they are pressed onto
+				     its own band rather than floating in a status row above it. -->
+				<h2 class="card-header card-header-title">{t.schedule.heading}</h2>
+				<div class="card-body">
+					<!-- The lede: what the maths chose and why, directly under the stamp
+					     that names it. It had been left behind in a strip above the card
+					     when the stamp moved onto the band, a sentence with nothing
+					     around it and nothing to attach to. -->
+					<!-- Two marks, and each opens what it means. The mode's sentence used
+					     to sit beside them as running prose, which made the row a caption
+					     with two icons rather than two seals; it reads the same way the
+					     fit's factors do now. -->
+					<div class="mb-6 flex flex-wrap items-center gap-x-7 gap-y-4">
+						<ModeBadge mode={form.schedule.mode} explain />
+						<FitScore schedule={form.schedule} inputs={form.serializable()} />
+					</div>
+					<ScheduleTable
+						schedule={form.schedule}
+						{sourceTiming}
+						verbosity={scheduleVerbosity.current}
+					/>
+				</div>
+			</section>
 		</div>
 	</div>
 </div>
