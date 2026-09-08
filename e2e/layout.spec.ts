@@ -207,3 +207,30 @@ test('the header band and the day divider run the full width of the schedule car
 	expect(divider.width).toBeCloseTo(card!.width - 4, 0);
 	expect(day!.x).toBeGreaterThan(divider.x);
 });
+
+// The colophon is two one-line credits, and it used to carry a 52ch measure of
+// its own — a reading width, on a footer that is not reading copy. Every locale
+// broke the share line in two well short of the trimmed edge, and the whole
+// block sat left against a page that is centred everywhere else. Only a
+// rendered page can say how many lines a paragraph actually took.
+test.describe('the colophon', () => {
+	test.use({ viewport: { width: 1440, height: 1000 } });
+
+	test('sits centred and on one line per credit at desktop width', async ({ page }) => {
+		await openRecipe(page, RECIPE);
+
+		const credits = page.locator('footer p');
+		await expect(credits).toHaveCount(3);
+
+		for (const p of await credits.all()) {
+			const { lines, align } = await p.evaluate((el) => ({
+				lines: Math.round(
+					el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight)
+				),
+				align: getComputedStyle(el).textAlign
+			}));
+			expect(lines, await p.textContent()).toBe(1);
+			expect(align).toBe('center');
+		}
+	});
+});

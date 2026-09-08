@@ -26,11 +26,15 @@
 
 <footer class="text-ink-soft mt-6">
 	<div class="tricolore border-rule border-y-2"></div>
-	<div class="view-pad py-8">
+	<!-- Centred, and with no measure of its own: these are two one-line credits,
+	     not reading copy, and the 52ch measure they used to carry broke the
+	     longer locales' share line in half a screen short of the trimmed edge.
+	     The sheet's own max-w-6xl is the only width limit they need. -->
+	<div class="view-pad py-8 text-center">
 		<div class="min-w-0">
-			<p class="max-w-[52ch] text-sm leading-relaxed">{t.footer.about}</p>
-			<p class="mt-2 max-w-[52ch] text-sm leading-relaxed">{t.actions.share_help}</p>
-			<p class="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+			<p class="text-sm leading-relaxed text-balance">{t.footer.about}</p>
+			<p class="mt-2 text-sm leading-relaxed text-balance">{t.actions.share_help}</p>
+			<p class="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2">
 				<!-- rel="external" because the href is a prop: the lint rule that keeps
 				     in-app links going through resolve() cannot tell that every one of
 				     these leaves the app. Same reason RecipeSection carries it. -->
