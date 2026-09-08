@@ -350,11 +350,16 @@
 			<Warnings warnings={form.schedule.warnings} place="temperature" />
 		</div>
 
-		<div class="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1fr)_21rem] xl:gap-10">
+		<!-- The ticket is on the left and the schedule takes the wide column on
+		     the right. DOM order is the other way round on purpose: on a phone
+		     this is one column and the schedule has to come first, so the two
+		     cards are placed explicitly into row 1 rather than reordered, and
+		     reading order stays schedule-then-weights at every width. -->
+		<div class="mt-10 grid gap-8 xl:grid-cols-[21rem_minmax(0,1fr)] xl:gap-10">
 			<!-- The one surface allowed to shout: an offset block of ink behind the
 			     sheet, the way a second pass sits beside the first when the plate is
 			     out of register. The schedule is what the app is FOR. -->
-			<section class="card card-loud min-w-0">
+			<section class="card card-loud min-w-0 xl:col-start-2 xl:row-start-1">
 				<!-- Both marks are facts about this schedule, so they are pressed onto
 				     its own band rather than floating in a status row above it. -->
 				<h2 class="card-header card-header-title">{t.schedule.heading}</h2>
@@ -379,7 +384,9 @@
 				</div>
 			</section>
 
-			<aside class="card card-loud min-w-0 self-start xl:sticky xl:top-6">
+			<aside
+				class="card card-loud min-w-0 self-start xl:sticky xl:top-6 xl:col-start-1 xl:row-start-1"
+			>
 				<div class="card-header justify-between">
 					<h2 class="card-header-title">{t.ingredients.heading}</h2>
 					<button

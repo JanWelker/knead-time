@@ -34,10 +34,25 @@ test.describe('desktop', () => {
 		const schedule = await region(page, 'Schedule').boundingBox();
 		const ingredients = await region(page, 'Ingredients').boundingBox();
 
-		// Right-hand rail, level with the schedule — both are outputs, and the
-		// plan is the one screen where nothing competes with them.
-		expect(ingredients!.x).toBeGreaterThan(schedule!.x + schedule!.width - 2);
+		// Left-hand rail, level with the schedule — both are outputs, and the
+		// plan is the one screen where nothing competes with them. The ticket is
+		// the narrow column, so it reads as the stub beside the ticket rather
+		// than as a second document.
+		expect(ingredients!.x + ingredients!.width).toBeLessThanOrEqual(schedule!.x + 2);
 		expect(Math.abs(ingredients!.y - schedule!.y)).toBeLessThan(20);
+		expect(ingredients!.width).toBeLessThan(schedule!.width);
+
+		// The cards are placed into the grid rather than reordered, so the
+		// schedule still comes first in the DOM at every width — the phone rule
+		// above is about reading order too, not only about what is on top.
+		const scheduleFirst = await page.evaluate(() => {
+			const cards = [...document.querySelectorAll('main section.card-loud, main aside.card-loud')];
+			return (
+				cards.findIndex((c) => c.tagName === 'SECTION') <
+				cards.findIndex((c) => c.tagName === 'ASIDE')
+			);
+		});
+		expect(scheduleFirst).toBe(true);
 
 		// The whole point of the restructure: the twelve inputs are in a sheet
 		// that has to be asked for, so the plan carries no visible form at all.
