@@ -350,35 +350,13 @@
 			<Warnings warnings={form.schedule.warnings} place="temperature" />
 		</div>
 
-		<div class="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1fr)_21rem] xl:gap-10">
-			<!-- The one surface allowed to shout: an offset block of ink behind the
-			     sheet, the way a second pass sits beside the first when the plate is
-			     out of register. The schedule is what the app is FOR. -->
-			<section class="card card-loud min-w-0">
-				<!-- Both marks are facts about this schedule, so they are pressed onto
-				     its own band rather than floating in a status row above it. -->
-				<h2 class="card-header card-header-title">{t.schedule.heading}</h2>
-				<div class="card-body">
-					<!-- The lede: what the maths chose and why, directly under the stamp
-					     that names it. It had been left behind in a strip above the card
-					     when the stamp moved onto the band, a sentence with nothing
-					     around it and nothing to attach to. -->
-					<!-- Two marks, and each opens what it means. The mode's sentence used
-					     to sit beside them as running prose, which made the row a caption
-					     with two icons rather than two seals; it reads the same way the
-					     fit's factors do now. -->
-					<div class="mb-6 flex flex-wrap items-center gap-x-7 gap-y-4">
-						<ModeBadge mode={form.schedule.mode} explain />
-						<FitScore schedule={form.schedule} inputs={form.serializable()} />
-					</div>
-					<ScheduleTable
-						schedule={form.schedule}
-						{sourceTiming}
-						verbosity={scheduleVerbosity.current}
-					/>
-				</div>
-			</section>
-
+		<!-- The ticket is the narrow column and the schedule the wide one, and
+		     the ticket comes first: on a phone this is one column, and what you
+		     reach for at 07:00 is the weights — the schedule is what you come
+		     back to between steps. Source order IS the order at every width, so
+		     nothing has to be placed against the grid and reading order can
+		     never disagree with what is on screen. -->
+		<div class="mt-10 grid gap-8 xl:grid-cols-[21rem_minmax(0,1fr)] xl:gap-10">
 			<aside class="card card-loud min-w-0 self-start xl:sticky xl:top-6">
 				<div class="card-header justify-between">
 					<h2 class="card-header-title">{t.ingredients.heading}</h2>
@@ -409,6 +387,33 @@
 					</div>
 				</div>
 			</aside>
+			<!-- The one surface allowed to shout: an offset block of ink behind the
+			     sheet, the way a second pass sits beside the first when the plate is
+			     out of register. The schedule is what the app is FOR. -->
+			<section class="card card-loud min-w-0">
+				<!-- Both marks are facts about this schedule, so they are pressed onto
+				     its own band rather than floating in a status row above it. -->
+				<h2 class="card-header card-header-title">{t.schedule.heading}</h2>
+				<div class="card-body">
+					<!-- The lede: what the maths chose and why, directly under the stamp
+					     that names it. It had been left behind in a strip above the card
+					     when the stamp moved onto the band, a sentence with nothing
+					     around it and nothing to attach to. -->
+					<!-- Two marks, and each opens what it means. The mode's sentence used
+					     to sit beside them as running prose, which made the row a caption
+					     with two icons rather than two seals; it reads the same way the
+					     fit's factors do now. -->
+					<div class="mb-6 flex flex-wrap items-center gap-x-7 gap-y-4">
+						<ModeBadge mode={form.schedule.mode} explain />
+						<FitScore schedule={form.schedule} inputs={form.serializable()} />
+					</div>
+					<ScheduleTable
+						schedule={form.schedule}
+						{sourceTiming}
+						verbosity={scheduleVerbosity.current}
+					/>
+				</div>
+			</section>
 		</div>
 	</div>
 </div>

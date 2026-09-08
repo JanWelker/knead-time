@@ -27,9 +27,11 @@ test('the plan is headed by the bake moment, with its two regions under it', asy
 	expect(heads[0].level).toBe(1);
 	expect(heads[0].text).toContain('Ready to bake');
 	expect(heads.filter((h) => h.level === 1)).toHaveLength(1);
+	// Source order, and the ticket leads the plan — see the phone test in
+	// layout.spec.ts, which is the same order at the other width.
 	expect(heads.filter((h) => h.level === 2).map((h) => h.text)).toEqual([
-		'Schedule',
-		'Ingredients'
+		'Ingredients',
+		'Schedule'
 	]);
 
 	// Every step title is an h4 introduced by an h3 date, never the other way

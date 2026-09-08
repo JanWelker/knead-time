@@ -4,15 +4,16 @@ import { openAdjust, openLibrary, openQuestion, openRecipe, region, sheet } from
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
 
-// The schedule is what the app is for, and on a phone it used to sit behind
-// BOTH the form and the ingredients — measured at 2.2 screens down in beginner
-// view and 3.7 in expert. The inputs have left the page entirely now, but the
-// schedule-before-weights order is still a rule and still only a browser can
-// show that it reaches the phone.
+// The plan used to open with the schedule on a phone; it opens with the ticket
+// now — the weights are what you reach for first at the counter, and the
+// schedule is what you come back to between steps. Both cards used to sit
+// behind the form as well, measured at 2.2 screens down; the inputs have left
+// the page entirely, so the ticket is genuinely the top of the plan. Only a
+// browser can show which one a phone actually meets first.
 test.describe('phone', () => {
 	test.use({ viewport: { width: 390, height: 844 } });
 
-	test('the schedule comes before the ingredients on a phone', async ({ page }) => {
+	test('the ingredients come before the schedule on a phone', async ({ page }) => {
 		await openRecipe(page, RECIPE);
 
 		const schedule = await region(page, 'Schedule').boundingBox();
@@ -21,7 +22,7 @@ test.describe('phone', () => {
 		expect(ingredients).not.toBeNull();
 
 		// Single column here, so "before" is purely vertical.
-		expect(schedule!.y).toBeLessThan(ingredients!.y);
+		expect(ingredients!.y).toBeLessThan(schedule!.y);
 	});
 });
 
@@ -34,10 +35,26 @@ test.describe('desktop', () => {
 		const schedule = await region(page, 'Schedule').boundingBox();
 		const ingredients = await region(page, 'Ingredients').boundingBox();
 
-		// Right-hand rail, level with the schedule — both are outputs, and the
-		// plan is the one screen where nothing competes with them.
-		expect(ingredients!.x).toBeGreaterThan(schedule!.x + schedule!.width - 2);
+		// Left-hand rail, level with the schedule — both are outputs, and the
+		// plan is the one screen where nothing competes with them. The ticket is
+		// the narrow column, so it reads as the stub beside the ticket rather
+		// than as a second document.
+		expect(ingredients!.x + ingredients!.width).toBeLessThanOrEqual(schedule!.x + 2);
 		expect(Math.abs(ingredients!.y - schedule!.y)).toBeLessThan(20);
+		expect(ingredients!.width).toBeLessThan(schedule!.width);
+
+		// Source order IS the order at both widths — nothing is placed against
+		// the grid, so the eye and the reading order can never end up on
+		// different cards. The phone rule above is about what a screen reader
+		// and the tab key meet first, not only about what is on top.
+		const ticketFirst = await page.evaluate(() => {
+			const cards = [...document.querySelectorAll('main section.card-loud, main aside.card-loud')];
+			return (
+				cards.findIndex((c) => c.tagName === 'ASIDE') <
+				cards.findIndex((c) => c.tagName === 'SECTION')
+			);
+		});
+		expect(ticketFirst).toBe(true);
 
 		// The whole point of the restructure: the twelve inputs are in a sheet
 		// that has to be asked for, so the plan carries no visible form at all.
