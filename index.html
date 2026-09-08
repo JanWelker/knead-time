@@ -10,29 +10,10 @@
 		<!-- Two faces off one press: Anton is the sign painter (masthead, banners,
 		     the numbers that have to carry a room), Archivo the workhorse — a
 		     variable grotesque whose width axis supplies the condensed caps every
-		     label is set in, so no third family is needed. Both fall back to a
-		     narrow system face, and `display=swap` means a cold cache reads the
-		     recipe in the fallback rather than waiting on the network. -->
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<!-- Loaded as a preload that promotes itself to a stylesheet, not as a
-		     plain <link rel="stylesheet">: a render-blocking request to another
-		     origin would hold up first paint — and hydration behind it — whenever
-		     the font server is slow or unreachable, and this app is otherwise
-		     entirely local. The <noscript> copy keeps the faces for a reader
-		     without JS, where nothing is waiting on hydration anyway. -->
-		<link
-			rel="preload"
-			as="style"
-			href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wdth,wght@84..100,400..800&amp;display=swap"
-			onload="this.rel = 'stylesheet'"
-		/>
-		<noscript>
-			<link
-				rel="stylesheet"
-				href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo:wdth,wght@84..100,400..800&amp;display=swap"
-			/>
-		</noscript>
+		     label is set in, so no third family is needed. Both are served from
+		     this origin (@font-face in app.css) and both fall back to a narrow
+		     system face; there is no link to a font CDN here, and nothing in this
+		     document may reintroduce one — the app makes no third-party request. -->
 		<script>
 			// Theme boot: apply dark before first paint. The legacy bare 'theme'
 			// slot is read as a fallback until loadStoredTheme migrates it to
@@ -52,19 +33,19 @@
 				}
 			})();
 		</script>
-		<link href="./_app/immutable/entry/start.CcOydpH6.js" rel="modulepreload">
-		<link href="./_app/immutable/chunks/CFeDHNBU.js" rel="modulepreload">
+		<link href="./_app/immutable/entry/start.Cc0jdpc8.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/DDzMmfh9.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/CsUoEV1Q.js" rel="modulepreload">
-		<link href="./_app/immutable/entry/app.DeuvGRY-.js" rel="modulepreload">
+		<link href="./_app/immutable/entry/app.B1ZwnXLN.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
-		<link href="./_app/immutable/nodes/0.C6sK0xDg.js" rel="modulepreload">
-		<link href="./_app/immutable/chunks/BvbMX2h2.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/0.BQvCd6mW.js" rel="modulepreload">
+		<link href="./_app/immutable/chunks/D0cMf-0A.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/BjW0ezR_.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/Ddu96AFu.js" rel="modulepreload">
-		<link href="./_app/immutable/nodes/2.4aZaqysP.js" rel="modulepreload">
+		<link href="./_app/immutable/nodes/2.H8Ug6Trs.js" rel="modulepreload">
 		<link href="./_app/immutable/chunks/jNsZfmBk.js" rel="modulepreload">
 		
-		<link href="./_app/immutable/assets/0.x9SpWjqI.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/0.CFpdCEHW.css" rel="stylesheet">
 		<link href="./_app/immutable/assets/2.ORJI-h7a.css" rel="stylesheet">
 	</head>
 	<body
@@ -74,15 +55,15 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_jqbkjb = {
+					__sveltekit_127y2r9 = {
 						base: new URL(".", location).pathname.slice(0, -1)
 					};
 
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("./_app/immutable/entry/start.CcOydpH6.js"),
-						import("./_app/immutable/entry/app.DeuvGRY-.js")
+						import("./_app/immutable/entry/start.Cc0jdpc8.js"),
+						import("./_app/immutable/entry/app.B1ZwnXLN.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element);
 					});
