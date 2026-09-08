@@ -78,3 +78,23 @@ test('both faces are served from this origin, and both actually load', async ({ 
 	expect(fonts.length).toBeGreaterThan(0);
 	for (const url of fonts) expect(url).toMatch(/^http:\/\/localhost:/);
 });
+
+// The other half of "what does this page fetch": how many times. `bundleStrategy:
+// 'single'` in svelte.config.js collapses the eleven split chunks into one, and it
+// is a single config line with nothing else pointing at it — the kind of thing a
+// SvelteKit upgrade or a well-meaning tidy removes without anyone noticing, since
+// the app works exactly the same either way and only the waterfall gets longer.
+// Counting the responses is the cheapest way to notice.
+test('the whole app arrives as one script and one stylesheet', async ({ page }) => {
+	const served: string[] = [];
+	page.on('response', (response) => {
+		const type = response.request().resourceType();
+		if (type === 'script' || type === 'stylesheet') served.push(type);
+	});
+
+	await openRecipe(page, RECIPE);
+	await page.evaluate(() => document.fonts.ready);
+
+	expect(served.filter((t) => t === 'script')).toHaveLength(1);
+	expect(served.filter((t) => t === 'stylesheet')).toHaveLength(1);
+});
