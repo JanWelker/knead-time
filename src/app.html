@@ -7,6 +7,27 @@
 		<meta name="theme-color" content="#efe7d5" media="(prefers-color-scheme: light)" />
 		<meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)" />
 		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+
+		<!-- Added to the Home Screen, this stops being a page and becomes the thing
+		     you prop against the flour bag for two days: standalone, no browser
+		     chrome, its own icon. The manifest is a static file with relative URLs
+		     (start_url and every icon src resolve against its own address), which
+		     is what keeps BASE_PATH out of it — the same trick the hashed .woff2
+		     files use. iOS reads none of that for the icon itself: apple-touch-icon
+		     is what Safari's share sheet puts on the home screen, so the PNG has to
+		     be here as well as in the manifest, and it is opaque because iOS
+		     composites a transparent one onto black.
+		     There are no notification meta tags and there is no push code: iOS
+		     suspends a backgrounded web app's JavaScript and only ever wakes its
+		     service worker for an incoming push message, so a step reminder at
+		     03:00 needs a server to send it — which this app does not have and is
+		     not going to grow. See issue #306. -->
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Knead Time" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 		<!-- Two faces off one press: Anton is the sign painter (masthead, banners,
 		     the numbers that have to carry a room), Archivo the workhorse — a
 		     variable grotesque whose width axis supplies the condensed caps every

@@ -7,6 +7,8 @@ A time-anchored Neapolitan pizza dough calculator — [try it live](https://knea
 
 New in v7 — the app stopped being a form and became a service that prints its own paperwork. It opens with one question set 72 px tall — _when are you eating?_ — and walks through four more, each answerable in a single gesture, with the order forming beside you as a ticket stub and the Italian flag painting itself across a progress rule as you go. The answer is a **job ticket you return to**: a full-screen numbered schedule you open at 07:00 with flour on your hands, the weights beside it set as a deli ticket with dotted leaders, a tear-off perforation and a double-ruled total. Every value on the ticket is a blank on a printed form; tap one and the **Adjust** order pad opens with that field under the cursor. Anyone arriving with a share link or a saved recipe lands **straight on the plan** and is never asked the questions again; anyone who already knows all twelve numbers opens the pad and fills them in at once. My recipes, Community and 50 Top Pizza moved out of the foot of the page into a **Recipes** rack of their own, one press from anywhere. Two faces off one press — Anton for the signs, Archivo for the work — on warm stock in light and on the same press at night in dark. Which view you are on lives in the URL fragment, so it is linkable, survives a reload and walks with the back button; the recipe query is untouched and every old share-link still resolves, gram for gram — v=7 adds no key, it only records which app wrote the link.
 
+New in v7.1 — **add it to your Home Screen**. It installs from Safari's share sheet or Chrome's install prompt and opens standalone, with its own icon and no browser chrome, and a service worker precaches the whole app so the plan and the print sheet open with no signal at all — which is what a two-day job ticket in a kitchen actually needs. It does **not** send you notifications, and cannot: iOS only ever wakes a web app's service worker for an incoming push message, so a reminder at 03:00 needs a server to send it, and this app has none. Use the `.ics` export for alerts that fire while the app is closed.
+
 New in v6: **flour strength (W)** and a **fermentation-window slider**.
 
 Pick your flour and the schedule paints the window that flour actually tolerates. Twelve presets are shelved by what each strength is for — same-day, ~24 h, ~48 h, 48–72 h, plus a too-weak and a too-strong shelf, with the AVPN spec's W 220–380 as the outer edges — covering Caputo (Doppio Zero, Pizzeria, Nuvola, Saccorosso, Cuoco, Nuvola Super), Dallagiovanna (Classica Oro, La Napoletana, Uniqua Blu), Le 5 Stagioni Pizza Napoletana, Polselli Classica and a generic supermarket tipo 00. Or type a W yourself.
@@ -93,11 +95,18 @@ src/
 ├── app.css               ← Tailwind v4 entrypoint: the press (ink / paper / accent tokens,
 │                           one authored set per theme) and the component layer every
 │                           surface, band, stamp and control is built from
-└── app.html              ← shell (theme boot; no third-party links — the faces are self-hosted)
+├── app.html              ← shell (theme boot, manifest + Home Screen meta; no third-party links)
+└── service-worker.ts     ← precaches the whole app so it opens offline (SvelteKit registers it)
+
+static/                   ← copied verbatim to the site root
+├── manifest.webmanifest  ← the PWA manifest; every URL in it is relative, so BASE_PATH needs no help
+├── icon.svg / icon-maskable.svg      the two icon sources
+└── icon-*.png / apple-touch-icon.png rendered from them, committed
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
 scripts/
-└── check-test-baseline.mjs   refuses a change that removes tests or relaxes coverage
+├── check-test-baseline.mjs   refuses a change that removes tests or relaxes coverage
+└── render-icons.mjs          re-renders the icon PNGs from the SVGs (run by hand)
 
 .github/
 ├── test-baseline.json    ← how many tests exist; the floor the script enforces
@@ -144,6 +153,19 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 The **Print / Save as PDF** action opens a dedicated `/print/[[locale]]?<recipe>` route in a new tab (`src/routes/print/[[locale]]/+page.svelte`). The route is fully self-contained — inline styles in `<svelte:head>`, no Tailwind print variants, no shared chrome — and auto-triggers `window.print()` on mount. It renders a two-column header (Recipe inputs on the left, Ingredients on the right) above the full-width schedule, then a footer with a QR code of the share URL so scanning the printed sheet rehydrates the recipe in the app.
 
 If you touch the printed layout, check it in your browser's print preview — don't rely on `svelte-check`. Keep it readable on a B&W printer (borders and text colour, not background fills), and keep the common shapes on one page. QR generation lives in `src/lib/qr.ts` (thin wrapper around `qrcode-generator`).
+
+### Install to the Home Screen
+
+`static/manifest.webmanifest` plus the icons and meta tags in `src/app.html` make the app installable; `src/service-worker.ts` makes it work offline. SvelteKit registers the worker itself — there is no `register()` call anywhere in the app.
+
+Two things here are easy to break without noticing, so both are pinned in `e2e/pwa.spec.ts`:
+
+- **Every URL in the manifest is relative** (`"start_url": "."`, `"src": "icon-192.png"`), because they resolve against the manifest's own address. An absolute `/` would send every PR preview's installed app to the production root.
+- **The precache is all-or-nothing.** `cache.addAll` rejects as a unit, so a single unfetchable entry silently costs the whole offline mode — which is why the worker filters out `CNAME` and `.nojekyll`, files that are instructions to GitHub Pages rather than assets the app ever asks for.
+
+Icons are rendered from `static/icon.svg` and `static/icon-maskable.svg` by `node scripts/render-icons.mjs` (it borrows Playwright's Chromium, already a devDependency) and the PNGs are committed, so no build or CI job depends on it. Re-run it after editing either SVG, and keep the ground a full-bleed rect: iOS composites a transparent icon onto black.
+
+There are **no notifications**, and adding them client-side is not possible — see [#306](https://github.com/JanWelker/knead-time/issues/306). iOS suspends a backgrounded web app's JavaScript, so timers do not run, and it wakes a service worker for exactly one thing: an incoming push message, which requires a server to send. The `.ics` export is the path to an alert that fires with the app closed.
 
 ### TRMNL e-ink view
 

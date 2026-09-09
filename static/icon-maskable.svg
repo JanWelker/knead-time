@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Knead Time">
+	<!-- The maskable cut: Android crops this to a circle, a squircle or whatever
+	     the launcher fancies, and only the inner 80 % is guaranteed to survive.
+	     So the ink rule is dropped (it would be cropped off-centre and read as a
+	     mistake) and the mark is struck smaller — 318 units across against the
+	     410 the safe circle allows. The stock runs full bleed to feed the crop. -->
+	<rect width="512" height="512" fill="#efe7d5" />
+	<g transform="translate(256 256) scale(5.4) translate(-32 -32)">
+		<circle cx="32" cy="32" r="28" fill="#f0d8a1" stroke="#a86d20" stroke-width="3" />
+		<circle cx="32" cy="11" r="2.2" fill="#c8401a" />
+		<circle cx="53" cy="32" r="2.2" fill="#c8401a" />
+		<circle cx="32" cy="53" r="2.2" fill="#c8401a" />
+		<circle cx="11" cy="32" r="2.2" fill="#c8401a" />
+		<ellipse cx="46" cy="46" rx="3" ry="1.6" fill="#4a8d36" transform="rotate(-40 46 46)" />
+		<ellipse cx="18" cy="46" rx="3" ry="1.6" fill="#4a8d36" transform="rotate(40 18 46)" />
+		<line x1="32" y1="32" x2="22" y2="26" stroke="#5a3a18" stroke-width="3.2" stroke-linecap="round" />
+		<line x1="32" y1="32" x2="46" y2="24" stroke="#5a3a18" stroke-width="2.4" stroke-linecap="round" />
+		<circle cx="32" cy="32" r="2.5" fill="#5a3a18" />
+	</g>
+</svg>
