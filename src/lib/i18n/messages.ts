@@ -365,6 +365,22 @@ export interface Messages {
 		setup_hint: string;
 		setup_link: string;
 	};
+	// Only ever rendered inside the native iOS shell — in a browser the bridge
+	// reports no host and the menu item is not there at all.
+	reminders: {
+		menu_item: string;
+		dialog_heading: string;
+		dialog_intro: string;
+		enable: string;
+		asking: string;
+		on: string;
+		on_count: string;
+		disable: string;
+		denied: string;
+		denied_hint: string;
+		night_note: string;
+		close: string;
+	};
 	warnings: {
 		// Spoken prefix so severity is not carried by colour alone.
 		severity_danger: string;
@@ -816,6 +832,22 @@ const en: Messages = {
 		error_invalid_uuid: 'That doesn’t look like a plugin UUID.',
 		setup_hint: 'First time?',
 		setup_link: 'See the TRMNL setup guide'
+	},
+	reminders: {
+		menu_item: 'Step reminders…',
+		dialog_heading: 'Remind me at each step',
+		dialog_intro:
+			'Your phone will alert you when it is time to mix, divide and bake — with the app closed and the screen locked. Nothing is sent anywhere: the schedule is handed to iOS, which fires the alerts itself.',
+		enable: 'Turn on reminders',
+		asking: 'Asking…',
+		on: 'Reminders are on.',
+		on_count: '{n} reminders scheduled for this plan.',
+		disable: 'Turn off',
+		denied: 'Notifications are switched off for Knead Time.',
+		denied_hint: 'Open Settings › Notifications › Knead Time to allow them.',
+		night_note:
+			'A step falling between 22:00 and 08:00 still arrives on time, but silently — it will be waiting for you, not waking you.',
+		close: 'Close'
 	},
 	warnings: {
 		severity_danger: 'Warning',
@@ -1335,6 +1367,22 @@ const de: Messages = {
 		error_invalid_uuid: 'Das sieht nicht wie eine Plugin-UUID aus.',
 		setup_hint: 'Zum ersten Mal?',
 		setup_link: 'Zur TRMNL-Einrichtungsanleitung'
+	},
+	reminders: {
+		menu_item: 'Schritt-Erinnerungen…',
+		dialog_heading: 'Bei jedem Schritt erinnern',
+		dialog_intro:
+			'Dein Telefon meldet sich, wenn es Zeit zum Kneten, Portionieren und Backen ist — auch bei geschlossener App und gesperrtem Bildschirm. Es wird nichts verschickt: der Zeitplan geht an iOS, das die Meldungen selbst auslöst.',
+		enable: 'Erinnerungen einschalten',
+		asking: 'Wird angefragt…',
+		on: 'Erinnerungen sind an.',
+		on_count: '{n} Erinnerungen für diesen Plan eingerichtet.',
+		disable: 'Ausschalten',
+		denied: 'Mitteilungen sind für Knead Time ausgeschaltet.',
+		denied_hint: 'Öffne Einstellungen › Mitteilungen › Knead Time, um sie zu erlauben.',
+		night_note:
+			'Ein Schritt zwischen 22:00 und 08:00 kommt trotzdem pünktlich, aber lautlos — er wartet auf dich, statt dich zu wecken.',
+		close: 'Schließen'
 	},
 	warnings: {
 		severity_danger: 'Warnung',
@@ -1856,6 +1904,22 @@ const it: Messages = {
 		error_invalid_uuid: 'Questo non sembra un UUID di plugin.',
 		setup_hint: 'Prima volta?',
 		setup_link: 'Guida alla configurazione TRMNL'
+	},
+	reminders: {
+		menu_item: 'Promemoria dei passaggi…',
+		dialog_heading: 'Avvisami a ogni passaggio',
+		dialog_intro:
+			'Il telefono ti avvisa quando è ora di impastare, stagliare e infornare — anche con l’app chiusa e lo schermo bloccato. Non viene inviato nulla: il programma passa a iOS, che fa scattare gli avvisi da solo.',
+		enable: 'Attiva i promemoria',
+		asking: 'Richiesta in corso…',
+		on: 'I promemoria sono attivi.',
+		on_count: '{n} promemoria impostati per questo piano.',
+		disable: 'Disattiva',
+		denied: 'Le notifiche sono disattivate per Knead Time.',
+		denied_hint: 'Apri Impostazioni › Notifiche › Knead Time per consentirle.',
+		night_note:
+			'Un passaggio fra le 22:00 e le 08:00 arriva comunque in orario, ma in silenzio — ti aspetta invece di svegliarti.',
+		close: 'Chiudi'
 	},
 	warnings: {
 		severity_danger: 'Attenzione',
@@ -2382,6 +2446,22 @@ const fr: Messages = {
 		setup_hint: 'Première fois ?',
 		setup_link: 'Guide de configuration TRMNL'
 	},
+	reminders: {
+		menu_item: 'Rappels des étapes…',
+		dialog_heading: 'Me rappeler à chaque étape',
+		dialog_intro:
+			'Ton téléphone te prévient quand il est temps de pétrir, de bouler et d’enfourner — même appli fermée et écran verrouillé. Rien n’est envoyé nulle part : le planning est confié à iOS, qui déclenche les alertes lui-même.',
+		enable: 'Activer les rappels',
+		asking: 'Demande en cours…',
+		on: 'Les rappels sont activés.',
+		on_count: '{n} rappels programmés pour ce planning.',
+		disable: 'Désactiver',
+		denied: 'Les notifications sont désactivées pour Knead Time.',
+		denied_hint: 'Ouvre Réglages › Notifications › Knead Time pour les autoriser.',
+		night_note:
+			'Une étape entre 22h00 et 08h00 arrive quand même à l’heure, mais en silence — elle t’attend au lieu de te réveiller.',
+		close: 'Fermer'
+	},
 	warnings: {
 		severity_danger: 'Avertissement',
 		severity_info: 'Remarque',
@@ -2903,6 +2983,22 @@ const nl: Messages = {
 		error_invalid_uuid: 'Dat lijkt niet op een plugin-UUID.',
 		setup_hint: 'Eerste keer?',
 		setup_link: 'Bekijk de TRMNL-installatiegids'
+	},
+	reminders: {
+		menu_item: 'Stapherinneringen…',
+		dialog_heading: 'Herinner me bij elke stap',
+		dialog_intro:
+			'Je telefoon waarschuwt je wanneer het tijd is om te kneden, af te bollen en te bakken — ook met de app gesloten en het scherm op slot. Er wordt niets verstuurd: het schema gaat naar iOS, dat de meldingen zelf afvuurt.',
+		enable: 'Herinneringen aanzetten',
+		asking: 'Bezig met vragen…',
+		on: 'Herinneringen staan aan.',
+		on_count: '{n} herinneringen ingesteld voor dit schema.',
+		disable: 'Uitzetten',
+		denied: 'Meldingen staan uit voor Knead Time.',
+		denied_hint: 'Open Instellingen › Meldingen › Knead Time om ze toe te staan.',
+		night_note:
+			'Een stap tussen 22:00 en 08:00 komt gewoon op tijd, maar geluidloos — hij wacht op je in plaats van je te wekken.',
+		close: 'Sluiten'
 	},
 	warnings: {
 		severity_danger: 'Waarschuwing',
