@@ -98,7 +98,14 @@ export function formatUtc(date: Date): string {
 	);
 }
 
-function stableUid(step: ScheduleStep): string {
+// The identity of a step, stable across recomputes of the same recipe: a
+// calendar re-import updates the event it already has rather than adding a
+// second one. Exported because the native iOS shell keys its notification
+// requests off the same shape (issue #309) — a step has one identity, not one
+// per consumer, and cancelling a reminder means naming the id that scheduled
+// it. Changing this format therefore orphans both a calendar entry and a
+// pending notification, so it is public API now.
+export function stableUid(step: ScheduleStep): string {
 	// Two parallel pre-ferment mixes can share a start time when both were
 	// shrunk to the same wall budget — the type keeps their UIDs distinct.
 	const typeSuffix = step.preFermentType ? `-${step.preFermentType}` : '';

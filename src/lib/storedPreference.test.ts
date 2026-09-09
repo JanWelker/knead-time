@@ -6,6 +6,7 @@ import { VERBOSITY_STORAGE_KEY } from './storedVerbosity';
 import { THEME_STORAGE_KEY } from './storedTheme';
 import { LOCALE_STORAGE_KEY } from './i18n/storedLocale';
 import { TRMNL_UUID_STORAGE_KEY } from './trmnl/uuid';
+import { REMINDERS_STORAGE_KEY } from './native/enabled';
 import { LAST_RECIPE_KEY, RECIPES_KEY } from './storedRecipes';
 
 // Every slot the app writes on a device. Listed here rather than sampled: the
@@ -18,6 +19,7 @@ const ALL_KEYS = [
 	THEME_STORAGE_KEY,
 	LOCALE_STORAGE_KEY,
 	TRMNL_UUID_STORAGE_KEY,
+	REMINDERS_STORAGE_KEY,
 	LAST_RECIPE_KEY,
 	RECIPES_KEY
 ];
@@ -30,6 +32,7 @@ describe('the storage slots', () => {
 			'kneadtime:theme',
 			'kneadtime:locale',
 			'kneadtime:trmnlUuid',
+			'kneadtime:reminders',
 			'kneadtime:lastRecipe',
 			'kneadtime:recipes'
 		]);

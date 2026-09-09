@@ -6,6 +6,7 @@
 	import { loadStoredLocale } from '$lib/i18n/storedLocale';
 	import { safeLocalStorage } from '$lib/safeStorage';
 	import { theme } from '$lib/theme.svelte';
+	import { nativeHost } from '$lib/native/host.svelte';
 	import { onMount } from 'svelte';
 
 	let { children } = $props();
@@ -23,6 +24,11 @@
 			i18n.set(stored ?? detectLocale(navigator.languages));
 		}
 		theme.init();
+		// Settled before any page effect runs, because the layout mounts first.
+		// The print route is skipped for the same reason it owns its own locale:
+		// inside the shell it is loaded into an offscreen web view to be printed,
+		// and that copy of the app has no business shaking hands with the host.
+		if (!ownsLocale) nativeHost.init(window);
 	});
 
 	// Mirror i18n.locale onto <html lang>; effects only run client-side,

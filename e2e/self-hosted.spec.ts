@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { NOW, openLibrary, openQuestion, openRecipe, waitForHydration } from './helpers';
+import { NOW, openLibrary, openMenu, openQuestion, openRecipe, waitForHydration } from './helpers';
 
 const RECIPE =
 	'v=7&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -97,4 +97,50 @@ test('the whole app arrives as one script and one stylesheet', async ({ page }) 
 
 	expect(served.filter((t) => t === 'script')).toHaveLength(1);
 	expect(served.filter((t) => t === 'stylesheet')).toHaveLength(1);
+});
+
+// The native bridge (issue #309) is the newest thing that could plausibly have
+// broken this contract, and the only place the claim can be settled is here:
+// "postMessage to a WKScriptMessageHandler opens no socket" is a fact about
+// what the page fetches, which grepping the source cannot establish. A shell
+// that reads the bundle out of its own app container is, if anything, one
+// fewer origin than a web visitor has.
+test('handing the schedule to a native shell is not a network request', async ({ page }) => {
+	const foreign = foreignRequests(page);
+
+	await page.addInitScript(() => {
+		const w = window as unknown as {
+			__native: unknown[];
+			webkit: unknown;
+			kneadtime?: { onState(s: { permission: string; pending: number }): void };
+		};
+		w.__native = [];
+		w.webkit = {
+			messageHandlers: {
+				kneadtime: {
+					postMessage: (m: { type: string }) => {
+						w.__native.push(m);
+						w.kneadtime?.onState({ permission: 'granted', pending: 4 });
+					}
+				}
+			}
+		};
+	});
+
+	await openRecipe(page, RECIPE);
+	await openMenu(page);
+	await page.getByRole('menuitem', { name: /reminder/i }).click();
+	await page.getByRole('button', { name: /turn on reminders/i }).click();
+	await expect
+		.poll(async () =>
+			page.evaluate(
+				() =>
+					(window as unknown as { __native: Array<{ type: string }> }).__native.filter(
+						(m) => m.type === 'reminders'
+					).length
+			)
+		)
+		.toBeGreaterThan(0);
+
+	expect(foreign).toEqual([]);
 });

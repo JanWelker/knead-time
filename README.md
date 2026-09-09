@@ -7,7 +7,7 @@ A time-anchored Neapolitan pizza dough calculator — [try it live](https://knea
 
 New in v7 — the app stopped being a form and became a service that prints its own paperwork. It opens with one question set 72 px tall — _when are you eating?_ — and walks through four more, each answerable in a single gesture, with the order forming beside you as a ticket stub and the Italian flag painting itself across a progress rule as you go. The answer is a **job ticket you return to**: a full-screen numbered schedule you open at 07:00 with flour on your hands, the weights beside it set as a deli ticket with dotted leaders, a tear-off perforation and a double-ruled total. Every value on the ticket is a blank on a printed form; tap one and the **Adjust** order pad opens with that field under the cursor. Anyone arriving with a share link or a saved recipe lands **straight on the plan** and is never asked the questions again; anyone who already knows all twelve numbers opens the pad and fills them in at once. My recipes, Community and 50 Top Pizza moved out of the foot of the page into a **Recipes** rack of their own, one press from anywhere. Two faces off one press — Anton for the signs, Archivo for the work — on warm stock in light and on the same press at night in dark. Which view you are on lives in the URL fragment, so it is linkable, survives a reload and walks with the back button; the recipe query is untouched and every old share-link still resolves, gram for gram — v=7 adds no key, it only records which app wrote the link.
 
-New in v7.1 — **add it to your Home Screen**. It installs from Safari's share sheet or Chrome's install prompt and opens standalone, with its own icon and no browser chrome, and a service worker precaches the whole app so the plan and the print sheet open with no signal at all — which is what a two-day job ticket in a kitchen actually needs. It does **not** send you notifications, and cannot: iOS only ever wakes a web app's service worker for an incoming push message, so a reminder at 03:00 needs a server to send it, and this app has none. Use the `.ics` export for alerts that fire while the app is closed.
+New in v7.1 — **add it to your Home Screen**. It installs from Safari's share sheet or Chrome's install prompt and opens standalone, with its own icon and no browser chrome, and a service worker precaches the whole app so the plan and the print sheet open with no signal at all — which is what a two-day job ticket in a kitchen actually needs. It does **not** send you notifications, and as a web app it cannot: iOS only ever wakes a service worker for an incoming push message, so a reminder at 03:00 needs a server to send it, and this app has none. Use the `.ics` export for alerts that fire while the app is closed — or the native iOS shell, which schedules them locally and still talks to no server at all.
 
 New in v6: **flour strength (W)** and a **fermentation-window slider**.
 
@@ -79,6 +79,8 @@ src/
 │   ├── community/        ← community.md (data) + parser, rendered as a table in the Recipes view
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
+│   ├── native/           ← the iOS shell bridge: which steps get a reminder, and the message wire
+│   │                        (inert in a browser — nativeBridge() returns null and nothing is posted)
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
 │   ├── view.ts           ← the three views (ask / plan / library) and where a visitor lands
 │   ├── warningSlots.ts   ← which surface each schedule warning is rendered on
@@ -168,13 +170,37 @@ The mark is the job ticket itself — a sheet standing on an offset block of ink
 
 Icons are rendered from `static/icon.svg` and `static/icon-maskable.svg` by `node scripts/render-icons.mjs` (it borrows Playwright's Chromium, already a devDependency) and the PNGs are committed, so no build or CI job depends on it. Re-run it after editing either SVG, and keep the ground a full-bleed rect: iOS composites a transparent icon onto black.
 
-There are **no notifications**, and adding them client-side is not possible — see [#306](https://github.com/JanWelker/knead-time/issues/306). iOS suspends a backgrounded web app's JavaScript, so timers do not run, and it wakes a service worker for exactly one thing: an incoming push message, which requires a server to send. The `.ics` export is the path to an alert that fires with the app closed.
+There are **no notifications in the web app**, and adding them client-side is not possible — see [#306](https://github.com/JanWelker/knead-time/issues/306). iOS suspends a backgrounded web app's JavaScript, so timers do not run, and it wakes a service worker for exactly one thing: an incoming push message, which requires a server to send. The `.ics` export is the path to an alert that fires with the app closed; the native shell below is the other one.
 
 ### TRMNL e-ink view
 
 The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the plan's actions menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
 
 Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the setup walkthrough and the Liquid template are in `docs/trmnl-setup.md`. The payload uses 1–2 character keys to stay under the free tier's 2 KB cap in every locale — a regression test measures the wire size, so adding fields without measuring fails CI. There is **no `/trmnl` route** any more: the earlier screenshot-plugin approach failed because TRMNL's renderer doesn't reliably execute JS, so every capture showed build-time defaults.
+
+### Step reminders on iOS
+
+The one thing the web app cannot do is wake you at 03:00, and no amount of PWA
+gets there: iOS suspends a backgrounded web app's JavaScript, and wakes a
+service worker only for a push message, which needs a server. Issue
+[#309](https://github.com/JanWelker/knead-time/issues/309) is the way out that
+still needs no backend — a thin native shell around the same bundled build,
+handing its step times to `UNUserNotificationCenter`, which fires them with the
+app closed and the phone locked.
+
+The web half is in `src/lib/native/` and ships today: it decides which steps are
+worth a buzz (the ones where the baker has to be at the counter, plus the bake),
+drops any that have already passed, marks anything in the night window silent,
+and posts the **complete** list on every recipe edit — the shell cancels
+everything pending and re-adds it, so an abandoned plan cannot buzz for a dough
+that no longer exists. In a browser none of it runs: there is no host, so there
+is no menu item and nothing is ever posted.
+
+It opens no socket, and `e2e/self-hosted.spec.ts` proves it rather than assuming
+it. The one outbound request in the app is still the TRMNL webhook.
+
+The Swift shell itself is not in the tree yet. `docs/ios-shell.md` has the wire
+format, the constraints and what building it actually involves.
 
 ### The dough math, briefly
 
