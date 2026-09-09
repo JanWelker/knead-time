@@ -18,6 +18,8 @@
 	import SaveRecipeDialog from './SaveRecipeDialog.svelte';
 	import ScheduleTable from './ScheduleTable.svelte';
 	import TrmnlPush from './TrmnlPush.svelte';
+	import NativeReminders from './NativeReminders.svelte';
+	import { nativeHost } from '$lib/native/host.svelte';
 	import Warnings from './Warnings.svelte';
 
 	// The destination: the job ticket the kitchen works off. This is the screen
@@ -49,6 +51,7 @@
 
 	let copied = $state<'share' | 'failed' | null>(null);
 	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
+	let nativeReminders = $state<ReturnType<typeof NativeReminders>>();
 	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
 
 	// Ordered least-to-most detail, which is also the order the strip reads in.
@@ -56,7 +59,12 @@
 
 	function printPage() {
 		// Dedicated print route owns its stylesheet and auto-triggers print().
-		window.open(`${base}/print/${locale}?${encodeInputs(form.serializable())}`, '_blank');
+		const url = `${base}/print/${locale}?${encodeInputs(form.serializable())}`;
+		// A WKWebView returns null from window.open and has no print UI at all,
+		// so inside the shell the route is handed over to be rendered and printed
+		// natively. Everywhere else this is the same new tab it always was.
+		if (nativeHost.send({ type: 'print', url })) return;
+		window.open(url, '_blank');
 	}
 
 	function downloadIcs() {
@@ -66,6 +74,12 @@
 				includeDetail: scheduleVerbosity.current === 'descriptive'
 			})
 		}));
+		// A WKWebView silently swallows a blob-URL download: the anchor click
+		// never reaches a download delegate and nothing happens at all. The shell
+		// takes the text and offers it through the share sheet instead, which is
+		// the better answer on a phone anyway — it leads straight to Add to
+		// Calendar.
+		if (nativeHost.send({ type: 'ics', filename: 'kneadtime.ics', text: ics })) return;
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -83,6 +97,13 @@
 			copied = 'share';
 			setTimeout(() => (copied = null), 1500);
 		} catch {
+			// Inside the shell there is one more thing to try before admitting
+			// failure: hand the text to UIPasteboard.
+			if (nativeHost.send({ type: 'copy', text: window.location.href })) {
+				copied = 'share';
+				setTimeout(() => (copied = null), 1500);
+				return;
+			}
 			// A denied clipboard used to be swallowed here. The reasoning was that
 			// the URL is in the address bar anyway — true, but the user has just
 			// pressed a button and been given no reason to think it did nothing.
@@ -229,6 +250,23 @@
 		>
 			{t.trmnl_push.menu_item}
 		</button>
+		<!-- Only inside the native iOS shell. In a browser the bridge reports no
+		     host, and a menu item that cannot do anything is worse than none. -->
+		{#if nativeHost.available}
+			<button
+				type="button"
+				role="menuitem"
+				aria-haspopup="dialog"
+				class="menu-item"
+				disabled={!form.schedule.feasible}
+				onclick={() => {
+					close();
+					nativeReminders?.open();
+				}}
+			>
+				{t.reminders.menu_item}
+			</button>
+		{/if}
 	</div>
 {/snippet}
 
@@ -238,6 +276,7 @@
 	<!-- The modals live outside the role="menu" container: a dialog is invalid
 	     ARIA-menu content, and the menu closes before it opens. -->
 	<TrmnlPush bind:this={trmnlPush} inputs={form.serializable()} schedule={form.schedule} {locale} />
+	<NativeReminders bind:this={nativeReminders} />
 	<SaveRecipeDialog bind:this={saveDialog} onsave={onsaverecipe} />
 
 	<div class="view-pad flex-1 pt-6 pb-6 sm:pt-8">

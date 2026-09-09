@@ -5,7 +5,7 @@ import {
 	postNative,
 	WIRE_VERSION,
 	type NativeHostWindow,
-	type NativeMessage
+	type UnversionedMessage
 } from './bridge';
 
 // No default parameter here: one of the cases below *is* an explicit
@@ -63,7 +63,7 @@ describe('posting to the native host', () => {
 	// Listed rather than sampled: a new message type with no row here is a type
 	// error, which is the only thing that would catch one being added and never
 	// sent.
-	const everyMessage: Array<Omit<NativeMessage, 'v'>> = [
+	const everyMessage: UnversionedMessage[] = [
 		{ type: 'hello' },
 		{ type: 'permission' },
 		{

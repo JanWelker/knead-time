@@ -30,6 +30,8 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
 	import { FormState } from '$lib/state.svelte';
+	import { nativeHost } from '$lib/native/host.svelte';
+	import { buildReminders } from '$lib/native/reminders';
 	import { initialLocation, viewHash, type AskStep, type ViewLocation } from '$lib/view';
 
 	// The app is three places now — the questions, the plan, the recipe
@@ -128,6 +130,25 @@
 				encodeInputs(form.serializable(), { mode: uiMode.current })
 			);
 		}
+	});
+
+	// Inside the native iOS shell, every recipe edit re-hands the whole step list
+	// to the OS. It lives here rather than in PlanView because the schedule
+	// changes while the user is still answering questions, and PlanView is only
+	// mounted on the plan — a reminder set from the ask flow would otherwise be a
+	// day stale by the time anyone looked at it.
+	//
+	// form.schedule is derived from form.inputs, so this re-runs on every edit
+	// anywhere: a slider drag, a chip, the adjust sheet, a restored recipe. `t`
+	// is in the dependency set on purpose — switching language re-pushes the copy
+	// so a lock screen is never in the language you stopped reading in.
+	// nativeHost.sync drops a list identical to the one already sent, which is
+	// what keeps a keystroke in the adjust sheet from churning the OS's store.
+	$effect(() => {
+		if (!browser || !hydrated) return;
+		if (!nativeHost.available || !nativeHost.enabled) return;
+		if (nativeHost.permission !== 'granted') return;
+		nativeHost.sync(buildReminders(form.schedule, t, new Date()));
 	});
 
 	// Was a window.prompt: native chrome in an app that is otherwise translated

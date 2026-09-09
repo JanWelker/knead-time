@@ -72,6 +72,17 @@ export type NativeMessage =
 	| { v: typeof WIRE_VERSION; type: 'ics'; filename: string; text: string }
 	| { v: typeof WIRE_VERSION; type: 'copy'; text: string };
 
+/**
+ * A message without its version stamp — what callers build, before `postNative`
+ * adds the `v`.
+ *
+ * Distributive on purpose: a plain `Omit<NativeMessage, 'v'>` collapses the
+ * union into one object type whose only known key is `type`, which silently
+ * makes every payload field an excess property. That compiled for exactly as
+ * long as nothing carried a payload.
+ */
+export type UnversionedMessage<T = NativeMessage> = T extends unknown ? Omit<T, 'v'> : never;
+
 /** What the shell reports back through `window.kneadtime.onState`. */
 export interface NativeState {
 	permission: 'unknown' | 'granted' | 'denied';
@@ -94,7 +105,7 @@ export function nativeBridge(w: NativeHostWindow | null | undefined): NativeBrid
 /** Post one message, stamping the wire version. No-op without a host. */
 export function postNative(
 	target: NativeBridgeTarget | null,
-	message: Omit<NativeMessage, 'v'>
+	message: UnversionedMessage
 ): boolean {
 	if (!target) return false;
 	target.postMessage({ ...message, v: WIRE_VERSION });
