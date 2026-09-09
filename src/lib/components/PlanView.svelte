@@ -276,7 +276,12 @@
 	<!-- The modals live outside the role="menu" container: a dialog is invalid
 	     ARIA-menu content, and the menu closes before it opens. -->
 	<TrmnlPush bind:this={trmnlPush} inputs={form.serializable()} schedule={form.schedule} {locale} />
-	<NativeReminders bind:this={nativeReminders} />
+	<!-- Gated, not merely hidden: outside the shell this dialog can never be
+	     opened, and mounting it anyway left every web visitor carrying a second
+	     role="status" region that nothing could ever fill. -->
+	{#if nativeHost.available}
+		<NativeReminders bind:this={nativeReminders} />
+	{/if}
 	<SaveRecipeDialog bind:this={saveDialog} onsave={onsaverecipe} />
 
 	<div class="view-pad flex-1 pt-6 pb-6 sm:pt-8">
