@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MESSAGES } from '../i18n/messages';
 import { stepDetailText, stepTitle } from '../stepCopy';
-import { buildIcs, escapeText, foldLine, formatUtc } from './ics';
+import { buildIcs, escapeText, foldLine, formatUtc, stableUid } from './ics';
 import { computeSchedule } from './schedule';
 import { defaultInputs } from './testFixtures';
 import type { ScheduleStep } from './types';
@@ -199,5 +199,43 @@ describe('buildIcs', () => {
 					: null
 		);
 		expect(transpByIndex).toEqual(expected.map(([, transp]) => transp));
+	});
+});
+
+// stableUid stopped being an implementation detail of the calendar export when
+// the native iOS shell started keying its notification requests off the same
+// string (issue #309): cancelling a pending reminder means naming the id that
+// scheduled it, so a change to this format orphans a calendar event *and* a
+// notification. Nothing else in the suite pinned the format itself — the .ics
+// tests only ever asserted that two UIDs differed from each other, which every
+// format change would have satisfied.
+describe('the step identity the calendar and the native bridge share', () => {
+	const at = new Date('2026-05-11T06:00:00Z');
+	const stub = () => ({ summary: 'S', description: 'D' });
+
+	it('is the kind and the start instant, in that order', () => {
+		expect(stableUid({ kind: 'mix', at, durationMinutes: 20 })).toBe(`mix-${at.getTime()}`);
+	});
+
+	it('carries the pre-ferment type, so two parallel mixes at one instant stay distinct', () => {
+		const biga = stableUid({
+			kind: 'preferment-mix',
+			at,
+			durationMinutes: 5,
+			preFermentType: 'biga'
+		});
+		const poolish = stableUid({
+			kind: 'preferment-mix',
+			at,
+			durationMinutes: 5,
+			preFermentType: 'poolish'
+		});
+		expect(biga).toBe(`preferment-mix-biga-${at.getTime()}`);
+		expect(poolish).toBe(`preferment-mix-poolish-${at.getTime()}`);
+	});
+
+	it('is what the VEVENT UID is built from', () => {
+		const step: ScheduleStep = { kind: 'divide', at, durationMinutes: 10 };
+		expect(buildIcs([step], stub)).toContain(`UID:${stableUid(step)}@kneadtime`);
 	});
 });
