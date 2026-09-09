@@ -25,7 +25,12 @@
 		     suspends a backgrounded web app's JavaScript and only ever wakes its
 		     service worker for an incoming push message, so a step reminder at
 		     03:00 needs a server to send it — which this app does not have and is
-		     not going to grow. See issue #306. -->
+		     not going to grow. That reasoning is unchanged and this document must
+		     stay free of Notification and PushManager. Reminders exist in exactly
+		     one place, and it is not the web app: the native iOS shell in ios/,
+		     where iOS schedules them locally from a step list the page hands
+		     across a WKScriptMessageHandler bridge. Still no server, still no
+		     push, and nothing here. See issues #306 and #309. -->
 		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<link rel="manifest" href="%sveltekit.assets%/manifest.webmanifest" />
 		<meta name="mobile-web-app-capable" content="yes" />

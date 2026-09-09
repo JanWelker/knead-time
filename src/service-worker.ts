@@ -21,6 +21,12 @@ import { build, files, prerendered, version } from '$service-worker';
 // it; a step reminder at 03:00 is therefore not reachable from a client-side
 // app, whatever the manifest says. See issue #306 and the note in app.html.
 //
+// That has not changed, and the native iOS shell (ios/, issue #309) is not an
+// exception to it: the shell does not run this file at all. WKWebView registers
+// no service worker for the custom scheme the bundle is served from, and would
+// have nothing to precache if it did — the whole app is already on the device.
+// Its reminders come from UNUserNotificationCenter, not from here.
+//
 // SvelteKit registers this file itself (`kit.serviceWorker.register` defaults
 // to true) — there is no registration call anywhere in the app.
 
