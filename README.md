@@ -100,7 +100,8 @@ src/
 
 static/                   ← copied verbatim to the site root
 ├── manifest.webmanifest  ← the PWA manifest; every URL in it is relative, so BASE_PATH needs no help
-├── icon.svg / icon-maskable.svg      the two icon sources
+├── icon.svg              ← the mark: tab, Home Screen and manifest all point here
+├── icon-maskable.svg     ← the same drawing at 0.75, so its diagonal clears Android's crop
 └── icon-*.png / apple-touch-icon.png rendered from them, committed
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
@@ -162,6 +163,8 @@ Two things here are easy to break without noticing, so both are pinned in `e2e/p
 
 - **Every URL in the manifest is relative** (`"start_url": "."`, `"src": "icon-192.png"`), because they resolve against the manifest's own address. An absolute `/` would send every PR preview's installed app to the production root.
 - **The precache is all-or-nothing.** `cache.addAll` rejects as a unit, so a single unfetchable entry silently costs the whole offline mode — which is why the worker filters out `CNAME` and `.nojekyll`, files that are instructions to GitHub Pages rather than assets the app ever asks for.
+
+The mark is the job ticket itself — a sheet standing on an offset block of ink, dotted leaders, the stub's perforation, and one spot of tomato below the tear. **There is no separate `favicon.svg`**: the tab, the Home Screen and the manifest all point at `static/icon.svg`, so the icon in a tab strip cannot drift from the one on a phone.
 
 Icons are rendered from `static/icon.svg` and `static/icon-maskable.svg` by `node scripts/render-icons.mjs` (it borrows Playwright's Chromium, already a devDependency) and the PNGs are committed, so no build or CI job depends on it. Re-run it after editing either SVG, and keep the ground a full-bleed rect: iOS composites a transparent icon onto black.
 

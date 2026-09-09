@@ -85,6 +85,20 @@ test('the head links the manifest and the icon Safari actually reads', async ({ 
 	);
 });
 
+// The tab icon and the Home Screen icon are the same drawing, and there is one
+// file so they cannot drift: a reader who recognises the ticket in a tab strip
+// finds the same ticket on their phone. Re-adding a separate favicon.svg is the
+// easy, invisible way to break that.
+test('the tab and the Home Screen show the same mark', async ({ page }) => {
+	await page.goto('/');
+	const { url, body } = await manifest(page);
+
+	const favicon = await page.locator('link[rel="icon"]').getAttribute('href');
+	const scalable = body.icons.find((i: { type: string }) => i.type === 'image/svg+xml');
+
+	expect(new URL(favicon!, page.url()).href).toBe(new URL(scalable.src, url).href);
+});
+
 // iOS composites a transparent icon onto black, which would put the cream
 // ticket on a black square on half the phones that install it. The PNGs are
 // rendered from SVGs whose ground is a full-bleed rect; losing that rect is a
