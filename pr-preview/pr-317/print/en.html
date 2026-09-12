@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<!-- One mark, one file: the tab, the Home Screen and the manifest all point
+		     at icon.svg, so the icon a reader recognises in a tab strip cannot
+		     drift from the one on their phone. It is drawn to survive 16 px —
+		     the leaders go to texture there, the ticket and the tomato do not. -->
+		<link rel="icon" href="../icon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#efe7d5" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+
+		<!-- Added to the Home Screen, this stops being a page and becomes the thing
+		     you prop against the flour bag for two days: standalone, no browser
+		     chrome, its own icon. The manifest is a static file with relative URLs
+		     (start_url and every icon src resolve against its own address), which
+		     is what keeps BASE_PATH out of it — the same trick the hashed .woff2
+		     files use. iOS reads none of that for the icon itself: apple-touch-icon
+		     is what Safari's share sheet puts on the home screen, so the PNG has to
+		     be here as well as in the manifest, and it is opaque because iOS
+		     composites a transparent one onto black.
+		     There are no notification meta tags and there is no push code: iOS
+		     suspends a backgrounded web app's JavaScript and only ever wakes its
+		     service worker for an incoming push message, so a step reminder at
+		     03:00 needs a server to send it — which this app does not have and is
+		     not going to grow. See issue #306. -->
+		<link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+		<link rel="manifest" href="../manifest.webmanifest" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Knead Time" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<!-- Two faces off one press: Anton is the sign painter (masthead, banners,
+		     the numbers that have to carry a room), Archivo the workhorse — a
+		     variable grotesque whose width axis supplies the condensed caps every
+		     label is set in, so no third family is needed. Both are served from
+		     this origin (@font-face in app.css) and both fall back to a narrow
+		     system face; there is no link to a font CDN here, and nothing in this
+		     document may reintroduce one — the app makes no third-party request. -->
+		<script>
+			// Theme boot: apply dark before first paint. The legacy bare 'theme'
+			// slot is read as a fallback until loadStoredTheme migrates it to
+			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
+			// cookies") — only the reads are guarded so a blocked storage still
+			// honours the system preference.
+			(function () {
+				var stored = null;
+				try {
+					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+				} catch (e) {}
+				if (
+					stored === 'dark' ||
+					(stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+				) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
+		<link href="../_app/immutable/bundle.y77hXyHX.js" rel="modulepreload">
+		<!--1hugt37--><style>
+		html,
+		body {
+			background: #ffffff !important;
+			color: #000000 !important;
+			margin: 0;
+		}
+		@page {
+			size: auto;
+			margin: 9mm 10mm;
+		}
+		.printpage {
+			font-family:
+				ui-sans-serif,
+				system-ui,
+				-apple-system,
+				sans-serif;
+			color: #000;
+			background: #fff;
+			max-width: 190mm;
+			margin: 0 auto;
+			padding: 6mm 4mm;
+			font-size: 9pt;
+			line-height: 1.4;
+		}
+		.printpage h1,
+		.printpage h2,
+		.printpage h3 {
+			margin: 0;
+			font-weight: 700;
+			letter-spacing: -0.01em;
+		}
+		.printpage h1 {
+			font-size: 18pt;
+		}
+		.printpage h2 {
+			font-size: 12pt;
+			margin-bottom: 2mm;
+		}
+		.printpage h3 {
+			font-size: 9.5pt;
+			margin-bottom: 1mm;
+		}
+		.printpage-header {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 8mm;
+			margin-bottom: 4mm;
+			padding-bottom: 3mm;
+			border-bottom: 1px solid #000;
+		}
+		.printpage-summary,
+		.printpage-ingredients {
+			width: 100%;
+			border-collapse: collapse;
+			font-variant-numeric: tabular-nums;
+		}
+		.printpage-summary th {
+			text-align: left;
+			font-weight: 400;
+			padding: 0.8mm 0;
+			color: #333;
+		}
+		.printpage-summary td {
+			text-align: right;
+			font-weight: 500;
+			padding: 0.8mm 0;
+		}
+		.printpage-ingredients th {
+			text-align: left;
+			padding: 0.8mm 0;
+			font-weight: 500;
+		}
+		.printpage-ingredients td {
+			text-align: right;
+			padding: 0.8mm 0;
+		}
+		.printpage-ingredients tr.printpage-total th,
+		.printpage-ingredients tr.printpage-total td {
+			font-weight: 700;
+			border-top: 1px solid #000;
+			padding-top: 1.2mm;
+		}
+		.printpage-ingredients-section {
+			margin-bottom: 3mm;
+		}
+		.printpage-schedule {
+			width: 100%;
+			border-collapse: collapse;
+			font-variant-numeric: tabular-nums;
+		}
+		.printpage-schedule thead th {
+			font-size: 8pt;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			font-weight: 600;
+			text-align: left;
+			border-bottom: 1px solid #000;
+			padding: 1mm 3mm 1mm 0;
+		}
+		.printpage-schedule tbody td {
+			padding: 1.2mm 3mm 1.2mm 0;
+			vertical-align: top;
+			border-bottom: 1px solid #ccc;
+		}
+		.printpage-schedule tbody tr:last-child td {
+			border-bottom: none;
+		}
+		.printpage-when {
+			white-space: nowrap;
+			font-weight: 500;
+		}
+		.printpage-duration {
+			white-space: nowrap;
+			text-align: right;
+		}
+		.printpage-step-title {
+			font-weight: 600;
+		}
+		.printpage-step-ingredients {
+			font-size: 8pt;
+			margin-top: 0.5mm;
+		}
+		.printpage-ing:not(:last-child)::after {
+			content: ' · ';
+			color: #888;
+		}
+		.printpage-step-desc {
+			font-size: 8pt;
+			color: #444;
+			margin-top: 0.5mm;
+		}
+		.printpage-schedule tr.printpage-ready .printpage-step-title {
+			font-weight: 700;
+		}
+		.printpage-footer {
+			margin-top: 4mm;
+			padding-top: 2mm;
+			border-top: 1px solid #000;
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-end;
+			gap: 8mm;
+			font-size: 7.5pt;
+			color: #333;
+		}
+		.printpage-footer p {
+			margin: 0 0 0.5mm 0;
+		}
+		.printpage-qr {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1mm;
+			flex-shrink: 0;
+		}
+		.printpage-qr svg {
+			width: 22mm;
+			height: 22mm;
+		}
+		.printpage-qr-caption {
+			font-size: 7pt;
+		}
+	</style><!----><title>Knead Time — Recipe</title>
+		<link href="../_app/immutable/assets/bundle.CzlOUG68.css" rel="stylesheet">
+	</head>
+	<body
+		data-sveltekit-preload-data="hover"
+		class="text-ink min-h-screen bg-transparent antialiased"
+	>
+		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><div class="printpage"><header class="printpage-header"><div><h1>Knead Time</h1> <h2 style="margin-top: 3mm;">Recipe</h2> <table class="printpage-summary"><tbody><tr><th>Ready to bake</th><td>Sun, Sep 13 · 07:00 PM</td></tr><tr><th>Pizzas</th><td>6 × 280 g</td></tr><tr><th>Hydration (%)</th><td>70%</td></tr><tr><th>Salt (% of flour)</th><td>3%</td></tr><tr><th>Yeast</th><td>Fresh yeast (cube)</td></tr><tr><th>Room temperature (°C)</th><td>22 °C</td></tr><!--[0--><tr><th>Fridge temperature (°C)</th><td>4 °C</td></tr><!--]--><!--[-1--><!--]--></tbody></table></div> <div><h2>Ingredients</h2> <!--[--><section class="printpage-ingredients-section"><!--[-1--><!--]--> <table class="printpage-ingredients"><tbody><!--[--><tr><th>Caputo Pizzeria<!--[-1--><!--]--></th><td>970 g</td></tr><tr><th>Water<!--[-1--><!--]--></th><td>679 g</td></tr><tr><th>Salt<!--[-1--><!--]--></th><td>29 g</td></tr><tr><th>Fresh yeast<!--[0--> (0.121%)<!--]--></th><td>1.2 g</td></tr><!--]--><!--[0--><tr class="printpage-total"><th>Total dough</th><td>1680 g</td></tr><!--]--></tbody></table></section><!--]--></div></header> <section><h2>Schedule</h2> <table class="printpage-schedule"><thead><tr><th>When</th><th>Step</th><th class="printpage-duration">Duration</th></tr></thead><tbody><!--[--><tr><td class="printpage-when">Sat, Sep 12 · 08:00 AM</td><td><div class="printpage-step-title">Weigh &amp; prep</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>970 g</strong> Flour</span><span class="printpage-ing"><strong>679 g</strong> Water</span><!--]--></div><!--]--> <div class="printpage-step-desc">Weigh the flour and water (about 4 °C — chill it with ice cubes if your kitchen is warm) and mix them into a shaggy, lumpy mass with no dry flour left. No kneading yet, and keep the salt and yeast aside.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Sat, Sep 12 · 08:15 AM</td><td><div class="printpage-step-title">Autolyse rest</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cover the bowl and let the flour and water rest. The flour hydrates fully and gluten begins to form on its own, so the dough needs less kneading and stretches more easily later.</div></td><td class="printpage-duration">30 min</td></tr><tr><td class="printpage-when">Sat, Sep 12 · 08:45 AM</td><td><div class="printpage-step-title">Mix dough</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>29 g</strong> Salt</span><span class="printpage-ing"><strong>1.2 g</strong> Fresh yeast</span><!--]--></div><!--]--> <div class="printpage-step-desc">Add the salt and yeast to the rested dough and bring everything together into a cohesive dough. Knead in the spiral mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Sat, Sep 12 · 09:00 AM</td><td><div class="printpage-step-title">Bulk ferment (room)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cover the dough and let it rise at room temperature.</div></td><td class="printpage-duration">1 h</td></tr><tr><td class="printpage-when">Sat, Sep 12 · 10:00 AM</td><td><div class="printpage-step-title">Bulk ferment (fridge)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Move the covered dough to the fridge. Long, slow fermentation.</div></td><td class="printpage-duration">28 h 45 min</td></tr><tr><td class="printpage-when">Sun, Sep 13 · 02:45 PM</td><td><div class="printpage-step-title">Divide &amp; ball</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cut the dough into 6 equal balls of 280 g each and shape them tight.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Sun, Sep 13 · 03:00 PM</td><td><div class="printpage-step-title">Final proof</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Let the balls rest at room temperature until they look puffy and relaxed.</div></td><td class="printpage-duration">4 h</td></tr><tr class="printpage-ready"><td class="printpage-when">Sun, Sep 13 · 07:00 PM</td><td><div class="printpage-step-title">Shape &amp; bake</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Open each ball, top, and into the oven.</div></td><td class="printpage-duration">—</td></tr><!--]--></tbody></table></section> <footer class="printpage-footer"><div><p>Time-anchored Neapolitan pizza dough calculator.</p> <p>© 2026 Jan Welker · Licensed under Apache 2.0 · v7.1.1</p></div> <!--[-1--><!--]--></footer></div><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_1cjl5m9 = {
+						base: new URL("..", location).pathname.slice(0, -1),
+						assets: "/pr-preview/pr-317"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					import("../_app/immutable/bundle.y77hXyHX.js").then((app) => {
+						app.start(element, {
+							node_ids: [0, 3],
+							data: [null,null],
+							form: null,
+							error: null
+						})
+					});
+
+					if ('serviceWorker' in navigator) {
+						const script_url = '../service-worker.js';
+						const policy = globalThis?.window?.trustedTypes?.createPolicy(
+							'sveltekit-trusted-url',
+							{ createScriptURL(url) { return url; } }
+						);
+						const sanitised = policy?.createScriptURL(script_url) ?? script_url;
+						addEventListener('load', function () {
+							navigator.serviceWorker.register(sanitised);
+						});
+					}
+				}
+			</script>
+		</div>
+	</body>
+</html>

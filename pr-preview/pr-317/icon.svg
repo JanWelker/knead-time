@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Knead Time">
+	<!-- The mark is the thing the app hands you: a job ticket, printed. Every
+	     device on it is one the page already uses — the sheet standing on a solid
+	     block of ink, dotted leaders walking a value to its figure, and the
+	     perforation the ingredient stub tears off at. One spot of tomato below
+	     the tear is the only colour, which is what makes it read at 32 px.
+
+	     The coordinates below are traced off the 1024 px original at half scale,
+	     so every number here is a measurement rather than a guess, and the three
+	     things the first pass flattened are back:
+
+	     1. The block is printed TWICE, out of register — the same plate offset
+	        down and right, exactly as `.card` does it on the page. That is what
+	        puts the step in the corner at top-right and bottom-left, and it is
+	        why the block is not symmetrical. Drawn as two rects rather than
+	        their union so the source says which pass is which.
+	     2. The sheet is inset with a HEADER BAND at the top, twice the margin of
+	        the other three sides — the same full-bleed strip of ink a region
+	        opens with. Flattening it to an even border turned the ticket into a
+	        picture frame.
+	     3. The leaders are sixteen fine dots to a run, not seven fat ones, and
+	        each run lands on a chunky terminal square whose baseline the dots
+	        share. That density is the whole texture of the thing at 512 px, and
+	        at 16 px it goes to a grey rule, which is the intent.
+
+	     The tear's two bites are still the asymmetric pair: on the left it is
+	     wider than the ink beside it and punches through to the stock, on the
+	     right it stays inside the block.
+
+	     The one liberty taken with the original is the scale. It is an
+	     illustration and stands in a wide cream margin; an icon is read at
+	     16 px, so the whole mark is enlarged about the centre to the footprint
+	     the tab and the Home Screen had before. Nothing inside it moves. -->
+	<rect width="512" height="512" fill="#efe7d5" />
+	<g transform="translate(256 256) scale(1.16) translate(-256 -256)">
+		<!-- Second pass, laid down first so the first sits on top of it. -->
+		<rect x="157" y="94" width="222" height="341" fill="#1a1613" />
+		<!-- First pass. Its top edge is cut a degree and a half off level, which
+		     is the hand in the original and the same tilt `.stamp` carries. -->
+		<path d="M133 83.5 L356.5 77 L356.5 418 L133 418 Z" fill="#1a1613" />
+		<!-- The sheet, hand-trimmed: the top follows the block's tilt and the
+		     right edge bows out as it falls, so the ink beside it narrows. -->
+		<path d="M142.5 125 L350 118.5 L355.5 409 L142.5 409 Z" fill="#fbf7ef" />
+		<g stroke="#1a1613" fill="none">
+			<g stroke-width="4" stroke-dasharray="4 5.4">
+				<path d="M163.5 155.5H309" />
+				<path d="M163.5 185.5H309" />
+			</g>
+			<path d="M157.5 310.5H323" stroke-width="5" stroke-dasharray="16.5 7.5" />
+		</g>
+		<rect x="316.5" y="143.5" width="13.5" height="14" fill="#1a1613" />
+		<rect x="316.5" y="173.5" width="13.5" height="13.5" fill="#1a1613" />
+		<circle cx="142.5" cy="310.5" r="15.5" fill="#efe7d5" />
+		<circle cx="354" cy="310.5" r="23" fill="#1a1613" />
+		<circle cx="250" cy="360" r="26" fill="#c8401a" />
+	</g>
+</svg>
