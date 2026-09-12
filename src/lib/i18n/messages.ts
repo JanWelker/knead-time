@@ -25,21 +25,46 @@ export interface Messages {
 		questions: string;
 	};
 	ask: {
+		mode_question: string;
+		mode_lede: string;
+		mode_upside: string;
+		mode_downside: string;
+		mode_simple: string;
+		mode_advanced: string;
 		when_question: string;
 		when_lede: string;
-		pizzas_question: string;
-		pizzas_lede: string;
+		when_upside: string;
+		when_downside: string;
 		flour_question: string;
 		flour_lede: string;
+		flour_upside: string;
+		flour_downside: string;
 		window_question: string;
 		window_lede: string;
+		window_upside: string;
+		window_downside: string;
+		batch_question: string;
+		batch_lede: string;
+		batch_upside: string;
+		batch_downside: string;
+		dough_question: string;
+		dough_lede: string;
+		dough_upside: string;
+		dough_downside: string;
 		method_question: string;
 		method_lede: string;
-		running_heading: string;
-		running_start: string;
-		running_ferment: string;
-		running_flour: string;
-		running_steps: string;
+		method_upside: string;
+		method_downside: string;
+		leaven_question: string;
+		leaven_lede: string;
+		leaven_upside: string;
+		leaven_downside: string;
+		proof_question: string;
+		proof_lede: string;
+		proof_upside: string;
+		proof_downside: string;
+		upside_label: string;
+		downside_label: string;
 		fewer: string;
 		more: string;
 	};
@@ -911,24 +936,71 @@ const en: Messages = {
 		questions: 'Questions'
 	},
 	ask: {
+		mode_question: 'How much do you want to decide?',
+		mode_lede:
+			'Both routes end at the same job ticket. This only settles how much of the dough you are asked about on the way there.',
+		mode_upside:
+			'Simple asks the five things that change a Neapolitan dough most and leaves the rest at figures a pizzeria would recognise.',
+		mode_downside:
+			'Advanced adds three more screens — the percentages, what leavens it, where it proofs — and assumes you already know what those do.',
+		mode_simple: 'Simple — the five questions that matter',
+		mode_advanced: 'Advanced — every number the dough has',
 		when_question: 'When are you eating?',
 		when_lede:
 			'Every step is counted backwards from this moment, so it is the one thing worth getting right.',
-		pizzas_question: 'How many pizzas?',
-		pizzas_lede: 'One ball of dough each. You can change how big they are later.',
+		when_upside:
+			'A bake time a day or two out opens the long, cold ferments — the ones that taste of wheat rather than of yeast.',
+		when_downside:
+			'Tonight still works, but a few hours is all the ferment there is room for, and no later answer can buy that time back.',
 		flour_question: 'Which flour is in your cupboard?',
 		flour_lede:
 			'Strength is what decides how long the dough can ferment before the gluten gives out.',
+		flour_upside:
+			'Naming the bag paints the window this flour is happy in, and every later choice aims at the longest ferment inside it.',
+		flour_downside:
+			'It is advice, not arithmetic: no weight and no step time moves with it. Guess too high and the dough is slack when you come to shape it; leave it unstated and you simply get no band drawn.',
 		window_question: 'How long should it ferment?',
 		window_lede:
 			'Longer tastes better, up to the point your flour can carry. The green stretch is where this bag is happy.',
+		window_upside:
+			'Time does the work instead of yeast: more flavour, a more extensible dough, and a crumb that opens in the oven.',
+		window_downside:
+			'It costs a shelf in the fridge for a day or two, and past what the flour can carry the gluten gives out and the dough tears rather than stretches.',
+		batch_question: 'How many pizzas?',
+		batch_lede:
+			'One ball of dough each, and the ball weight is what sets how big the pizza comes out.',
+		batch_upside:
+			'Every weight in the recipe scales off this, so an honest count is the difference between the right amount of dough and a fridge full of it.',
+		batch_downside:
+			'It moves nothing in the timing — twelve balls ferment exactly as long as two — so it is the one answer here you can still change at the last minute.',
+		dough_question: 'What goes into it?',
+		dough_lede: 'Baker’s percentages, every one of them measured against the flour.',
+		dough_upside:
+			'More water buys a lighter, more open crumb, and salt is what holds the fermentation back and the gluten together.',
+		dough_downside:
+			'Past about 70 % water the dough stops being pleasant to handle by hand, and more than a trace of oil or sugar stops it being Neapolitan.',
 		method_question: 'How will you knead it?',
 		method_lede: 'This sets how long the mixing takes and how cold your water needs to be.',
-		running_heading: 'Your plan so far',
-		running_start: 'You start',
-		running_ferment: 'It ferments',
-		running_flour: 'Flour',
-		running_steps: '{n} steps',
+		method_upside:
+			'A spiral mixer develops the gluten fastest, and it is the calibration every step time here was written against.',
+		method_downside:
+			'A stand mixer takes longer and runs cooler; by hand, longer still — and each warms the dough differently, so the water you mix with changes with the answer.',
+		leaven_question: 'What is going to raise it?',
+		leaven_lede:
+			'The carrier, and — if you want one — a pre-ferment: a piece of the flour started the day before.',
+		leaven_upside:
+			'A biga or a poolish buys depth a straight dough cannot reach in the same hours, and a sourdough starter buys the acidity along with it.',
+		leaven_downside:
+			'A pre-ferment is a second appointment the day before, and it cannot run alongside a starter here. The autolyse costs nothing, but it only applies where no pre-ferment is already resting the flour.',
+		proof_question: 'Where is it going to sit?',
+		proof_lede:
+			'The two temperatures the yeast is solved against, and whether the balls ripen in the cold or on the counter.',
+		proof_upside:
+			'A real reading is worth taking: four degrees and seven degrees are a different dough by morning, and the plan will have weighed the yeast for the one you typed.',
+		proof_downside:
+			'Proofing the balls cold needs the tray space, and they still want four hours on the counter before they will open.',
+		upside_label: 'What it buys you',
+		downside_label: 'What it costs',
 		fewer: 'One fewer',
 		more: 'One more'
 	},
@@ -1430,24 +1502,70 @@ const de: Messages = {
 		questions: 'Fragen'
 	},
 	ask: {
+		mode_question: 'Wie viel willst du selbst entscheiden?',
+		mode_lede:
+			'Beide Wege enden beim selben Plan. Hier legst du nur fest, wie viel du unterwegs über den Teig gefragt wirst.',
+		mode_upside:
+			'Der einfache Weg fragt die fünf Dinge, die einen neapolitanischen Teig am stärksten verändern, und lässt den Rest auf Werten stehen, die jede Pizzeria wiedererkennt.',
+		mode_downside:
+			'Der Expertenweg hängt drei weitere Fragen an — die Prozente, was den Teig treibt, wo er gärt — und setzt voraus, dass du weißt, was die bewirken.',
+		mode_simple: 'Einfach — die fünf Fragen, auf die es ankommt',
+		mode_advanced: 'Experte — jede Zahl, die der Teig hat',
 		when_question: 'Wann willst du essen?',
 		when_lede:
 			'Jeder Schritt wird von diesem Moment rückwärts gerechnet — das ist die eine Angabe, die sitzen sollte.',
-		pizzas_question: 'Wie viele Pizzen?',
-		pizzas_lede: 'Ein Teigling pro Pizza. Wie groß die werden, kannst du später ändern.',
+		when_upside:
+			'Eine Backzeit ein oder zwei Tage voraus öffnet die lange Kühlgare — die, die nach Getreide schmeckt statt nach Hefe.',
+		when_downside:
+			'Heute Abend geht auch, aber dann ist nur Platz für ein paar Stunden Gare — und keine spätere Antwort holt diese Zeit zurück.',
 		flour_question: 'Welches Mehl steht in deinem Schrank?',
 		flour_lede:
 			'Die Stärke entscheidet, wie lange der Teig gären kann, bevor das Klebergerüst nachgibt.',
+		flour_upside:
+			'Nennst du die Packung, wird das Fenster gezeichnet, in dem sich dieses Mehl wohlfühlt — und jede spätere Wahl zielt auf die längste Gare darin.',
+		flour_downside:
+			'Das ist ein Hinweis, keine Rechnung: keine Menge und keine Schrittzeit bewegt sich dadurch. Schätzt du zu hoch, ist der Teig beim Formen schlapp; lässt du es offen, wird eben kein Band gezeichnet.',
 		window_question: 'Wie lange soll er gären?',
 		window_lede:
 			'Länger schmeckt besser — so weit, wie dein Mehl es trägt. Im grünen Bereich fühlt sich diese Packung wohl.',
+		window_upside:
+			'Die Zeit arbeitet statt der Hefe: mehr Aroma, ein dehnbarerer Teig und eine Krume, die im Ofen aufgeht.',
+		window_downside:
+			'Das kostet ein bis zwei Tage lang ein Fach im Kühlschrank — und jenseits dessen, was das Mehl trägt, gibt das Klebergerüst nach und der Teig reißt, statt sich zu dehnen.',
+		batch_question: 'Wie viele Pizzen?',
+		batch_lede: 'Ein Teigling pro Pizza — wie groß sie wird, bestimmt das Gewicht des Teiglings.',
+		batch_upside:
+			'Jede Menge im Rezept skaliert damit — eine ehrliche Zahl ist der Unterschied zwischen genug Teig und einem vollen Kühlschrank.',
+		batch_downside:
+			'Am Zeitplan ändert sie nichts — zwölf Teiglinge gären genauso lange wie zwei — es ist also die eine Antwort hier, die du noch in letzter Minute ändern kannst.',
+		dough_question: 'Was kommt hinein?',
+		dough_lede: 'Bäckerprozente, jedes einzelne am Mehl gemessen.',
+		dough_upside:
+			'Mehr Wasser bringt eine leichtere, offenere Krume; das Salz bremst die Gärung und hält das Klebergerüst zusammen.',
+		dough_downside:
+			'Über etwa 70 % Wasser lässt sich der Teig von Hand nicht mehr angenehm führen, und mehr als eine Spur Öl oder Zucker ist kein Neapolitaner mehr.',
 		method_question: 'Wie knetest du?',
 		method_lede: 'Das bestimmt, wie lange das Kneten dauert und wie kalt dein Wasser sein muss.',
-		running_heading: 'Dein Plan bisher',
-		running_start: 'Du startest',
-		running_ferment: 'Er gärt',
-		running_flour: 'Mehl',
-		running_steps: '{n} Schritte',
+		method_upside:
+			'Der Spiralkneter baut das Klebergerüst am schnellsten auf — und er ist die Kalibrierung, gegen die hier jede Schrittzeit geschrieben ist.',
+		method_downside:
+			'Eine Küchenmaschine braucht länger und arbeitet kühler, von Hand dauert es noch länger — und jede Methode erwärmt den Teig anders, also ändert sich mit der Antwort auch die Wassertemperatur.',
+		leaven_question: 'Was treibt den Teig?',
+		leaven_lede:
+			'Die Hefeart und — wenn du magst — ein Vorteig: ein Teil des Mehls, schon am Vortag angesetzt.',
+		leaven_upside:
+			'Eine Biga oder ein Poolish bringt eine Tiefe, die ein direkt geführter Teig in denselben Stunden nicht erreicht, und ein Sauerteig-Anstellgut bringt die Säure gleich mit.',
+		leaven_downside:
+			'Ein Vorteig ist ein zweiter Termin am Vortag, und zusammen mit Anstellgut geht er hier nicht. Die Autolyse kostet nichts, greift aber nur, wenn nicht ohnehin schon ein Vorteig das Mehl ruhen lässt.',
+		proof_question: 'Wo soll er stehen?',
+		proof_lede:
+			'Die beiden Temperaturen, gegen die die Hefemenge gerechnet wird — und ob die Teiglinge in der Kälte oder auf der Arbeitsfläche reifen.',
+		proof_upside:
+			'Einmal wirklich nachzumessen lohnt sich: vier Grad und sieben Grad sind bis zum Morgen zwei verschiedene Teige, und der Plan hat die Hefe für die Zahl abgewogen, die du getippt hast.',
+		proof_downside:
+			'Die Teiglinge im Kühlschrank gehen zu lassen braucht Platz für die Box, und sie wollen trotzdem vier Stunden auf der Arbeitsfläche, bevor sie sich öffnen lassen.',
+		upside_label: 'Was es dir bringt',
+		downside_label: 'Was es kostet',
 		fewer: 'Eine weniger',
 		more: 'Eine mehr'
 	},
@@ -1951,24 +2069,71 @@ const it: Messages = {
 		questions: 'Domande'
 	},
 	ask: {
+		mode_question: 'Quanto vuoi decidere tu?',
+		mode_lede:
+			'Le due strade arrivano allo stesso programma. Qui si stabilisce soltanto quanto dell’impasto ti viene chiesto lungo la strada.',
+		mode_upside:
+			'La via semplice chiede le cinque cose che cambiano di più una napoletana e lascia tutto il resto su valori che una pizzeria riconoscerebbe.',
+		mode_downside:
+			'Quella avanzata aggiunge altre tre schermate — le percentuali, cosa lo fa lievitare, dove lievita — e dà per scontato che tu sappia già cosa fanno.',
+		mode_simple: 'Semplice — le cinque domande che contano',
+		mode_advanced: 'Avanzata — ogni numero dell’impasto',
 		when_question: 'Quando si mangia?',
 		when_lede:
 			'Ogni passo si calcola a ritroso da questo momento, quindi è l’unica cosa che vale davvero la pena azzeccare.',
-		pizzas_question: 'Quante pizze?',
-		pizzas_lede: 'Un panetto a testa. Quanto pesano lo puoi cambiare dopo.',
+		when_upside:
+			'Una cottura fra un giorno o due apre le lievitazioni lunghe a freddo — quelle che sanno di grano e non di lievito.',
+		when_downside:
+			'Stasera si può fare, ma qualche ora è tutta la lievitazione che ci sta, e nessuna risposta successiva può recuperare quel tempo.',
 		flour_question: 'Che farina hai in dispensa?',
 		flour_lede: 'La forza decide quanto a lungo l’impasto può lievitare prima che il glutine ceda.',
+		flour_upside:
+			'Dire quale sacco hai disegna la banda in cui questa farina si trova bene, e ogni scelta successiva punta alla lievitazione più lunga che ci sta dentro.',
+		flour_downside:
+			'È un’indicazione, non un calcolo: non muove nessun peso e nessun tempo. Se la sopravvaluti l’impasto ti arriva molle quando lo stendi; se non la indichi, semplicemente non viene disegnata nessuna banda.',
 		window_question: 'Quanto deve lievitare?',
 		window_lede:
 			'Più lunga, più buona — fino a dove arriva la tua farina. Il tratto verde è dove questa farina si trova bene.',
+		window_upside:
+			'Il lavoro lo fa il tempo al posto del lievito: più gusto, un impasto più estensibile e una mollica che si apre in forno.',
+		window_downside:
+			'Costa un ripiano del frigo per un giorno o due, e oltre quello che la farina regge il glutine cede e l’impasto si strappa invece di stendersi.',
+		batch_question: 'Quante pizze?',
+		batch_lede:
+			'Un panetto a testa, e il peso del panetto è ciò che decide quanto viene grande la pizza.',
+		batch_upside:
+			'Tutti i pesi della ricetta si calcolano da qui, quindi un conto onesto è la differenza tra l’impasto giusto e un frigo pieno.',
+		batch_downside:
+			'Sui tempi non cambia niente — dodici panetti lievitano esattamente quanto due — quindi è l’unica risposta qui che puoi ancora cambiare all’ultimo momento.',
+		dough_question: 'Cosa ci va dentro?',
+		dough_lede: 'Le percentuali del panificatore, calcolate una per una sul peso della farina.',
+		dough_upside:
+			'Più acqua dà una mollica più leggera e più alveolata, e il sale è ciò che trattiene la lievitazione e tiene insieme il glutine.',
+		dough_downside:
+			'Oltre il 70 % di acqua l’impasto smette di essere piacevole da lavorare a mano, e più di un accenno di olio o zucchero smette di essere napoletano.',
 		method_question: 'Come lo impasti?',
 		method_lede:
 			'Questo stabilisce quanto dura l’impastamento e quanto fredda deve essere l’acqua.',
-		running_heading: 'Il tuo programma finora',
-		running_start: 'Inizi',
-		running_ferment: 'Lievita',
-		running_flour: 'Farina',
-		running_steps: '{n} passi',
+		method_upside:
+			'L’impastatrice a spirale sviluppa il glutine nel modo più veloce, ed è la taratura su cui sono scritti tutti i tempi che vedi qui.',
+		method_downside:
+			'La planetaria ci mette di più e scalda meno; a mano ci vuole ancora di più — e ognuna riscalda l’impasto in modo diverso, quindi l’acqua con cui impasti cambia con la risposta.',
+		leaven_question: 'Cosa lo fa lievitare?',
+		leaven_lede:
+			'Il lievito e — se lo vuoi — un preimpasto: una parte della farina avviata il giorno prima.',
+		leaven_upside:
+			'Una biga o un poolish danno una profondità che un impasto diretto non raggiunge nelle stesse ore, e il lievito madre porta con sé anche l’acidità.',
+		leaven_downside:
+			'Un preimpasto è un secondo appuntamento il giorno prima, e qui non può convivere con il lievito madre. L’autolisi non costa nulla, ma vale solo dove non c’è già un preimpasto a far riposare la farina.',
+		proof_question: 'Dove lo lasci lievitare?',
+		proof_lede:
+			'Le due temperature su cui si calcola il lievito, e se i panetti maturano al freddo o sul banco.',
+		proof_upside:
+			'Vale la pena misurarle davvero: quattro gradi e sette gradi sono un impasto diverso al mattino, e il programma avrà pesato il lievito su quello che hai scritto tu.',
+		proof_downside:
+			'L’appretto in frigorifero vuole spazio per le cassette, e i panetti chiedono comunque quattro ore sul banco prima di aprirsi.',
+		upside_label: 'Cosa ti dà',
+		downside_label: 'Cosa ti costa',
 		fewer: 'Una in meno',
 		more: 'Una in più'
 	},
@@ -2477,24 +2642,71 @@ const fr: Messages = {
 		questions: 'Questions'
 	},
 	ask: {
+		mode_question: 'Jusqu’où voulez-vous décider ?',
+		mode_lede:
+			'Les deux parcours mènent au même programme. Cela règle seulement le nombre de choses qu’on vous demande sur la pâte en chemin.',
+		mode_upside:
+			'Le parcours simple pose les cinq questions qui changent le plus une pâte napolitaine et laisse le reste sur des valeurs qu’une pizzeria reconnaîtrait.',
+		mode_downside:
+			'Le parcours avancé ajoute trois écrans — les pourcentages, ce qui la fait lever, où elle pousse — et suppose que vous savez déjà à quoi ils servent.',
+		mode_simple: 'Simple — les cinq questions qui comptent',
+		mode_advanced: 'Avancé — tous les nombres de la pâte',
 		when_question: 'Quand allez-vous manger ?',
 		when_lede:
 			'Chaque étape se calcule à rebours à partir de ce moment — c’est donc la seule chose qu’il vaut vraiment la peine de bien choisir.',
-		pizzas_question: 'Combien de pizzas ?',
-		pizzas_lede: 'Un pâton pour chacune. Vous pourrez changer leur taille plus tard.',
+		when_upside:
+			'Une cuisson dans un ou deux jours ouvre les longues fermentations au froid — celles qui ont le goût du blé plutôt que celui de la levure.',
+		when_downside:
+			'Ce soir, cela marche aussi, mais quelques heures sont toute la fermentation dont vous disposez, et aucune réponse ultérieure ne rachètera ce temps.',
 		flour_question: 'Quelle farine avez-vous dans le placard ?',
 		flour_lede:
 			'C’est la force qui détermine combien de temps la pâte peut fermenter avant que le gluten ne lâche.',
+		flour_upside:
+			'Nommer le paquet dessine la fenêtre dans laquelle cette farine se sent bien, et chaque choix suivant vise la plus longue fermentation qu’elle contient.',
+		flour_downside:
+			'C’est un conseil, pas un calcul : aucun poids ni aucune durée d’étape ne bouge avec. Visez trop haut et la pâte sera relâchée au moment de la façonner ; ne la précisez pas et vous n’aurez simplement aucune bande dessinée.',
 		window_question: 'Combien de temps doit-elle fermenter ?',
 		window_lede:
 			'Plus c’est long, meilleur c’est — jusqu’à la limite que votre farine peut porter. La zone verte est celle où ce paquet se sent bien.',
+		window_upside:
+			'Le temps travaille à la place de la levure : plus d’arôme, une pâte plus extensible, et une mie qui s’ouvre au four.',
+		window_downside:
+			'Cela coûte une étagère du réfrigérateur pendant un jour ou deux, et au-delà de ce que la farine peut porter le gluten lâche et la pâte se déchire au lieu de s’étirer.',
+		batch_question: 'Combien de pizzas ?',
+		batch_lede:
+			'Un pâton pour chacune, et c’est le poids du pâton qui décide de la taille de la pizza.',
+		batch_upside:
+			'Tous les poids de la recette en découlent : un compte honnête fait la différence entre la bonne quantité de pâte et un réfrigérateur plein.',
+		batch_downside:
+			'Cela ne change rien au minutage — douze pâtons fermentent exactement aussi longtemps que deux — c’est donc la seule réponse ici que vous pouvez encore changer à la dernière minute.',
+		dough_question: 'Qu’est-ce qu’il y a dedans ?',
+		dough_lede: 'Des pourcentages de boulanger, tous rapportés à la farine.',
+		dough_upside:
+			'Plus d’eau donne une mie plus légère et plus alvéolée, et c’est le sel qui retient la fermentation et tient le gluten.',
+		dough_downside:
+			'Au-delà d’environ 70 % d’eau, la pâte cesse d’être agréable à travailler à la main, et plus qu’une trace d’huile ou de sucre l’empêche d’être napolitaine.',
 		method_question: 'Comment allez-vous la pétrir ?',
 		method_lede: 'Cela fixe la durée du pétrissage et la fraîcheur que doit avoir votre eau.',
-		running_heading: 'Votre programme jusqu’ici',
-		running_start: 'Vous commencez',
-		running_ferment: 'Elle fermente',
-		running_flour: 'Farine',
-		running_steps: '{n} étapes',
+		method_upside:
+			'Un pétrin à spirale développe le gluten le plus vite, et c’est l’étalonnage sur lequel chaque durée d’étape a été écrite ici.',
+		method_downside:
+			'Un robot pâtissier demande plus de temps et chauffe moins ; à la main, c’est plus long encore — et chacun réchauffe la pâte différemment, donc l’eau du pétrissage change avec la réponse.',
+		leaven_question: 'Qu’est-ce qui va la faire lever ?',
+		leaven_lede:
+			'La levure, et — si vous en voulez un — un pré-ferment : une part de la farine lancée la veille.',
+		leaven_upside:
+			'Une biga ou un poolish apporte une profondeur qu’une pâte directe n’atteint pas dans les mêmes heures, et un levain apporte l’acidité avec.',
+		leaven_downside:
+			'Un pré-ferment est un second rendez-vous la veille, et il ne peut pas tourner en même temps qu’un levain ici. L’autolyse ne coûte rien, mais elle ne s’applique que là où aucun pré-ferment ne fait déjà reposer la farine.',
+		proof_question: 'Où va-t-elle pousser ?',
+		proof_lede:
+			'Les deux températures sur lesquelles la levure est calculée, et si les pâtons mûrissent au froid ou sur le plan de travail.',
+		proof_upside:
+			'Une vraie mesure vaut la peine d’être prise : quatre degrés et sept degrés font une pâte différente au matin, et le programme aura pesé la levure pour celle que vous avez saisie.',
+		proof_downside:
+			'Faire pousser les pâtons au réfrigérateur demande la place d’une plaque, et il leur faut quand même quatre heures sur le plan de travail avant de pouvoir s’ouvrir.',
+		upside_label: 'Ce que cela vous apporte',
+		downside_label: 'Ce que cela coûte',
 		fewer: 'Une de moins',
 		more: 'Une de plus'
 	},
@@ -2998,24 +3210,71 @@ const nl: Messages = {
 		questions: 'Vragen'
 	},
 	ask: {
+		mode_question: 'Hoeveel wil je zelf bepalen?',
+		mode_lede:
+			'Beide routes eindigen bij hetzelfde werkbriefje. Dit bepaalt alleen hoeveel er onderweg over het deeg aan je gevraagd wordt.',
+		mode_upside:
+			'Eenvoudig vraagt de vijf dingen die een Napolitaans deeg het meest veranderen en laat de rest staan op waarden die elke pizzeria zou herkennen.',
+		mode_downside:
+			'Expert voegt drie schermen toe — de percentages, wat het laat rijzen, waar het rijst — en gaat ervan uit dat je al weet wat die doen.',
+		mode_simple: 'Eenvoudig — de vijf vragen die ertoe doen',
+		mode_advanced: 'Expert — elk getal dat het deeg heeft',
 		when_question: 'Wanneer ga je eten?',
 		when_lede:
 			'Elke stap wordt vanaf dit moment teruggerekend, dus dit is het enige waar het echt op aankomt.',
-		pizzas_question: 'Hoeveel pizza’s?',
-		pizzas_lede: 'Eén deegbol per pizza. Hoe groot ze worden, kies je later.',
+		when_upside:
+			'Een baktijd die een dag of twee verderop ligt, opent de lange koelkast-rijs — de rijs die naar graan smaakt in plaats van naar gist.',
+		when_downside:
+			'Vanavond kan ook, maar dan is er ruimte voor niet meer dan een paar uur rijs, en geen enkel later antwoord koopt die tijd terug.',
 		flour_question: 'Welk meel heb je in de kast?',
 		flour_lede:
 			'De sterkte bepaalt hoe lang het deeg de rijs verdraagt voordat het gluten het begeeft.',
+		flour_upside:
+			'Door de zak te noemen wordt het venster getekend waarin dit meel zich thuis voelt, en elke latere keuze mikt op de langste rijs daarbinnen.',
+		flour_downside:
+			'Het is advies, geen rekenwerk: er beweegt geen gewicht en geen staptijd mee. Schat je te hoog, dan is het deeg slap als je gaat vormen; geef je niets op, dan wordt er simpelweg geen band getekend.',
 		window_question: 'Hoe lang moet het rijzen?',
 		window_lede:
 			'Langer smaakt beter, tot waar je meel het nog draagt. In de groene strook voelt deze zak zich thuis.',
+		window_upside:
+			'De tijd doet het werk in plaats van de gist: meer smaak, een rekbaarder deeg en een kruim dat in de oven opengaat.',
+		window_downside:
+			'Het kost een plank in de koelkast voor een dag of twee, en voorbij wat het meel draagt begeeft het gluten het en scheurt het deeg in plaats van uit te rekken.',
+		batch_question: 'Hoeveel pizza’s?',
+		batch_lede:
+			'Eén deegbol per pizza, en het gewicht van die bol bepaalt hoe groot de pizza wordt.',
+		batch_upside:
+			'Elk gewicht in het recept schaalt hiermee mee, dus een eerlijk aantal is het verschil tussen precies genoeg deeg en een koelkast vol.',
+		batch_downside:
+			'Aan de timing verandert het niets — twaalf bollen rijzen precies even lang als twee — dus dit is het enige antwoord hier dat je op het laatste moment nog kunt wijzigen.',
+		dough_question: 'Wat gaat erin?',
+		dough_lede: 'Bakkerpercentages, allemaal gemeten ten opzichte van de bloem.',
+		dough_upside:
+			'Meer water levert een lichtere, opener kruim op, en het zout remt de rijs af en houdt het gluten bij elkaar.',
+		dough_downside:
+			'Boven ongeveer 70 % water is het deeg met de hand niet prettig meer te hanteren, en meer dan een spoor olie of suiker maakt het geen Napolitaans deeg meer.',
 		method_question: 'Hoe ga je kneden?',
 		method_lede: 'Dit bepaalt hoe lang het kneden duurt en hoe koud je water moet zijn.',
-		running_heading: 'Je plan tot nu toe',
-		running_start: 'Je begint',
-		running_ferment: 'Het rijst',
-		running_flour: 'Meel',
-		running_steps: '{n} stappen',
+		method_upside:
+			'Een spiraalkneder ontwikkelt het gluten het snelst, en op die kneder is elke staptijd hier geijkt.',
+		method_downside:
+			'Een keukenmachine heeft langer nodig en draait koeler; met de hand duurt het nog langer — en elke manier verwarmt het deeg anders, dus het water waarmee je kneedt verandert met je antwoord.',
+		leaven_question: 'Wat gaat het laten rijzen?',
+		leaven_lede:
+			'De soort gist, en — als je er een wilt — een voordeeg: een deel van de bloem dat je de dag ervoor aanzet.',
+		leaven_upside:
+			'Een biga of een poolish levert diepte die een direct deeg in dezelfde uren niet haalt, en een zuurdesem levert de zuurtoon er meteen bij.',
+		leaven_downside:
+			'Een voordeeg is een tweede afspraak op de dag ervoor, en het kan hier niet samen met zuurdesem. De autolyse kost niets, maar geldt alleen als er nog geen voordeeg de bloem laat rusten.',
+		proof_question: 'Waar gaat het staan?',
+		proof_lede:
+			'De twee temperaturen waarop de gist wordt berekend, en of de deegbollen in de koelkast rijpen of op het aanrecht.',
+		proof_upside:
+			'Even echt meten loont: vier graden en zeven graden zijn tegen de ochtend een ander deeg, en het plan heeft de gist afgewogen op het getal dat jij hebt ingevuld.',
+		proof_downside:
+			'Deegbollen koud laten rijzen vraagt ruimte in de koelkast voor de bakken, en ze willen daarna nog vier uur op het aanrecht voordat ze zich laten vormen.',
+		upside_label: 'Wat het je oplevert',
+		downside_label: 'Wat het kost',
 		fewer: 'Eén minder',
 		more: 'Eén meer'
 	},
