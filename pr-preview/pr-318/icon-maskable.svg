@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Knead Time">
+	<!-- The maskable cut: Android crops this to a circle, a squircle or whatever
+	     the launcher fancies, and only the inner 80 % is guaranteed to survive.
+	     The ticket is a rectangle, so it is its DIAGONAL that has to clear that
+	     circle, not its width — 336 by 416 is 535 corner to corner against the
+	     410 the safe circle allows. Hence the 0.70 below, which brings it to
+	     374 and leaves the corners of the ink block a margin; 0.75 lands on
+	     exactly 410 and a round crop shaves them. The stock runs full bleed to
+	     feed the crop. -->
+	<rect width="512" height="512" fill="#efe7d5" />
+	<g transform="translate(256 256) scale(0.7) translate(-256 -256)">
+		<rect x="88" y="48" width="336" height="416" fill="#1a1613" />
+		<rect x="102" y="62" width="288" height="368" fill="#fbf7ef" />
+		<g stroke="#1a1613" stroke-width="12">
+			<path d="M133 101H306" stroke-dasharray="12 14" />
+			<path d="M133 139H306" stroke-dasharray="12 14" />
+			<path d="M102 303H390" stroke-dasharray="22 16" />
+		</g>
+		<rect x="330" y="92" width="18" height="18" fill="#1a1613" />
+		<rect x="330" y="130" width="18" height="18" fill="#1a1613" />
+		<circle cx="102" cy="303" r="20" fill="#efe7d5" />
+		<circle cx="390" cy="303" r="20" fill="#1a1613" />
+		<circle cx="246" cy="365" r="34" fill="#c8401a" />
+	</g>
+</svg>

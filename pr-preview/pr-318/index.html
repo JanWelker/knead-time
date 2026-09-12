@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<!-- One mark, one file: the tab, the Home Screen and the manifest all point
+		     at icon.svg, so the icon a reader recognises in a tab strip cannot
+		     drift from the one on their phone. It is drawn to survive 16 px —
+		     the leaders go to texture there, the ticket and the tomato do not. -->
+		<link rel="icon" href="./icon.svg" type="image/svg+xml" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="theme-color" content="#efe7d5" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)" />
+		<meta name="description" content="Time-anchored Neapolitan pizza dough calculator" />
+
+		<!-- Added to the Home Screen, this stops being a page and becomes the thing
+		     you prop against the flour bag for two days: standalone, no browser
+		     chrome, its own icon. The manifest is a static file with relative URLs
+		     (start_url and every icon src resolve against its own address), which
+		     is what keeps BASE_PATH out of it — the same trick the hashed .woff2
+		     files use. iOS reads none of that for the icon itself: apple-touch-icon
+		     is what Safari's share sheet puts on the home screen, so the PNG has to
+		     be here as well as in the manifest, and it is opaque because iOS
+		     composites a transparent one onto black.
+		     There are no notification meta tags and there is no push code: iOS
+		     suspends a backgrounded web app's JavaScript and only ever wakes its
+		     service worker for an incoming push message, so a step reminder at
+		     03:00 needs a server to send it — which this app does not have and is
+		     not going to grow. See issue #306. -->
+		<link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+		<link rel="manifest" href="./manifest.webmanifest" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-title" content="Knead Time" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<!-- Two faces off one press: Anton is the sign painter (masthead, banners,
+		     the numbers that have to carry a room), Archivo the workhorse — a
+		     variable grotesque whose width axis supplies the condensed caps every
+		     label is set in, so no third family is needed. Both are served from
+		     this origin (@font-face in app.css) and both fall back to a narrow
+		     system face; there is no link to a font CDN here, and nothing in this
+		     document may reintroduce one — the app makes no third-party request. -->
+		<script>
+			// Theme boot: apply dark before first paint. The legacy bare 'theme'
+			// slot is read as a fallback until loadStoredTheme migrates it to
+			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
+			// cookies") — only the reads are guarded so a blocked storage still
+			// honours the system preference.
+			(function () {
+				var stored = null;
+				try {
+					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+				} catch (e) {}
+				if (
+					stored === 'dark' ||
+					(stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+				) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
+		<link href="./_app/immutable/bundle.BdkAEaaU.js" rel="modulepreload">
+		
+		<link href="./_app/immutable/assets/bundle.CzlOUG68.css" rel="stylesheet">
+	</head>
+	<body
+		data-sveltekit-preload-data="hover"
+		class="text-ink min-h-screen bg-transparent antialiased"
+	>
+		<div style="display: contents">
+			<script>
+				{
+					__sveltekit_1t770ur = {
+						base: new URL(".", location).pathname.slice(0, -1),
+						assets: "/pr-preview/pr-318"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					import("./_app/immutable/bundle.BdkAEaaU.js").then((app) => {
+						app.start(element)
+					});
+
+					if ('serviceWorker' in navigator) {
+						const script_url = './service-worker.js';
+						const policy = globalThis?.window?.trustedTypes?.createPolicy(
+							'sveltekit-trusted-url',
+							{ createScriptURL(url) { return url; } }
+						);
+						const sanitised = policy?.createScriptURL(script_url) ?? script_url;
+						addEventListener('load', function () {
+							navigator.serviceWorker.register(sanitised);
+						});
+					}
+				}
+			</script>
+		</div>
+	</body>
+</html>
