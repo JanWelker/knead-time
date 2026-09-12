@@ -5,7 +5,6 @@
 	import { formatBallWeight, formatDateTime, formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
-	import { uiMode } from '$lib/mode.svelte';
 	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
 	import type { FormState } from '$lib/state.svelte';
 	import { flourIngredientName, stepDetailText, stepTitle } from '$lib/stepCopy';
@@ -92,6 +91,18 @@
 	}
 
 	type Chip = { label: string; value: string; field: string };
+	// The blanks on the ticket, and there is one set of them at every view mode
+	// (issue #315). Expert used to append hydration, salt and room temperature
+	// here, which put a second row of fields back on the one surface that is not
+	// a form — and made the same recipe render a three-chip plan or a six-chip
+	// plan depending on a device preference that is not in the share URL, so two
+	// people opening one link saw different tickets. The expert's door is `Edit
+	// recipe`: one press to every field in DoughInputs, with the plan left
+	// legible behind it.
+	//
+	// Mixing method is in the simple set in the sheet but has never been a blank
+	// here, and stays out: the row reflows to two across at 390 px and a fifth
+	// entry buys a second line for a value nobody adjusts mid-bake.
 	const chips = $derived.by(() => {
 		const out: Chip[] = [
 			{
@@ -114,15 +125,6 @@
 				value: flourIngredientName(form.flourW, t),
 				field: 'field-flour'
 			});
-		}
-		// Expert reveals the numbers expert set. In the simple view they are all
-		// at their defaults, and a row of untouched defaults is noise.
-		if (uiMode.current === 'expert') {
-			out.push(
-				{ label: t.form.hydration, value: `${form.inputs.hydration} %`, field: 'field-hydration' },
-				{ label: t.form.salt, value: `${form.inputs.saltPercent} %`, field: 'field-salt' },
-				{ label: t.form.roomTemp, value: `${form.inputs.roomTempC} °C`, field: 'field-roomTemp' }
-			);
 		}
 		return out;
 	});

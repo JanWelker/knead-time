@@ -112,3 +112,32 @@ test('verbosity is a device preference, not part of the share URL', async ({ pag
 	expect(page.url()).not.toContain('verbos');
 	expect(new URL(page.url()).searchParams.has('sv')).toBe(false);
 });
+
+// The plan is the one surface where nothing is an input, and the row of blanks
+// on it is the same at both view modes (issue #315). Expert used to append
+// hydration, salt and room temperature to it, so the same share link rendered a
+// three-chip plan for one reader and a six-chip plan for another, off a device
+// preference that is not in the URL. Nothing but a browser can see this: the row
+// is derived at render time from a runtime singleton, and its membership had no
+// test at all — grepping e2e/ for `.chip-field` found nothing.
+test('the plan carries the same blanks in expert as in beginner', async ({ page }) => {
+	async function chipLabels() {
+		await waitForHydration(page);
+		expect(await currentView(page)).toBe('plan');
+		// textContent, not innerText: `.label-caps` sets the caps in CSS, and a
+		// rendered-text read would pin the type treatment alongside the membership.
+		return page.locator('.chip-field .label-caps').allTextContents();
+	}
+
+	await page.clock.install({ time: NOW });
+	await page.goto(`/?${RECIPE}`);
+	const expert = await chipLabels();
+
+	await page.goto(`/?md=b&${RECIPE}`);
+	const beginner = await chipLabels();
+
+	// Named, not merely equal: two empty rows would also match each other, and
+	// the point is which three values the ticket puts within one press.
+	expect(expert).toEqual(['Pizzas', 'Fermentation window', 'Flour']);
+	expect(beginner).toEqual(expert);
+});
