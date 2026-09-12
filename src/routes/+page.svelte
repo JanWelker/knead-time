@@ -30,7 +30,14 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
 	import { FormState } from '$lib/state.svelte';
-	import { initialLocation, viewHash, type AskStep, type ViewLocation } from '$lib/view';
+	import {
+		ASK_STEPS,
+		initialLocation,
+		viewHash,
+		visibleAskStep,
+		type AskStep,
+		type ViewLocation
+	} from '$lib/view';
 
 	// The app is three places now — the questions, the plan, the recipe
 	// collections — and this file is the only thing that knows which one is on
@@ -46,7 +53,7 @@
 
 	// Named `where`, not `location`: a plain `location` in a component shadows
 	// window.location, which is exactly the global this file reads most.
-	let where = $state<ViewLocation>({ view: 'plan', step: 'when' });
+	let where = $state<ViewLocation>({ view: 'plan', step: ASK_STEPS[0] });
 
 	// Recipe-only encoding of the form as it left hydration. The save effect
 	// below compares against it so recipe memory only updates after a real
@@ -114,6 +121,17 @@
 		return () => window.removeEventListener('popstate', onPopState);
 	});
 
+	// A fragment can name a question the current view mode does not ask — a
+	// hand-typed `#ask/leaven`, a link from someone walking the advanced flow, or
+	// the simple route being chosen while standing on one of the three advanced
+	// screens. Clamp before the URL effect below writes it back, so the address
+	// bar and the question on screen never disagree.
+	$effect(() => {
+		if (where.view !== 'ask') return;
+		const visible = visibleAskStep(where.step, uiMode.current);
+		if (visible !== where.step) where = { ...where, step: visible };
+	});
+
 	$effect(() => {
 		if (!browser || !hydrated) return;
 		const next = currentUrl(where);
@@ -171,7 +189,7 @@
 			sourceTiming={activePizzeria?.timing}
 			onadjust={(field) => adjustPanel?.open(field)}
 			onlibrary={() => go('library')}
-			onrestart={() => go('ask', 'when')}
+			onrestart={() => go('ask', ASK_STEPS[0])}
 			onsaverecipe={saveCurrentRecipe}
 		/>
 		<!-- Mounted with the plan only: the ask flow carries a window slider of

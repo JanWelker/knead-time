@@ -49,7 +49,9 @@ test('the ask flow is headed by its question, the library by its own title', asy
 	await openQuestion(page, 'window', RECIPE);
 	let heads = await outline(page);
 	expect(heads[0]).toEqual({ level: 1, text: 'How long should it ferment?' });
-	expect(heads.filter((h) => h.level === 2).map((h) => h.text)).toEqual(['Your plan so far']);
+	// Nothing else on the screen competes with it: the running stub that used to
+	// sit beside the question, and carry the only other h2 here, is gone.
+	expect(heads.filter((h) => h.level === 2)).toEqual([]);
 
 	await openRecipe(page, RECIPE);
 	await openLibrary(page);

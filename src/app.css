@@ -449,8 +449,8 @@ html.dark {
 		@apply text-[0.65rem] leading-tight whitespace-nowrap;
 	}
 
-	/* A dotted leader that keeps working when the label wraps. `.leader` below is
-	   a flex child sized with flex-1, and a flex item cannot sit on the last line
+	/* A dotted leader that keeps working when the label wraps. It used to be a
+	   flex child sized with flex-1, and a flex item cannot sit on the last line
 	   of a sibling that wrapped — a two-line flour name ("Dallagiovanna La
 	   Napoletana") squeezed it to its min-width and left a four-dot stub floating
 	   in the middle of the row. Drawing the dots as a background on the cell puts
@@ -474,14 +474,6 @@ html.dark {
 	.leader-text {
 		@apply pr-2;
 		background: var(--kt-sheet);
-	}
-
-	/* The dotted leader that walks a price list from its label to its number.
-	   A flex child, so it takes whatever width the two ends leave it. */
-	.leader {
-		@apply mx-2 min-w-4 flex-1 self-end;
-		border-bottom: 2px dotted var(--kt-ink-faint);
-		transform: translateY(-0.28em);
 	}
 
 	/* ---- Type roles ----------------------------------------------------- */

@@ -4,10 +4,13 @@
 	import { INFO_SECTIONS } from '$lib/infoSections';
 	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
+	import DoughFields from './DoughFields.svelte';
 	import FieldHelp from './FieldHelp.svelte';
 	import FlourSelect from './FlourSelect.svelte';
 	import FormField from './FormField.svelte';
 	import FermentWindowSlider from './FermentWindowSlider.svelte';
+	import LeavenFields from './LeavenFields.svelte';
+	import ProofFields from './ProofFields.svelte';
 
 	// Every input in DoughInputs, in one dense surface. The ask flow asks five
 	// of these one screen at a time; this is the other door — a baker who
@@ -163,42 +166,7 @@
 	<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<legend class="banner col-span-full mb-1">{t.adjust.group_dough}</legend>
 		{#if uiMode.current === 'expert'}
-			<FormField
-				id="field-hydration"
-				label={t.form.hydration}
-				min={50}
-				max={90}
-				step={1}
-				help={t.form.hydration_help}
-				bind:value={form.hydration}
-			/>
-
-			<FormField
-				id="field-salt"
-				label={t.form.salt}
-				min={0}
-				max={5}
-				step={0.1}
-				bind:value={form.saltPercent}
-			/>
-
-			<FormField
-				label={t.form.oil}
-				min={0}
-				max={15}
-				step={0.1}
-				help={t.form.oil_help}
-				bind:value={form.oilPercent}
-			/>
-
-			<FormField
-				label={t.form.sugar}
-				min={0}
-				max={5}
-				step={0.1}
-				help={t.form.sugar_help}
-				bind:value={form.sugarPercent}
-			/>
+			<DoughFields {form} />
 		{/if}
 
 		<label class="group block">
@@ -215,139 +183,12 @@
 	{#if uiMode.current === 'expert'}
 		<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 			<legend class="banner col-span-full mb-1">{t.adjust.group_leaven}</legend>
-			<label class="block">
-				<span class="field-label">{t.form.yeastType}</span>
-				<select class={selectClass} bind:value={form.yeastType}>
-					<option value="fresh">{t.form.yeast_fresh}</option>
-					<option value="instant">{t.form.yeast_instant}</option>
-					<option value="active-dry">{t.form.yeast_active_dry}</option>
-					<option value="sourdough">{t.form.yeast_sourdough}</option>
-				</select>
-				{#if form.yeastType === 'active-dry'}
-					<span class="text-ink-soft mt-1 block text-xs">
-						{t.form.yeast_active_dry_help}
-					</span>
-				{/if}
-			</label>
-
-			{#if form.yeastType === 'sourdough'}
-				<FormField
-					label={t.form.starterHydration}
-					min={40}
-					max={150}
-					step={5}
-					help={t.form.starterHydration_help}
-					bind:value={form.starterHydration}
-				/>
-			{:else}
-				<fieldset class="space-y-2">
-					<legend class="field-label">{t.form.preFerment}</legend>
-					<label class="text-ink flex items-center gap-2 text-sm font-medium">
-						<input type="checkbox" class="accent-accent size-4" bind:checked={form.bigaEnabled} />
-						{t.form.preFerment_biga}
-					</label>
-					{#if form.bigaEnabled}
-						<FormField
-							label={t.form.preFermentFlour_biga}
-							min={5}
-							max={80 - (form.poolishEnabled ? form.poolishFlourPercent : 0)}
-							step={5}
-							bind:value={form.bigaFlourPercent}
-						/>
-					{/if}
-					<label class="text-ink flex items-center gap-2 text-sm font-medium">
-						<input
-							type="checkbox"
-							class="accent-accent size-4"
-							bind:checked={form.poolishEnabled}
-						/>
-						{t.form.preFerment_poolish}
-					</label>
-					{#if form.poolishEnabled}
-						<FormField
-							label={t.form.preFermentFlour_poolish}
-							min={5}
-							max={80 - (form.bigaEnabled ? form.bigaFlourPercent : 0)}
-							step={5}
-							bind:value={form.poolishFlourPercent}
-						/>
-					{/if}
-					{#if form.bigaEnabled && form.poolishEnabled}
-						<span class="text-ink-soft block text-xs">{t.form.preFerment_sum_help}</span>
-					{/if}
-					{#if form.bigaEnabled || form.poolishEnabled}
-						<label class="text-ink flex items-center gap-2 text-sm font-medium">
-							<input
-								type="checkbox"
-								class="accent-accent size-4"
-								bind:checked={form.preFermentTempEnabled}
-							/>
-							{t.form.preFermentTemp_toggle}
-						</label>
-						{#if form.preFermentTempEnabled}
-							<FormField
-								label={t.form.preFermentTemp}
-								min={4}
-								max={35}
-								step={0.5}
-								help={t.form.preFermentTemp_help}
-								bind:value={form.preFermentTempValue}
-							/>
-						{/if}
-					{/if}
-				</fieldset>
-			{/if}
-
-			<!-- Autolyse applies only with no pre-ferment (sourdough always
-			     qualifies — its starter is not a schedule pre-ferment). -->
-			{#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
-				<label class="group text-ink flex items-center gap-2 text-sm font-medium">
-					<input type="checkbox" class="accent-accent size-4" bind:checked={form.autolyse} />
-					<span>
-						{t.form.autolyse_toggle}
-						<span class="text-ink-soft hidden text-xs font-normal group-focus-within:block">
-							{t.form.autolyse_help}
-						</span>
-					</span>
-				</label>
-			{/if}
+			<LeavenFields {form} />
 		</fieldset>
 
 		<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 			<legend class="banner col-span-full mb-1">{t.adjust.group_proof}</legend>
-			<label class="group text-ink col-span-full flex items-center gap-2 text-sm font-medium">
-				<input
-					type="checkbox"
-					class="accent-accent size-4"
-					checked={form.ballProof === 'cold'}
-					onchange={(e) => (form.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
-				/>
-				<span>
-					{t.form.ballProof_toggle}
-					<span class="text-ink-soft hidden text-xs font-normal group-focus-within:block">
-						{t.form.ballProof_help}
-					</span>
-				</span>
-			</label>
-
-			<FormField
-				id="field-roomTemp"
-				label={t.form.roomTemp}
-				min={10}
-				max={35}
-				step={0.5}
-				help={t.form.roomTemp_help}
-				bind:value={form.roomTempC}
-			/>
-
-			<FormField
-				label={t.form.fridgeTemp}
-				min={0}
-				max={12}
-				step={0.5}
-				help={t.form.fridgeTemp_help}
-				bind:value={form.fridgeTempC}
-			/>
+			<ProofFields {form} />
 		</fieldset>
 	{/if}
 

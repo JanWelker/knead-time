@@ -74,13 +74,14 @@ src/
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes); AskFlow / PlanView / LibraryView are the three views,
-│   │                        AdjustPanel is the sheet that holds every input
+│   │                        AdjustPanel is the sheet that holds every input, and
+│   │                        DoughFields / LeavenFields / ProofFields are the field groups both share
 │   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table in the Recipes view
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
-│   ├── view.ts           ← the three views (ask / plan / library) and where a visitor lands
+│   ├── view.ts           ← the three views (ask / plan / library), the questions each mode asks, and where a visitor lands
 │   ├── warningSlots.ts   ← which surface each schedule warning is rendered on
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
@@ -145,7 +146,7 @@ Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-sta
 
 1. **Math/logic first.** Add or extend a module in `src/lib/dough/`. Keep it pure (no Svelte imports). Add a `*.test.ts` next to it. Run `npm test` until green.
 2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
-3. **UI.** Add fields to `src/lib/components/InputForm.svelte` — the dense form inside the Adjust sheet, which is where every `DoughInputs` field lives; render results in `PlanView.svelte` or its children. A field worth putting on the plan gets an `id="field-…"` so a chip can open the sheet focused on it. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
+3. **UI.** Add fields to `src/lib/components/InputForm.svelte` — the dense form inside the Adjust sheet, which is where every `DoughInputs` field lives — or to the `DoughFields` / `LeavenFields` / `ProofFields` group it and the ask flow both render, so the two doors cannot disagree about what there is; render results in `PlanView.svelte` or its children. A field worth putting on the plan gets an `id="field-…"` so a chip can open the sheet focused on it. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
 4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
 5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`.
 
