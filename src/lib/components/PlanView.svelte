@@ -5,6 +5,7 @@
 	import { formatBallWeight, formatDateTime, formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
+	import type { MixingMethod } from '$lib/dough/types';
 	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
 	import type { FormState } from '$lib/state.svelte';
 	import { flourIngredientName, stepDetailText, stepTitle } from '$lib/stepCopy';
@@ -90,6 +91,12 @@
 		}
 	}
 
+	const MIXING_LABEL: Record<MixingMethod, () => string> = {
+		spiral: () => t.form.mixing_spiral,
+		stand: () => t.form.mixing_stand,
+		hand: () => t.form.mixing_hand
+	};
+
 	type Chip = { label: string; value: string; field: string };
 	// The blanks on the ticket, and there is one set of them at every view mode
 	// (issue #315). Expert used to append hydration, salt and room temperature
@@ -100,9 +107,13 @@
 	// recipe`: one press to every field in DoughInputs, with the plan left
 	// legible behind it.
 	//
-	// Mixing method is in the simple set in the sheet but has never been a blank
-	// here, and stays out: the row reflows to two across at 390 px and a fifth
-	// entry buys a second line for a value nobody adjusts mid-bake.
+	// Mixing method is on the ticket for the same reason it is in the simple set
+	// in the sheet: it is not a preference, it is part of the recipe. Spiral,
+	// stand and hand are 15, 20 and 25 minutes of mixing at 24, 18 and 5 °C of
+	// friction, so the answer moves the mix step's length, the water temperature
+	// the prep step tells you to hit, and — because those minutes come out of the
+	// ferment budget — the solved yeast with them. A plan that does not say which
+	// mixer it assumed is a plan whose knead time cannot be checked.
 	const chips = $derived.by(() => {
 		const out: Chip[] = [
 			{
@@ -126,6 +137,11 @@
 				field: 'field-flour'
 			});
 		}
+		out.push({
+			label: t.form.mixingMethod,
+			value: MIXING_LABEL[form.mixingMethod](),
+			field: 'field-mixingMethod'
+		});
 		return out;
 	});
 </script>

@@ -137,7 +137,28 @@ test('the plan carries the same blanks in expert as in beginner', async ({ page 
 	const beginner = await chipLabels();
 
 	// Named, not merely equal: two empty rows would also match each other, and
-	// the point is which three values the ticket puts within one press.
-	expect(expert).toEqual(['Pizzas', 'Fermentation window', 'Flour']);
+	// the point is which four values the ticket puts within one press.
+	expect(expert).toEqual(['Pizzas', 'Fermentation window', 'Flour', 'Mixing']);
 	expect(beginner).toEqual(expert);
+});
+
+// Mixing is on the ticket because it is part of the recipe, not a preference:
+// spiral, stand and hand are 15, 20 and 25 minutes of mixing at 24, 18 and 5 °C
+// of friction, so the answer moves the mix step, the water temperature and the
+// solved yeast with it. A plan that does not say which mixer it assumed is a
+// plan whose knead time cannot be checked — and the blank has to reach the
+// field that sets it, which is only true if the sheet still carries that id.
+test('the plan names the mixer, and the blank opens the field that sets it', async ({ page }) => {
+	await page.clock.install({ time: NOW });
+	await page.goto(`/?${RECIPE}&mm=h`);
+	await waitForHydration(page);
+
+	const chip = page.getByRole('button', { name: /Mixing/ });
+	await expect(chip).toContainText('By hand');
+	// ...and the schedule behind it is the hand-kneading one, not the default.
+	await expect(page.getByText('25 min', { exact: false }).first()).toBeVisible();
+
+	await chip.click();
+	await expect(sheet(page)).toBeVisible();
+	await expect(page.locator('#field-mixingMethod')).toBeFocused();
 });
