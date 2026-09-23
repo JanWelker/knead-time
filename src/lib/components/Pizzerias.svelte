@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { pizzeriaEntries, type PizzeriaEntry, type Ranking } from '$lib/pizzerias/pizzerias';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { interpolate } from '$lib/i18n/interpolate';
 	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 	import RecipeSection from './RecipeSection.svelte';
 	import RecipeSpecList from './RecipeSpecList.svelte';
@@ -63,7 +64,7 @@
 						{@render pizzeriaName(entry)}
 					</span>
 					<span class="text-ink-soft text-xs whitespace-nowrap">
-						{entry.city}, {entry.country}
+						{interpolate(t.pizzerias.place, { city: entry.city, country: entry.country })}
 					</span>
 				</div>
 				<div class="mt-2">{@render rankingChips(entry.rankings)}</div>
@@ -119,7 +120,7 @@
 							{/if}
 						</td>
 						<td class="text-ink-soft px-3 py-3 whitespace-nowrap">
-							{entry.city}, {entry.country}
+							{interpolate(t.pizzerias.place, { city: entry.city, country: entry.country })}
 						</td>
 						<td class="px-3 py-3">{@render rankingChips(entry.rankings)}</td>
 						<td class="figure-cell">

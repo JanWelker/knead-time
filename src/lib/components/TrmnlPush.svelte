@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { interpolate } from '$lib/i18n/interpolate';
 	import { safeLocalStorage } from '$lib/safeStorage';
 	import { clearTrmnlUuid, isTrmnlUuid, loadTrmnlUuid, saveTrmnlUuid } from '$lib/trmnl/uuid';
 	import { buildMergeVariables, sendToTrmnl } from '$lib/trmnl/webhook';
@@ -135,7 +136,10 @@
 					? 'text-accent-ink'
 					: 'sr-only'}"
 		>
-			{#if status === 'sent'}{t.trmnl_push.sent}{:else if status === 'error'}{t.trmnl_push.error}: {errorMessage}{/if}
+			{#if status === 'sent'}{t.trmnl_push.sent}{:else if status === 'error'}{interpolate(
+					t.trmnl_push.error_reason,
+					{ error: t.trmnl_push.error, reason: errorMessage }
+				)}{/if}
 		</p>
 
 		<p class="border-rule text-ink-soft border-t-2 pt-3 text-xs">

@@ -23,8 +23,12 @@
 	// a tick later.
 	let detailsRef: HTMLDetailsElement | null = $state(null);
 
+	// Only when there is a panel to dismiss. Without `explain` there is no
+	// <details>, and the two callers that render the seal that way — the ask
+	// flow's stub and the adjust sheet's header — each left a permanent pair of
+	// document listeners behind, guarding a ref that was always null.
 	$effect(() => {
-		if (!browser) return;
+		if (!browser || !explain) return;
 		return dismissOnOutsideClickOrEscape({
 			container: () => detailsRef,
 			isOpen: () => detailsRef?.open === true,

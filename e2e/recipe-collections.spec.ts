@@ -188,3 +188,16 @@ test('the rack renders through its named shapes, not through dropped declaration
 		})
 	).toEqual({ display: 'inline-flex', justify: 'center' });
 });
+
+// "City, Country" was assembled in the component with a literal comma, the one
+// piece of the rack's copy no locale could touch. It is the `pizzerias.place`
+// message now, interpolated; this pins that the row still reads as a place.
+test('50 Top Pizza names each place through the locale, not a literal comma', async ({ page }) => {
+	await loadLibrary(page, RECIPE);
+	const pizzerias = page.locator('details').filter({
+		has: page.getByRole('heading', { name: '50 Top Pizza recipes' })
+	});
+	await pizzerias.locator('summary').first().click();
+	// The cards and the table both carry it; whichever this width shows.
+	await expect(pizzerias.getByText('Caiazzo, Italy').filter({ visible: true })).toHaveCount(1);
+});

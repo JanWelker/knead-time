@@ -1,13 +1,20 @@
 import { expect, test, type Page } from '@playwright/test';
+import { defaultInputs } from '../src/lib/dough/defaults';
+import { computeSchedule } from '../src/lib/dough/schedule';
+import { decodeInputs } from '../src/lib/dough/urlState';
+import { MESSAGES } from '../src/lib/i18n/messages';
+import { stepTitle as titleOf } from '../src/lib/stepCopy';
 import {
 	allStops,
 	arrowCentreX,
 	chosenWindow,
 	dragTo,
+	openAdjust,
 	openForm,
 	sheet,
 	slider,
 	thumbCentreX,
+	waitForHydration,
 	windowCard
 } from './helpers';
 
@@ -292,4 +299,50 @@ test('the band caption carries a swatch in the band colour', async ({ page }) =>
 		.last()
 		.evaluate((el) => getComputedStyle(el).backgroundColor);
 	expect(colour).toBe(rail);
+});
+
+// The schedule table and this card each ran a 60 s `setInterval` of their own,
+// each seeded with its own `new Date()`: two clocks for one page, free to
+// disagree about the minute for one render — the table calling the first step
+// current while the card said the start had been missed. Both read one clock
+// now (now.svelte.ts). Two things pin it: the page registers exactly one
+// minute timer, counted by wrapping `setInterval` before the app loads, and one
+// tick moves both readouts together. The pinned clock stands 30 s before the
+// first step ends, so that tick is the one that ends it.
+test('the schedule and the window card read one clock', async ({ page }) => {
+	const query = `${CAPUTO}&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z`;
+	const inputs = { ...defaultInputs(), ...decodeInputs(query) };
+	const first = computeSchedule(inputs).steps[0];
+	const firstEnds = first.at.getTime() + first.durationMinutes * 60_000;
+	const stepTitle = (step: typeof first) => titleOf(step, MESSAGES.en);
+
+	// The clock first, so the wrapper wraps the fake timers the app will see.
+	await page.clock.install({ time: new Date(firstEnds - 30_000) });
+	await page.addInitScript(() => {
+		const w = window as Window & { __minuteTimers?: number };
+		w.__minuteTimers = 0;
+		const original = window.setInterval;
+		window.setInterval = ((handler: TimerHandler, ms?: number, ...rest: unknown[]) => {
+			if (ms === 60_000) w.__minuteTimers = (w.__minuteTimers ?? 0) + 1;
+			return original(handler, ms, ...rest);
+		}) as typeof window.setInterval;
+	});
+	await page.goto(`/?${query}`);
+	await waitForHydration(page);
+	await openAdjust(page);
+
+	// Table and card are both mounted and reading; there is one timer.
+	expect(
+		await page.evaluate(() => (window as Window & { __minuteTimers?: number }).__minuteTimers)
+	).toBe(1);
+
+	const nowStamp = page.locator('.stamp');
+	const missed = windowCard(page).getByText(/This window started/);
+	await expect(nowStamp.locator('xpath=..')).toContainText(stepTitle(first));
+	await expect(missed).toHaveCount(0);
+
+	// One tick moves both: the stamp leaves the first step and the card says so.
+	await page.clock.runFor(60_000);
+	await expect(missed).toHaveCount(1);
+	await expect(nowStamp.locator('xpath=..')).not.toContainText(stepTitle(first));
 });

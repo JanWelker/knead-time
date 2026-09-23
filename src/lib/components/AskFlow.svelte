@@ -228,7 +228,7 @@
 													type="radio"
 													name="mixingMethod"
 													value={method.value}
-													class="accent-accent size-4"
+													class="check-box"
 													bind:group={form.mixingMethod}
 												/>
 												<span class="text-lg font-semibold">{method.label()}</span>
