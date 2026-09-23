@@ -267,9 +267,12 @@ export class FormState {
 		// null is a real value here ("no flour stated", what every pre-v6 link
 		// decodes to), so this checks undefined rather than truthiness.
 		if (partial.flourW !== undefined) this.setFlour(partial.flourW);
-		if (partial.preFermentTempC !== undefined && partial.preFermentTempC !== null) {
-			this.preFermentTempEnabled = true;
-			this.preFermentTempValue = partial.preFermentTempC;
+		// null is a value here too ("follows the room", what an omitted `pt`
+		// means once the defaults are laid under a decoded query): it switches
+		// the override off rather than leaving whatever was set before.
+		if (partial.preFermentTempC !== undefined) {
+			this.preFermentTempEnabled = partial.preFermentTempC !== null;
+			if (partial.preFermentTempC !== null) this.preFermentTempValue = partial.preFermentTempC;
 		}
 		if (partial.preFerments !== undefined) {
 			const biga = partial.preFerments.find((pf) => pf.type === 'biga');
