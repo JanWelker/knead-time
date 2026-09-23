@@ -19,7 +19,7 @@ import {
 	PREP_MIN,
 	ROOM_MIN_TOTAL_MIN
 } from './schedule';
-import { freshEquivalentPercent } from './fermentation';
+import { freshEquivalentPercent, YEAST_PCT_HIGH, YEAST_PCT_LOW } from './fermentation';
 import { defaultInputs, findStep } from './testFixtures';
 import type { DoughInputs } from './types';
 
@@ -741,7 +741,7 @@ describe('computeSchedule — temperature warnings', () => {
 
 describe('computeSchedule — yeast magnitude warnings', () => {
 	it('warns yeast-large on cold-room short-window fresh ferments', () => {
-		// 3 h room window at 5 °C → eq ≈ 0.69 → yeastPct ≈ 2.3 (above the 2% guard).
+		// 3 h room window at 5 °C → eq ≈ 0.69 → yeastPct ≈ 2.3 (above the 1.5 % band).
 		// Co-fires with too-cold; we only assert the yeast warning here.
 		const r = computeSchedule(
 			baseInputs({
@@ -756,7 +756,7 @@ describe('computeSchedule — yeast magnitude warnings', () => {
 
 	it('warns yeast-tiny when equivalent ferment hours blow past the fresh-yeast budget', () => {
 		// Non-physical room temp is the only way through computeSchedule to push
-		// yeastPct below 0.02 — guards the defensive branch, not a realistic
+		// yeastPct below 0.05 — guards the defensive branch, not a realistic
 		// scenario. computeSchedule has no input bounds (form validation lives in
 		// the UI), so this is a legitimate call.
 		const r = computeSchedule(
@@ -1492,11 +1492,15 @@ describe('computeSchedule — warning thresholds', () => {
 		expect(r.warnings.includes(warning)).toBe(fires);
 	});
 
-	it('fires yeast-large exactly above 2 % fresh-equivalent, never below', () => {
+	it('fires yeast-large exactly above 1.5 % fresh-equivalent, never below', () => {
 		// The threshold was only ever exercised from far outside it, so it could
 		// drift a whole percentage point unnoticed. Sweeping windows and room
 		// temperatures lands solved percentages either side of the edge; the
-		// warning has to agree with the band on every one of them.
+		// warning has to agree with the band on every one of them. The edge is
+		// the fit score's too: the warning used to fire above 2 % while the score
+		// deducted above 1.5 %, so a 1.8 % recipe lost a star for being extreme
+		// with no warning on the page saying why.
+		expect(YEAST_PCT_HIGH).toBe(1.5);
 		const readyBy = new Date('2026-05-12T19:00:00Z');
 		let over = 0;
 		let under = 0;
@@ -1511,9 +1515,9 @@ describe('computeSchedule — warning thresholds', () => {
 				);
 				const fresh = freshEquivalentPercent(r.yeastPercent, r.yeastType);
 				expect(r.warnings.includes('yeast-large'), `${roomTempC} °C / ${hours} h → ${fresh}`).toBe(
-					fresh > 2
+					fresh > YEAST_PCT_HIGH
 				);
-				if (fresh > 2) over++;
+				if (fresh > YEAST_PCT_HIGH) over++;
 				else under++;
 			}
 		}
@@ -1522,10 +1526,13 @@ describe('computeSchedule — warning thresholds', () => {
 		expect(under).toBeGreaterThan(0);
 	});
 
-	it('fires yeast-tiny exactly below 0.02 % fresh-equivalent, never at zero', () => {
+	it('fires yeast-tiny exactly below 0.05 % fresh-equivalent, never at zero', () => {
 		// Only a non-physical room temperature pushes the solve this low —
 		// computeSchedule has no input bounds (the form and the URL decoder own
-		// that), which is what makes the threshold testable at all.
+		// that), which is what makes the threshold testable at all. The edge is
+		// the fit score's: the warning used to sit at 0.02 %, a second copy of a
+		// band the score judged at 0.05 %.
+		expect(YEAST_PCT_LOW).toBe(0.05);
 		const window = {
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z')
@@ -1536,9 +1543,9 @@ describe('computeSchedule — warning thresholds', () => {
 			const r = computeSchedule(baseInputs({ ...window, roomTempC }));
 			const fresh = freshEquivalentPercent(r.yeastPercent, r.yeastType);
 			expect(r.warnings.includes('yeast-tiny'), `${roomTempC} °C → ${fresh}`).toBe(
-				fresh > 0 && fresh < 0.02
+				fresh > 0 && fresh < YEAST_PCT_LOW
 			);
-			if (fresh < 0.02) under++;
+			if (fresh < YEAST_PCT_LOW) under++;
 			else over++;
 		}
 		expect(over).toBeGreaterThan(0);

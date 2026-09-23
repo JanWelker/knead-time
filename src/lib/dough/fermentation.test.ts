@@ -10,9 +10,23 @@ import {
 	TARGET_UNITS_FRESH,
 	TARGET_UNITS_SOURDOUGH,
 	temperatureFactor,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW,
 	yeastMassFactor,
 	yeastPercentForPhases
 } from './fermentation';
+
+describe('the yeast sanity band', () => {
+	it('is 0.05–1.5 % fresh-equivalent, and there is exactly one of it', () => {
+		// schedule.ts warned below 0.02 % and above 2 % while quality.ts deducted
+		// below 0.05 % and above 1.5 %: two bands for one judgement, so a recipe
+		// could lose a star with no warning saying why. Both now read this pair;
+		// the literals are pinned here because a constant only ever compared to
+		// itself is free to move.
+		expect(YEAST_PCT_LOW).toBe(0.05);
+		expect(YEAST_PCT_HIGH).toBe(1.5);
+	});
+});
 
 describe('yeastMassFactor', () => {
 	it.each([

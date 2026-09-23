@@ -16,7 +16,7 @@ Ferment "units" = `yeast% × hours × temperatureFactor(T)`. The temperature fac
 
 Every fermentation phase contributes to one equivalent-hours sum that solves for the yeast percentage, pre-ferments included. `roomTempC` applies during the room ferment, the final proof and the pre-ferment (unless a separate pre-ferment temperature is set); `fridgeTempC` applies during the cold-bulk leg. Both are user inputs.
 
-The model always solves in fresh-equivalent percent and converts to the carrier's mass at the end: fresh 1, instant ⅓, active-dry 0.4, sourdough 100. Sanity warnings about tiny or huge yeast amounts are judged in fresh-equivalent terms, so a sourdough recipe is not flagged for its raw percentage.
+The model always solves in fresh-equivalent percent and converts to the carrier's mass at the end: fresh 1, instant ⅓, active-dry 0.4, sourdough 100. Sanity warnings about tiny or huge yeast amounts are judged in fresh-equivalent terms, so a sourdough recipe is not flagged for its raw percentage. The band is 0.05–1.5 % fresh-equivalent, and it is one constant pair (`YEAST_PCT_LOW` / `YEAST_PCT_HIGH` in `fermentation.ts`) read by both the warnings and the fit score's `yeast-extreme` factor, so the score never deducts where no warning shows.
 
 ## Cold or room
 

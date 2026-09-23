@@ -47,6 +47,16 @@ export const PREFERMENT_REF_HOURS_POOLISH = 12;
 export const PREFERMENT_MIN_HOURS = 8;
 export const PREFERMENT_MAX_HOURS = 24;
 
+// The fresh-equivalent percent band a Neapolitan dough is comfortable in.
+// Below 0.05 % the amount is hard to weigh on a kitchen scale and the ferment
+// is running on fumes; above 1.5 % it is a bread dough in a hurry, not a pizza.
+// One band, two readers: the yeast-tiny / yeast-large warnings in schedule.ts
+// and the fit score's yeast-extreme factor in quality.ts. The warnings used to
+// carry their own copy (0.02 / 2) with nothing tying the two together, so a
+// 1.8 % recipe lost a star for being "extreme" while no warning fired.
+export const YEAST_PCT_LOW = 0.05;
+export const YEAST_PCT_HIGH = 1.5;
+
 export function temperatureFactor(tempC: number): number {
 	return Math.pow(Q10, (tempC - REF_TEMP_C) / 10);
 }
