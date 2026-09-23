@@ -92,15 +92,15 @@
 		<table class="w-full min-w-[840px] border-collapse text-left text-sm tabular-nums">
 			<thead>
 				<tr class="bg-rule text-paper">
-					<th class="head-cell">{t.pizzerias.col_pizzeria}</th>
-					<th class="head-cell">{t.pizzerias.col_location}</th>
-					<th class="head-cell">{t.pizzerias.col_rankings}</th>
-					<th class="head-cell text-right">{t.pizzerias.col_hydration}</th>
-					<th class="head-cell text-right">{t.pizzerias.col_salt}</th>
-					<th class="head-cell">{t.pizzerias.col_yeast}</th>
-					<th class="head-cell">{t.pizzerias.col_preFerment}</th>
-					<th class="head-cell">{t.pizzerias.col_open}</th>
-					<th class="head-cell">{t.pizzerias.col_source}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_pizzeria}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_location}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_rankings}</th>
+					<th scope="col" class="head-cell text-right">{t.pizzerias.col_hydration}</th>
+					<th scope="col" class="head-cell text-right">{t.pizzerias.col_salt}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_yeast}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_preFerment}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_open}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_source}</th>
 				</tr>
 			</thead>
 			<tbody>

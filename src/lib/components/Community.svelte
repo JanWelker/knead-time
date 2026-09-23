@@ -63,17 +63,17 @@
 		<table class="w-full min-w-[640px] border-collapse text-left text-sm tabular-nums">
 			<thead>
 				<tr class="bg-rule text-paper">
-					<th class="head-cell">{t.community.col_name}</th>
-					<th class="head-cell">{t.community.col_date}</th>
-					<th class="head-cell text-right">{t.community.col_pizzas}</th>
-					<th class="head-cell text-right">{t.community.col_ball}</th>
-					<th class="head-cell text-right">{t.community.col_hydration}</th>
-					<th class="head-cell text-right">{t.community.col_salt}</th>
-					<th class="head-cell">{t.community.col_yeast}</th>
-					<th class="head-cell text-right">{t.community.col_temp}</th>
-					<th class="head-cell text-right">{t.community.col_fridge}</th>
-					<th class="head-cell">{t.community.col_preFerment}</th>
-					<th class="head-cell">{t.community.col_open}</th>
+					<th scope="col" class="head-cell">{t.community.col_name}</th>
+					<th scope="col" class="head-cell">{t.community.col_date}</th>
+					<th scope="col" class="head-cell text-right">{t.community.col_pizzas}</th>
+					<th scope="col" class="head-cell text-right">{t.community.col_ball}</th>
+					<th scope="col" class="head-cell text-right">{t.community.col_hydration}</th>
+					<th scope="col" class="head-cell text-right">{t.community.col_salt}</th>
+					<th scope="col" class="head-cell">{t.community.col_yeast}</th>
+					<th scope="col" class="head-cell text-right">{t.community.col_temp}</th>
+					<th scope="col" class="head-cell text-right">{t.community.col_fridge}</th>
+					<th scope="col" class="head-cell">{t.community.col_preFerment}</th>
+					<th scope="col" class="head-cell">{t.community.col_open}</th>
 				</tr>
 			</thead>
 			<tbody>

@@ -181,35 +181,39 @@
 	<title>{t.app.title} — {t.app.tagline}</title>
 </svelte:head>
 
-<main>
-	{#if where.view === 'ask'}
-		<AskFlow
-			{form}
-			step={where.step}
-			onstep={(step) => go('ask', step)}
-			onplan={() => go('plan')}
-			onlibrary={() => go('library')}
-		/>
-	{:else if where.view === 'library'}
-		<LibraryView
-			recipes={savedRecipes}
-			onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
-			onback={() => go('plan')}
-		/>
-	{:else}
-		<PlanView
-			{form}
-			sourceTiming={activePizzeria?.timing}
-			onadjust={(field) => adjustPanel?.open(field)}
-			onlibrary={() => go('library')}
-			onrestart={() => go('ask', 'when')}
-			onsaverecipe={saveCurrentRecipe}
-		/>
-		<!-- Mounted with the plan only: the ask flow carries a window slider of
-		     its own, and two of them in one document would fight over the id the
-		     plan's chips focus. -->
-		<AdjustPanel bind:this={adjustPanel} {form} />
-	{/if}
+<!-- No <main> around the views: each view renders its own, after the
+     Masthead's <header>, and the footer follows the view as a sibling. Nested
+     inside a main, <header> and <footer> lose their banner and contentinfo
+     roles (the HTML-AAM scopes both to the body), and those are the two
+     landmarks a screen-reader user jumps to first. Pinned in
+     e2e/landmarks.spec.ts. -->
+{#if where.view === 'ask'}
+	<AskFlow
+		{form}
+		step={where.step}
+		onstep={(step) => go('ask', step)}
+		onplan={() => go('plan')}
+		onlibrary={() => go('library')}
+	/>
+{:else if where.view === 'library'}
+	<LibraryView
+		recipes={savedRecipes}
+		onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
+		onback={() => go('plan')}
+	/>
+{:else}
+	<PlanView
+		{form}
+		sourceTiming={activePizzeria?.timing}
+		onadjust={(field) => adjustPanel?.open(field)}
+		onlibrary={() => go('library')}
+		onrestart={() => go('ask', 'when')}
+		onsaverecipe={saveCurrentRecipe}
+	/>
+	<!-- Mounted with the plan only: the ask flow carries a window slider of
+	     its own, and two of them in one document would fight over the id the
+	     plan's chips focus. -->
+	<AdjustPanel bind:this={adjustPanel} {form} />
+{/if}
 
-	<SiteFooter />
-</main>
+<SiteFooter />

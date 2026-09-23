@@ -254,7 +254,7 @@
 	<TrmnlPush bind:this={trmnlPush} inputs={form.serializable()} schedule={form.schedule} {locale} />
 	<SaveRecipeDialog bind:this={saveDialog} onsave={onsaverecipe} />
 
-	<div class="view-pad flex-1 pt-6 pb-6 sm:pt-8">
+	<main class="view-pad flex-1 pt-6 pb-6 sm:pt-8">
 		<div class="grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-10">
 			<!-- The bake moment is the app's whole premise, so it is set as the sign
 			     on the ticket: its name reversed out of an ink band, the moment
@@ -425,5 +425,5 @@
 				</div>
 			</section>
 		</div>
-	</div>
+	</main>
 </div>
