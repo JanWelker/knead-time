@@ -82,6 +82,16 @@
 			color: #000000 !important;
 			margin: 0;
 		}
+		/* This sheet has no dark half — it is black on white and it is about to
+		   be printed. The boot script in app.html stamps `dark` on the element
+		   before first paint on a dark system, which would otherwise bring
+		   app.css's `color-scheme: dark` with it and render the browser's own
+		   widgets and scrollbars against a page that forces white. Unlayered, so
+		   it beats that rule regardless of the class; the layout also strips the
+		   class itself once it mounts. */
+		html {
+			color-scheme: light;
+		}
 		@page {
 			size: auto;
 			margin: 9mm 10mm;

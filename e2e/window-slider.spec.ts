@@ -61,7 +61,9 @@ test('a decoded link reproduces its own window, without re-picking', async ({ pa
 	await openForm(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
 
 	expect(await chosenWindow(page)).toBe('32 h');
-	await expect(windowCard(page).locator('[role="status"]')).toHaveCount(0);
+	// The region is always mounted (see announcements.spec.ts); what a decoded
+	// link must not produce is a *message* in it.
+	await expect(windowCard(page).locator('[role="status"]')).toHaveText('');
 });
 
 test('the ideal window is a stop the slider can reach', async ({ page }) => {
@@ -280,7 +282,9 @@ test('the band caption carries a swatch in the band colour', async ({ page }) =>
 	await expect(swatch).toHaveCount(1);
 	const colour = await swatch.evaluate((el) => getComputedStyle(el).backgroundColor);
 	const rail = await windowCard(page)
-		.locator('div.bg-basil-400, div.bg-basil-300')
+		// The band fills are `--kt-band-{room,cold}` roles now, not raw scale
+		// steps — see e2e/cascade.spec.ts, which pins what they resolve to.
+		.locator('div.bg-band-cold, div.bg-band-room')
 		.last()
 		.evaluate((el) => getComputedStyle(el).backgroundColor);
 	expect(colour).toBe(rail);

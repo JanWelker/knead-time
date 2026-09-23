@@ -174,6 +174,58 @@ test('the German print sheet punctuates the yeast percentage the German way', as
 	await expect(ingredients).not.toContainText(/\d\.\d+%/);
 });
 
+// `app.html` carried `lang="en"` for every page, so all five prerendered print
+// sheets claimed English while shipping German, Italian, French or Dutch. The
+// app route corrects itself after hydration, which is exactly the fix the print
+// route cannot rely on: it is SSR'd and prerendered *because* the print dialog
+// can fire before the bundle has parsed. So this reads the raw bytes with
+// `page.request.get` — no browser, no hydration — which is the only way to see
+// what a screen reader, a translator or a print-to-PDF gets on a cold cache.
+test('each prerendered print sheet declares the language it is written in', async ({ page }) => {
+	for (const [path, lang] of [
+		['/print/de', 'de'],
+		['/print/nl', 'nl'],
+		// No locale in the path is English, which is what the attribute used to
+		// say for everyone.
+		['/print', 'en'],
+		['/print/en', 'en']
+	]) {
+		const html = await (await page.request.get(path)).text();
+		expect(html, path).toContain(`<html lang="${lang}"`);
+	}
+
+	// And the app route, which is not locale-addressed, keeps the value it had.
+	expect(await (await page.request.get('/')).text()).toContain('<html lang="en"');
+});
+
+// The print sheet forces `background: #fff !important` and prints black on
+// white, but the layout used to call `theme.init()` on every route — so on a
+// dark system the pre-paint boot script's `dark` class stayed on the element
+// and brought `color-scheme: dark` with it, styling the browser's own widgets
+// and scrollbars against a page that is white by decree.
+test.describe('the print sheet on a machine set to dark', () => {
+	test.use({ colorScheme: 'dark' });
+
+	test('is not dressed in the dark palette', async ({ page }) => {
+		await page.clock.install({ time: NOW });
+		await page.addInitScript(() => {
+			window.print = () => {};
+		});
+		await page.goto(`/print/en?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+		await expect(page.locator('.printpage-ingredients').first()).toBeVisible();
+
+		await expect(page.locator('html')).not.toHaveClass(/\bdark\b/);
+		expect(await page.locator('html').evaluate((el) => getComputedStyle(el).colorScheme)).toBe(
+			'light'
+		);
+
+		// The app route on the same machine still resolves dark — this is about
+		// the print sheet, not about disabling the theme.
+		await page.goto(`/?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+		await expect(page.locator('html')).toHaveClass(/\bdark\b/);
+	});
+});
+
 test('the flour select is shelved by what each strength is for', async ({ page }) => {
 	// Twelve bag names in a flat list say nothing about which one suits the
 	// plan. The shelves are cut on W, labelled by ferment length, with the AVPN

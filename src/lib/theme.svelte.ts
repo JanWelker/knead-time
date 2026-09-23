@@ -13,14 +13,19 @@ class Theme {
 	choice: ThemeChoice = $state('system');
 	resolved: ResolvedTheme = $state('light');
 
-	init() {
-		if (typeof window === 'undefined') return;
+	// Returns its own teardown: the listener used to be attached and never
+	// removed, so it outlived whatever mounted it.
+	init(): () => void {
+		if (typeof window === 'undefined') return () => {};
 		this.choice = loadStoredTheme(safeLocalStorage());
 		this.apply();
 
-		window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+		const media = window.matchMedia('(prefers-color-scheme: dark)');
+		const onChange = () => {
 			if (this.choice === 'system') this.apply();
-		});
+		};
+		media.addEventListener('change', onChange);
+		return () => media.removeEventListener('change', onChange);
 	}
 
 	set(choice: ThemeChoice) {

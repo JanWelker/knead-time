@@ -51,6 +51,10 @@ test('the print sheet fetches nothing from another origin either', async ({ page
 	const foreign = foreignRequests(page);
 
 	await page.clock.install({ time: NOW });
+	// the route auto-calls window.print() on mount; stub it so the run is headless-safe
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
 	await page.goto(`/print/en?${RECIPE}`);
 	await page.evaluate(() => document.fonts.ready);
 

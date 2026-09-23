@@ -1,5 +1,9 @@
 <!doctype html>
-<html lang="en">
+<!-- `lang` is filled in per page by the handle hook in src/hooks.server.ts, from
+     the locale in the URL path: the print route prerenders one file per
+     language and they all used to claim `en`. Everything else resolves to `en`,
+     which is what this attribute used to say outright. -->
+<html lang="%lang%">
 	<head>
 		<meta charset="utf-8" />
 		<!-- One mark, one file: the tab, the Home Screen and the manifest all point
