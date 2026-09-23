@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { currentView, NOW, openRecipe, waitForHydration } from './helpers';
+import { currentView, NOW, openRecipe, region, waitForHydration } from './helpers';
 
 const RECIPE =
 	'v=7&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -197,7 +197,13 @@ test('the service worker precaches the whole app, bundle and pages alike', async
 });
 
 test('the plan still opens with the network cut', async ({ page, context }) => {
-	await openRecipe(page, RECIPE);
+	// Five 260 g balls, not the six 280 g ones the prerendered page carries as
+	// build-time defaults: the check used to look for "280", which the offline
+	// fallback would have shown even if the query had been lost on the way.
+	await openRecipe(
+		page,
+		'v=7&n=5&b=260&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z'
+	);
 	await waitForController(page);
 
 	await context.setOffline(true);
@@ -207,7 +213,8 @@ test('the plan still opens with the network cut', async ({ page, context }) => {
 	expect(await currentView(page)).toBe('plan');
 	// Not just "something rendered": the recipe in the query has to survive,
 	// because a share link opened cold in a kitchen is the whole point.
-	await expect(page.getByText('280', { exact: false }).first()).toBeVisible();
+	// 5 × 260 g = 1300 g of dough, a total no default recipe produces.
+	await expect(region(page, 'Ingredients')).toContainText('1300 g');
 });
 
 // A share link the device has never seen before: '/?v=7&n=6…' is not a URL

@@ -444,10 +444,10 @@ describe('computeSchedule — room mode with pre-ferment', () => {
 		expect(r.mode).toBe('room');
 		const preferment = findStep(r, 'preferment-mix');
 		const prep = findStep(r, 'prep');
-		expect(preferment).toBeDefined();
-		expect(prep).toBeDefined();
 		const diffMin = (prep.at.getTime() - preferment.at.getTime()) / 60_000;
-		expect(diffMin).toBeCloseTo(prefermentDurationHours('poolish', 22) * 60, 0);
+		// 12 h × 60, as a literal: the expectation used to be derived from
+		// prefermentDurationHours itself, so the poolish reference was free to move.
+		expect(diffMin).toBe(720);
 	});
 });
 
@@ -648,23 +648,25 @@ describe('computeSchedule — pre-ferment temperature', () => {
 			baseInputs({ ...window, preFerments: biga, preFermentTempC: 17 })
 		);
 		const durOf = (s: typeof counter) => findStep(s, 'preferment-mix').durationMinutes;
-		expect(durOf(cellar)).toBeCloseTo(Math.round(prefermentDurationHours('biga', 17) * 60), 0);
-		expect(durOf(cellar)).toBeGreaterThan(durOf(counter));
+		// 14 h at 22 °C; 14 / 2^((17 − 22) / 10) = 19.8 h at 17 °C. Literals, not
+		// prefermentDurationHours(…) — an expectation derived from the function
+		// under test moves with it.
+		expect(durOf(counter)).toBe(840);
+		expect(durOf(cellar)).toBe(1188);
 	});
 
 	it('feeds the pre-ferment leg into the yeast solve at its own temperature', () => {
-		// Inside the clamp band wall × f(T) = ref, so the equivalent hours —
-		// and therefore the yeast % — stay put while the wall-clock stretches.
+		// Inside the clamp band wall × f(T) = ref, so the equivalent hours of the
+		// pre-ferment leg stay put while the wall-clock stretches; the solve then
+		// differs only through the schedule geometry (a longer reservation leaves
+		// less cold-bulk). Both figures are pinned: the old assertion — "positive,
+		// and within 50 % of the counter" — held with the temperature ignored.
 		const counter = computeSchedule(baseInputs({ ...window, preFerments: biga }));
 		const cellar = computeSchedule(
 			baseInputs({ ...window, preFerments: biga, preFermentTempC: 17 })
 		);
-		// The longer reservation leaves less cold-bulk, so solve differs only
-		// through the schedule geometry — sanity-check it stays in range.
-		expect(cellar.yeastPercent).toBeGreaterThan(0);
-		expect(
-			Math.abs(cellar.yeastPercent - counter.yeastPercent) / counter.yeastPercent
-		).toBeLessThan(0.5);
+		expect(counter.yeastPercent).toBeCloseTo(0.058394465938160625, 12);
+		expect(cellar.yeastPercent).toBeCloseTo(0.05839294373379321, 12);
 	});
 
 	it('computes the quality naturals at the pre-ferment temperature', () => {

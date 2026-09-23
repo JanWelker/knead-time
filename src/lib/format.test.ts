@@ -16,6 +16,7 @@ import {
 	toDatePart,
 	toTimePart
 } from './format';
+import { LOCALES, type Locale } from './i18n/messages';
 
 describe('formatDuration', () => {
 	it('formats minutes only when under an hour', () => {
@@ -40,9 +41,20 @@ describe('formatDuration', () => {
 		expect(formatDuration(59.4, 'en')).toBe('59 min');
 	});
 
-	it('handles all supported locales', () => {
-		expect(formatDuration(90, 'de')).toContain('Std');
-		expect(formatDuration(90, 'it')).toContain('h');
+	it('writes the hour and minute units in every supported locale', () => {
+		// Was two of five locales, checked with `toContain('h')` — which almost
+		// any output satisfies. One literal per locale, both shapes.
+		const expected: Record<Locale, [string, string]> = {
+			en: ['1 h 30 min', '2 h 5 min'],
+			de: ['1 Std 30 Min', '2 Std 5 Min'],
+			it: ['1 h 30 min', '2 h 5 min'],
+			fr: ['1 h 30 min', '2 h 5 min'],
+			nl: ['1 u 30 min', '2 u 5 min']
+		};
+		for (const locale of LOCALES) {
+			expect(formatDuration(90, locale), locale).toBe(expected[locale][0]);
+			expect(formatDuration(125, locale), locale).toBe(expected[locale][1]);
+		}
 	});
 });
 

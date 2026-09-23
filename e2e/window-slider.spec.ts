@@ -81,7 +81,11 @@ test('the ideal marker names the same window the app picks', async ({ page }) =>
 	await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-06');
 	await expect.poll(() => chosenWindow(page)).toBe('40 h');
 
-	await expect(windowCard(page)).toContainText('40 h');
+	// The marker's own caption, not the card: the previous assertion read
+	// `windowCard … toContainText('40 h')`, which the readout polled two lines
+	// above already satisfied, so the caption could have named any hour.
+	const marker = windowCard(page).locator('div:has(> svg path[d^="M5 0"])');
+	await expect(marker.locator('.rail-caption')).toHaveText(['Best for this flour', '40 h']);
 	expect(await arrowCentreX(page, 'up')).not.toBeNull();
 });
 
