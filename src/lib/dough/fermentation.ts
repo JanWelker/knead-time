@@ -8,8 +8,8 @@
 
 import type { MixingMethod, YeastType } from './types';
 
-const REF_TEMP_C = 22;
-const Q10 = 2;
+export const REF_TEMP_C = 22;
+export const Q10 = 2;
 
 // Calibration constants — units of (yeast_pct × hours) at reference temperature.
 // Fresh: 0.2% yeast × ~8 h at 22 °C = 1.6 units (matches the bench rule of thumb).
@@ -53,7 +53,7 @@ export function temperatureFactor(tempC: number): number {
 
 // Target final dough temperature for contemporary Neapolitan dough — 1 °C below
 // the 24 °C cap commonly cited as the safe upper bound during long room ferments.
-const TARGET_FDT_C = 23;
+export const TARGET_FDT_C = 23;
 // Heat the dough picks up during mixing. Spiral: calibrated against an
 // observed run — 10 min on a spiral with 4 °C water in a 22 °C kitchen lands
 // the dough at 24 °C; back-solving the desired-temp formula gives friction
