@@ -70,6 +70,20 @@ describe('buildMergeVariables', () => {
 		expect(m.s.toLowerCase()).toContain('poolish');
 	});
 
+	it('does not announce a biga the sourdough schedule never mixes', () => {
+		// The label was built from the form's raw preFerments list, but the
+		// schedule empties that list for sourdough (the starter is the culture),
+		// so a starter recipe with a biga still toggled pushed "Sourdough starter
+		// · Biga" to the device beside a step list with no preferment-mix row.
+		// Every other field in the payload already read off the schedule.
+		const i = inputs({ yeastType: 'sourdough', preFerments: [{ type: 'biga', flourPercent: 30 }] });
+		const s = computeSchedule(i);
+		expect(s.steps.some((step) => step.kind === 'preferment-mix')).toBe(false);
+		const m = buildMergeVariables(i, s, MESSAGES.en, 'en');
+		expect(m.s).toContain('Sourdough');
+		expect(m.s).not.toContain('Biga');
+	});
+
 	it('names each dry yeast in the summary — not the fresh label for all three', () => {
 		// Only fresh and sourdough were covered, so either dry entry in the label
 		// map could point at the wrong message and read as "Fresh yeast" on the

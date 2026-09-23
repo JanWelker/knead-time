@@ -345,6 +345,38 @@ describe('findMatchingPizzeria', () => {
 		expect(findMatchingPizzeria(inputs({ ballProof: 'cold' }), [e])).toBeNull();
 	});
 
+	it("does not keep the chef's badge when autolyse has moved every step", () => {
+		// The match ignored autolyse, so a user who flipped it kept the source
+		// timing badge against a schedule that had shifted by 30 min and solved
+		// a different yeast percentage. Pre-v=5 rows decode autolyse to false
+		// and a v>=5 row that omits `al` means on, so unset compares as true.
+		const e = entry();
+		expect(findMatchingPizzeria(inputs({ autolyse: false }), [e])).toBeNull();
+		const legacy = entry({ autolyse: false });
+		expect(findMatchingPizzeria(inputs({ autolyse: false }), [legacy])).toBe(legacy);
+		expect(findMatchingPizzeria(inputs(), [legacy])).toBeNull();
+		const unset = entry();
+		delete (unset.inputs as Partial<DoughInputs>).autolyse;
+		expect(findMatchingPizzeria(inputs(), [unset])).toBe(unset);
+	});
+
+	it('ignores autolyse under a pre-ferment, where the schedule ignores it too', () => {
+		// A biga already rests the flour, so autolyse never enters the math
+		// there; refusing the match would drop the badge for a schedule that
+		// is identical to the chef's.
+		const biga = [{ type: 'biga' as const, flourPercent: 30 }];
+		const withBiga = entry({ preFerments: biga });
+		expect(findMatchingPizzeria(inputs({ preFerments: biga, autolyse: false }), [withBiga])).toBe(
+			withBiga
+		);
+	});
+
+	it('ignores flourW - it is advisory and changes no time or mass', () => {
+		const e = entry({ flourW: 265 });
+		expect(findMatchingPizzeria(inputs({ flourW: 310 }), [e])).toBe(e);
+		expect(findMatchingPizzeria(inputs({ flourW: null }), [e])).toBe(e);
+	});
+
 	it('compares starterHydration only when yeastType is sourdough', () => {
 		const sourdoughEntry = entry({ yeastType: 'sourdough', starterHydration: 100 });
 		expect(

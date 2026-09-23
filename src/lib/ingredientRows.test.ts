@@ -2,12 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { ingredientSections, needsFineScale } from './ingredientRows';
 import { computeSchedule } from './dough/schedule';
 import { defaultInputs } from './dough/testFixtures';
-import { MESSAGES } from './i18n/messages';
+import { MESSAGES, type Locale } from './i18n/messages';
 import type { DoughInputs } from './dough/types';
+import { formatPercent } from './format';
 
-const t = MESSAGES.en;
-
-function sectionsFor(overrides: Partial<DoughInputs> = {}) {
+function sectionsFor(overrides: Partial<DoughInputs> = {}, locale: Locale = 'en') {
 	const inputs = defaultInputs(overrides);
 	const schedule = computeSchedule(inputs);
 	return ingredientSections(
@@ -15,7 +14,8 @@ function sectionsFor(overrides: Partial<DoughInputs> = {}) {
 		inputs.yeastType,
 		schedule.yeastPercent,
 		inputs.flourW,
-		t
+		MESSAGES[locale],
+		locale
 	);
 }
 
@@ -40,6 +40,21 @@ describe('a recipe with no pre-ferment', () => {
 	it('carries the yeast percentage on the yeast row', () => {
 		const yeast = sectionsFor()[0].rows[3];
 		expect(yeast.hint).toMatch(/%$/);
+	});
+
+	it("punctuates the yeast percentage in the reader's locale, not in English", () => {
+		// Both renderers called formatPercent without the locale, so a German
+		// sheet read "0.35%" beside weights and dates set the German way. The
+		// unit suite pinned formatPercent(x, 'de') as "2,349 %" and nothing on
+		// the page ever passed that argument, so the pin protected a path with
+		// no caller.
+		const [section] = sectionsFor({}, 'de');
+		const hint = section.rows.at(-1)!.hint!;
+		expect(hint).toMatch(/^\d+,\d+\u00a0%$/);
+		const [enSection] = sectionsFor();
+		const en = enSection.rows.at(-1)!.hint!;
+		expect(en).toMatch(/^\d+\.\d+%$/);
+		expect(hint).not.toBe(en);
 	});
 
 	it('leaves oil and sugar out at 0, and weighs them when asked for', () => {
@@ -71,6 +86,22 @@ describe('a recipe with pre-ferments', () => {
 	it('hides the main-dough yeast row — the pre-doughs carry it', () => {
 		const main = sectionsFor(both).find((s) => s.key === 'main')!;
 		expect(labels(main.rows)).toEqual(['Flour', 'Water', 'Salt']);
+	});
+
+	it('localises the totals row percentage too - the second call site of the same bug', () => {
+		const inputs = defaultInputs({ preFerments: [{ type: 'biga', flourPercent: 30 }] });
+		const schedule = computeSchedule(inputs);
+		const sections = ingredientSections(
+			schedule.ingredients,
+			inputs.yeastType,
+			schedule.yeastPercent,
+			inputs.flourW,
+			MESSAGES.de,
+			'de'
+		);
+		const totals = sections.at(-1)!;
+		expect(totals.rows.at(-1)!.hint).toBe(formatPercent(schedule.yeastPercent, 'de'));
+		expect(totals.rows.at(-1)!.hint).toMatch(/^\d+,\d+\u00a0%$/);
 	});
 
 	it('surfaces the yeast, with its percentage, in the totals', () => {

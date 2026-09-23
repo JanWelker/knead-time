@@ -48,7 +48,8 @@
 			inputs.yeastType,
 			schedule.yeastPercent,
 			inputs.flourW,
-			t
+			t,
+			locale
 		)
 	);
 	const yeastTypeLabel = $derived(yeastTypeLabelFor(inputs, t));
