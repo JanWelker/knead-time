@@ -176,10 +176,11 @@ export function flourZones(
 // property of the flour alone, so the shelves are cut on W and labelled with
 // the ferment length that strength is sold for.
 //
-// The outer edges are the AVPN disciplinare's, which specifies the dough as
-// "1800 g of flour (w220-380)": below 220 is outside the spec, and above it a
-// flour is stronger than a Neapolitan dough asks for — useful in a biga or cut
-// with a weaker flour, not on its own.
+// The bottom edge is the AVPN disciplinare's, which specifies the dough as
+// "1800 g of flour (w220-380)": below 220 is outside the spec. The top shelf
+// opens at 350, not the spec's 380 — that is our own cut, where practice stops
+// using a flour on its own and starts putting it in a biga or cutting it with a
+// weaker one. The shelves between are where practice puts each strength.
 export type FlourBandId = 'weak' | 'sameDay' | 'day24' | 'day48' | 'day72' | 'veryStrong';
 
 /** Render order, weakest first. */

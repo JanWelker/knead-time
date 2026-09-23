@@ -185,8 +185,9 @@ describe('flourZones', () => {
 });
 
 describe('flourBand', () => {
-	it('cuts on the AVPN spec at both outer edges', () => {
-		// The disciplinare states the dough as "1800 g of flour (w220-380)".
+	it('cuts on the AVPN spec at the bottom and on practice at the top', () => {
+		// The disciplinare states the dough as "1800 g of flour (w220-380)"; 220 is
+		// its edge. 350 is not — it is where a flour stops being used on its own.
 		expect(flourBand(219)).toBe('weak');
 		expect(flourBand(220)).toBe('sameDay');
 		expect(flourBand(349)).toBe('day72');

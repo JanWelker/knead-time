@@ -186,8 +186,8 @@ Field names are kept short on purpose — TRMNL's free tier caps webhook
 payloads at 2 KB and a cold-mode recipe with biga + poolish otherwise blows
 past that with verbose JSON keys. The Liquid template above uses these names
 verbatim. Step descriptions (the long paragraph rendered in the web app)
-are intentionally omitted — they cost ~80 bytes × 8 steps in German and
-the default template doesn't render them.
+are intentionally omitted — they cost ~80 bytes each in German, nine of
+them in the worst case, and the default template doesn't render them.
 
 | Field     | Type    | Notes                                                                |
 | --------- | ------- | -------------------------------------------------------------------- |

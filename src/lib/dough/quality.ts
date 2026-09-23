@@ -28,8 +28,9 @@ const MAX_CLAMP_DEDUCT = 20;
 // Contemporary Neapolitan KPI bands. Inputs inside the band score 100; each
 // unit outside subtracts the per-unit rate, capped at the factor's max
 // deduction so one extreme input can't pin the score to 0 by itself. The
-// defaults from CLAUDE.md (280 g / 70 % / 3 % salt / 22 °C / 4 °C) sit in
-// the middle of every band — a defaults-only recipe scores 100.
+// defaults from CLAUDE.md (280 g / 70 % / 3 % salt / 22 °C / 4 °C) all sit
+// inside their band — not centred, 3 % salt is near the top of 2–3.5 — so a
+// defaults-only recipe scores 100.
 const HYDRATION_LOW = 60;
 const HYDRATION_HIGH = 80;
 const HYDRATION_PCT_PER_POINT = 1;
