@@ -1,6 +1,11 @@
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+	// Unit tests run at the root scope, so every stored key is the literal a
+	// returning user's device already holds (pinned in storedPreference.test.ts).
+	define: {
+		__STORAGE_SCOPE__: '""'
+	},
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}'],
 		environment: 'node',

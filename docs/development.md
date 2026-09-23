@@ -22,19 +22,19 @@ npm run preview    # serve ./build/ locally
 
 ## npm scripts
 
-| Command                 | What it does                                                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `npm run dev`           | Vite dev server on port 5173 with HMR                                                                              |
-| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)                                                              |
-| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                                        |
-| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` moves the preview server off 4173            |
-| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                                            |
-| `npm run test:baseline` | Compare the test counts against `.github/test-baseline.json`; fails on a drop, on a rise, or on coverage below 100 |
-| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                                         |
-| `npm run lint`          | Prettier check + ESLint                                                                                            |
-| `npm run format`        | Prettier write                                                                                                     |
-| `npm run build`         | Production build → `./build/` (static site)                                                                        |
-| `npm run preview`       | Serve the built site locally                                                                                       |
+| Command                 | What it does                                                                                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`           | Vite dev server on port 5173 with HMR                                                                                                                 |
+| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)                                                                                                 |
+| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                                                                           |
+| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` moves the preview server off 4173 (the base-path project uses the next port up) |
+| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                                                                               |
+| `npm run test:baseline` | Compare the test counts against `.github/test-baseline.json`; fails on a drop, on a rise, or on coverage below 100                                    |
+| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                                                                            |
+| `npm run lint`          | Prettier check + ESLint                                                                                                                               |
+| `npm run format`        | Prettier write                                                                                                                                        |
+| `npm run build`         | Production build → `./build/` (static site)                                                                                                           |
+| `npm run preview`       | Serve the built site locally                                                                                                                          |
 
 Husky + lint-staged are configured in `.husky/pre-commit`. The hook runs lint-staged and then `npm test` on every commit. It skips coverage, so run `npm run test:coverage` yourself before opening a PR.
 
@@ -139,6 +139,7 @@ Math and schedule bugs are silent until a dough overproofs, so coverage is a har
 
 - Tests live next to the code (`foo.ts` + `foo.test.ts`). `src/lib/` is held at **100 % lines, functions, branches and statements**; `npm run test:coverage` enforces it and CI runs the same. If a branch is hard to reach, delete it rather than fake a test for it.
 - **Browser tests live in `e2e/`** (Playwright, Chromium only) and cover everything in a component or a `.svelte.ts` module. Vitest has no Svelte plugin, so those files cannot even be imported by a unit test. The suite builds and serves the real static output, pins the clock, timezone and locale, and waits for hydration before reading anything.
+- **Two Playwright projects, two builds.** `chromium` runs the suite at the root; `base-path` builds a second copy with `BASE_PATH=/pr-preview/pr-0` (into `.svelte-kit-base/` and `build-base/`, so the two builds can run side by side) and runs only `e2e/base-path.spec.ts`, which checks what only a non-root base can show: that every request and link stays under the base, and that stored keys carry the preview's storage scope.
 - **The suite may grow, never shrink.** `npm run test:baseline` compares the collected test counts against `.github/test-baseline.json` and re-checks that the coverage thresholds are still 100. It fails on **any** difference, a rise included, and it never writes the file: when you add tests, run it, read the new counts from its message and put them in the file yourself. Lowering a count is allowed only as that same explicit edit, visible in review.
 - **Every bug gets a test in the same change as the fix**, named after the failure rather than the function, with a comment saying what broke and why it was missed.
 - **Pin the number, not just the branch.** A test that only checks which factor fired leaves the constant behind it free to move. Every magic number a user can feel needs one assertion that fails when it changes.

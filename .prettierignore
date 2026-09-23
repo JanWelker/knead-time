@@ -1,6 +1,8 @@
 .claude
 .svelte-kit
+.svelte-kit-base
 build
+build-base
 coverage
 dist
 node_modules

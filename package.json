@@ -1,6 +1,6 @@
 {
 	"name": "knead-time",
-	"version": "7.1.23",
+	"version": "7.1.24",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
