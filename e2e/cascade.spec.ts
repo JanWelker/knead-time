@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openQuestion, openRecipe, sheet } from './helpers';
+import { openAdjust, openMenu, openQuestion, openRecipe, sheet } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -47,8 +47,7 @@ test('every control keeps the focus ring, including the TRMNL uuid field', async
 	expect(await ring(sheet(page).locator('select'))).toBe('rgb(200, 64, 26) solid 3px');
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
 
-	// The trigger is a <summary>; Playwright does not expose it as a button.
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await openMenu(page);
 	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
 	// By its accessible name: there is more than one dialog with a text field
 	// in the page now, and "the input inside a dialog" stopped being unique.

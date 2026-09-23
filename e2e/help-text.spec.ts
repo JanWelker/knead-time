@@ -1,11 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openRecipe, sheet, windowCard } from './helpers';
+import { openForm, sheet, windowCard } from './helpers';
 
 // Field help is a property of the recipe sheet, so every test opens it.
-async function openForm(page: import('@playwright/test').Page, query: string) {
-	await openRecipe(page, query);
-	await openAdjust(page);
-}
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';

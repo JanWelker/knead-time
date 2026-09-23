@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { NOW, currentView, openAdjust, openMenu, sheet, waitForHydration } from './helpers';
+import { currentView, openAdjust, openMenu, openRecipe, sheet } from './helpers';
 
 // Everything here is a fix that already shipped once. Each has a bug number
 // because each was found in a browser and could only ever have been found there.
@@ -7,16 +7,10 @@ import { NOW, currentView, openAdjust, openMenu, sheet, waitForHydration } from 
 const MINE = 'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-06T17%3A00%3A00.000Z';
 const THEIRS = 'v=6&n=4&b=250&h=65&s=2.5&y=f&t=20&ft=5&fw=310&r=2026-09-06T17%3A00%3A00.000Z';
 
-async function open(page: import('@playwright/test').Page, query = '') {
-	await page.clock.install({ time: NOW });
-	await page.goto(query ? `/?${query}` : '/');
-	await waitForHydration(page);
-}
-
 // The recipe fields live in the adjust sheet; a bare visit lands on the first
 // question, so it is walked to the plan before the sheet is opened.
 async function openForm(page: import('@playwright/test').Page, query = '') {
-	await open(page, query);
+	await openRecipe(page, query);
 	if ((await currentView(page)) === 'ask') {
 		await page.getByRole('button', { name: 'Skip to the plan' }).click();
 	}
@@ -37,7 +31,7 @@ test('merely opening someone else’s link never overwrites your recipe memory',
 	await expect.poll(() => remembered(page)).toContain('n=7');
 	const mine = await remembered(page);
 
-	await open(page, THEIRS);
+	await openRecipe(page, THEIRS);
 	expect(await remembered(page)).toBe(mine);
 });
 
@@ -72,7 +66,7 @@ test('the app still works with localStorage blocked entirely', async ({ page, co
 			}
 		});
 	});
-	await open(page, MINE);
+	await openRecipe(page, MINE);
 
 	await expect(page.getByRole('heading', { name: 'Schedule' })).toBeVisible();
 	await expect(page.locator('ol li').first()).toBeVisible();
@@ -86,12 +80,12 @@ test('the app still works with localStorage blocked entirely', async ({ page, co
 test('a chosen locale survives a full reload', async ({ page }) => {
 	// 28e24bd: community "Open" links do a full reload, which used to reset the
 	// language back to the browser's.
-	await open(page, MINE);
+	await openRecipe(page, MINE);
 	await openMenu(page);
 	await page.getByRole('menuitemradio', { name: 'Deutsch', exact: true }).click();
 	await expect(page.getByRole('heading', { name: 'Zeitplan' })).toBeVisible();
 
-	await open(page, MINE);
+	await openRecipe(page, MINE);
 	await expect(page.getByRole('heading', { name: 'Zeitplan' })).toBeVisible();
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:locale'))).toBe('de');
 });
@@ -103,7 +97,7 @@ test('a legacy bare "theme" value migrates once into the namespaced key', async 
 	// issue #203: the unprefixed slot is shared across everything on a
 	// *.github.io origin, so it is read once and then cleared.
 	await context.addInitScript(() => localStorage.setItem('theme', 'dark'));
-	await open(page, MINE);
+	await openRecipe(page, MINE);
 
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:theme'))).toBe('dark');
 	expect(await page.evaluate(() => localStorage.getItem('theme'))).toBeNull();

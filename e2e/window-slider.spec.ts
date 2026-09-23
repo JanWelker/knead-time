@@ -4,8 +4,7 @@ import {
 	arrowCentreX,
 	chosenWindow,
 	dragTo,
-	openAdjust,
-	openRecipe,
+	openForm,
 	sheet,
 	slider,
 	thumbCentreX,
@@ -15,10 +14,6 @@ import {
 // The window control lives in the recipe sheet on the plan (and gets a whole
 // screen of its own on the ask flow — see ask-flow.spec.ts). Every geometry
 // rule below is the same one, reached through the sheet.
-async function openForm(page: import('@playwright/test').Page, query: string) {
-	await openRecipe(page, query);
-	await openAdjust(page);
-}
 
 // Caputo Pizzeria (W 265): cold band tops out at 40 h, which is not one of the
 // canonical stops — the case the ideal-as-its-own-stop work exists for.
