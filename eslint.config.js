@@ -16,7 +16,8 @@ export default ts.config(
 				...globals.browser,
 				...globals.node,
 				// Inlined at build time by vite (see vite.config.ts `define`).
-				__APP_VERSION__: 'readonly'
+				__APP_VERSION__: 'readonly',
+				__STORAGE_SCOPE__: 'readonly'
 			}
 		}
 	},
@@ -43,6 +44,14 @@ export default ts.config(
 		}
 	},
 	{
-		ignores: ['build/', '.svelte-kit/', 'coverage/', 'dist/', 'node_modules/']
+		ignores: [
+			'build/',
+			'build-base/',
+			'.svelte-kit/',
+			'.svelte-kit-base/',
+			'coverage/',
+			'dist/',
+			'node_modules/'
+		]
 	}
 );

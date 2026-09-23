@@ -9,6 +9,8 @@ declare global {
 	}
 	// Inlined at build time from package.json#version (see vite.config.ts).
 	const __APP_VERSION__: string;
+	// Inlined at build time from BASE_PATH (see vite.config.ts and storageScope.ts).
+	const __STORAGE_SCOPE__: string;
 }
 
 export {};

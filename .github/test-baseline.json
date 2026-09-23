@@ -1,5 +1,5 @@
 {
 	"_comment": "Floor for how much testing this repo has. scripts/check-test-baseline.mjs fails on any difference and never writes this file: raise the numbers by hand when you add tests; lowering them is a deliberate, reviewable edit.",
-	"unit": 1009,
-	"e2e": 160
+	"unit": 1019,
+	"e2e": 164
 }

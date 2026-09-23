@@ -43,7 +43,9 @@ In the repository settings, set **Pages → Build and deployment → Source = De
 
 `.github/workflows/preview.yml` builds every PR opened from a branch in this repository and publishes it as an isolated preview under `gh-pages:/pr-preview/pr-<number>/`. PRs from forks are skipped on purpose: a fork's `GITHUB_TOKEN` is read-only whatever the workflow's `permissions` block says, so the push to `gh-pages` would fail and paint a red X on every external contribution. The workflow uses [`rossjrw/pr-preview-action`](https://github.com/rossjrw/pr-preview-action), which posts and updates a sticky comment on the PR with the preview URL and removes the directory when the PR is closed or merged.
 
-The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
+The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites and custom domains) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
+
+With a custom domain the previews share the **production origin**, so `localStorage` would be one bucket for the live site and every preview. The build therefore scopes every stored key by its base path (`kneadtime:pr-preview-pr-12:lastRecipe` on a preview, the plain `kneadtime:lastRecipe` at the root) — see `src/lib/storageScope.ts`. A preview never reads or writes a real user's saved recipes or preferences.
 
 ## Versions
 
