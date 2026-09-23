@@ -159,6 +159,21 @@ test('the print sheet weighs exactly what the screen weighs', async ({ page }) =
 	expect(onPaper).toEqual(onScreen);
 });
 
+test('the German print sheet punctuates the yeast percentage the German way', async ({ page }) => {
+	// ingredientRows called formatPercent without the locale, so every locale
+	// printed "0.35%" - English punctuation beside German weights. The unit
+	// pin on formatPercent(x, 'de') never reached a renderer; this is the
+	// paper itself.
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
+	await page.goto(`/print/de?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	const ingredients = page.locator('.printpage-ingredients').last();
+	await expect(ingredients).toContainText('Frischhefe');
+	await expect(ingredients).toContainText(/\(\d+,\d+\s%\)/);
+	await expect(ingredients).not.toContainText(/\d\.\d+%/);
+});
+
 test('the flour select is shelved by what each strength is for', async ({ page }) => {
 	// Twelve bag names in a flat list say nothing about which one suits the
 	// plan. The shelves are cut on W, labelled by ferment length, with the AVPN

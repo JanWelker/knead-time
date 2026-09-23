@@ -1,3 +1,4 @@
+import { effectivePreFerments } from '../dough/schedule';
 import type { DoughInputs, ScheduleStepKind } from '../dough/types';
 import { decodeInputs, type SerializableInputs } from '../dough/urlState';
 import source from './pizzerias.md?raw';
@@ -183,9 +184,12 @@ export function comparePizzerias(a: PizzeriaEntry, b: PizzeriaEntry): number {
 }
 
 /**
- * Find the pizzeria whose encoded recipe parameters match `inputs` exactly,
- * ignoring date fields (readyBy / startAt). Lets the user tweak the bake time
- * without losing the source-recipe context.
+ * Find the pizzeria whose recipe matches `inputs`. The rule: every field that
+ * enters the math is compared, because the source-timing badge holds the
+ * chef's durations against the schedule this recipe computes. Two fields are
+ * deliberately left out - the dates (readyBy / startAt), so the user can move
+ * the bake without losing the source context, and flourW, which is advisory
+ * and changes no step time and no mass.
  */
 export function findMatchingPizzeria(
 	inputs: DoughInputs,
@@ -222,7 +226,17 @@ function matchesRecipe(a: Partial<SerializableInputs>, b: DoughInputs): boolean 
 	const aPf = a.preFerments ?? [];
 	const bPf = b.preFerments;
 	if (aPf.length !== bPf.length) return false;
-	return aPf.every((pf, i) => pf.type === bPf[i].type && pf.flourPercent === bPf[i].flourPercent);
+	if (!aPf.every((pf, i) => pf.type === bPf[i].type && pf.flourPercent === bPf[i].flourPercent)) {
+		return false;
+	}
+	// Autolyse moves every step by 30 min and shifts the yeast solve - exactly
+	// what the badge compares - but only when no pre-ferment is in play (a
+	// biga already rests the flour). Pre-v=5 URLs decode it to false; a v>=5
+	// link that omits it means the default, on. Compared last: the pre-ferment
+	// and yeast comparisons above are what make the effective list of `a`
+	// equal to that of `b`.
+	if (effectivePreFerments(b).length === 0 && (a.autolyse ?? true) !== b.autolyse) return false;
+	return true;
 }
 
 export const pizzeriaEntries: PizzeriaEntry[] = parsePizzerias(source).sort(comparePizzerias);

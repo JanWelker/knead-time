@@ -164,7 +164,7 @@ function adjustColdMinForNight(
 // biga/poolish on top would stack two cultures, which is not what the user
 // wants. Centralising this rule here keeps the bakers' module and UI from
 // having to repeat the same check.
-function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
+export function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
 	if (inputs.yeastType === 'sourdough') return [];
 	return inputs.preFerments;
 }

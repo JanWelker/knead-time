@@ -1,7 +1,7 @@
 import { ingredientTotals } from './dough/bakers';
 import type { Ingredients, YeastType } from './dough/types';
 import { formatGrams, formatPercent } from './format';
-import type { Messages } from './i18n/messages';
+import type { Locale, Messages } from './i18n/messages';
 import { flourIngredientName, yeastIngredientName } from './stepCopy';
 
 // What the ingredients table says, as data. The screen and the print sheet
@@ -42,7 +42,12 @@ export function ingredientSections(
 	yeastType: YeastType,
 	yeastPercent: number,
 	flourW: number | null,
-	msgs: Messages
+	msgs: Messages,
+	// The yeast percentage is the one figure on the ticket that carries
+	// punctuation, and formatPercent defaults to English - so without the
+	// locale every German sheet read "0.35%" where the rest of the page said
+	// "0,35 %".
+	locale: Locale
 ): IngredientSection[] {
 	const i = msgs.ingredients;
 	const flour = flourIngredientName(flourW, msgs);
@@ -72,7 +77,7 @@ export function ingredientSections(
 					row(i.water, ingredients.water),
 					row(i.salt, ingredients.salt),
 					...extras,
-					row(yeast, ingredients.yeast, formatPercent(yeastPercent))
+					row(yeast, ingredients.yeast, formatPercent(yeastPercent, locale))
 				],
 				total: totalRow
 			}
@@ -114,7 +119,7 @@ export function ingredientSections(
 				row(i.water, totals.water),
 				row(i.salt, totals.salt),
 				...extras,
-				row(yeast, totals.yeast, formatPercent(yeastPercent))
+				row(yeast, totals.yeast, formatPercent(yeastPercent, locale))
 			],
 			total: totalRow
 		}
