@@ -3,282 +3,60 @@
 [![CI](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml/badge.svg)](https://github.com/JanWelker/knead-time/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/JanWelker/knead-time/branch/main/graph/badge.svg)](https://codecov.io/gh/JanWelker/knead-time)
 
-A time-anchored Neapolitan pizza dough calculator — [try it live](https://kneadtime.pizza). You enter **when you want to bake**; the app schedules every step backwards from that moment, auto-switches between cold and room fermentation based on available time, and gives you an on-screen schedule, an `.ics` you can drop into a calendar, a print-to-PDF recipe sheet for the kitchen counter, and a [TRMNL](https://trmnl.com/) e-ink view for the counter clock.
+**Tell it when you want to eat. It tells you when to start.**
 
-New in v7 — the app stopped being a form and became a service that prints its own paperwork. It opens with one question set 72 px tall — _when are you eating?_ — and walks through four more, each answerable in a single gesture, with the order forming beside you as a ticket stub and the Italian flag painting itself across a progress rule as you go. The answer is a **job ticket you return to**: a full-screen numbered schedule you open at 07:00 with flour on your hands, the weights beside it set as a deli ticket with dotted leaders, a tear-off perforation and a double-ruled total. Every value on the ticket is a blank on a printed form; tap one and the **Adjust** order pad opens with that field under the cursor. Anyone arriving with a share link or a saved recipe lands **straight on the plan** and is never asked the questions again; anyone who already knows all twelve numbers opens the pad and fills them in at once. My recipes, Community and 50 Top Pizza moved out of the foot of the page into a **Recipes** rack of their own, one press from anywhere. Two faces off one press — Anton for the signs, Archivo for the work — on warm stock in light and on the same press at night in dark. Which view you are on lives in the URL fragment, so it is linkable, survives a reload and walks with the back button; the recipe query is untouched and every old share-link still resolves, gram for gram — v=7 adds no key, it only records which app wrote the link.
+Knead Time is a Neapolitan pizza dough calculator that schedules backwards from the moment you bake. Pick the bake time, the number of pizzas and the flour in your cupboard, and it hands you a job ticket: the weights to put on the scale, a numbered timeline of every step, and the yeast solved so the dough is ready exactly when you are.
 
-New in v7.1 — **add it to your Home Screen**. It installs from Safari's share sheet or Chrome's install prompt and opens standalone, with its own icon and no browser chrome, and a service worker precaches the whole app so the plan and the print sheet open with no signal at all — which is what a two-day job ticket in a kitchen actually needs. It does **not** send you notifications, and cannot: iOS only ever wakes a web app's service worker for an incoming push message, so a reminder at 03:00 needs a server to send it, and this app has none. Use the `.ics` export for alerts that fire while the app is closed.
+**[Open the app at kneadtime.pizza →](https://kneadtime.pizza)**
 
-New in v6: **flour strength (W)** and a **fermentation-window slider**.
+Nothing to install and nothing to sign up for. Add it to your Home Screen and it opens without a signal, which is what a two-day schedule in a kitchen actually needs.
 
-Pick your flour and the schedule paints the window that flour actually tolerates. Twelve presets are shelved by what each strength is for — same-day, ~24 h, ~48 h, 48–72 h, plus a too-weak and a too-strong shelf, with the AVPN spec's W 220–380 as the outer edges — covering Caputo (Doppio Zero, Pizzeria, Nuvola, Saccorosso, Cuoco, Nuvola Super), Dallagiovanna (Classica Oro, La Napoletana, Uniqua Blu), Le 5 Stagioni Pizza Napoletana, Polselli Classica and a generic supermarket tipo 00. Or type a W yourself.
+## What you get
 
-The slider snaps to the windows Neapolitan practice actually uses (6, 8, 12, 16, 18, 24, 36, 48, 72 h, plus 80 h — not a Neapolitan figure but the schedule's own ceiling), greys out anything that no longer fits before your bake time, and gives the longest window your flour handles well a stop of its own, marked under the rail. Change the bake time or the flour and it re-picks that window for you; a **Use best** button puts it back after you have dragged elsewhere.
+- **A schedule that fits your day.** Every step is timed backwards from the bake. With 16 h or more the dough goes into the fridge; with less it ferments on the counter. No baker-action step is ever scheduled between 22:00 and 08:00.
+- **A recipe you can trust.** Baker's percentages with a mass balance that always adds up, a Q10 fermentation model that solves the yeast for your window and temperatures, and a fit score that tells you when the inputs stray from Neapolitan practice.
+- **Your flour, your window.** Twelve flour presets, shelved by strength (W), paint the fermentation window each flour tolerates. A slider snaps to the windows Neapolitan practice uses and re-picks the best one when you change the bake time or the flour.
+- **Real pre-ferments.** Biga and poolish, alone or together, each with its own flour share and cellar temperature. Fresh, instant, active-dry or sourdough. Optional autolyse, oil and sugar. Cold or room ball proof. Spiral, stand-mixer or hand kneading, each with its own water temperature.
+- **Beginner and expert views.** Five questions answered in one gesture each, or one dense sheet with every number on it.
+- **Take it with you.** An `.ics` export for your calendar, a print sheet that fits one page with a QR code back to the recipe, a share link that encodes the whole recipe, and a push to a [TRMNL](https://trmnl.com/) e-ink display.
+- **A recipe book.** Your own saved recipes, a community collection, and dough recipes from pizzerias in the [50 Top Pizza](https://www.50toppizza.it/) guide, each with a primary source.
+- **Five languages.** English, German, Italian, French and Dutch. Metric only.
 
-W is advisory only: it predicts how long the gluten survives fermenting, **not** how much water the flour takes, so it never touches hydration, the ingredient masses or the yeast solve. Old share-links predate the field and stay flour-less.
+Read more in [the feature tour](docs/features.md).
 
-New in v5: an **autolyse rest** — when you're not using a pre-ferment, the app rests flour and water for 30 min before the salt and yeast go in (less kneading, a more extensible dough). It's on by default (including the beginner view); experts can switch it off. Old share-links predate it and reproduce their original schedule unchanged.
+## Privacy
 
-New in v4: a **beginner view** (just "how many, when, how you knead, and which flour" — every step explained via the schedule's short/detailed switch; experts get the full form), **spiral, stand-mixer or hand kneading** — each adapts the mix step and the water temperature to how efficiently it works the dough, **combined pre-ferments** (biga and poolish maturing in parallel, each with its own flour share and an optional cellar temperature), **dry yeast** (instant and active dry alongside fresh and sourdough), a **cold ball proof** option (divide first, balls ripen in the fridge), and **recipe memory** — the app restores your last recipe on a fresh visit and keeps a device-local recipe book.
+Everything is served from one origin. There is no backend, no analytics, no CDN and no font server; the two typefaces ship with the app. Opening Knead Time tells nobody but your own browser that you are baking. The single outbound request in the whole app is the TRMNL webhook, and it happens only when you click **Send to TRMNL**. A browser test fails if anything else ever reaches for another host. Third-party notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
-Built with SvelteKit 5 + TypeScript + Tailwind v4. Fully client-side, five languages (EN / DE / IT / FR / NL), shareable recipes via URL.
+## Run it locally
 
-**Everything is served from one origin.** No backend, no analytics, no CDN — the two faces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app, so opening Knead Time tells nobody but your own browser that you are baking. The single outbound request in the whole app is the TRMNL webhook, and it happens only when you click **Send to TRMNL**. `e2e/self-hosted.spec.ts` fails if anything else ever reaches for another host, and the third-party notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
-
-It also ships as **one bundle and one stylesheet** (`kit.output.bundleStrategy: 'single'`): a visit is five requests — the page, the bundle, the stylesheet and the two font subsets it actually needs.
-
----
-
-## Requirements
-
-- **Node.js 22+** and **npm** on the host (enforced via `engines`). CI and deploys run the version in `.nvmrc` — `nvm use` gives you the same one.
-
-That's it. CI and deployment run on GitHub Actions; locally you just need Node.
-
----
-
-## Quickstart — run the app
+You need [Node.js](https://nodejs.org/) 22 or newer. `nvm use` picks the version CI runs.
 
 ```sh
 npm install
-npm run dev        # Vite dev server on http://localhost:5173
+npm run dev        # http://localhost:5173
 ```
 
-To stop it, hit `Ctrl-C`.
+Built with SvelteKit 5, TypeScript and Tailwind v4. Fully client-side, deployed as a static site to GitHub Pages.
 
-### Production-style preview
+## Documentation
 
-```sh
-npm run build      # static site → ./build/
-npm run preview    # serve ./build/ locally
-```
+| Document                                             | What it covers                                                                       |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [Feature tour](docs/features.md)                     | What the app does and what arrived in which version                                  |
+| [Development guide](docs/development.md)             | Project layout, npm scripts, the feature loop, print sheet, Home Screen, conventions |
+| [The dough math](docs/dough-math.md)                 | Baker's percentages, the fermentation model, the schedule, pre-ferments              |
+| [Deployment and CI](docs/deployment.md)              | How a commit reaches production, PR previews, the required checks                    |
+| [Contributing recipes](docs/contributing-recipes.md) | Adding a community recipe or a 50 Top Pizza row                                      |
+| [Sending recipes to TRMNL](docs/trmnl-setup.md)      | One-time plugin setup and the Liquid template                                        |
 
----
+The full design rationale, every constraint the code is built around and why, lives in [`CLAUDE.md`](CLAUDE.md).
 
-## Dev guide
+## Contributing
 
-### Layout
+Recipes are the easiest contribution: one row in a markdown file, no code. See [contributing recipes](docs/contributing-recipes.md).
 
-```
-src/
-├── lib/
-│   ├── dough/            ← pure math, framework-free, heavily tested
-│   │   ├── bakers.ts          baker's percentages, mass balance
-│   │   ├── fermentation.ts    Q10 yeast ↔ time ↔ temperature model
-│   │   ├── schedule.ts        backwards schedule, cold↔room auto-switch
-│   │   ├── ics.ts             RFC 5545 calendar export
-│   │   ├── urlState.ts        compact share-link encoding
-│   │   ├── flour.ts           flour presets, W → fermentation-tolerance bands
-│   │   ├── windowPresets.ts   slider stops, rail axis, the ideal window
-│   │   ├── quality.ts         recipe-fit score (0–100 → 0–5 stars)
-│   │   ├── types.ts           shared types
-│   │   └── *.test.ts          colocated tests
-│   ├── components/       ← Svelte 5 UI (uses runes); AskFlow / PlanView / LibraryView are the three views,
-│   │                        AdjustPanel is the sheet that holds every input
-│   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
-│   ├── community/        ← community.md (data) + parser, rendered as a table in the Recipes view
-│   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
-│   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
-│   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
-│   ├── view.ts           ← the three views (ask / plan / library) and where a visitor lands
-│   ├── warningSlots.ts   ← which surface each schedule warning is rendered on
-│   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
-│   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
-│   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
-│   ├── format.ts         ← grams, percentages, durations, datetime input glue
-│   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
-├── routes/
-│   ├── +layout.svelte    ← global styles, language bootstrap
-│   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
-│   ├── +page.svelte      ← the router: mounts exactly one of the three views
-│   └── print/[[locale]]/ ← self-contained print/PDF sheet (auto-triggers the dialog)
-├── app.css               ← Tailwind v4 entrypoint: the press (ink / paper / accent tokens,
-│                           one authored set per theme) and the component layer every
-│                           surface, band, stamp and control is built from
-├── app.html              ← shell (theme boot, manifest + Home Screen meta; no third-party links)
-└── service-worker.ts     ← precaches the whole app so it opens offline (SvelteKit registers it)
-
-static/                   ← copied verbatim to the site root
-├── manifest.webmanifest  ← the PWA manifest; every URL in it is relative, so BASE_PATH needs no help
-├── icon.svg              ← the mark: tab, Home Screen and manifest all point here
-├── icon-maskable.svg     ← the same drawing at 0.86, so its diagonal clears the launcher's safe circle
-└── icon-*.png / apple-touch-icon.png rendered from them, committed
-
-e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
-scripts/
-├── check-test-baseline.mjs   refuses a change that removes tests or relaxes coverage
-└── render-icons.mjs          re-renders the icon PNGs from the SVGs (run by hand)
-
-.github/
-├── test-baseline.json    ← how many tests exist; the floor the script enforces
-├── actions/              ← composite actions every workflow consumes
-│   ├── node-setup/       ← installs the .nvmrc Node version and runs npm ci
-│   └── base-path/        ← resolves BASE_PATH (custom domain, user site or /<repo>) for deploy and preview
-└── workflows/
-    ├── ci.yml            ← verify (lint + check + coverage gate + build) and e2e, on PRs and pushes to main
-    ├── deploy.yml        ← build + publish to GitHub Pages, after CI passes on main
-    └── preview.yml       ← build + publish a per-PR preview, comment the URL, clean up on close
-
-vite.config.ts            ← Vite (no test config; runtime build only)
-vitest.config.ts          ← Vitest (kept separate so vite types stay clean)
-playwright.config.ts      ← Playwright (builds and serves the real static output)
-```
-
-### npm scripts
-
-| Command                 | What it does                                                                                            |
-| ----------------------- | ------------------------------------------------------------------------------------------------------- |
-| `npm run dev`           | Vite dev server on port 5173 with HMR                                                                   |
-| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)                                                   |
-| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                             |
-| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` moves the preview server off 4173 |
-| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                                 |
-| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage                                                  |
-| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                              |
-| `npm run lint`          | Prettier check + ESLint                                                                                 |
-| `npm run format`        | Prettier write                                                                                          |
-| `npm run build`         | Production build → `./build/` (static site)                                                             |
-| `npm run preview`       | Serve the built site locally                                                                            |
-
-### Pre-commit hooks
-
-Husky + lint-staged are configured (`.husky/pre-commit`). The hook runs lint-staged and then `npm test` on every commit.
-
-### Adding a feature — typical loop
-
-1. **Math/logic first.** Add or extend a module in `src/lib/dough/`. Keep it pure (no Svelte imports). Add a `*.test.ts` next to it. Run `npm test` until green.
-2. **Wire to state.** If new inputs are needed, extend `FormState` in `src/lib/state.svelte.ts`, then `SerializableInputs` in `src/lib/dough/urlState.ts` (encode + decode + round-trip test).
-3. **UI.** Add fields to `src/lib/components/InputForm.svelte` — the dense form inside the Adjust sheet, which is where every `DoughInputs` field lives; render results in `PlanView.svelte` or its children. A field worth putting on the plan gets an `id="field-…"` so a chip can open the sheet focused on it. Use Svelte 5 runes (`$state`, `$derived`, `$effect`).
-4. **i18n.** Every new user-facing string goes into `src/lib/i18n/messages.ts` for all five locales. The parity test will fail loudly if a key is missing.
-5. **Verify.** `npm run test:coverage && npm run check && npm run build`. The CI workflow runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate — plain `npm test` skips it), and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. First run locally needs `npx playwright install chromium`.
-
-### Print / PDF export
-
-The **Print / Save as PDF** action opens a dedicated `/print/[[locale]]?<recipe>` route in a new tab (`src/routes/print/[[locale]]/+page.svelte`). The route is fully self-contained — inline styles in `<svelte:head>`, no Tailwind print variants, no shared chrome — and auto-triggers `window.print()` on mount. It renders a two-column header (Recipe inputs on the left, Ingredients on the right) above the full-width schedule, then a footer with a QR code of the share URL so scanning the printed sheet rehydrates the recipe in the app.
-
-If you touch the printed layout, check it in your browser's print preview — don't rely on `svelte-check`. Keep it readable on a B&W printer (borders and text colour, not background fills), and keep the common shapes on one page. QR generation lives in `src/lib/qr.ts` (thin wrapper around `qrcode-generator`).
-
-### Install to the Home Screen
-
-`static/manifest.webmanifest` plus the icons and meta tags in `src/app.html` make the app installable; `src/service-worker.ts` makes it work offline. SvelteKit registers the worker itself — there is no `register()` call anywhere in the app.
-
-Two things here are easy to break without noticing, so both are pinned in `e2e/pwa.spec.ts`:
-
-- **Every URL in the manifest is relative** (`"start_url": "."`, `"src": "icon-192.png"`), because they resolve against the manifest's own address. An absolute `/` would send every PR preview's installed app to the production root.
-- **The precache is all-or-nothing.** `cache.addAll` rejects as a unit, so a single unfetchable entry silently costs the whole offline mode — which is why the worker filters out `CNAME` and `.nojekyll`, files that are instructions to GitHub Pages rather than assets the app ever asks for.
-
-The mark is the job ticket itself — a sheet standing on an offset block of ink, dotted leaders, the stub's perforation, and one spot of tomato below the tear. **There is no separate `favicon.svg`**: the tab, the Home Screen and the manifest all point at `static/icon.svg`, so the icon in a tab strip cannot drift from the one on a phone.
-
-Icons are rendered from `static/icon.svg` and `static/icon-maskable.svg` by `node scripts/render-icons.mjs` (it borrows Playwright's Chromium, already a devDependency) and the PNGs are committed, so no build or CI job depends on it. Re-run it after editing either SVG, and keep the ground a full-bleed rect: iOS composites a transparent icon onto black.
-
-There are **no notifications**, and adding them client-side is not possible — see [#306](https://github.com/JanWelker/knead-time/issues/306). iOS suspends a backgrounded web app's JavaScript, so timers do not run, and it wakes a service worker for exactly one thing: an incoming push message, which requires a server to send. The `.ics` export is the path to an alert that fires with the app closed.
-
-### TRMNL e-ink view
-
-The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the plan's actions menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
-
-Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the setup walkthrough and the Liquid template are in `docs/trmnl-setup.md`. The payload uses 1–2 character keys to stay under the free tier's 2 KB cap in every locale — a regression test measures the wire size, so adding fields without measuring fails CI. There is **no `/trmnl` route** any more: the earlier screenshot-plugin approach failed because TRMNL's renderer doesn't reliably execute JS, so every capture showed build-time defaults.
-
-### The dough math, briefly
-
-- **Baker's percentages**: flour = 100%; water, salt, yeast (and the optional oil + sugar) are % of flour. Total dough = `pizzaCount × ballWeight`. Flour is derived from total and the sum of percentages.
-- **Mass balance is subtly different for sourdough**: fresh yeast adds new mass (`pctSum = 100 + h + s + y + oil + sugar`), while sourdough starter is just flour+water from the existing budget (`pctSum = 100 + h + s + oil + sugar`). Both produce ingredients that sum exactly to `pizzaCount × ballWeight` — there's a test that enforces this. Oil and sugar default to 0 and stay out of any pre-ferment (they'd inhibit the culture); when > 0 they get weighed at the main `mix` step. When a pre-ferment is active the ingredient table renders as three sections (**Pre-dough / Main dough / Totals**) rather than one flat table — a single subtracted table reads as a math error because the totals row never matches the visible sum.
-- **Fermentation model**: ferment "units" = `yeast% × hours × temperatureFactor(T)`. Temperature factor follows Q10 = 2 (rate doubles every 10 °C). Reference: 0.2% fresh yeast at 22 °C ferments for ~8 h. Every fermentation phase contributes to the same equivalent-hours sum that solves for the yeast %, including the pre-ferment — see below. Both `roomTempC` (used during room ferment, final proof, and pre-ferment) and `fridgeTempC` (used during the cold-bulk leg) are user inputs.
-- **Cold/room switch**: deterministic on available time. ≥ 16 h available → cold ferment with a fixed-shape schedule (prep → mix → 1 h room bulk → long fridge bulk → divide → 4 h final proof → bake). That final proof is one phase, `COLD_FINAL_PROOF_MIN = 240`: the balls come out of the fridge and sit on the counter until the bake, which is one "balls resting" step to the baker rather than a warm-up and a proof. Both legs were at room temperature anyway, so folding them together moved no equivalent hours. Below that → room ferment with bulk + final proof split 2:1 inside the available window. Yeast % is then chosen so the actual ferment-unit total matches the target.
-- **Autolyse** (no pre-ferment only): a fixed 30 min flour+water rest between prep and mix. It carries no yeast, so it's not a fermentation phase — it comes off the fixed window like the mix minutes do, and the yeast solve rises slightly to keep the same total fermentation. Default on (expert opt-out); with a pre-ferment it's skipped (the biga/poolish already rests the flour).
-- **Pre-ferments as real fermentation phases**: biga and poolish can be enabled independently — together, if you like — each with its own flour share (5–80 % each, 80 % combined). Wall-clock durations are solved per type from `roomTempC` (`prefermentDurationHours` — biga ~14 h, poolish ~12 h at 22 °C, Q10-scaled and clamped to [8, 24] h). All pre-ferments mature **in parallel and end at prep**: the schedule reserves the longest and emits one `preferment-mix` step per pre-ferment. Their legs enter the yeast solve weighted by flour share (`w = share / Σ shares` — a single pre-ferment has `w = 1`, so old share links keep their exact yeast %). The pre-ferments carry **all of the recipe's yeast** for fresh-yeast recipes, split proportional to flour share — no extra yeast on baking day. Pre-ferments are mutually exclusive with sourdough (the starter is itself the pre-ferment culture); selecting sourdough empties the list in `effectivePreFerments`.
-- **Schedule window**: the user picks both a **start datetime** (defaults to page-load time, editable, persisted in the URL) and a **ready-by datetime**. Everything is sized to fit inside that window. When a pre-ferment is selected, the temperature-dependent pre-ferment duration is reserved before mix-day prep. `startAt` is a **hard floor** (issue #78): the first step always lands at or after it — durations shrink to fit rather than start earlier. The one documented exception is a degenerate window shorter than the fixed hands-on steps (prep + mix + divide): those keep their physical durations anchored to `readyBy`, so the first step lands before `startAt` and the schedule is flagged infeasible with a `too-short` warning.
-- **Night-window guard**: no baker-action step may start in `[22:00, 08:00)` local time. In cold mode the scheduler shrinks the bulk-cold duration (within `[0, natural]` — it never extends it, which would pull the first step before `startAt`) so the pre-cold cluster (`preferment-mix` → bulk-cold start) lands during waking hours. The post-cold `divide` is anchored to `readyBy` and can't be shifted; room mode has no slack. When a step can't be lifted out of the window the scheduler emits a `night-step` warning (surfaced via `Warnings.svelte`) instead of silently rearranging.
-- **Round numbers action**: the button next to the ball-weight input nudges the ball weight (to 0.1 g precision; the field accepts decimals like `288.5`) so the derived flour and water come out as tidy multiples of 100 g — or 50 g when 100 g would drift too far. It's **idempotent** (clicking twice is a no-op) and works for both fresh yeast and sourdough, branching on the `pctSum` difference above.
-- **Step copy & `.ics` parity**: `stepCopy.ts` splits each step into what it weighs and how it is done. `stepIngredients` returns the amounts a step **newly** puts on the scale as a structured `{amount, name}` list, rendered as a mini-table rather than prose, so every ingredient appears on exactly one step: `preferment-mix` and `prep` carry the lists; under an autolyse `prep` weighs flour + water alone and `mix` the held-back salt + yeast; under a pre-ferment `mix` lists only oil and sugar (without one they are weighed at `prep`, so `mix` lists nothing). Oil and sugar appear only when > 0, and never on `preferment-mix` — they would inhibit the culture. `stepDescription` is method-only copy — `divide` interpolates the pizza count and per-ball weight, `mix` the water temperature — and with a pre-ferment `prep` and `mix` use type-specific templates (`mix_desc_with_biga`, `mix_desc_with_poolish`, `mix_desc_with_both`, `prep_desc_with_preferment`) that deliberately omit the yeast on day two: the pre-dough is the carrier. The single `preferment-mix` row covers both the brief active mixing and the full wall-clock maturation. The `.ics` VEVENT `DESCRIPTION` must match the on-page step description verbatim; `preferment-mix` is marked `TRANSP:TRANSPARENT` so the calendar doesn't block out the maturation window.
-
-### Deployment
-
-Deployment is fully automated by **`.github/workflows/deploy.yml`**. It is triggered by a **successful CI run on `main`** (`on: workflow_run`), not by the push itself, and it builds the exact commit that run passed on — so nothing reaches production, or gets tagged, without a green `verify` and `e2e`. For each such commit it:
-
-1. Runs `npm ci` and builds the static site with `npm run build`.
-2. Pushes the contents of `./build/` to the `gh-pages` branch (root), preserving any `pr-preview/` subdirectories so open PR previews keep working.
-3. GitHub Pages serves the `gh-pages` branch.
-4. Tags the commit `v<version>` (from `package.json`) and pushes the tag. The step is idempotent — pushes that don't bump the version skip the tag because it already exists on `origin`. This is what backs the `v<version>` release links in the screen and print footers.
-
-The workflow resolves the **base path** automatically. A **custom domain** (a `static/CNAME` file — the app is live at [kneadtime.pizza](https://kneadtime.pizza)) or a user/org site (`<owner>.github.io`) is served from the root, so `BASE_PATH` stays empty; a bare project repo (`<owner>/<repo>`) is served from `/<repo>/`, so the build runs with `BASE_PATH=/<repo>`. To move the app onto (or off) a custom domain, add or remove `static/CNAME` — both `deploy.yml` and `preview.yml` branch on its presence.
-
-`static/CNAME` is committed so it survives the `clean: true` gh-pages deploy (which would otherwise delete the file GitHub writes when you set the domain in the Pages UI, un-setting the domain on the next push).
-
-`svelte.config.js` reads `BASE_PATH` from the env. SvelteKit also serves a `404.html` fallback so deep links and refreshes resolve to the SPA shell, and a `static/.nojekyll` file disables GH Pages' Jekyll processing.
-
-**First-time setup on GitHub**: in the repo settings, set **Pages → Build and deployment → Source = Deploy from a branch**, then **Branch = `gh-pages` / `/ (root)`**. The first push to `main` will create the branch if it doesn't already exist.
-
-### PR previews
-
-**`.github/workflows/preview.yml`** builds every PR opened from a branch in this repository and publishes it as an isolated preview under `gh-pages:/pr-preview/pr-<number>/`. PRs from forks are skipped on purpose: a fork's `GITHUB_TOKEN` is read-only whatever the workflow's `permissions` block says, so the push to `gh-pages` would fail and paint a red X on every external contribution. The workflow uses [`rossjrw/pr-preview-action`](https://github.com/rossjrw/pr-preview-action), which posts (and updates) a sticky comment on the PR with the preview URL and removes the directory when the PR is closed or merged.
-
-The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
-
-A separate **`.github/workflows/ci.yml`** runs on every PR and on pushes to `main`; it doesn't deploy, but a successful run on `main` is what triggers `deploy.yml`. It has two jobs: **`verify`** (lint, type-check, the coverage-gated suite, build) and **`e2e`** (the test-count ratchet, then Playwright against a real build). Both are **required status checks** on `main` — note that `main` is guarded by a repository _ruleset_, so the classic branch-protection API reports it as unprotected; see `gh api repos/JanWelker/knead-time/rulesets`. Adding a CI job does not make it required, that is a separate change to the ruleset.
-
-The `main` runs exist so Codecov gets a main-branch baseline (the badge at the top points at `branch/main`) and so the deploy has something to wait for. They are deliberately **not** cancelled when a newer commit lands — cancelling one would leave that commit undeployed, untagged and out of the baseline — while PR runs still supersede each other. The CI badge covers the whole workflow, so a failing `e2e` turns it red too — it needs no badge of its own.
-
----
-
-## Contributing a community recipe
-
-The **Recipes** view lists recipes other bakers have shared. Each entry is a
-single row in [`src/lib/community/community.md`](src/lib/community/community.md):
-
-```md
-| Name      | Date       | Recipe                         |
-| --------- | ---------- | ------------------------------ |
-| Your name | 2026-05-13 | https://kneadtime.pizza/?r=... |
-```
-
-To add yours: dial in the recipe in the app, click **Share** to copy the URL,
-then open a PR appending one row to that file. The website parses the URL,
-shows your inputs as columns, and links the row back to the recipe.
-
-For the **Name** column use either your full name (renders as plain text) or
-a GitHub handle prefixed with `@` (renders as a link to your profile, e.g.
-`@JanWelker` → <https://github.com/JanWelker>).
-
-## Contributing a 50 Top Pizza recipe
-
-Below the community table, the page lists pizzerias from the
-[50 Top Pizza](https://www.50toppizza.it/) guide (2018–2025) whose dough
-recipes are publicly documented. The data lives in
-[`src/lib/pizzerias/pizzerias.md`](src/lib/pizzerias/pizzerias.md). Each row
-has seven columns:
-
-```md
-| Pizzeria                                                      | Location       | Rankings                            | Recipe                         | Timing                         | Notes                           | Source                        |
-| ------------------------------------------------------------- | -------------- | ----------------------------------- | ------------------------------ | ------------------------------ | ------------------------------- | ----------------------------- |
-| [Pepe in Grani](https://www.50toppizza.it/.../pepe-in-grani/) | Caiazzo, Italy | 2018-it:1, 2019-it:1, 2022-w:26 ... | https://kneadtime.pizza/?v=3&… | bulk-room:4-5h, final-proof:2h | Source also adds ~1.9 % starter | https://youngandfoodish.com/… |
-```
-
-- **Pizzeria** name is a markdown link to the pizzeria's 50 Top Pizza profile.
-- **Location** is `City, Country`.
-- **Rankings** is a comma-separated list of `YEAR-LIST:RANK` tokens. `LIST` is
-  `it` for the 2018–2021 guides (when 50 Top Pizza was an Italy-only ranking)
-  and `w` for 2022–2025 (the standalone World ranking).
-- **Recipe** is the Knead Time **Share** URL that encodes the published
-  numbers. Open the app, dial in the recipe, click **Share**, paste here.
-- **Timing** captures the proving durations the source specifies
-  (`step-kind:Nh`, `step-kind:N-Mh`, or `Nm`). The schedule tags any computed
-  duration outside the source range with the original value.
-- **Notes** is free-form text flagging caveats — dropped ingredients, flour
-  blends, "approximation". Leave empty when the recipe maps cleanly.
-- **Source** is the primary source for those numbers — a chef's interview,
-  cookbook excerpt, official video, etc. Don't submit a row without one.
-
-## Conventions worth knowing
-
-- All calculation logic stays in `src/lib/dough/` and is **framework-free**. Components only render results.
-- Tests live next to the code they cover (`foo.ts` + `foo.test.ts`); browser tests live in `e2e/`. The dough math is unit-tested to a 100 % gate. Anything that lives in a component or a `.svelte.ts` module is covered by the Playwright suite instead — vitest has no Svelte plugin, so those files cannot even be imported by a unit test.
-- **The suite may grow, never shrink.** `npm run test:baseline` compares both collected test counts against `.github/test-baseline.json` and re-checks that the coverage thresholds are still 100. Lowering either is allowed, but only as an explicit edit to that file — coverage alone would not notice, since it is a ratio and the browser suite has no coverage gate at all.
-- Comments explain **why**, not what. A named function or variable is the documentation for _what_.
-- New dependencies should be small and justified. We prefer hand-rolling small things (the `.ics` generator is hand-written) over pulling in large libraries.
-- The full project rationale and scope lives in `CLAUDE.md`.
-
----
+For code, read the [development guide](docs/development.md) first. Every change goes through a branch and a pull request; CI must be green before it merges, and the test suite may grow but never shrink. Bug reports and ideas are welcome as [issues](https://github.com/JanWelker/knead-time/issues).
 
 ## License
 
