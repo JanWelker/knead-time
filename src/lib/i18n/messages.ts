@@ -493,7 +493,7 @@ const en: Messages = {
 			"For yeast-carried recipes (fresh or dry), all of the recipe's yeast goes into the pre-ferments — split proportional to their flour shares, none on baking day. A biga is mixed stiff at 50% hydration, a poolish pourable at 100% — both drawn from the recipe's existing flour and water budget. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
 		info_switch_title: 'Cold ↔ room switch',
 		info_switch_body:
-			'After reserving the longest pre-ferment, a remaining window of 16 h or more activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
+			'After reserving the longest pre-ferment, a remaining window of 16 h or more activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 3.5× slower than 22 °C). Shorter windows stay at room temperature.',
 		info_budget_title: 'How the window is divided',
 		info_budget_body:
 			'Fixed handwork comes off the top: 15 min prep + 15 min mix (20 in a stand mixer, 25 by hand) + 15 min divide, plus a 60 min settle and the fixed 4 h final proof in cold mode. Room mode gives a third of the remaining budget to the final proof (capped at 90 min) and the rest to bulk. Cold mode sends the whole remainder to the fridge leg, capped at 48 h. When even that does not fit, the cold leg shrinks first, then the pre-ferments — the first step never lands before your start time. With a cold ball proof the same cold leg simply moves to the other side of divide: the balls ripen in the fridge instead of the bulk.',
@@ -1004,7 +1004,7 @@ const de: Messages = {
 			'Bei Rezepten mit Hefe (frisch oder trocken) landet die gesamte Hefe in den Vorteigen — aufgeteilt nach ihren Mehlanteilen, am Backtag kommt keine mehr dazu. Eine Biga wird fest bei 50% Hydration angesetzt, ein Poolish gießfähig bei 100% — beide stammen aus dem vorhandenen Mehl- und Wasserbudget des Rezepts. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
 		info_switch_title: 'Wechsel Kühlschrank ↔ Raum',
 		info_switch_body:
-			'Nachdem der längste Vorteig reserviert ist, aktiviert ein verbleibendes Fenster von 16 h oder mehr eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
+			'Nachdem der längste Vorteig reserviert ist, aktiviert ein verbleibendes Fenster von 16 h oder mehr eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 3,5× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
 		info_budget_title: 'Wie das Fenster aufgeteilt wird',
 		info_budget_body:
 			'Feste Handarbeit geht vorab ab: 15 min Vorbereiten + 15 min Mischen (20 in der Küchenmaschine, 25 von Hand) + 15 min Portionieren, dazu 60 min Ruhe und im Kühlmodus die feste Stückgare von 4 h. Im Raummodus bekommt die Stückgare ein Drittel des verbleibenden Budgets (höchstens 90 min), der Rest geht an die Stockgare. Im Kühlmodus wandert der gesamte Rest in die Kühlphase, begrenzt auf 48 h. Passt selbst das nicht, schrumpft zuerst die Kühlphase, dann die Vorteige — der erste Schritt liegt nie vor deiner Startzeit. Bei kalter Stückgare wandert dieselbe Kühlphase einfach auf die andere Seite des Portionierens: statt des Teigs reifen die Teiglinge im Kühlschrank.',
@@ -1523,7 +1523,7 @@ const it: Messages = {
 			'Per le ricette con lievito (fresco o secco), tutto il lievito va nei preimpasti — suddiviso in proporzione alle loro quote di farina, niente lievito il giorno della cottura. La biga si impasta soda al 50% di idratazione, il poolish colabile al 100% — entrambi attingono alla farina e all’acqua già previste dalla ricetta. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
 		info_switch_title: 'Passaggio frigo ↔ ambiente',
 		info_switch_body:
-			'Dopo aver riservato il preimpasto più lungo, una finestra rimanente di 16 h o più attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 16× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
+			'Dopo aver riservato il preimpasto più lungo, una finestra rimanente di 16 h o più attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 3,5× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
 		info_budget_title: 'Come si divide la finestra',
 		info_budget_body:
 			'Il lavoro manuale fisso si toglie subito: 15 min di preparazione + 15 min di impasto (20 con la planetaria, 25 a mano) + 15 min di staglio, più 60 min di riposo e, in modalità frigo, l’appretto fisso di 4 h. In modalità ambiente un terzo del budget rimanente va all’appretto (al massimo 90 min) e il resto alla puntata. In modalità frigo tutto il resto va alla fase in frigo, limitata a 48 h. Se nemmeno così ci sta, si accorcia prima la fase in frigo, poi i preimpasti — il primo passo non cade mai prima dell’ora di inizio. Con l’appretto a freddo la stessa fase si sposta semplicemente dall’altra parte dello staglio: in frigorifero maturano i panetti invece dell’impasto.',
@@ -2044,7 +2044,7 @@ const fr: Messages = {
 			"Pour les recettes avec levure (fraîche ou sèche), toute la levure va dans les pré-ferments — répartie au prorata de leur part de farine, aucune le jour de la cuisson. Une biga se mélange ferme à 50% d'hydratation, un poolish coulant à 100% — tous deux puisés dans le budget de farine et d'eau existant de la recette. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).",
 		info_switch_title: 'Bascule frigo ↔ ambiante',
 		info_switch_body:
-			"Après réservation du pré-ferment le plus long, une fenêtre restante de 16 h ou plus active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 16× plus lent qu'à 22 °C). Les fenêtres plus courtes restent à température ambiante.",
+			"Après réservation du pré-ferment le plus long, une fenêtre restante de 16 h ou plus active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 3,5× plus lent qu'à 22 °C). Les fenêtres plus courtes restent à température ambiante.",
 		info_budget_title: 'Comment la fenêtre se répartit',
 		info_budget_body:
 			"Le travail manuel fixe est retiré d'emblée : 15 min de préparation + 15 min de pétrissage (20 au robot pâtissier, 25 à la main) + 15 min de division, plus 60 min de repos et, en mode frigo, l'apprêt fixe de 4 h. En mode ambiant, un tiers du budget restant va à l'apprêt (plafonné à 90 min) et le reste au pointage. En mode frigo, tout le reste part dans la phase au frigo, plafonnée à 48 h. Si même cela ne rentre pas, la phase au frigo raccourcit d'abord, puis les pré-ferments — la première étape ne tombe jamais avant votre heure de départ. Avec un apprêt à froid, la même phase froide passe simplement de l'autre côté de la division : ce sont les pâtons qui mûrissent au réfrigérateur, et non la masse.",
@@ -2571,7 +2571,7 @@ const nl: Messages = {
 			'Bij recepten met gist (vers of gedroogd) zit alle gist in de voordegen — verdeeld naar hun bloemaandeel, niets op de bakdag. Een biga wordt stijf aangemaakt op 50% hydratatie, een poolish gietbaar op 100% — beide komen uit het bestaande bloem- en waterbudget van het recept. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
 		info_switch_title: 'Wissel koelkast ↔ kamer',
 		info_switch_body:
-			'Na het reserveren van het langste voordeeg activeert een resterend venster van 16 u of meer een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 16× trager dan 22 °C). Kortere vensters blijven op kamertemperatuur.',
+			'Na het reserveren van het langste voordeeg activeert een resterend venster van 16 u of meer een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 3,5× trager dan 22 °C). Kortere vensters blijven op kamertemperatuur.',
 		info_budget_title: 'Hoe het venster wordt verdeeld',
 		info_budget_body:
 			'Vast handwerk gaat er eerst af: 15 min voorbereiden + 15 min mengen (20 in de keukenmachine, 25 met de hand) + 15 min verdelen, plus 60 min rust en in de koelmodus de vaste narijs van 4 u. In de kamermodus krijgt de narijs een derde van het resterende budget (hoogstens 90 min) en de rest gaat naar de bulkrijs. In de koelmodus gaat de hele rest naar de koelfase, begrensd op 48 u. Past zelfs dat niet, dan krimpt eerst de koelfase en daarna de voordegen — de eerste stap valt nooit vóór je starttijd. Bij koude narijs verschuift dezelfde koude fase gewoon naar de andere kant van het verdelen: de bollen rijpen in de koelkast in plaats van het deeg.',
