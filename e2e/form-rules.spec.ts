@@ -207,3 +207,13 @@ test('the ask flow counts pizzas inside the same band as the sheet', async ({ pa
 	await page.getByRole('button', { name: 'One fewer' }).click();
 	await expect(box).toHaveValue(String(INPUT_BOUNDS.pizzaCount.min));
 });
+
+// The flour options read "<bag> (W <strength>)" with the parenthesis and the
+// letter typed into the component, so no locale could set them. The shape is
+// the `flour_option` message now; this holds the English rendering.
+test('the flour options are labelled through the locale', async ({ page }) => {
+	await openForm(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	await expect(sheet(page).locator('option', { hasText: 'Caputo Pizzeria (W 265)' })).toHaveCount(
+		1
+	);
+});

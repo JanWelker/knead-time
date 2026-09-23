@@ -100,3 +100,33 @@ test('the slider is described by the words that judge the window', async ({ page
 	await expect(windowCard(page).locator('#window-band')).toContainText('tolerates');
 	await expect(windowCard(page).locator('#window-benefit')).not.toHaveText('');
 });
+
+// The send error joined its two halves with a colon typed into the component,
+// so French — which puts a space before a colon — could never get it right. The
+// separator is the `error_reason` message now; this pins the English shape and
+// that the device's own reason still reaches the reader. The webhook is
+// answered locally: nothing leaves the page.
+test('a failed TRMNL send names the reason through the locale', async ({ page }) => {
+	await page.route('https://trmnl.com/api/custom_plugins/**', (route) => {
+		const preflight = route.request().method() === 'OPTIONS';
+		return route.fulfill({
+			status: preflight ? 204 : 404,
+			headers: {
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Headers': 'Content-Type',
+				'Content-Type': 'application/json'
+			},
+			body: preflight ? '' : JSON.stringify({ message: 'Plugin not found' })
+		});
+	});
+	await openRecipe(page, RECIPE);
+	await openMenu(page);
+	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
+	await page
+		.getByRole('textbox', { name: 'Plugin UUID' })
+		.fill('12345678-1234-1234-1234-123456789abc');
+	await page.getByRole('button', { name: 'Send to TRMNL', exact: true }).click();
+	await expect(page.locator('dialog[open] p[role="status"]')).toHaveText(
+		'Could not send: Plugin not found'
+	);
+});

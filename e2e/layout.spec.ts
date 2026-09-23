@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openLibrary, openQuestion, openRecipe, region, sheet } from './helpers';
+import { openAdjust, openLibrary, openQuestion, openRecipe, region, sheet, view } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -250,4 +250,27 @@ test.describe('the colophon', () => {
 			expect(align).toBe('center');
 		}
 	});
+});
+
+// The sheet wrote its checkbox row out five times and the control six, with the
+// ask flow's tiles carrying a seventh copy of the control; they are `.check-row`
+// and `.check-box` now. A copy that drifts is invisible to every other spec —
+// the row still renders — so this pins that every checkbox and radio in the
+// app is set through the named classes and none through a class list.
+test('every checkbox and radio is set through the named classes', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+	await openAdjust(page);
+
+	const boxes = sheet(page).locator('input[type="checkbox"]');
+	await expect(boxes).not.toHaveCount(0);
+	await expect(sheet(page).locator('input[type="checkbox"]:not(.check-box)')).toHaveCount(0);
+	await expect(
+		sheet(page).locator('label:has(> input[type="checkbox"]):not(.check-row)')
+	).toHaveCount(0);
+	await page.getByRole('button', { name: 'Done', exact: true }).click();
+
+	await openQuestion(page, 'method', RECIPE);
+	const radios = view(page).locator('input[type="radio"]');
+	await expect(radios).not.toHaveCount(0);
+	await expect(view(page).locator('input[type="radio"]:not(.check-box)')).toHaveCount(0);
 });

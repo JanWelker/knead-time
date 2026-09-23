@@ -163,6 +163,7 @@ export interface Messages {
 		'flour_dallagiovanna-uniqua-blu': string;
 		flour_custom: string;
 		flour_none: string;
+		flour_option: string;
 		flourW: string;
 		flourW_help: string;
 		mixingMethod: string;
@@ -361,6 +362,7 @@ export interface Messages {
 		disconnect: string;
 		close: string;
 		error: string;
+		error_reason: string;
 		error_invalid_uuid: string;
 		setup_hint: string;
 		setup_link: string;
@@ -423,6 +425,7 @@ export interface Messages {
 		};
 		col_pizzeria: string;
 		col_location: string;
+		place: string;
 		col_rankings: string;
 		col_pizzas: string;
 		col_ball: string;
@@ -571,6 +574,7 @@ const en: Messages = {
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Custom strength',
 		flour_none: 'Not specified',
+		flour_option: '{name} (W {w})',
 		flourW: 'Flour strength (W)',
 		flourW_help: 'Alveograph value from the bag. A higher W survives a longer ferment.',
 		mixingMethod: 'Mixing',
@@ -813,6 +817,7 @@ const en: Messages = {
 		disconnect: 'Forget',
 		close: 'Close',
 		error: 'Could not send',
+		error_reason: '{error}: {reason}',
 		error_invalid_uuid: 'That doesn’t look like a plugin UUID.',
 		setup_hint: 'First time?',
 		setup_link: 'See the TRMNL setup guide'
@@ -878,6 +883,7 @@ const en: Messages = {
 		},
 		col_pizzeria: 'Pizzeria',
 		col_location: 'Location',
+		place: '{city}, {country}',
 		col_rankings: 'Rankings',
 		col_pizzas: 'Pizzas',
 		col_ball: 'Ball',
@@ -1082,6 +1088,7 @@ const de: Messages = {
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigener W-Wert',
 		flour_none: 'Nicht angegeben',
+		flour_option: '{name} (W {w})',
 		flourW: 'Mehlstärke (W-Wert)',
 		flourW_help: 'Alveograph-Wert von der Packung. Ein höherer W-Wert übersteht eine längere Gare.',
 		mixingMethod: 'Kneten',
@@ -1332,6 +1339,7 @@ const de: Messages = {
 		disconnect: 'Vergessen',
 		close: 'Schließen',
 		error: 'Senden fehlgeschlagen',
+		error_reason: '{error}: {reason}',
 		error_invalid_uuid: 'Das sieht nicht wie eine Plugin-UUID aus.',
 		setup_hint: 'Zum ersten Mal?',
 		setup_link: 'Zur TRMNL-Einrichtungsanleitung'
@@ -1397,6 +1405,7 @@ const de: Messages = {
 		},
 		col_pizzeria: 'Pizzeria',
 		col_location: 'Ort',
+		place: '{city}, {country}',
 		col_rankings: 'Platzierungen',
 		col_pizzas: 'Pizzen',
 		col_ball: 'Teigling',
@@ -1601,6 +1610,7 @@ const it: Messages = {
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Forza personalizzata',
 		flour_none: 'Non specificata',
+		flour_option: '{name} (W {w})',
 		flourW: 'Forza della farina (W)',
 		flourW_help:
 			'Valore alveografico riportato sulla confezione. Una W più alta regge una lievitazione più lunga.',
@@ -1853,6 +1863,7 @@ const it: Messages = {
 		disconnect: 'Dimentica',
 		close: 'Chiudi',
 		error: 'Invio non riuscito',
+		error_reason: '{error}: {reason}',
 		error_invalid_uuid: 'Questo non sembra un UUID di plugin.',
 		setup_hint: 'Prima volta?',
 		setup_link: 'Guida alla configurazione TRMNL'
@@ -1911,6 +1922,7 @@ const it: Messages = {
 		},
 		col_pizzeria: 'Pizzeria',
 		col_location: 'Località',
+		place: '{city}, {country}',
 		col_rankings: 'Classifiche',
 		col_pizzas: 'Pizze',
 		col_ball: 'Panetto',
@@ -2125,6 +2137,7 @@ const fr: Messages = {
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Force personnalisée',
 		flour_none: 'Non précisée',
+		flour_option: '{name} (W {w})',
 		flourW: 'Force de la farine (W)',
 		flourW_help:
 			'Valeur alvéographique indiquée sur le paquet. Un W plus élevé supporte une fermentation plus longue.',
@@ -2378,6 +2391,7 @@ const fr: Messages = {
 		disconnect: 'Oublier',
 		close: 'Fermer',
 		error: 'Échec de l’envoi',
+		error_reason: '{error} : {reason}',
 		error_invalid_uuid: 'Cela ne ressemble pas à un UUID de plugin.',
 		setup_hint: 'Première fois ?',
 		setup_link: 'Guide de configuration TRMNL'
@@ -2444,6 +2458,7 @@ const fr: Messages = {
 		},
 		col_pizzeria: 'Pizzéria',
 		col_location: 'Lieu',
+		place: '{city}, {country}',
 		col_rankings: 'Classements',
 		col_pizzas: 'Pizzas',
 		col_ball: 'Pâton',
@@ -2650,6 +2665,7 @@ const nl: Messages = {
 		'flour_dallagiovanna-uniqua-blu': 'Dallagiovanna Uniqua Blu tipo 1',
 		flour_custom: 'Eigen W-waarde',
 		flour_none: 'Niet opgegeven',
+		flour_option: '{name} (W {w})',
 		flourW: 'Sterkte van het meel (W-waarde)',
 		flourW_help:
 			'Alveograafwaarde van de verpakking. Een hogere W-waarde houdt een langere rijs vol.',
@@ -2900,6 +2916,7 @@ const nl: Messages = {
 		disconnect: 'Vergeten',
 		close: 'Sluiten',
 		error: 'Sturen mislukt',
+		error_reason: '{error}: {reason}',
 		error_invalid_uuid: 'Dat lijkt niet op een plugin-UUID.',
 		setup_hint: 'Eerste keer?',
 		setup_link: 'Bekijk de TRMNL-installatiegids'
@@ -2965,6 +2982,7 @@ const nl: Messages = {
 		},
 		col_pizzeria: 'Pizzeria',
 		col_location: 'Plaats',
+		place: '{city}, {country}',
 		col_rankings: 'Ranglijsten',
 		col_pizzas: 'Pizza’s',
 		col_ball: 'Bol',

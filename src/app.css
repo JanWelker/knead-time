@@ -342,8 +342,23 @@ html.dark {
 	/* Both modals and the adjust sheet: a native <dialog>. Width and position
 	   are the caller's, everything else is shared. */
 	.dialog-panel {
-		@apply border-rule bg-sheet text-ink rounded-[2px] border-2 p-0 text-sm backdrop:bg-stone-950/50;
+		/* The scrim is the ink at half strength, not a raw `stone-950`: it was
+		   the last colour in src/ reaching past the roles, and the one surface
+		   that stayed a cool near-black when the rest of the page went to the
+		   night shift. */
+		@apply border-rule bg-sheet text-ink backdrop:bg-ink/50 rounded-[2px] border-2 p-0 text-sm;
 		box-shadow: 6px 6px 0 0 var(--kt-rule);
+	}
+
+	/* A checkbox or radio with its label on one line. The sheet wrote the row
+	   out five times and the control six; the ask flow's tiles carry the same
+	   control inside `.tile`. */
+	.check-row {
+		@apply text-ink flex items-center gap-2 text-sm font-medium;
+	}
+
+	.check-box {
+		@apply accent-accent size-4;
 	}
 
 	/* ---- Bands and rules ------------------------------------------------ */
