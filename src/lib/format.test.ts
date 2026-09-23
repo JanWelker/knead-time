@@ -5,7 +5,6 @@ import {
 	formatBallWeightGrams,
 	formatDateTime,
 	formatDuration,
-	formatDurationHHMM,
 	formatGrams,
 	formatIsoDate,
 	formatPercent,
@@ -41,22 +40,6 @@ describe('formatDuration', () => {
 	it('handles all supported locales', () => {
 		expect(formatDuration(90, 'de')).toContain('Std');
 		expect(formatDuration(90, 'it')).toContain('h');
-	});
-});
-
-describe('formatDurationHHMM', () => {
-	it('pads single-digit hours and minutes', () => {
-		expect(formatDurationHHMM(0)).toBe('00:00');
-		expect(formatDurationHHMM(5)).toBe('00:05');
-		expect(formatDurationHHMM(65)).toBe('01:05');
-	});
-	it('handles multi-hour durations', () => {
-		expect(formatDurationHHMM(12 * 60)).toBe('12:00');
-		expect(formatDurationHHMM(36 * 60 + 30)).toBe('36:30');
-	});
-	it('rounds fractional minutes and floors negatives to zero', () => {
-		expect(formatDurationHHMM(59.6)).toBe('01:00');
-		expect(formatDurationHHMM(-10)).toBe('00:00');
 	});
 });
 

@@ -121,21 +121,6 @@ export function formatDuration(minutes: number, locale: Locale): string {
 	return interpolate(m.duration_hours_minutes, { h, m: rem });
 }
 
-export function formatDurationHHMM(minutes: number): string {
-	const total = Math.max(0, Math.round(minutes));
-	const h = Math.floor(total / 60);
-	const m = total % 60;
-	return padZero(h) + ':' + padZero(m);
-}
-
-// A weight is read next to the percentage beside it, so it has to be
-// punctuated the same way: these went out as `toFixed` + ' g', which is
-// English whatever the page around it says, and put "1.3 g" against
-// "Frischhefe". Grouping stays off on purpose — Intl would start writing
-// "1,240 g" in English and "1.240 g" in German for a figure the whole app has
-// always shown as 1240, which is a change to every weight on the page rather
-// than a fix to the punctuation of some. The unit comes from Intl too, because
-// the space before it is not a plain one in French.
 // A weight is read next to the percentage beside it, so it has to be
 // punctuated the same way: these went out as `toFixed` + ' g', which is
 // English whatever the page around it says, and put "1.3 g" against
