@@ -30,8 +30,9 @@ const DESC: Record<Exclude<ScheduleStepKind, 'preferment-mix'>, keyof Messages['
 	ready: 'ready_desc'
 };
 
-// Beginner-mode explanations: the why behind each step, shown as an extra
-// paragraph under the method copy. One generic entry covers both pre-ferment
+// The descriptive verbosity's explanations: the why behind each step, shown as
+// an extra paragraph under the method copy. Gated on the reading preference
+// (`scheduleVerbosity`), never on the beginner/expert view mode. One generic entry covers both pre-ferment
 // types — the what-is-a-pre-ferment story is the same for biga and poolish.
 const DETAIL: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	'preferment-mix': 'preferment_mix_detail',
@@ -242,9 +243,10 @@ export function stepDescription(
 }
 
 // Flat text form (ingredient lines + method) for the .ics export, so a
-// calendar event carries the same detail the on-page step shows. In beginner
-// mode the caller opts into the explanatory paragraph as well — calendars
-// have no page budget, and the beginner is exactly who reads them mid-bake.
+// calendar event carries the same detail the on-page step shows. On the
+// descriptive verbosity the caller opts into the explanatory paragraph as well
+// — calendars have no page budget, and whoever chose the long form on screen
+// is exactly who reads them mid-bake. The view mode plays no part.
 export function stepDetailText(
 	step: ScheduleStep,
 	msgs: Messages,

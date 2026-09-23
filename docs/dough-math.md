@@ -20,9 +20,9 @@ The model always solves in fresh-equivalent percent and converts to the carrier'
 
 ## Cold or room
 
-The switch is deterministic on available time. With **16 h or more** between start and bake the dough cold-ferments with a fixed-shape schedule: prep → mix → 1 h room bulk → long fridge bulk → divide → 4 h final proof → bake. That final proof is one phase, `COLD_FINAL_PROOF_MIN = 240`: the balls come out of the fridge and sit on the counter until the bake, one "balls resting" step to the baker rather than a warm-up and a proof. Both legs were at room temperature anyway, so folding them together moved no equivalent hours.
+The switch is deterministic on available time, measured **after reserving the longest pre-ferment**: with **16 h or more** left between the pre-ferment's end and the bake the dough cold-ferments (a 20 h window with a 12 h poolish leaves 8 h and stays on the counter). The cold schedule has a fixed shape: prep → 30 min autolyse rest (the default; skipped under a pre-ferment or the expert opt-out) → mix → 1 h room bulk → long fridge bulk → divide → 4 h final proof → bake. That final proof is one phase, `COLD_FINAL_PROOF_MIN = 240`: the balls come out of the fridge and sit on the counter until the bake, one "balls resting" step to the baker rather than a warm-up and a proof. Both legs were at room temperature anyway, so folding them together moved no equivalent hours.
 
-Below 16 h the dough ferments at room temperature, with bulk and final proof split 2:1 inside the available window. In either mode the yeast percentage is then chosen so the actual ferment-unit total matches the target.
+Below 16 h the dough ferments at room temperature. After the fixed hands-on minutes are taken out, a third of what remains goes to the final proof, **capped at 90 minutes**, and the rest is bulk — so the split is 2:1 only for the shortest windows and a 12 h room window is about 6:1. In either mode the yeast percentage is then chosen so the actual ferment-unit total matches the target.
 
 With the **cold ball proof** option the variable cold leg moves after divide: the balls ripen in the fridge and temper on the counter. Same leg length and temperature, so prep lands on the same minute and the yeast solve is untouched.
 
@@ -62,7 +62,7 @@ Flour strength W is **advisory only**. It is deformation energy, not absorption,
 
 ## Round numbers
 
-The button next to the ball-weight input nudges the ball weight (to 0.1 g; the field accepts decimals like `288.5`) so the derived flour and water come out as tidy multiples of 100 g, or 50 g when 100 g would drift too far. It is idempotent (clicking twice is a no-op), works for both fresh yeast and sourdough, and clamps to the ball-weight bounds, so at the band edges the flour stays unround.
+The button next to the ball-weight input nudges the ball weight (to 0.1 g; the field accepts decimals like `288.5`) so the derived flour lands on a multiple of 100 g for any batch with 400 g of flour or more, and on 50 g below that, where a 100 g step would move the ball weight noticeably. It is idempotent (clicking twice is a no-op), works for both fresh yeast and sourdough, and clamps to the ball-weight bounds, so at the band edges the flour stays unround.
 
 ## Step copy and calendar parity
 

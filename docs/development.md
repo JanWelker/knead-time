@@ -4,7 +4,7 @@ Everything a contributor hits in the first hour. The deeper rationale behind eac
 
 ## Requirements
 
-**Node.js 22+** and **npm** (enforced via `engines`). CI and deploys run the version in `.nvmrc`; `nvm use` gives you the same one. That is it: CI and deployment run on GitHub Actions, locally you just need Node.
+**Node.js 22+** and **npm** (enforced via `engines`). CI and deploys run the version in `.nvmrc`, currently 24; `nvm use` gives you the same one. That is it: CI and deployment run on GitHub Actions, locally you just need Node.
 
 ## Quickstart
 
@@ -22,19 +22,19 @@ npm run preview    # serve ./build/ locally
 
 ## npm scripts
 
-| Command                 | What it does                                                                                            |
-| ----------------------- | ------------------------------------------------------------------------------------------------------- |
-| `npm run dev`           | Vite dev server on port 5173 with HMR                                                                   |
-| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)                                                   |
-| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                             |
-| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` moves the preview server off 4173 |
-| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                                 |
-| `npm run test:baseline` | Refuse a change that removes tests or relaxes coverage                                                  |
-| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                              |
-| `npm run lint`          | Prettier check + ESLint                                                                                 |
-| `npm run format`        | Prettier write                                                                                          |
-| `npm run build`         | Production build → `./build/` (static site)                                                             |
-| `npm run preview`       | Serve the built site locally                                                                            |
+| Command                 | What it does                                                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `npm run dev`           | Vite dev server on port 5173 with HMR                                                                              |
+| `npm test`              | Run vitest once (`npm run test:watch` for watch mode)                                                              |
+| `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                                        |
+| `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` moves the preview server off 4173            |
+| `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                                            |
+| `npm run test:baseline` | Compare the test counts against `.github/test-baseline.json`; fails on a drop, on a rise, or on coverage below 100 |
+| `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                                         |
+| `npm run lint`          | Prettier check + ESLint                                                                                            |
+| `npm run format`        | Prettier write                                                                                                     |
+| `npm run build`         | Production build → `./build/` (static site)                                                                        |
+| `npm run preview`       | Serve the built site locally                                                                                       |
 
 Husky + lint-staged are configured in `.husky/pre-commit`. The hook runs lint-staged and then `npm test` on every commit. It skips coverage, so run `npm run test:coverage` yourself before opening a PR.
 
@@ -68,6 +68,7 @@ src/
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
 │   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
+├── hooks.server.ts       ← the one server hook: stamps `<html lang>` per prerendered print sheet
 ├── routes/
 │   ├── +layout.svelte    ← global styles, language bootstrap
 │   ├── +layout.ts        ← prerender + ssr=false (fully client-side)
@@ -87,11 +88,11 @@ static/                   ← copied verbatim to the site root
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
 scripts/
-├── check-test-baseline.mjs   refuses a change that removes tests or relaxes coverage
+├── check-test-baseline.mjs   fails when the test counts differ from the recorded floor or coverage is relaxed
 └── render-icons.mjs          re-renders the icon PNGs from the SVGs (run by hand)
 
 .github/
-├── test-baseline.json    ← how many tests exist; the floor the script enforces
+├── test-baseline.json    ← how many tests exist; edited by hand whenever the count moves
 ├── actions/              ← composite actions every workflow consumes
 │   ├── node-setup/       ← installs the .nvmrc Node version and runs npm ci
 │   └── base-path/        ← resolves BASE_PATH (custom domain, user site or /<repo>) for deploy and preview
@@ -114,13 +115,31 @@ playwright.config.ts      ← Playwright (builds and serves the real static outp
 5. **Verify.** `npm run test:coverage && npm run check && npm run build`. CI runs `npm run lint`, `npm run check`, `npm run test:coverage` (the 100 % coverage gate; plain `npm test` skips it) and `npm run build`. A second CI job runs `npm run test:e2e`: Playwright drives a real build for the parts that live in components and so cannot be reached by vitest. The first local run needs `npx playwright install chromium`.
 6. **Bump the version** with `npm version <patch|minor|major> --no-git-tag-version`. Patch for fixes, docs and refactors; minor for a backwards-compatible user-facing feature; major when a returning user's recipe or an old share link would change. The major version is pinned to the share-link schema version, and a test checks the two agree.
 
+### Adding a locale
+
+`LOCALES` in `src/lib/i18n/messages.ts` is the list everything else derives from: the `Locale` type, `isLocale`, `detectLocale`, the prerendered print entries and the `<html lang>` hook all follow it. The rest is by hand:
+
+1. Add the code to `LOCALES` and a complete `Messages` object for it in `messages.ts`. `messages.test.ts` fails until every key is present.
+2. Add its **endonym** to the list in `src/lib/components/MastheadMenu.svelte` — the language is named in itself, not translated.
+3. Pin its number and date punctuation in `src/lib/format.test.ts`: `formatDateTime` has one literal per locale, and the weights have per-locale expectations. Read what `Intl` produces and decide whether the repunctuation rules in `format.ts` need a case.
+4. Run `src/lib/trmnl/webhook.test.ts`: it measures the TRMNL payload in every locale against the 2 KB cap, and a wordier language can push the worst case over it.
+5. If the script needs glyphs outside Latin and Latin Extended, add the Fontsource subset to the `@font-face` rules in `src/app.css`; the two shipped subsets are all the current five need.
+6. Update the language count in `README.md` and the locale list in `CLAUDE.md`.
+
+### Adding a schedule warning
+
+1. Add the kind to the `ScheduleWarning` union in `src/lib/dough/types.ts` and push it from `computeSchedule` in `src/lib/dough/schedule.ts`, with a named constant for its edge.
+2. Place it in `WARNING_SLOT` in `src/lib/warningSlots.ts` — `window`, `temperature` or `ingredients`, next to the thing whose value causes it. The record is total, so the build fails until you do; `warningSlots.test.ts` pins the full membership and needs the new row.
+3. Give it copy in the `warnings` block of `Messages` and all five locales, and map it in the `COPY` and `SEVERITY` records in `src/lib/components/Warnings.svelte` (both total records, both compile errors until filled).
+4. Pin the edge as a literal in `schedule.test.ts`, and if the warning describes a band the user can feel, add it to the "Get nerdy" contract in `src/lib/infoSections.ts` and its copy.
+
 ## Testing
 
 Math and schedule bugs are silent until a dough overproofs, so coverage is a hard gate.
 
 - Tests live next to the code (`foo.ts` + `foo.test.ts`). `src/lib/` is held at **100 % lines, functions, branches and statements**; `npm run test:coverage` enforces it and CI runs the same. If a branch is hard to reach, delete it rather than fake a test for it.
 - **Browser tests live in `e2e/`** (Playwright, Chromium only) and cover everything in a component or a `.svelte.ts` module. Vitest has no Svelte plugin, so those files cannot even be imported by a unit test. The suite builds and serves the real static output, pins the clock, timezone and locale, and waits for hydration before reading anything.
-- **The suite may grow, never shrink.** `npm run test:baseline` compares the collected test counts against `.github/test-baseline.json` and re-checks that the coverage thresholds are still 100. Adding tests means raising the recorded count; lowering it is allowed only as an explicit edit to that file, visible in review.
+- **The suite may grow, never shrink.** `npm run test:baseline` compares the collected test counts against `.github/test-baseline.json` and re-checks that the coverage thresholds are still 100. It fails on **any** difference, a rise included, and it never writes the file: when you add tests, run it, read the new counts from its message and put them in the file yourself. Lowering a count is allowed only as that same explicit edit, visible in review.
 - **Every bug gets a test in the same change as the fix**, named after the failure rather than the function, with a comment saying what broke and why it was missed.
 - **Pin the number, not just the branch.** A test that only checks which factor fired leaves the constant behind it free to move. Every magic number a user can feel needs one assertion that fails when it changes.
 

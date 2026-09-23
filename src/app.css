@@ -531,14 +531,15 @@ html.dark {
 
 	/* ---- Stamps, chips, seals ------------------------------------------- */
 
-	/* A rubber stamp: hard border in its own colour, condensed caps, and a
-	   degree and a half off square because a hand pressed it. Non-interactive
+	/* A rubber stamp: hard border in its own colour, condensed caps, and 1.7°
+	   off square because a hand pressed it. Non-interactive
 	   by contract — nothing rotated may be a tap target. */
 
 	/* The one stamp left: the "Now" mark on the step the clock is standing in.
 	   The mode and the fit outgrew this shape and became GuildSeal roundels, but
 	   a running step wants a small hand-pressed mark, not a certificate. Off
-	   square by a degree and a half, because a hand pressed it. */
+	   square by 1.7°, because a hand pressed it — the same tilt the icon's top
+	   edge is cut at. */
 	.stamp {
 		@apply label-caps inline-flex items-center gap-1.5 rounded-[1px] border-2 border-current px-2 py-1;
 		color: var(--kt-accent-ink);

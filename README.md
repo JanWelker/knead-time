@@ -13,7 +13,7 @@ Nothing to install and nothing to sign up for. Add it to your Home Screen and it
 
 ## What you get
 
-- **A schedule that fits your day.** Every step is timed backwards from the bake. With 16 h or more the dough goes into the fridge; with less it ferments on the counter. No baker-action step is ever scheduled between 22:00 and 08:00.
+- **A schedule that fits your day.** Every step is timed backwards from the bake. With 16 h or more left after any pre-ferment the dough goes into the fridge; with less it ferments on the counter. The schedule shortens the fridge leg to keep every hands-on step out of the night (22:00–08:00), and when it cannot, it says so with a warning rather than moving the step quietly.
 - **A recipe you can trust.** Baker's percentages with a mass balance that always adds up, a Q10 fermentation model that solves the yeast for your window and temperatures, and a fit score that tells you when the inputs stray from Neapolitan practice.
 - **Your flour, your window.** Twelve flour presets, shelved by strength (W), paint the fermentation window each flour tolerates. A slider snaps to the windows Neapolitan practice uses and re-picks the best one when you change the bake time or the flour.
 - **Real pre-ferments.** Biga and poolish, alone or together, each with its own flour share and cellar temperature. Fresh, instant, active-dry or sourdough. Optional autolyse, oil and sugar. Cold or room ball proof. Spiral, stand-mixer or hand kneading, each with its own water temperature.
@@ -30,14 +30,14 @@ Everything is served from one origin. There is no backend, no analytics, no CDN 
 
 ## Run it locally
 
-You need [Node.js](https://nodejs.org/) 22 or newer. `nvm use` picks the version CI runs.
+You need [Node.js](https://nodejs.org/) 22 or newer; CI and the deploy run the version in `.nvmrc` (currently 24), and `nvm use` gives you the same one.
 
 ```sh
 npm install
 npm run dev        # http://localhost:5173
 ```
 
-Built with SvelteKit 5, TypeScript and Tailwind v4. Fully client-side, deployed as a static site to GitHub Pages.
+Built with SvelteKit 2 on Svelte 5, TypeScript and Tailwind v4. Fully client-side, deployed as a static site to GitHub Pages.
 
 ## Documentation
 

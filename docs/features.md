@@ -8,7 +8,7 @@ The app is a service that prints its own paperwork. It opens with one question s
 
 The answer is a job ticket you return to: a full-screen numbered schedule you open at 07:00 with flour on your hands, the weights beside it set as a deli ticket with dotted leaders, a tear-off perforation and a double-ruled total. Every value on the ticket is a blank on a printed form; tap one and the **Adjust** order pad opens with that field under the cursor.
 
-Anyone arriving with a share link or a saved recipe lands straight on the plan and is never asked the questions again; anyone who already knows all twelve numbers opens the pad and fills them in at once. My recipes, Community and 50 Top Pizza live in a **Recipes** rack of their own, one press from anywhere.
+Anyone arriving with a share link or a saved recipe lands straight on the plan and is never asked the questions again; anyone who already knows all eighteen values opens the pad and fills them in at once. My recipes, Community and 50 Top Pizza live in a **Recipes** rack of their own, one press from anywhere.
 
 Which view you are on lives in the URL fragment (`#ask/<step>`, `#plan`, `#library`), so it is linkable, survives a reload and walks with the back button. The recipe query is untouched: v=7 adds no key, it only records which app wrote the link.
 
