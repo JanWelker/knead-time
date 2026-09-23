@@ -21,9 +21,39 @@ test('the status regions exist before they have anything to say', async ({ page 
 
 	await openMenu(page);
 	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
-	const sendStatus = page.locator('dialog p[role="status"]');
+	// By the open dialog, not "any dialog": the adjust sheet is in the page too
+	// and now carries a status region of its own (the window slider's), which
+	// is the whole point of the test below.
+	const sendStatus = page.locator('dialog[open] p[role="status"]');
 	await expect(sendStatus).toHaveCount(1);
 	await expect(sendStatus).toHaveText('');
+});
+
+// Same trap again, in the one control where the message is the only report of
+// something the app did on the user's behalf: a longer window can only push the
+// start earlier, and past a point onto a different date. The notice saying so
+// was created by the same {#if} that filled it, so it announced nothing —
+// while the rest of the card is aria-hidden decoration and the readout only
+// counts hours, leaving a screen-reader user with no signal that the day moved.
+test('the window slider says the start moved to another day, out loud', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+	await openAdjust(page);
+
+	// Present and silent before there is anything to report.
+	const moved = windowCard(page).locator('[role="status"]');
+	await expect(moved).toHaveCount(1);
+	await expect(moved).toHaveText('');
+
+	// Six stops to the right of a start already on the bake's own eve: far
+	// enough that the window reaches back across midnight.
+	const rail = slider(page);
+	await rail.focus();
+	for (let i = 0; i < 6; i++) await rail.press('ArrowRight');
+
+	// Same node, now carrying the message — an update inside a live region that
+	// was already there, which is what a screen reader actually announces.
+	await expect(moved).toContainText('different day');
+	await expect(moved).toBeVisible();
 });
 
 // The clipboard rejection used to be swallowed on the grounds that the URL is

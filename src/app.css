@@ -76,22 +76,6 @@
 	   weight, very heavy, very narrow, only ever used large or short. */
 	--font-sans: 'Archivo', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 	--font-display: 'Anton', 'Haettenschweiler', 'Arial Narrow', ui-sans-serif, sans-serif;
-
-	/* Basil is the one raw scale left, because the window slider paints its
-	   tolerance bands straight off it (`bg-basil-300/400` and their dark pairs)
-	   rather than through a role. The dough and tomato scales that used to sit
-	   beside it had no caller at all: every red on the page, the focus ring
-	   included, resolves through `--kt-accent`. */
-	--color-basil-50: #f0f7ed;
-	--color-basil-100: #dceed1;
-	--color-basil-200: #b8dca3;
-	--color-basil-300: #8cc472;
-	--color-basil-400: #65a94d;
-	--color-basil-500: #4a8d36;
-	--color-basil-600: #387029;
-	--color-basil-700: #2c5722;
-	--color-basil-800: #20401a;
-	--color-basil-900: #142810;
 }
 
 /* The press. Two inks on one stock: everything structural is INK, the accent is
@@ -120,6 +104,17 @@
 	--kt-herb: #4a8d36;
 	--kt-herb-ink: #2c5722;
 	--kt-herb-wash: #e3f0da;
+	/* The two fills the window rail paints its tolerance zones in — the only
+	   place basil is laid down as an area rather than as a mark. They are roles
+	   rather than raw scale steps because without them the slider was the one
+	   component in the app reaching past the palette for `bg-basil-300
+	   dark:bg-basil-800`, which is also how it came to hold the only `dark:`
+	   variants left in src/. Taking that pair into roles left the basil scale
+	   with no caller at all, so it is gone the way dough and tomato went, and
+	   these two literals are the only place those greens survive. Cold is the
+	   deeper of the two: it is the longer, more deliberate ferment. */
+	--kt-band-room: #8cc472;
+	--kt-band-cold: #65a94d;
 	--kt-grain: rgba(26, 22, 19, 0.05);
 	/* The colour the flag's middle panel is printed in. In light it is simply
 	   the stock, the way a tricolore leaves the paper showing; on the dark press
@@ -143,6 +138,11 @@ html.dark {
 	--kt-herb: #8cc472;
 	--kt-herb-ink: #a9d493;
 	--kt-herb-wash: #1d2a16;
+	/* On the dark press the bands are laid down rather than lifted out, so the
+	   pair inverts: both go deep enough to read as fills behind a light thumb,
+	   and cold stays the darker of the two. */
+	--kt-band-room: #20401a;
+	--kt-band-cold: #2c5722;
 	--kt-grain: rgba(242, 233, 216, 0.05);
 	--kt-stock: #e6dbc6;
 }
@@ -162,6 +162,8 @@ html.dark {
 	--color-herb: var(--kt-herb);
 	--color-herb-ink: var(--kt-herb-ink);
 	--color-herb-wash: var(--kt-herb-wash);
+	--color-band-room: var(--kt-band-room);
+	--color-band-cold: var(--kt-band-cold);
 }
 
 /* These are element defaults, so they belong in @layer base — and being in a
