@@ -112,159 +112,163 @@
 		<button type="button" class="btn-ghost" onclick={onplan}>{t.nav.skip}</button>
 	</Masthead>
 
-	<div class="view-pad flex-1 pt-8 pb-10 sm:pt-14">
-		<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-14">
-			<div class="min-w-0">
-				<!-- The measure across the top of the sheet: the flag painted under a
+	<!-- The question and the Back/Next row are one main; the masthead above is
+	     the banner. Wrapping the masthead too would swallow that role. -->
+	<main class="flex flex-1 flex-col">
+		<div class="view-pad flex-1 pt-8 pb-10 sm:pt-14">
+			<div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start lg:gap-14">
+				<div class="min-w-0">
+					<!-- The measure across the top of the sheet: the flag painted under a
 				     ruled strip, growing from a green sliver to the whole tricolore as
 				     the questions are answered. A row of grey dots would have said
 				     nothing about where you are in a printed sequence. Each division
 				     is a jump back to its own question. -->
-				<nav aria-label={t.nav.questions}>
-					<div class="progress-rule">
-						<span
-							class="progress-paint"
-							style="width:{((index + 1) / ASK_STEPS.length) * 100}%"
-							aria-hidden="true"
-						></span>
-						{#each ASK_STEPS as s (s)}
-							<button
-								type="button"
-								class="progress-seg"
-								aria-label={COPY[s].question()}
-								aria-current={s === step ? 'step' : undefined}
-								onclick={() => go(s)}
-							></button>
-						{/each}
-					</div>
-					<p class="label-caps text-ink-soft mt-2">
-						{interpolate(t.nav.progress, { n: index + 1, total: ASK_STEPS.length })}
-					</p>
-				</nav>
+					<nav aria-label={t.nav.questions}>
+						<div class="progress-rule">
+							<span
+								class="progress-paint"
+								style="width:{((index + 1) / ASK_STEPS.length) * 100}%"
+								aria-hidden="true"
+							></span>
+							{#each ASK_STEPS as s (s)}
+								<button
+									type="button"
+									class="progress-seg"
+									aria-label={COPY[s].question()}
+									aria-current={s === step ? 'step' : undefined}
+									onclick={() => go(s)}
+								></button>
+							{/each}
+						</div>
+						<p class="label-caps text-ink-soft mt-2">
+							{interpolate(t.nav.progress, { n: index + 1, total: ASK_STEPS.length })}
+						</p>
+					</nav>
 
-				<!-- Keyed on the step so the whole question block is replaced, which is
+					<!-- Keyed on the step so the whole question block is replaced, which is
 				     what lets it slide in as one sheet rather than re-rendering in
 				     place. The stub beside it deliberately sits outside the key: it is
 				     the continuity, and re-animating it would contradict that. -->
-				{#key step}
-					<div class="kt-enter mt-7" style="--kt-dir:{dir}">
-						<h1 class="question max-w-[14ch]" tabindex="-1" bind:this={heading}>
-							{COPY[step].question()}
-						</h1>
-						<p class="lede mt-5">{COPY[step].lede()}</p>
+					{#key step}
+						<div class="kt-enter mt-7" style="--kt-dir:{dir}">
+							<h1 class="question max-w-[14ch]" tabindex="-1" bind:this={heading}>
+								{COPY[step].question()}
+							</h1>
+							<p class="lede mt-5">{COPY[step].lede()}</p>
 
-						<div class="mt-8 max-w-xl">
-							{#if step === 'when'}
-								<!-- Stacked on a phone: a native date box needs room for its own
+							<div class="mt-8 max-w-xl">
+								{#if step === 'when'}
+									<!-- Stacked on a phone: a native date box needs room for its own
 								     picker glyph, and side by side with the time it clipped the year
 								     at 390 px. -->
-								<div class="flex flex-col gap-3 sm:flex-row">
-									<input
-										type="date"
-										class="input-lg min-w-0 sm:flex-1"
-										value={readyByDate}
-										aria-label="{t.form.readyBy} — {t.form.field_date}"
-										oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
-									/>
-									<input
-										type="time"
-										class="input-lg w-full sm:w-44"
-										value={readyByTime}
-										aria-label="{t.form.readyBy} — {t.form.field_time}"
-										oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
-									/>
-								</div>
-							{:else if step === 'pizzas'}
-								<div class="flex items-center gap-3">
-									<button
-										type="button"
-										class="stepper"
-										aria-label={t.ask.fewer}
-										onclick={() => setPizzas(form.pizzaCount - 1)}
-									>
-										<span aria-hidden="true">−</span>
-									</button>
-									<input
-										type="number"
-										min={INPUT_BOUNDS.pizzaCount.min}
-										max={INPUT_BOUNDS.pizzaCount.max}
-										step="1"
-										inputmode="numeric"
-										class="input-lg w-28 text-center"
-										aria-label={t.form.pizzaCount}
-										bind:value={form.pizzaCount}
-										onchange={(e) => {
-											// An emptied number box writes null upstream; put the live
-											// value back rather than leave the field blank against it.
-											if (e.currentTarget.value === '')
-												e.currentTarget.value = String(form.pizzaCount);
-										}}
-									/>
-									<button
-										type="button"
-										class="stepper"
-										aria-label={t.ask.more}
-										onclick={() => setPizzas(form.pizzaCount + 1)}
-									>
-										<span aria-hidden="true">+</span>
-									</button>
-								</div>
-							{:else if step === 'flour'}
-								<label class="block">
-									<span class="sr-only">{t.form.flour}</span>
-									<FlourSelect {form} class="input-lg w-full text-lg sm:text-xl" />
-								</label>
-							{:else if step === 'window'}
-								<FermentWindowSlider {form} warnings />
-							{:else}
-								<fieldset class="space-y-2">
-									<legend class="sr-only">{t.form.mixingMethod}</legend>
-									{#each MIXING as method (method.value)}
-										<label class="tile">
-											<input
-												type="radio"
-												name="mixingMethod"
-												value={method.value}
-												class="accent-accent size-4"
-												bind:group={form.mixingMethod}
-											/>
-											<span class="text-lg font-semibold">{method.label()}</span>
-										</label>
-									{/each}
-									<p class="text-ink-soft max-w-[46ch] pt-2 text-sm leading-relaxed">
-										{t.form.mixingMethod_help}
-									</p>
-								</fieldset>
-							{/if}
+									<div class="flex flex-col gap-3 sm:flex-row">
+										<input
+											type="date"
+											class="input-lg min-w-0 sm:flex-1"
+											value={readyByDate}
+											aria-label="{t.form.readyBy} — {t.form.field_date}"
+											oninput={(e) => setReadyBy(e.currentTarget.value, readyByTime)}
+										/>
+										<input
+											type="time"
+											class="input-lg w-full sm:w-44"
+											value={readyByTime}
+											aria-label="{t.form.readyBy} — {t.form.field_time}"
+											oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}
+										/>
+									</div>
+								{:else if step === 'pizzas'}
+									<div class="flex items-center gap-3">
+										<button
+											type="button"
+											class="stepper"
+											aria-label={t.ask.fewer}
+											onclick={() => setPizzas(form.pizzaCount - 1)}
+										>
+											<span aria-hidden="true">−</span>
+										</button>
+										<input
+											type="number"
+											min={INPUT_BOUNDS.pizzaCount.min}
+											max={INPUT_BOUNDS.pizzaCount.max}
+											step="1"
+											inputmode="numeric"
+											class="input-lg w-28 text-center"
+											aria-label={t.form.pizzaCount}
+											bind:value={form.pizzaCount}
+											onchange={(e) => {
+												// An emptied number box writes null upstream; put the live
+												// value back rather than leave the field blank against it.
+												if (e.currentTarget.value === '')
+													e.currentTarget.value = String(form.pizzaCount);
+											}}
+										/>
+										<button
+											type="button"
+											class="stepper"
+											aria-label={t.ask.more}
+											onclick={() => setPizzas(form.pizzaCount + 1)}
+										>
+											<span aria-hidden="true">+</span>
+										</button>
+									</div>
+								{:else if step === 'flour'}
+									<label class="block">
+										<span class="sr-only">{t.form.flour}</span>
+										<FlourSelect {form} class="input-lg w-full text-lg sm:text-xl" />
+									</label>
+								{:else if step === 'window'}
+									<FermentWindowSlider {form} warnings />
+								{:else}
+									<fieldset class="space-y-2">
+										<legend class="sr-only">{t.form.mixingMethod}</legend>
+										{#each MIXING as method (method.value)}
+											<label class="tile">
+												<input
+													type="radio"
+													name="mixingMethod"
+													value={method.value}
+													class="accent-accent size-4"
+													bind:group={form.mixingMethod}
+												/>
+												<span class="text-lg font-semibold">{method.label()}</span>
+											</label>
+										{/each}
+										<p class="text-ink-soft max-w-[46ch] pt-2 text-sm leading-relaxed">
+											{t.form.mixingMethod_help}
+										</p>
+									</fieldset>
+								{/if}
+							</div>
 						</div>
-					</div>
-				{/key}
-			</div>
+					{/key}
+				</div>
 
-			<div class="lg:sticky lg:top-8">
-				<PlanGlance {form} />
+				<div class="lg:sticky lg:top-8">
+					<PlanGlance {form} />
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<div class="view-pad rule py-5">
-		<div class="flex items-center justify-between gap-4">
-			<button
-				type="button"
-				class="btn-ghost px-4 py-2.5"
-				disabled={previous === null}
-				onclick={() => previous && go(previous)}
-			>
-				{t.nav.back}
-			</button>
-
-			{#if following}
-				<button type="button" class="btn-tomato" onclick={() => go(following)}>
-					{t.nav.next}
+		<div class="view-pad rule py-5">
+			<div class="flex items-center justify-between gap-4">
+				<button
+					type="button"
+					class="btn-ghost px-4 py-2.5"
+					disabled={previous === null}
+					onclick={() => previous && go(previous)}
+				>
+					{t.nav.back}
 				</button>
-			{:else}
-				<button type="button" class="btn-tomato" onclick={onplan}>{t.nav.see_plan}</button>
-			{/if}
+
+				{#if following}
+					<button type="button" class="btn-tomato" onclick={() => go(following)}>
+						{t.nav.next}
+					</button>
+				{:else}
+					<button type="button" class="btn-tomato" onclick={onplan}>{t.nav.see_plan}</button>
+				{/if}
+			</div>
 		</div>
-	</div>
+	</main>
 </div>
