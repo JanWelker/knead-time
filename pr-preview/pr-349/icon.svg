@@ -35,7 +35,7 @@
 	<g transform="translate(256 256) scale(1.16) translate(-256 -256)">
 		<!-- Second pass, laid down first so the first sits on top of it. -->
 		<rect x="157" y="94" width="222" height="341" fill="#1a1613" />
-		<!-- First pass. Its top edge is cut a degree and a half off level, which
+		<!-- First pass. Its top edge is cut 1.7° off level (6.5 px over 223.5), which
 		     is the hand in the original and the same tilt `.stamp` carries. -->
 		<path d="M133 83.5 L356.5 77 L356.5 418 L133 418 Z" fill="#1a1613" />
 		<!-- The sheet, hand-trimmed: the top follows the block's tilt and the
