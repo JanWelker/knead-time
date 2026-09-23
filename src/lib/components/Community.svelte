@@ -96,22 +96,22 @@
 						<td class="text-ink-soft px-3 py-3 whitespace-nowrap">
 							{formatIsoDate(entry.date, locale)}
 						</td>
-						<td class="figure-cell">{numLabel(entry.inputs.pizzaCount)}</td>
+						<td class="figure-cell">{numLabel(entry.inputs.pizzaCount, locale)}</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.ballWeight, ' g')}
+							{numLabel(entry.inputs.ballWeight, locale, 'g')}
 						</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.hydration, '%')}
+							{numLabel(entry.inputs.hydration, locale, '%')}
 						</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.saltPercent, '%')}
+							{numLabel(entry.inputs.saltPercent, locale, '%')}
 						</td>
 						<td class="px-3 py-3">{yeastLabel(entry.inputs, t)}</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.roomTempC, '°C')}
+							{numLabel(entry.inputs.roomTempC, locale, '°C')}
 						</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.fridgeTempC, '°C')}
+							{numLabel(entry.inputs.fridgeTempC, locale, '°C')}
 						</td>
 						<td class="px-3 py-3">{preFermentLabel(entry.inputs, t)}</td>
 						<td class="px-3 py-3">

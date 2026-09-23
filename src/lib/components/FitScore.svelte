@@ -4,6 +4,7 @@
 	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
 	import GuildSeal from './GuildSeal.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
+	import { formatNumber } from '$lib/format';
 	import {
 		fitStars,
 		recipeFitScore,
@@ -14,6 +15,7 @@
 
 	let { schedule, inputs }: { schedule: ComputedSchedule; inputs: DoughInputs } = $props();
 	const t = $derived(i18n.t);
+	const locale = $derived(i18n.locale);
 	const fit = $derived(recipeFitScore(schedule, inputs));
 	const stars = $derived(fitStars(fit.score));
 	const starRow = $derived('★'.repeat(stars) + '☆'.repeat(5 - stars));
@@ -39,10 +41,12 @@
 	};
 
 	function factorLabel(detail: FitFactorDetail): string {
-		// {delta} is rendered to one decimal place for hours/degrees/grams.
-		// Integer percentage points keep the leading zero off (e.g. "5%").
-		const rounded = Math.round(detail.delta * 10) / 10;
-		return interpolate(t.quality[COPY[detail.factor]], { delta: rounded });
+		// {delta} is rendered to one decimal place for hours/degrees/grams, in
+		// the reader's own punctuation: a raw JS number here wrote "2.5 h" into
+		// a German sentence. Integer deltas keep the trailing zero off ("5%").
+		return interpolate(t.quality[COPY[detail.factor]], {
+			delta: formatNumber(detail.delta, locale)
+		});
 	}
 
 	// Same dismissal contract as the actions menu beside it, minus the roving

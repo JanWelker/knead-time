@@ -105,7 +105,14 @@ const isoDateFormatter = perLocale(
 export function formatIsoDate(iso: string, locale: Locale): string {
 	const [y, m, d] = iso.split('-').map(Number);
 	if (!y || !m || !d) return iso;
-	return isoDateFormatter(locale).format(new Date(y, m - 1, d));
+	return formatDate(new Date(y, m - 1, d), locale);
+}
+
+// The same calendar day for a moment the app already holds as a Date — the
+// timestamp a recipe was saved at. MyRecipes built this formatter itself, so
+// the saved-recipe date was the one date on the page not going through here.
+export function formatDate(date: Date, locale: Locale): string {
+	return isoDateFormatter(locale).format(date);
 }
 
 export function formatDuration(minutes: number, locale: Locale): string {
@@ -192,6 +199,37 @@ export function formatBallWeight(value: number, locale: Locale = 'en'): string {
 
 export function formatPercent(value: number, locale: Locale = 'en'): string {
 	return percentFormatter(locale).format(value / 100);
+}
+
+// Room and fridge temperatures step by half a degree in the form, so 22.5 °C
+// has a decimal point to get wrong. Like the weights, these were template
+// strings on the plan's chips and the print summary, which is English in every
+// language. Intl supplies the space before the unit too: German and French
+// put one there, English and Dutch do not.
+const temperatureFormatter = perLocale(
+	(locale) =>
+		new Intl.NumberFormat(locale, {
+			style: 'unit',
+			unit: 'celsius',
+			unitDisplay: 'short',
+			useGrouping: false,
+			maximumFractionDigits: 1
+		})
+);
+
+export function formatTemperature(value: number, locale: Locale): string {
+	return temperatureFormatter(locale).format(value);
+}
+
+// A bare figure with up to one decimal — the fit score's "2.5 h over" deltas
+// and the library's pizza counts — where the unit, if any, is in the sentence
+// around it rather than attached to the number.
+const decimalFormatter = perLocale(
+	(locale) => new Intl.NumberFormat(locale, { useGrouping: false, maximumFractionDigits: 1 })
+);
+
+export function formatNumber(value: number, locale: Locale): string {
+	return decimalFormatter(locale).format(value);
 }
 
 export function toDatePart(date: Date): string {

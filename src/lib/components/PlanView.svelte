@@ -3,7 +3,13 @@
 	import { base } from '$app/paths';
 	import { buildIcs } from '$lib/dough/ics';
 	import { encodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeight, formatDateTime, formatDuration } from '$lib/format';
+	import {
+		formatBallWeight,
+		formatDateTime,
+		formatDuration,
+		formatPercent,
+		formatTemperature
+	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { uiMode } from '$lib/mode.svelte';
@@ -133,9 +139,21 @@
 		// at their defaults, and a row of untouched defaults is noise.
 		if (uiMode.current === 'expert') {
 			out.push(
-				{ label: t.form.hydration, value: `${form.inputs.hydration} %`, field: 'field-hydration' },
-				{ label: t.form.salt, value: `${form.inputs.saltPercent} %`, field: 'field-salt' },
-				{ label: t.form.roomTemp, value: `${form.inputs.roomTempC} °C`, field: 'field-roomTemp' }
+				{
+					label: t.form.hydration,
+					value: formatPercent(form.inputs.hydration, locale),
+					field: 'field-hydration'
+				},
+				{
+					label: t.form.salt,
+					value: formatPercent(form.inputs.saltPercent, locale),
+					field: 'field-salt'
+				},
+				{
+					label: t.form.roomTemp,
+					value: formatTemperature(form.inputs.roomTempC, locale),
+					field: 'field-roomTemp'
+				}
 			);
 		}
 		return out;
