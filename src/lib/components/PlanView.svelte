@@ -71,7 +71,10 @@
 			(step) => ({
 				summary: stepTitle(step, t),
 				description: stepDetailText(step, t, form.schedule, {
-					includeDetail: scheduleVerbosity.current === 'descriptive'
+					includeDetail: scheduleVerbosity.current === 'descriptive',
+					// The calendar event has to match the on-page step verbatim,
+					// weights included.
+					locale
 				})
 			}),
 			new Date()
@@ -109,7 +112,7 @@
 				label: t.form.pizzaCount,
 				value: interpolate(t.plan.batch, {
 					n: form.inputs.pizzaCount,
-					weight: formatBallWeight(form.inputs.ballWeight)
+					weight: formatBallWeight(form.inputs.ballWeight, locale)
 				}),
 				field: 'field-pizzaCount'
 			},

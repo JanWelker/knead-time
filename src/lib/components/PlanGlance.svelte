@@ -23,7 +23,7 @@
 			label: t.ask.running_ferment,
 			value: formatDuration(form.fermentWindowHours * 60, locale)
 		},
-		{ label: t.ask.running_flour, value: formatGrams(form.schedule.ingredients.flour) }
+		{ label: t.ask.running_flour, value: formatGrams(form.schedule.ingredients.flour, locale) }
 	]);
 </script>
 
