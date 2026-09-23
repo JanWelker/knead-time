@@ -86,7 +86,7 @@ Source of truth: `DoughInputs` in `src/lib/dough/types.ts`.
 
 ### "Round numbers" action
 
-Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g — always, for any batch with ≥ 400 g flour; smaller batches snap to 50 g so the ball weight doesn't shift noticeably. **Idempotent** (second click = no-op). **Works for fresh and sourdough** — `pctSum` branches differ.
+Nudges ball weight (0.1 g) so flour lands on a multiple of 100 g — always, for any batch with ≥ 400 g flour; smaller batches snap to 50 g so the ball weight doesn't shift noticeably. **Idempotent** (second click = no-op). **Works for fresh and sourdough** — `pctSum` branches differ. **The result is clamped to `INPUT_BOUNDS.ballWeight`** inside `roundBallWeight` itself: it is written into the raw `ballWeight` field, which is not clamped (only the derived `inputs` is), so 1 × 100 g used to show 86.5 in the box while the recipe used 100 — and the second click was no longer a no-op. At the band edges the flour therefore stays unround; the "Get nerdy" copy says so.
 
 ## Outputs
 

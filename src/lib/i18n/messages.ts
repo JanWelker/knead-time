@@ -511,7 +511,7 @@ const en: Messages = {
 			'Sourdough — starter is just flour + water from the existing budget, split by its hydration (flour = mass ÷ (1 + hydration/100), the rest water):',
 		info_round_title: 'Round numbers',
 		info_round_body:
-			'The rounding button nudges the ball weight in 0.1 g steps until the flour lands on a multiple of 100 g — 50 g for batches under 400 g flour, so small doughs keep a sensible ball weight.',
+			'The rounding button nudges the ball weight in 0.1 g steps until the flour lands on a multiple of 100 g — 50 g for batches under 400 g flour, so small doughs keep a sensible ball weight. The ball weight stays inside its 100–600 g band, so right at those edges the flour may stay unround.',
 		info_fit_title: 'The star rating',
 		info_fit_body:
 			'Starts at 100 points; one star per 20. Points come off when the schedule had to bend (a cold leg or pre-ferment forced off its natural length, a step stuck in the night window, an infeasible window) and when inputs leave the contemporary Neapolitan bands: 60-80% hydration, 2-3.5% salt, 200-320 g balls, 14-30 °C room, 2-8 °C fridge, solved yeast 0.05-1.5% in fresh-yeast terms (dry yeast and starter convert first) — and when the window falls outside what the chosen flour tolerates. Every deduction is capped, so one wild input cannot zero the rating.',
@@ -1021,7 +1021,7 @@ const de: Messages = {
 			'Sauerteig — Anstellgut ist nur Mehl + Wasser aus dem bestehenden Budget, aufgeteilt nach seiner Hydration (Mehl = Masse ÷ (1 + Hydration/100), der Rest Wasser):',
 		info_round_title: 'Runde Zahlen',
 		info_round_body:
-			'Der Rundungs-Button verschiebt den Teigling in Schritten von 0,1 g, bis das Mehl auf einem Vielfachen von 100 g landet — 50 g bei Mengen unter 400 g Mehl, damit kleine Teige einen sinnvollen Teigling behalten.',
+			'Der Rundungs-Button verschiebt den Teigling in Schritten von 0,1 g, bis das Mehl auf einem Vielfachen von 100 g landet — 50 g bei Mengen unter 400 g Mehl, damit kleine Teige einen sinnvollen Teigling behalten. Der Teigling bleibt innerhalb seines Bereichs von 100–600 g, direkt an diesen Rändern kann das Mehl also unrund bleiben.',
 		info_fit_title: 'Die Sterne-Bewertung',
 		info_fit_body:
 			'Startet bei 100 Punkten; ein Stern pro 20. Punkte gehen ab, wenn der Zeitplan sich biegen musste (Kühlphase oder Vorteig abseits der natürlichen Dauer, ein Schritt im Nachtfenster, ein nicht machbares Fenster) und wenn Eingaben die zeitgenössischen neapolitanischen Bänder verlassen: 60–80% Hydration, 2–3,5% Salz, 200–320 g Teiglinge, 14–30 °C Raum, 2–8 °C Kühlschrank, gelöste Hefe 0,05–1,5% in Frischhefe-Einheiten (Trockenhefe und Anstellgut werden zuerst umgerechnet) — und wenn das Fenster außerhalb dessen liegt, was das gewählte Mehl verträgt. Jeder Abzug ist gedeckelt, sodass eine einzelne wilde Eingabe die Bewertung nicht auf null bringen kann.',
@@ -1541,7 +1541,7 @@ const it: Messages = {
 			'Lievito madre — è solo farina + acqua dal totale esistente, divise secondo la sua idratazione (farina = massa ÷ (1 + idratazione/100), il resto acqua):',
 		info_round_title: 'Numeri tondi',
 		info_round_body:
-			'Il pulsante di arrotondamento sposta il peso del panetto a passi di 0,1 g finché la farina non cade su un multiplo di 100 g — 50 g per quantità sotto i 400 g di farina, così gli impasti piccoli mantengono un panetto sensato.',
+			'Il pulsante di arrotondamento sposta il peso del panetto a passi di 0,1 g finché la farina non cade su un multiplo di 100 g — 50 g per quantità sotto i 400 g di farina, così gli impasti piccoli mantengono un panetto sensato. Il peso del panetto resta entro il suo intervallo di 100–600 g, quindi proprio a quei limiti la farina può restare non tonda.',
 		info_fit_title: 'La valutazione a stelle',
 		info_fit_body:
 			'Parte da 100 punti; una stella ogni 20. I punti calano quando il programma si è dovuto piegare (fase in frigo o preimpasto fuori dalla durata naturale, un passo bloccato nella fascia notturna, una finestra non fattibile) e quando gli input escono dalle bande napoletane contemporanee: idratazione 60–80%, sale 2–3,5%, panetti 200–320 g, ambiente 14–30 °C, frigo 2–8 °C, lievito risolto 0,05–1,5% in termini di lievito fresco (secco e lievito madre vengono prima convertiti) — e quando la finestra esce da ciò che la farina scelta tollera. Ogni detrazione ha un tetto, quindi un singolo input estremo non può azzerare la valutazione.',
@@ -2062,7 +2062,7 @@ const fr: Messages = {
 			"Levain — c'est juste de la farine + eau prises sur le budget existant, réparties selon son hydratation (farine = masse ÷ (1 + hydratation/100), le reste en eau) :",
 		info_round_title: 'Nombres ronds',
 		info_round_body:
-			"Le bouton d'arrondi ajuste le pâton par pas de 0,1 g jusqu'à ce que la farine tombe sur un multiple de 100 g — 50 g pour les quantités sous 400 g de farine, afin que les petites pâtes gardent un pâton sensé.",
+			"Le bouton d'arrondi ajuste le pâton par pas de 0,1 g jusqu'à ce que la farine tombe sur un multiple de 100 g — 50 g pour les quantités sous 400 g de farine, afin que les petites pâtes gardent un pâton sensé. Le pâton reste dans sa plage de 100–600 g, donc tout au bord de celle-ci la farine peut rester non ronde.",
 		info_fit_title: 'La note en étoiles',
 		info_fit_body:
 			'Part de 100 points ; une étoile par tranche de 20. Des points sont retirés quand le programme a dû se plier (phase au frigo ou pré-ferment écartés de leur durée naturelle, une étape coincée dans la fenêtre nocturne, une fenêtre infaisable) et quand les entrées sortent des bandes napolitaines contemporaines : hydratation 60–80%, sel 2–3,5%, pâtons 200–320 g, ambiante 14–30 °C, frigo 2–8 °C, levure résolue 0,05–1,5% en équivalent levure fraîche (levure sèche et levain sont convertis au préalable) — et quand la fenêtre sort de ce que la farine choisie tolère. Chaque déduction est plafonnée, donc une seule entrée extrême ne peut pas mettre la note à zéro.',
@@ -2589,7 +2589,7 @@ const nl: Messages = {
 			'Zuurdesem — desem is alleen bloem + water uit het bestaande budget, gesplitst naar zijn hydratatie (bloem = massa ÷ (1 + hydratatie/100), de rest water):',
 		info_round_title: 'Ronde getallen',
 		info_round_body:
-			'De afrondknop verschuift het bolletjesgewicht in stappen van 0,1 g tot de bloem op een veelvoud van 100 g uitkomt — 50 g bij hoeveelheden onder 400 g bloem, zodat kleine degen een zinnig bolletjesgewicht houden.',
+			'De afrondknop verschuift het bolletjesgewicht in stappen van 0,1 g tot de bloem op een veelvoud van 100 g uitkomt — 50 g bij hoeveelheden onder 400 g bloem, zodat kleine degen een zinnig bolletjesgewicht houden. Het bolletjesgewicht blijft binnen zijn bereik van 100–600 g, dus precies aan die randen kan de bloem onrond blijven.',
 		info_fit_title: 'De sterrenwaardering',
 		info_fit_body:
 			'Begint op 100 punten; één ster per 20. Er gaan punten af wanneer het schema moest buigen (koelfase of voordeeg buiten de natuurlijke duur, een stap vast in het nachtvenster, een onhaalbaar venster) en wanneer invoer buiten de hedendaagse Napolitaanse banden valt: 60–80% hydratatie, 2–3,5% zout, bolletjes van 200–320 g, kamer 14–30 °C, koelkast 2–8 °C, opgeloste gist 0,05–1,5% in verse-gist-termen (gedroogde gist en desem worden eerst omgerekend) — en wanneer het venster buiten valt wat het gekozen meel verdraagt. Elke aftrek is gemaximeerd, dus één wilde invoerwaarde kan de waardering niet op nul zetten.',
