@@ -1,25 +1,53 @@
 name: Deploy to GitHub Pages
 
+# Deploys a commit only after CI has gone green on that exact commit. This used
+# to run `on: push` to main, in parallel with ci.yml and with no dependency on
+# it, so a commit could reach production and mint its v<version> tag with no
+# passing run at all — and because ci.yml cancelled in-progress runs on main,
+# two merges landing close together cancelled the first one's CI outright while
+# its deploy carried on regardless.
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: pages-deploy
-  cancel-in-progress: false
-
 jobs:
   build-and-deploy:
-    # Guard workflow_dispatch: dispatching from a feature branch would deploy
-    # unreviewed code and mint the v<version> tag on a non-main commit.
-    if: github.ref == 'refs/heads/main'
+    # workflow_run fires for failed and cancelled runs too, so the conclusion has
+    # to be checked here. `event == 'push'` keeps a fork PR whose head branch is
+    # also called `main` from matching the branch filter and getting deployed.
+    # workflow_dispatch carries no workflow_run context, so it is guarded on the
+    # ref instead: dispatching from a feature branch would deploy unreviewed code
+    # and mint the v<version> tag on a non-main commit.
+    if: >-
+      (github.event_name == 'workflow_run'
+      && github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'push')
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
+    concurrency:
+      # Shared with preview.yml, because both push to gh-pages and a merge fires
+      # both at once: this deploy, and the PR's `closed` run cleaning its preview
+      # up. The deploy force-pushes (the action's default) while the preview
+      # rebases, so unserialised the two either clobber each other or fail
+      # non-fast-forward. Queue rather than cancel — a cancelled preview cleanup
+      # leaves a stale preview directory on gh-pages with nothing left to remove
+      # it.
+      group: gh-pages
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # workflow_run runs in the context of the default branch, so an
+          # unpinned checkout would build whatever main's tip is by then rather
+          # than the commit CI passed on. Deploy and tag that commit exactly.
+          # Empty on workflow_dispatch, where main's tip is what was asked for.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - uses: ./.github/actions/node-setup
 
@@ -46,8 +74,9 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
-          # Idempotent: every push to main runs this job, but we only tag
-          # when package.json has been bumped to a version we haven't tagged.
+          # Idempotent: every deploy runs this step, but we only tag when
+          # package.json has been bumped to a version we haven't tagged. HEAD is
+          # the commit checked out above, i.e. the one that was just deployed.
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists on origin, skipping."
             exit 0

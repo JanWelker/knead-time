@@ -28,6 +28,16 @@ jobs:
     # external contribution. Skip the job cleanly for forks.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    concurrency:
+      # Shared with deploy.yml, because both push to gh-pages and a merge fires
+      # both at once: the deploy of main, and this workflow's `closed` run
+      # cleaning the preview up. The deploy force-pushes while this one rebases,
+      # so unserialised the two either clobber each other or fail
+      # non-fast-forward. Queue rather than cancel — a cancelled cleanup leaves a
+      # stale preview directory on gh-pages with nothing left to remove it. The
+      # per-PR group above still cancels a superseded build of the same PR.
+      group: gh-pages
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
