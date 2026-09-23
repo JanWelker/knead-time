@@ -54,6 +54,24 @@ test('the restored memory keeps the recipe but not its stale dates', async ({ pa
 	await expect(sheet(page).locator('input[type="date"]').nth(1)).not.toHaveValue('2026-09-06');
 });
 
+test('a view-mode key alone still restores the remembered recipe', async ({ page }) => {
+	// 'md' is interface state, not a recipe key, but `hasRecipeParams` counted
+	// it: '/?md=b' skipped the last-recipe restore and put a plan of default
+	// values on screen. The unit test pins the predicate; only a browser shows
+	// the restore and the landing that hang off it.
+	await openForm(page, MINE);
+	await pizzas(page).fill('9');
+	await expect.poll(() => remembered(page)).toContain('n=9');
+
+	await openRecipe(page, 'md=b');
+	// A memory lands on the plan, exactly as a bare visit with one does...
+	expect(await currentView(page)).toBe('plan');
+	await openAdjust(page);
+	// ...carrying the remembered recipe, in the mode the link asked for.
+	await expect(pizzas(page)).toHaveValue('9');
+	await expect(page.getByRole('button', { name: 'Show all options (expert)' })).toBeVisible();
+});
+
 test('the app still works with localStorage blocked entirely', async ({ page, context }) => {
 	// issue #195: Chrome's "block all cookies" makes even the localStorage getter
 	// throw — `typeof` does not protect you. Persistence degrades to a no-op
