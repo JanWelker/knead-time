@@ -1,5 +1,20 @@
 import { expect, test } from '@playwright/test';
-import { chosenWindow, dateField, openForm, sheet, slider, timeField, windowCard } from './helpers';
+import {
+	INPUT_BOUNDS,
+	PREFERMENT_SHARE_MAX,
+	PREFERMENT_SHARE_MIN
+} from '../src/lib/dough/inputBounds';
+import {
+	chosenWindow,
+	dateField,
+	openForm,
+	openQuestion,
+	sheet,
+	sheetField,
+	slider,
+	timeField,
+	windowCard
+} from './helpers';
 
 // Every rule here lives in the recipe sheet — the app's dense "everything"
 // surface — so each test opens it first. The rules themselves are unchanged.
@@ -132,4 +147,63 @@ test('turning a pre-ferment on and off again gives the autolyse choice back', as
 	await biga.uncheck();
 	await expect(autolyse).not.toBeChecked();
 	expect(new URL(page.url()).searchParams.get('al')).toBe('0');
+});
+
+test('every number box polices the band the math clamps to', async ({ page }) => {
+	// The min/max attributes on the sheet and the ask flow were hand-copied
+	// literals of INPUT_BOUNDS — thirteen pairs across two files, and nothing
+	// outside inputBounds.ts imported the module its own header called "the
+	// single source both entry points share". A band change would have left the
+	// form policing the old edge while decode() clamped to the new one, and no
+	// unit test can see a Svelte attribute: only the rendered DOM says what the
+	// browser refuses. Import the module here and read the attributes back.
+	await openForm(page, `${CAPUTO}&${FAR_BAKE}`);
+
+	const band = async (label: string, key: keyof typeof INPUT_BOUNDS) => {
+		const input = sheetField(page, label);
+		await expect(input).toHaveAttribute('min', String(INPUT_BOUNDS[key].min));
+		await expect(input).toHaveAttribute('max', String(INPUT_BOUNDS[key].max));
+	};
+
+	await band('Flour strength (W)', 'flourW');
+	await band('Pizzas', 'pizzaCount');
+	await band('Ball weight (g)', 'ballWeight');
+	await band('Hydration (%)', 'hydration');
+	await band('Salt (% of flour)', 'saltPercent');
+	await band('Oil (% of flour)', 'oilPercent');
+	await band('Sugar (% of flour)', 'sugarPercent');
+	await band('Room temperature (°C)', 'roomTempC');
+	await band('Fridge temperature (°C)', 'fridgeTempC');
+
+	// The pre-ferment shares share one cap, so each field's max is the cap less
+	// the other share; with only the biga on, that is the bare constant.
+	await sheet(page).locator('label', { hasText: 'Biga (' }).locator('input').check();
+	const biga = sheetField(page, 'Biga flour (% of total)');
+	await expect(biga).toHaveAttribute('min', String(PREFERMENT_SHARE_MIN));
+	await expect(biga).toHaveAttribute('max', String(PREFERMENT_SHARE_MAX));
+	await sheet(page)
+		.locator('label', { hasText: 'Matures somewhere cooler' })
+		.locator('input')
+		.check();
+	await band('Pre-ferment temperature (°C)', 'preFermentTempC');
+
+	// flour, mixing method, yeast — the third select is the yeast carrier
+	await sheet(page).locator('select').nth(2).selectOption('sourdough');
+	await band('Starter hydration (%)', 'starterHydration');
+});
+
+test('the ask flow counts pizzas inside the same band as the sheet', async ({ page }) => {
+	// A third and fourth copy of the pizza-count band lived in AskFlow.svelte,
+	// in the stepper's clamp and the box's attributes, so the two entry points
+	// could disagree about one field. The attributes and the stepper's floor are
+	// the two places that copy showed.
+	await openQuestion(page, 'pizzas', `${CAPUTO}&${FAR_BAKE}`);
+	const box = page.getByRole('spinbutton', { name: 'Pizzas' });
+	await expect(box).toHaveAttribute('min', String(INPUT_BOUNDS.pizzaCount.min));
+	await expect(box).toHaveAttribute('max', String(INPUT_BOUNDS.pizzaCount.max));
+
+	await box.fill(String(INPUT_BOUNDS.pizzaCount.min));
+	await box.dispatchEvent('change');
+	await page.getByRole('button', { name: 'One fewer' }).click();
+	await expect(box).toHaveValue(String(INPUT_BOUNDS.pizzaCount.min));
 });

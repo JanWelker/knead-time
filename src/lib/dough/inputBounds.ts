@@ -1,11 +1,14 @@
 import type { PreFermentSpec } from './types';
 
-// The numeric bands InputForm.svelte enforces via min/max attributes — the
-// single source both entry points share: the form clamps typed values through
-// FormState and decode() clamps hand-crafted URLs, so no route into the math
-// can carry an out-of-band number (issues #193/#194). Every value the app's
-// own encoders ever wrote sits inside these bands, so clamping never changes
-// the meaning of a legacy share-link.
+// The numeric bands every entry point shares: InputForm.svelte and
+// AskFlow.svelte read their min/max attributes and the stepper clamp from
+// here, FormState clamps typed values through clampInput, and decode() clamps
+// hand-crafted URLs, so no route into the math can carry an out-of-band number
+// (issues #193/#194). The attributes used to be hand-copied literals with
+// nothing importing this module — e2e/form-rules.spec.ts now reads them back
+// off the DOM against these values. Every value the app's own encoders ever
+// wrote sits inside these bands, so clamping never changes the meaning of a
+// legacy share-link.
 export const INPUT_BOUNDS = {
 	pizzaCount: { min: 1, max: 100 },
 	ballWeight: { min: 100, max: 600 },
