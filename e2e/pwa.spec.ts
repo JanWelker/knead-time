@@ -187,6 +187,10 @@ test('the service worker precaches the whole app, bundle and pages alike', async
 	expect(cached.some((p) => /\/_app\/immutable\/bundle\..*\.js$/.test(p))).toBe(true);
 	expect(cached.some((p) => /\/_app\/immutable\/assets\/bundle\..*\.css$/.test(p))).toBe(true);
 	expect(cached.filter((p) => p.endsWith('.woff2'))).toHaveLength(4);
+	// The faces' licence text travels with them — the OFL asks for that, and
+	// offline is the one place a visitor cannot go and fetch it elsewhere.
+	expect(cached).toContain('/licenses/anton-OFL.txt');
+	expect(cached).toContain('/licenses/archivo-OFL.txt');
 	expect(cached).toContain('/manifest.webmanifest');
 	expect(cached).toContain('/apple-touch-icon.png');
 	expect(cached).toContain('/');

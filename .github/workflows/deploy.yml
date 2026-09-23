@@ -112,6 +112,10 @@ jobs:
 
       - name: Deploy to gh-pages
         if: steps.gate.outputs.deploy == 'true'
+        # preview.yml writes the same branch through rossjrw/pr-preview-action,
+        # which pins its own copy of this action (v4.7.4 at v1.8.1). Renovate
+        # bumps this pin and never sees that one, so when this moves, check the
+        # nested version still agrees on how it treats the branch.
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           folder: build

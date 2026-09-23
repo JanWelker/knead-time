@@ -29,14 +29,16 @@ npm run preview    # serve ./build/ locally
 | `npm run test:coverage` | Run vitest with v8 coverage → `./coverage/`                                                                                                           |
 | `npm run test:e2e`      | Browser tests (Playwright, Chromium) against a real build; `E2E_PORT` moves the preview server off 4173 (the base-path project uses the next port up) |
 | `npm run test:e2e:ui`   | The same suite in Playwright's debugger                                                                                                               |
-| `npm run test:baseline` | Compare the test counts against `.github/test-baseline.json`; fails on a drop, on a rise, or on coverage below 100                                    |
+| `npm run test:baseline` | Compare the per-file test counts and the coverage gate against `.github/test-baseline.json`; `-- --write` records the current state                   |
 | `npm run check`         | `svelte-kit sync` + `svelte-check` (type & template check)                                                                                            |
 | `npm run lint`          | Prettier check + ESLint                                                                                                                               |
 | `npm run format`        | Prettier write                                                                                                                                        |
 | `npm run build`         | Production build → `./build/` (static site)                                                                                                           |
 | `npm run preview`       | Serve the built site locally                                                                                                                          |
 
-Husky + lint-staged are configured in `.husky/pre-commit`. The hook runs lint-staged and then `npm test` on every commit. It skips coverage, so run `npm run test:coverage` yourself before opening a PR.
+Husky + lint-staged are configured in `.husky/pre-commit`. The hook runs lint-staged (Prettier on everything `npm run lint` checks, including the YAML under `.github/`, and ESLint on scripts and components) and then `npm test` on every commit. It skips coverage, so run `npm run test:coverage` yourself before opening a PR.
+
+`npm install` also runs `svelte-kit sync`, which writes `.svelte-kit/tsconfig.json` — the file `tsconfig.json` extends. Without it a fresh clone shows type errors in the editor until the first `npm run check` or `npm run build`.
 
 ## Layout
 
@@ -88,11 +90,12 @@ static/                   ← copied verbatim to the site root
 
 e2e/                      ← Playwright browser tests (the parts vitest cannot reach)
 scripts/
-├── check-test-baseline.mjs   fails when the test counts differ from the recorded floor or coverage is relaxed
-└── render-icons.mjs          re-renders the icon PNGs from the SVGs (run by hand)
+├── check-test-baseline.mjs   refuses a change that removes tests or relaxes coverage; --write records the new floor
+├── sync-font-licences.mjs    copies the two OFL texts out of the font packages into static/licenses/ (run by hand)
+└── lib/                      the pure halves of the scripts, unit-tested and held to 100 % like src/lib/
 
 .github/
-├── test-baseline.json    ← how many tests exist; edited by hand whenever the count moves
+├── test-baseline.json    ← how many tests exist per file, and which files coverage measures; the floor the script enforces
 ├── actions/              ← composite actions every workflow consumes
 │   ├── node-setup/       ← installs the .nvmrc Node version and runs npm ci
 │   └── base-path/        ← resolves BASE_PATH (custom domain, user site or /<repo>) for deploy and preview
@@ -140,7 +143,7 @@ Math and schedule bugs are silent until a dough overproofs, so coverage is a har
 - Tests live next to the code (`foo.ts` + `foo.test.ts`). `src/lib/` is held at **100 % lines, functions, branches and statements**; `npm run test:coverage` enforces it and CI runs the same. If a branch is hard to reach, delete it rather than fake a test for it.
 - **Browser tests live in `e2e/`** (Playwright, Chromium only) and cover everything in a component or a `.svelte.ts` module. Vitest has no Svelte plugin, so those files cannot even be imported by a unit test. The suite builds and serves the real static output, pins the clock, timezone and locale, and waits for hydration before reading anything.
 - **Two Playwright projects, two builds.** `chromium` runs the suite at the root; `base-path` builds a second copy with `BASE_PATH=/pr-preview/pr-0` (into `.svelte-kit-base/` and `build-base/`, so the two builds can run side by side) and runs only `e2e/base-path.spec.ts`, which checks what only a non-root base can show: that every request and link stays under the base, and that stored keys carry the preview's storage scope.
-- **The suite may grow, never shrink.** `npm run test:baseline` compares the collected test counts against `.github/test-baseline.json` and re-checks that the coverage thresholds are still 100. It fails on **any** difference, a rise included, and it never writes the file: when you add tests, run it, read the new counts from its message and put them in the file yourself. Lowering a count is allowed only as that same explicit edit, visible in review.
+- **The suite may grow, never shrink.** `npm run test:baseline` compares the collected test counts, **per test file**, against `.github/test-baseline.json`, and re-checks the coverage gate — the four thresholds at 100 and the `include`/`exclude` lists that say which files they apply to. Adding tests means recording the new counts (`npm run test:baseline -- --write` rewrites the file; the diff is the review); lowering a count or excluding a file from coverage is allowed only as an explicit edit to that file. Per file rather than in total, because a total is blind to a swap: tests deleted in one file and added in another used to pass as a net zero.
 - **Every bug gets a test in the same change as the fix**, named after the failure rather than the function, with a comment saying what broke and why it was missed.
 - **Pin the number, not just the branch.** A test that only checks which factor fired leaves the constant behind it free to move. Every magic number a user can feel needs one assertion that fails when it changes.
 
