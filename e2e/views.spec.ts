@@ -6,6 +6,7 @@ import {
 	openMenu,
 	openRecipe,
 	sheet,
+	sheetField,
 	waitForHydration
 } from './helpers';
 
@@ -61,6 +62,69 @@ test('the view survives a reload and the back button walks it', async ({ page })
 	await expect.poll(() => currentView(page)).toBe('plan');
 	await page.goForward();
 	await expect.poll(() => currentView(page)).toBe('library');
+});
+
+test('the back button brings the earlier recipe back, and forward the edit', async ({ page }) => {
+	// A history entry is the whole URL, recipe included. The popstate handler
+	// used to re-read only the fragment, so Back moved the view but left the
+	// edited recipe on screen — and then the URL effect, finding the form and
+	// the restored entry in disagreement, wrote the edit over the entry, which
+	// erased the earlier recipe from the stack so Forward could not recover it
+	// either. The suite missed it because the only back-button test moved
+	// between views without touching the recipe in between.
+	//
+	// An edit itself pushes nothing — the effect replaces the entry it is on —
+	// so the earlier recipe survives only on the entries pushed before it, hence
+	// the walk out to the library and back before editing.
+	//
+	// Three fields on purpose. Pizzas is a key the encoder always writes; the
+	// mixing method is one it omits at its default, so applying the decoded
+	// query alone restored the first and left the second wherever the edit put
+	// it. The pre-ferment temperature is the third case: its key is omitted for
+	// "follows the room", which is a null `apply()` used to skip outright, so
+	// the override stayed on however far back you went.
+	await openRecipe(page, `${RECIPE}&p=b30`);
+	const pizzas = page.getByRole('button', { name: /Pizzas/ });
+	const query = () => new URL(page.url()).searchParams;
+	await expect(pizzas).toContainText('6 pizzas');
+
+	await openLibrary(page);
+	await page.getByRole('button', { name: 'Back to your plan', exact: true }).click();
+
+	const cooler = () =>
+		sheet(page).getByLabel('Matures somewhere cooler (cellar, wine fridge)', { exact: true });
+	await openAdjust(page);
+	await sheetField(page, 'Pizzas').fill('7');
+	await sheet(page).locator('#field-mixingMethod').selectOption('hand');
+	await cooler().check();
+	await page.getByRole('button', { name: 'Done', exact: true }).click();
+	await expect(pizzas).toContainText('7 pizzas');
+	expect(query().get('n')).toBe('7');
+	expect(query().get('mm')).toBe('h');
+	expect(query().get('pt')).toBe('18');
+
+	await page.goBack();
+	await expect.poll(() => currentView(page)).toBe('library');
+	await expect.poll(() => query().get('n')).toBe('6');
+	expect(query().has('mm')).toBe(false);
+	expect(query().has('pt')).toBe(false);
+
+	await page.goBack();
+	await expect.poll(() => currentView(page)).toBe('plan');
+	await expect(pizzas).toContainText('6 pizzas');
+	expect(query().get('n')).toBe('6');
+	// The restored recipe reaches the fields, not just the URL.
+	await openAdjust(page);
+	await expect(cooler()).not.toBeChecked();
+	await page.getByRole('button', { name: 'Done', exact: true }).click();
+
+	await page.goForward();
+	await page.goForward();
+	await expect.poll(() => currentView(page)).toBe('plan');
+	await expect(pizzas).toContainText('7 pizzas');
+	await expect.poll(() => query().get('n')).toBe('7');
+	expect(query().get('mm')).toBe('h');
+	expect(query().get('pt')).toBe('18');
 });
 
 test('the recipe query is untouched by every move between views', async ({ page }) => {
@@ -169,15 +233,33 @@ test('each control sits with what it acts on', async ({ page }) => {
 	// the fit's factors read the same way rather than one being prose on the page
 	// and the other a disclosure.
 	await expect(card.locator('summary')).toHaveCount(2);
-	await card.locator('summary').first().click();
-	await expect(card.getByText('Long fridge phase', { exact: false })).toBeVisible();
-	// How much the steps explain is a reading preference, like the language and
-	// the theme, so it is a choice in the menu rather than a switch on the band.
-	await expect(page.getByRole('menuitemradio', { name: 'Detailed' })).toHaveCount(0);
-
 	// And the sentence explaining the mode is the schedule's lede, inside the
 	// card under the stamp that names it — not stranded above the card.
+	await card.locator('summary').first().click();
 	await expect(card.getByText('Long fridge phase', { exact: false })).toBeVisible();
+
+	// How much the steps explain is a reading preference, like the language and
+	// the theme, so it is a choice in the menu rather than a switch on the band.
+	// Counted with hidden nodes included: getByRole skips what is not visible,
+	// so the closed menu made an "is not on the page" assertion pass whether the
+	// choice was in the menu, on the band, or nowhere at all. Last in the test
+	// because opening the menu is an outside click, which shuts the seal panel.
+	await expect(page.getByText('Detailed', { exact: true })).toHaveCount(1);
+	await expect(page.locator('[role="menu"]').getByText('Detailed', { exact: true })).toHaveCount(1);
+	const menu = await openMenu(page);
+	await expect(menu.getByRole('menuitemradio', { name: 'Detailed', exact: true })).toBeVisible();
+});
+
+test('the sign on the questions is the way to the plan', async ({ page }) => {
+	// The wordmark is a control everywhere but on the plan itself (Masthead.svelte).
+	// The ask flow rendered it without its `home` callback, so it was the one
+	// place the sign was dead text — and nothing noticed, because the plan's own
+	// masthead test asserts the sign is *not* a button there.
+	await openRecipe(page, RECIPE, '#ask/pizzas');
+
+	await page.locator('header').getByRole('button', { name: 'Your plan', exact: true }).click();
+	await expect.poll(() => currentView(page)).toBe('plan');
+	expect(new URL(page.url()).hash).toBe('#plan');
 });
 
 test('language and theme are reachable from every view', async ({ page }) => {
