@@ -15,14 +15,17 @@ The `main` runs exist so Codecov gets a main-branch baseline (the README badge p
 
 ## Deployment
 
-`.github/workflows/deploy.yml` is triggered by a **successful CI run on `main`** (`on: workflow_run`), not by the push itself, and it builds the exact commit that run passed on. For each such commit it:
+`.github/workflows/deploy.yml` is triggered by a **successful CI run on `main`** (`on: workflow_run`), not by the push itself, and it checks out the exact commit that run passed on. For each such commit it:
 
-1. Runs `npm ci` and builds the static site with `npm run build`.
-2. Pushes the contents of `./build/` to the `gh-pages` branch (root), preserving any `pr-preview/` subdirectories so open PR previews keep working.
-3. GitHub Pages serves the `gh-pages` branch.
-4. Tags the commit `v<version>` (from `package.json`) and pushes the tag. The step is idempotent: pushes that do not bump the version skip the tag because it already exists on `origin`. This is what backs the `v<version>` release links in the screen and print footers.
+1. **Gates.** The commit has to still be `main`'s tip. CI runs finish in their own order, not the order the commits landed, so without this check two merges landing close together could deploy the older build last and force-push it over the newer one, with a green tick on every run. A commit that is no longer the tip is skipped with a notice; the newer commit deploys from its own run. The trade is that when that newer commit's CI fails, production stays where it was until a green commit lands, rather than falling back to the older green one.
+2. Runs `npm ci` and builds the static site with `npm run build`.
+3. Pushes the contents of `./build/` to the `gh-pages` branch (root), preserving any `pr-preview/` subdirectories so open PR previews keep working.
+4. GitHub Pages serves the `gh-pages` branch.
+5. Tags the commit `v<version>` (from `package.json`) and pushes the tag. The step is idempotent: pushes that do not bump the version skip the tag because it already exists on `origin`. This is what backs the `v<version>` release links in the screen and print footers.
 
-Every job that pushes to `gh-pages`, the deploy and the PR preview alike, shares one concurrency group that queues rather than cancels: a merge fires both at once, and a cancelled preview cleanup would leave a stale preview behind.
+The workflow can also be run by hand (`workflow_dispatch`, from `main` only). That path has no CI run attached to it, so the gate asks the GitHub API for a successful CI run on the exact commit and fails with a message if there is none. Nothing reaches production or mints a tag from one click.
+
+Every job that pushes to `gh-pages`, the deploy and the PR preview alike, shares one concurrency group with `cancel-in-progress: false`, because a merge fires both at once and the deploy force-pushes while the preview rebases. That serialises them, but it is not a queue: GitHub keeps at most one running and one pending job per group, and a third job arriving cancels the one that was pending. A preview build landing while a closed PR's cleanup waits behind a deploy therefore still cancels the cleanup, and that PR's directory stays under `pr-preview/` on `gh-pages` until someone deletes it by hand. Every job in all three workflows carries a `timeout-minutes` so a hung push cannot hold the group for GitHub's six-hour default.
 
 ### Base path
 

@@ -28,14 +28,22 @@ jobs:
     # external contribution. Skip the job cleanly for forks.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    # A hung gh-pages push would otherwise hold the shared group for GitHub's
+    # six-hour default and take the production deploy down with it.
+    timeout-minutes: 15
     concurrency:
       # Shared with deploy.yml, because both push to gh-pages and a merge fires
       # both at once: the deploy of main, and this workflow's `closed` run
       # cleaning the preview up. The deploy force-pushes while this one rebases,
       # so unserialised the two either clobber each other or fail
-      # non-fast-forward. Queue rather than cancel — a cancelled cleanup leaves a
-      # stale preview directory on gh-pages with nothing left to remove it. The
-      # per-PR group above still cancels a superseded build of the same PR.
+      # non-fast-forward. `cancel-in-progress: false` serialises them, but it is
+      # not a queue: GitHub keeps at most one running and one pending job per
+      # group, and a third job arriving cancels the one that was pending. A
+      # build of another PR landing while this cleanup waits behind a deploy
+      # therefore still cancels the cleanup, and the closed PR's directory stays
+      # on gh-pages with no later run to remove it — the residual risk, fixed by
+      # hand (delete `pr-preview/pr-<n>` on gh-pages). The per-PR group above
+      # still cancels a superseded build of the same PR.
       group: gh-pages
       cancel-in-progress: false
     steps:

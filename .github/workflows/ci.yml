@@ -21,6 +21,9 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # Nothing here should take a quarter of this; the cap is against a wedged
+    # step holding a runner (and a required check) for GitHub's six-hour default.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -78,6 +81,9 @@ jobs:
   # vitest config — `$state` is not even defined there.
   e2e:
     runs-on: ubuntu-latest
+    # A hung `vite preview` under Playwright is the likeliest way to lose a
+    # runner for six hours; the suite itself runs in a few minutes.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
