@@ -8,7 +8,13 @@
 	import { computeSchedule } from '$lib/dough/schedule';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeightGrams, formatDateTime, formatDuration } from '$lib/format';
+	import {
+		formatBallWeightGrams,
+		formatDateTime,
+		formatDuration,
+		formatPercent,
+		formatTemperature
+	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { isLocale, type Locale } from '$lib/i18n/messages';
@@ -266,12 +272,27 @@
 						<th scope="row">{t.form.pizzaCount}</th>
 						<td>{inputs.pizzaCount} × {formatBallWeightGrams(inputs.ballWeight, locale)}</td>
 					</tr>
-					<tr><th scope="row">{t.form.hydration}</th><td>{inputs.hydration}%</td></tr>
-					<tr><th scope="row">{t.form.salt}</th><td>{inputs.saltPercent}%</td></tr>
+					<tr
+						><th scope="row">{t.form.hydration}</th><td
+							>{formatPercent(inputs.hydration, locale)}</td
+						></tr
+					>
+					<tr
+						><th scope="row">{t.form.salt}</th><td>{formatPercent(inputs.saltPercent, locale)}</td
+						></tr
+					>
 					<tr><th scope="row">{t.form.yeastType}</th><td>{yeastTypeLabel}</td></tr>
-					<tr><th scope="row">{t.form.roomTemp}</th><td>{inputs.roomTempC} °C</td></tr>
+					<tr
+						><th scope="row">{t.form.roomTemp}</th><td
+							>{formatTemperature(inputs.roomTempC, locale)}</td
+						></tr
+					>
 					{#if schedule.mode === 'cold'}
-						<tr><th scope="row">{t.form.fridgeTemp}</th><td>{inputs.fridgeTempC} °C</td></tr>
+						<tr
+							><th scope="row">{t.form.fridgeTemp}</th><td
+								>{formatTemperature(inputs.fridgeTempC, locale)}</td
+							></tr
+						>
 					{/if}
 					{#if preFermentLabel}
 						<tr><th scope="row">{t.form.preFerment}</th><td>{preFermentLabel}</td></tr>

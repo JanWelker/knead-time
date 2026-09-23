@@ -7,6 +7,7 @@
 	import RecipeSpecList from './RecipeSpecList.svelte';
 
 	const t = $derived(i18n.t);
+	const locale = $derived(i18n.locale);
 
 	const entries: PizzeriaEntry[] = pizzeriaEntries;
 
@@ -122,10 +123,10 @@
 						</td>
 						<td class="px-3 py-3">{@render rankingChips(entry.rankings)}</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.hydration, '%')}
+							{numLabel(entry.inputs.hydration, locale, '%')}
 						</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.saltPercent, '%')}
+							{numLabel(entry.inputs.saltPercent, locale, '%')}
 						</td>
 						<td class="px-3 py-3">{yeastLabel(entry.inputs, t)}</td>
 						<td class="px-3 py-3">{preFermentLabel(entry.inputs, t)}</td>

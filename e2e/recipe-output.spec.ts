@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { NOW, openAdjust, openRecipe, region, sheet } from './helpers';
+import { chooseInMenu, NOW, openAdjust, openLibrary, openRecipe, region, sheet } from './helpers';
 
 const BASE = 'n=6&b=280&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z';
 
@@ -316,4 +316,52 @@ test.describe('a flour name too long for one line', () => {
 			await longRow.locator('th').evaluate((el) => getComputedStyle(el).backgroundImage)
 		).toContain('gradient');
 	});
+});
+
+// The weights were fixed in PR #346 and the percentage one PR before that, and
+// both times a renderer further out kept the English point: the plan's expert
+// chips and the print summary wrote `${saltPercent} %` as a template string,
+// and the library's numLabel concatenated its own suffix. Salt steps by 0.1
+// and the room by 0.5, so both carry a decimal to get wrong. Three tests, one
+// per renderer, each on a value whose default has no decimal — so the
+// prerendered page cannot satisfy them before the recipe is decoded.
+const DECIMALS = 'v=7&n=6&b=280&h=70&s=2.5&y=f&t=22.5&ft=4&r=2026-09-06T17%3A00%3A00.000Z';
+
+test('the German plan punctuates a decimal salt and a half-degree room the German way', async ({
+	page
+}) => {
+	await openRecipe(page, `${DECIMALS}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	await chooseInMenu(page, 'Deutsch');
+
+	const chips = page.locator('.chip-field');
+	await expect(chips.filter({ hasText: /2,5\s%/ })).toHaveCount(1);
+	await expect(chips.filter({ hasText: /22,5\s°C/ })).toHaveCount(1);
+	await expect(chips.filter({ hasText: /\d\.\d/ })).toHaveCount(0);
+});
+
+test('the German print summary punctuates the salt and the temperatures the German way', async ({
+	page
+}) => {
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
+	await page.goto(`/print/de?${DECIMALS}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	const summary = page.locator('.printpage-summary');
+	await expect(summary).toContainText(/2,5\s%/);
+	await expect(summary).toContainText(/22,5\s°C/);
+	await expect(summary).not.toContainText(/\d\.\d/);
+});
+
+test('the German library punctuates a pizzeria’s decimal salt the German way', async ({ page }) => {
+	// Pepe in Grani's row carries 2.75 % salt; it is the one figure on the rack
+	// with two decimals.
+	await openRecipe(page, `${DECIMALS}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	await openLibrary(page);
+	await chooseInMenu(page, 'Deutsch');
+	const rack = page.locator('details').filter({
+		has: page.getByRole('heading', { name: /50.Top.Pizza/ })
+	});
+	await rack.locator('summary').first().click();
+	await expect(rack).toContainText(/2,75\s%/);
+	await expect(rack).not.toContainText(/2\.75/);
 });
