@@ -1,4 +1,8 @@
 <!doctype html>
+<!-- `lang` is filled in per page by the handle hook in src/hooks.server.ts, from
+     the locale in the URL path: the print route prerenders one file per
+     language and they all used to claim `en`. Everything else resolves to `en`,
+     which is what this attribute used to say outright. -->
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -58,9 +62,9 @@
 				}
 			})();
 		</script>
-		<link href="./_app/immutable/bundle.6j-jdBmI.js" rel="modulepreload">
+		<link href="./_app/immutable/bundle.D7OiXC6J.js" rel="modulepreload">
 		
-		<link href="./_app/immutable/assets/bundle.BgbLNyvh.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/bundle.CNm_tlQU.css" rel="stylesheet">
 	</head>
 	<body
 		data-sveltekit-preload-data="hover"
@@ -69,13 +73,13 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_5c6cqk = {
+					__sveltekit_1vabwsz = {
 						base: new URL(".", location).pathname.slice(0, -1)
 					};
 
 					const element = document.currentScript.parentElement;
 
-					import("./_app/immutable/bundle.6j-jdBmI.js").then((app) => {
+					import("./_app/immutable/bundle.D7OiXC6J.js").then((app) => {
 						app.start(element)
 					});
 
