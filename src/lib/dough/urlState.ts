@@ -161,8 +161,11 @@ const RECIPE_KEYS: ReadonlySet<string> = new Set([VERSION_KEY, ...Object.values(
 // (utm_source, fbclid, …) and the view-mode key alone must behave like a bare
 // visit: they suppress neither the last-recipe restore nor the stored beginner
 // preference (issue #201).
+//
+// Every decoder here takes the query with or without its leading '?' —
+// URLSearchParams strips it itself, so no caller has to.
 export function hasRecipeParams(query: string): boolean {
-	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	const params = new URLSearchParams(query);
 	for (const key of params.keys()) {
 		if (RECIPE_KEYS.has(key)) return true;
 	}
@@ -175,7 +178,7 @@ export function hasRecipeParams(query: string): boolean {
 // today's full view); otherwise the caller falls back to the stored
 // preference and finally to beginner.
 export function decodeUiMode(query: string): UiMode | null {
-	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	const params = new URLSearchParams(query);
 	const md = params.get(MODE_KEY);
 	if (md === 'b') return 'beginner';
 	if (md === 'e') return 'expert';
@@ -191,13 +194,12 @@ export function decodeUiMode(query: string): UiMode | null {
 // current default fill in. An explicit 'fw=0' is still a real choice and wins.
 export function decodeStoredRecipe(query: string): Partial<SerializableInputs> {
 	const out = decodeInputs(query);
-	// URLSearchParams strips a leading '?' itself, so both call shapes work.
 	if (!new URLSearchParams(query).has(KEYS_V4.flourW)) delete out.flourW;
 	return out;
 }
 
 export function decodeInputs(query: string): Partial<SerializableInputs> {
-	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	const params = new URLSearchParams(query);
 	// Every published version (v1, v2, v3, missing-v=legacy) adds keys without
 	// renaming or repurposing them, so a single decoder handles them all.
 	// Branch on the version param the first time a future version DOES break
