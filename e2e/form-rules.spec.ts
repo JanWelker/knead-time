@@ -1,21 +1,8 @@
 import { expect, test } from '@playwright/test';
-import {
-	chosenWindow,
-	dateField,
-	openAdjust,
-	openRecipe,
-	sheet,
-	slider,
-	timeField,
-	windowCard
-} from './helpers';
+import { chosenWindow, dateField, openForm, sheet, slider, timeField, windowCard } from './helpers';
 
 // Every rule here lives in the recipe sheet — the app's dense "everything"
 // surface — so each test opens it first. The rules themselves are unchanged.
-async function openForm(page: import('@playwright/test').Page, query: string) {
-	await openRecipe(page, query);
-	await openAdjust(page);
-}
 
 const CAPUTO = 'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265';
 const FAR_BAKE = 'r=2026-09-06T17%3A00%3A00.000Z';

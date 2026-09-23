@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test';
-import { NOW, currentView, openAdjust, openLibrary, sheet, waitForHydration } from './helpers';
+import {
+	currentView,
+	openAdjust,
+	openLibrary,
+	openMenu,
+	openRecipe,
+	sheet,
+	waitForHydration
+} from './helpers';
 
 // The app is three places now — the questions, the plan, the collections — and
 // which one is on screen lives in the URL fragment. None of that is reachable
@@ -9,23 +17,17 @@ import { NOW, currentView, openAdjust, openLibrary, sheet, waitForHydration } fr
 
 const RECIPE = 'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-06T17%3A00%3A00.000Z';
 
-async function open(page: import('@playwright/test').Page, query = '', hash = '') {
-	await page.clock.install({ time: NOW });
-	await page.goto(`/${query ? `?${query}` : ''}${hash}`);
-	await waitForHydration(page);
-}
-
 test('a share link goes straight to the plan, never through the questions', async ({ page }) => {
 	// The fatal failure mode of a question flow: making a returning baker answer
 	// it again. Anyone who arrives carrying a recipe is already past that.
-	await open(page, RECIPE);
+	await openRecipe(page, RECIPE);
 
 	expect(await currentView(page)).toBe('plan');
 	await expect(page.getByRole('heading', { level: 1 })).toContainText('Ready to bake');
 });
 
 test('a genuinely fresh visit is asked the first question', async ({ page }) => {
-	await open(page);
+	await openRecipe(page);
 
 	expect(await currentView(page)).toBe('ask');
 	await expect(page.getByRole('heading', { level: 1 })).toHaveText('When are you eating?');
@@ -38,13 +40,13 @@ test('a remembered recipe also lands on the plan', async ({ page }) => {
 	await page.addInitScript(() => {
 		localStorage.setItem('kneadtime:lastRecipe', 'v=6&n=9&b=280&h=70&s=3&y=f&t=22&ft=4');
 	});
-	await open(page);
+	await openRecipe(page);
 
 	expect(await currentView(page)).toBe('plan');
 });
 
 test('the view survives a reload and the back button walks it', async ({ page }) => {
-	await open(page, RECIPE);
+	await openRecipe(page, RECIPE);
 
 	await openLibrary(page);
 	expect(await currentView(page)).toBe('library');
@@ -65,7 +67,7 @@ test('the recipe query is untouched by every move between views', async ({ page 
 	// The fragment carries the place; the query carries the recipe, and it stays
 	// the authoritative, shareable half. A view key in the query would have
 	// changed what `hasRecipeParams` counts as a recipe link.
-	await open(page, RECIPE);
+	await openRecipe(page, RECIPE);
 	const recipeOf = () => {
 		const p = new URL(page.url()).searchParams;
 		p.delete('sa');
@@ -86,7 +88,7 @@ test('the recipe query is untouched by every move between views', async ({ page 
 test('answering a question moves the plan forming beside it', async ({ page }) => {
 	// A sequence of questions that shows no consequence is a survey. The glance
 	// beside the question is what stops this being one.
-	await open(page, '', '#ask/pizzas');
+	await openRecipe(page, '', '#ask/pizzas');
 
 	const flour = page
 		.locator('aside dl > div')
@@ -99,7 +101,7 @@ test('answering a question moves the plan forming beside it', async ({ page }) =
 });
 
 test('the last question hands over to the plan', async ({ page }) => {
-	await open(page, '', '#ask/method');
+	await openRecipe(page, '', '#ask/method');
 
 	await page.getByRole('button', { name: 'See the plan' }).click();
 	expect(await currentView(page)).toBe('plan');
@@ -109,7 +111,7 @@ test('tapping a value in the plan opens the sheet with that field focused', asyn
 	// The plan is not a form, but every value on it is editable in place — one
 	// press, and the field you pointed at has the cursor. Without the focus
 	// hand-off this is just a button that opens twenty fields.
-	await open(page, RECIPE);
+	await openRecipe(page, RECIPE);
 
 	await page.getByRole('button', { name: /Pizzas/ }).click();
 	await expect(sheet(page)).toBeVisible();
@@ -117,7 +119,7 @@ test('tapping a value in the plan opens the sheet with that field focused', asyn
 });
 
 test('the sheet closes on Escape and on a click outside it', async ({ page }) => {
-	await open(page, RECIPE);
+	await openRecipe(page, RECIPE);
 
 	await openAdjust(page);
 	await page.keyboard.press('Escape');
@@ -134,7 +136,7 @@ test('the sheet closes on Escape and on a click outside it', async ({ page }) =>
 // debris and left nothing looking primary. It is one dropdown now, and each
 // control that left it went to the thing it acts on rather than to another row.
 test('the plan masthead is the sign and nothing else', async ({ page }) => {
-	await open(page, RECIPE);
+	await openRecipe(page, RECIPE);
 
 	// The menu and the edit button both act on this recipe, so both sit with it
 	// under the flag. The wordmark is plain text on the plan — a control that
@@ -148,7 +150,7 @@ test('the plan masthead is the sign and nothing else', async ({ page }) => {
 });
 
 test('each control sits with what it acts on', async ({ page }) => {
-	await open(page, RECIPE);
+	await openRecipe(page, RECIPE);
 
 	// Edit recipe opens every blank at once, so it belongs with the blanks and
 	// the line that says they can be edited — not in the masthead, where it was
@@ -183,8 +185,8 @@ test('language and theme are reachable from every view', async ({ page }) => {
 	// the *view* fills is exactly how they would come to exist on the plan and
 	// nowhere else — which is the bug this pins, not the styling.
 	for (const hash of ['#plan', '#ask/when', '#library']) {
-		await open(page, RECIPE, hash);
-		await page.locator('summary').filter({ hasText: 'Menu' }).click();
+		await openRecipe(page, RECIPE, hash);
+		await openMenu(page);
 		await expect(page.getByRole('menuitemradio', { name: 'Deutsch', exact: true })).toBeVisible();
 		await expect(
 			page.getByRole('menuitemradio', { name: 'Dark theme', exact: true })

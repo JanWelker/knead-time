@@ -6,10 +6,14 @@ import { expect, type Page } from '@playwright/test';
 // fail overnight. Installed before navigation so the app never sees the real one.
 export const NOW = new Date('2026-09-01T09:00:00Z');
 
-/** Fixed clock, then load a recipe, then wait for hydration to finish. */
-export async function openRecipe(page: Page, query: string) {
+/**
+ * Fixed clock, then load a recipe, then wait for hydration to finish. An empty
+ * query is a bare visit (`/`, not `/?`); `hash` is the view fragment, e.g.
+ * `#library`, for the specs that pin where a visitor lands.
+ */
+export async function openRecipe(page: Page, query = '', hash = '') {
 	await page.clock.install({ time: NOW });
-	await page.goto(`/?${query}`);
+	await page.goto(`/${query ? `?${query}` : ''}${hash}`);
 	await waitForHydration(page);
 }
 
@@ -45,11 +49,16 @@ export function region(page: Page, heading: string) {
 }
 
 /**
- * The masthead's one dropdown. The trigger is a <summary>; Playwright does not
+ * The masthead's one dropdown trigger. It is a <summary>; Playwright does not
  * expose it as a button, which is why this is not a getByRole call.
  */
+export function menuTrigger(page: Page) {
+	return page.locator('summary').filter({ hasText: 'Menu' });
+}
+
+/** Open the dropdown. Waits for nothing; the caller's next step auto-waits. */
 export async function openMenu(page: Page) {
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await menuTrigger(page).click();
 	return page.getByRole('menu');
 }
 
@@ -77,11 +86,15 @@ export async function openAdjust(page: Page) {
 	return sheet(page);
 }
 
+/** Load a recipe and open its adjust sheet: every field rule is tested there. */
+export async function openForm(page: Page, query: string) {
+	await openRecipe(page, query);
+	return openAdjust(page);
+}
+
 /** Walk the ask flow to one of its questions. */
 export async function openQuestion(page: Page, step: string, query = '') {
-	await page.clock.install({ time: NOW });
-	await page.goto(`/?${query}#ask/${step}`);
-	await waitForHydration(page);
+	await openRecipe(page, query, `#ask/${step}`);
 }
 
 /** The fermentation-window control, wherever it currently lives. */

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openRecipe, slider, windowCard } from './helpers';
+import { openAdjust, openMenu, openRecipe, slider, windowCard } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -19,7 +19,7 @@ test('the status regions exist before they have anything to say', async ({ page 
 	await expect(copyStatus).toHaveCount(1);
 	await expect(copyStatus).toHaveText('');
 
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await openMenu(page);
 	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
 	const sendStatus = page.locator('dialog p[role="status"]');
 	await expect(sendStatus).toHaveCount(1);
@@ -38,7 +38,7 @@ test('a refused clipboard says so instead of doing nothing', async ({ page }) =>
 	});
 	await openRecipe(page, RECIPE);
 
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await openMenu(page);
 	await page.getByRole('menuitem', { name: 'Copy share link' }).click();
 
 	const status = page.locator('#share-status');
@@ -50,7 +50,7 @@ test('a refused clipboard says so instead of doing nothing', async ({ page }) =>
 // A dialog with no accessible name is announced as just "dialog".
 test('the TRMNL dialog is named by its own heading', async ({ page }) => {
 	await openRecipe(page, RECIPE);
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await openMenu(page);
 	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
 
 	await expect(
