@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { buildIcs } from '$lib/dough/ics';
 	import { encodeInputs } from '$lib/dough/urlState';
@@ -48,6 +49,11 @@
 	const locale = $derived(i18n.locale);
 
 	let copied = $state<'share' | 'failed' | null>(null);
+	// The "Copied" note clears itself on a timer. Held so the timer can be
+	// cancelled when the view goes away — a copy immediately before leaving the
+	// plan left a callback writing to a destroyed component's state.
+	let copiedTimer: ReturnType<typeof setTimeout> | undefined;
+	onMount(() => () => clearTimeout(copiedTimer));
 	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
 	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
 
@@ -85,7 +91,8 @@
 		try {
 			await navigator.clipboard.writeText(window.location.href);
 			copied = 'share';
-			setTimeout(() => (copied = null), 1500);
+			clearTimeout(copiedTimer);
+			copiedTimer = setTimeout(() => (copied = null), 1500);
 		} catch {
 			// A denied clipboard used to be swallowed here. The reasoning was that
 			// the URL is in the address bar anyway — true, but the user has just
@@ -267,10 +274,6 @@
 			</h1>
 
 			<div class="min-w-0 lg:pt-2">
-				<!-- The three ways into the app, in one aligned row at the top of the
-				     block, with the values they act on underneath. They were staggered
-				     at three heights for a while to echo the ragged rows below them; at
-				     three buttons that reads as scattered rather than as hand-placed,
 				<!-- The three ways into the app, in one aligned row at the top of the
 				     block, with the values they act on underneath. Right-aligned and
 				     ordered quiet to loud in reverse — Guide me leaves the plan, Edit

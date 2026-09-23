@@ -25,7 +25,7 @@
 	     numbers under a disclosure. -->
 	<ul class="flex flex-col gap-3 md:hidden">
 		{#each entries as entry (entry.url)}
-			<li class="border-rule bg-paper rounded-[2px] border-2 p-3">
+			<li class="ticket">
 				<div class="flex items-baseline justify-between gap-3">
 					<span class="text-ink font-bold">
 						{#if entry.handle}
@@ -45,15 +45,11 @@
 						{formatIsoDate(entry.date, locale)}
 					</span>
 				</div>
-				<a
-					href={resolve('/') + entry.search}
-					rel="external"
-					class="btn-tomato mt-3 inline-flex items-center justify-center"
-				>
+				<a href={resolve('/') + entry.search} rel="external" class="btn-tomato mt-3">
 					{t.community.open_link}
 				</a>
 				<details class="mt-3 text-sm">
-					<summary class="label-caps text-ink-soft cursor-pointer">
+					<summary class="ticket-summary">
 						{t.community.details_label}
 					</summary>
 					<RecipeSpecList inputs={entry.inputs} labels={t.community} />
@@ -67,17 +63,17 @@
 		<table class="w-full min-w-[640px] border-collapse text-left text-sm tabular-nums">
 			<thead>
 				<tr class="bg-rule text-paper">
-					<th class="label-caps text-paper px-3 py-2">{t.community.col_name}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.community.col_date}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.community.col_pizzas}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.community.col_ball}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.community.col_hydration}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.community.col_salt}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.community.col_yeast}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.community.col_temp}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.community.col_fridge}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.community.col_preFerment}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.community.col_open}</th>
+					<th class="head-cell">{t.community.col_name}</th>
+					<th class="head-cell">{t.community.col_date}</th>
+					<th class="head-cell text-right">{t.community.col_pizzas}</th>
+					<th class="head-cell text-right">{t.community.col_ball}</th>
+					<th class="head-cell text-right">{t.community.col_hydration}</th>
+					<th class="head-cell text-right">{t.community.col_salt}</th>
+					<th class="head-cell">{t.community.col_yeast}</th>
+					<th class="head-cell text-right">{t.community.col_temp}</th>
+					<th class="head-cell text-right">{t.community.col_fridge}</th>
+					<th class="head-cell">{t.community.col_preFerment}</th>
+					<th class="head-cell">{t.community.col_open}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -100,23 +96,21 @@
 						<td class="text-ink-soft px-3 py-3 whitespace-nowrap">
 							{formatIsoDate(entry.date, locale)}
 						</td>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums"
-							>{numLabel(entry.inputs.pizzaCount)}</td
-						>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums">
+						<td class="figure-cell">{numLabel(entry.inputs.pizzaCount)}</td>
+						<td class="figure-cell">
 							{numLabel(entry.inputs.ballWeight, ' g')}
 						</td>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums">
+						<td class="figure-cell">
 							{numLabel(entry.inputs.hydration, '%')}
 						</td>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums">
+						<td class="figure-cell">
 							{numLabel(entry.inputs.saltPercent, '%')}
 						</td>
 						<td class="px-3 py-3">{yeastLabel(entry.inputs, t)}</td>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums">
+						<td class="figure-cell">
 							{numLabel(entry.inputs.roomTempC, '°C')}
 						</td>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums">
+						<td class="figure-cell">
 							{numLabel(entry.inputs.fridgeTempC, '°C')}
 						</td>
 						<td class="px-3 py-3">{preFermentLabel(entry.inputs, t)}</td>
