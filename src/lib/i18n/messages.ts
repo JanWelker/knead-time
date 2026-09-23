@@ -716,7 +716,7 @@ const en: Messages = {
 	quality: {
 		step_imperfect: 'This step deviates from the math’s natural schedule.',
 		flag_night: 'Lands between 22:00 and 08:00.',
-		flag_cold_bulk_shifted: 'Extended to keep baker steps out of the night.',
+		flag_cold_bulk_shifted: 'Shortened to keep baker steps out of the night.',
 		flag_cold_bulk_clamped_short: 'Window forced the cold bulk above its natural duration.',
 		flag_cold_bulk_clamped_long: 'Window exceeded the cold-bulk 48 h ceiling.',
 		flag_preferment_clamped_short:
@@ -726,7 +726,7 @@ const en: Messages = {
 		fit_heading: 'fit',
 		fit_perfect: 'Schedule and recipe match the contemporary Neapolitan ideal.',
 		fit_aria: 'Recipe fit {stars} of 5 stars',
-		factor_cold_bulk_shifted: 'Cold bulk extended by {delta} h to dodge a baker step at night.',
+		factor_cold_bulk_shifted: 'Cold bulk shortened by {delta} h to dodge a baker step at night.',
 		factor_cold_bulk_clamped_short: 'Window forces cold bulk {delta} h above the natural duration.',
 		factor_cold_bulk_clamped_long:
 			'Window asks for {delta} h more cold bulk than the 48 h ceiling allows.',
@@ -1230,7 +1230,7 @@ const de: Messages = {
 	quality: {
 		step_imperfect: 'Dieser Schritt weicht vom natürlichen Zeitplan ab.',
 		flag_night: 'Liegt zwischen 22:00 und 08:00 Uhr.',
-		flag_cold_bulk_shifted: 'Verlängert, um aktive Schritte aus der Nacht zu schieben.',
+		flag_cold_bulk_shifted: 'Verkürzt, um aktive Schritte aus der Nacht zu schieben.',
 		flag_cold_bulk_clamped_short:
 			'Zeitfenster zwingt die Kühl-Reifezeit über die natürliche Dauer.',
 		flag_cold_bulk_clamped_long:
@@ -1242,7 +1242,7 @@ const de: Messages = {
 		fit_heading: 'Bewertung',
 		fit_perfect: 'Zeitplan und Rezept entsprechen dem zeitgemäßen neapolitanischen Ideal.',
 		fit_aria: 'Rezeptbewertung {stars} von 5 Sternen',
-		factor_cold_bulk_shifted: 'Kühl-Reifezeit um {delta} h verlängert, um die Nacht zu meiden.',
+		factor_cold_bulk_shifted: 'Kühl-Reifezeit um {delta} h verkürzt, um die Nacht zu meiden.',
 		factor_cold_bulk_clamped_short:
 			'Zeitfenster zwingt die Kühl-Reifezeit {delta} h über die natürliche Dauer.',
 		factor_cold_bulk_clamped_long:
@@ -1750,7 +1750,7 @@ const it: Messages = {
 	quality: {
 		step_imperfect: 'Questo passo si discosta dal programma naturale del calcolo.',
 		flag_night: 'Si svolge tra le 22:00 e le 08:00.',
-		flag_cold_bulk_shifted: 'Allungata per spostare i passi attivi fuori dalla notte.',
+		flag_cold_bulk_shifted: 'Accorciata per spostare i passi attivi fuori dalla notte.',
 		flag_cold_bulk_clamped_short:
 			'La finestra costringe la maturazione in frigo oltre la durata naturale.',
 		flag_cold_bulk_clamped_long: 'La finestra supera il tetto di 48 h di maturazione in frigo.',
@@ -1762,7 +1762,7 @@ const it: Messages = {
 		fit_perfect: 'Programma e ricetta corrispondono al canone napoletano contemporaneo.',
 		fit_aria: 'Valutazione ricetta {stars} stelle su 5',
 		factor_cold_bulk_shifted:
-			'Maturazione in frigo prolungata di {delta} h per evitare un passo notturno.',
+			'Maturazione in frigo accorciata di {delta} h per evitare un passo notturno.',
 		factor_cold_bulk_clamped_short:
 			'La finestra costringe la maturazione in frigo {delta} h oltre la durata naturale.',
 		factor_cold_bulk_clamped_long:
@@ -2275,7 +2275,7 @@ const fr: Messages = {
 	quality: {
 		step_imperfect: 'Cette étape s’écarte du programme naturel du calcul.',
 		flag_night: 'A lieu entre 22h et 08h.',
-		flag_cold_bulk_shifted: 'Allongée pour sortir les étapes actives de la nuit.',
+		flag_cold_bulk_shifted: 'Raccourcie pour sortir les étapes actives de la nuit.',
 		flag_cold_bulk_clamped_short:
 			'La fenêtre force le pointage au frigo au-delà de sa durée naturelle.',
 		flag_cold_bulk_clamped_long: 'La fenêtre dépasse le plafond de 48 h de pointage au frigo.',
@@ -2287,7 +2287,7 @@ const fr: Messages = {
 		fit_perfect: 'Le programme et la recette correspondent au canon napolitain contemporain.',
 		fit_aria: 'Note de la recette {stars} étoiles sur 5',
 		factor_cold_bulk_shifted:
-			'Pointage au frigo allongé de {delta} h pour éviter une étape la nuit.',
+			'Pointage au frigo raccourci de {delta} h pour éviter une étape la nuit.',
 		factor_cold_bulk_clamped_short:
 			'La fenêtre force le pointage au frigo {delta} h au-delà de sa durée naturelle.',
 		factor_cold_bulk_clamped_long:
@@ -2799,7 +2799,7 @@ const nl: Messages = {
 	quality: {
 		step_imperfect: 'Deze stap wijkt af van het natuurlijke schema.',
 		flag_night: 'Valt tussen 22:00 en 08:00.',
-		flag_cold_bulk_shifted: 'Verlengd om actieve stappen uit de nacht te houden.',
+		flag_cold_bulk_shifted: 'Ingekort om actieve stappen uit de nacht te houden.',
 		flag_cold_bulk_clamped_short: 'Het venster dwingt de koelrijs boven de natuurlijke duur.',
 		flag_cold_bulk_clamped_long: 'Het venster overschrijdt het 48-uurs-plafond van de koelrijs.',
 		flag_preferment_clamped_short:
@@ -2810,7 +2810,7 @@ const nl: Messages = {
 		fit_perfect: 'Schema en recept voldoen aan het hedendaagse Napolitaanse ideaal.',
 		fit_aria: 'Receptbeoordeling {stars} van 5 sterren',
 		factor_cold_bulk_shifted:
-			'Koelrijs met {delta} u verlengd om een nachtelijke stap te vermijden.',
+			'Koelrijs met {delta} u ingekort om een nachtelijke stap te vermijden.',
 		factor_cold_bulk_clamped_short:
 			'Het venster dwingt de koelrijs {delta} u boven de natuurlijke duur.',
 		factor_cold_bulk_clamped_long:

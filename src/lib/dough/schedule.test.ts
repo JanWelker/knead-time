@@ -933,6 +933,32 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		expect(firstStepAt(r).getTime()).toBeLessThan(startAt.getTime());
 	});
 
+	it('keeps the exception at 75–85 min with autolyse on: the rest is a fixed step too', () => {
+		// CLAUDE.md documented the exception as "prep + mix + divide, 45–55 min",
+		// but autolyse is the default and adds its 30 min rest to the fixed frame
+		// — and the two exception tests above use the fixture, which opts autolyse
+		// off, so the default shape was never pinned. A 60 min window is 15 min
+		// short of the spiral frame: every hands-on step keeps its physical
+		// length, so the first step lands exactly 15 min before startAt.
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const startAt = new Date('2026-05-12T18:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt, readyBy, autolyse: true }));
+		expect(r.feasible).toBe(false);
+		expect(r.warnings).toContain('too-short');
+		expect(findStep(r, 'prep').durationMinutes).toBe(15);
+		expect(findStep(r, 'autolyse').durationMinutes).toBe(30);
+		expect(findStep(r, 'mix').durationMinutes).toBe(15);
+		expect(findStep(r, 'divide').durationMinutes).toBe(15);
+		expect(firstStepAt(r).getTime()).toBe(readyBy.getTime() - 75 * 60_000);
+		expect(firstStepAt(r).getTime()).toBe(startAt.getTime() - 15 * 60_000);
+
+		// The band's other end: hand kneading is the slowest mix.
+		const hand = computeSchedule(
+			baseInputs({ startAt, readyBy, autolyse: true, mixingMethod: 'hand' })
+		);
+		expect(firstStepAt(hand).getTime()).toBe(readyBy.getTime() - 85 * 60_000);
+	});
+
 	it('night-window adjuster never extends cold-bulk past natural (would push start before startAt)', () => {
 		// Same scenario as the existing night-shift test but tighter. The
 		// adjuster used to be able to extend cold-bulk upward (back-shifting
@@ -1414,6 +1440,42 @@ describe('computeSchedule — room-mode ferment budget', () => {
 		);
 		expect(findStep(r, 'bulk-room').durationMinutes).toBe(0);
 		expect(findStep(r, 'final-proof').durationMinutes).toBe(0);
+	});
+});
+
+describe('computeSchedule — the night guard can only shorten the cold leg', () => {
+	it('never emits a cold leg longer than naturalColdBulkMin, whichever hour the bake is at', () => {
+		// quality.ts charges `natural − actual` as a one-signed shortening and has
+		// dropped the positive half; that is only sound if the schedule really
+		// never lengthens the leg. Sweep every bake hour over a spread of cold
+		// windows and both cold-leg positions: the guard has to have fired on a
+		// good share of them (so the sweep exercises it, not just the untouched
+		// path) and never once the other way.
+		let shortened = 0;
+		let untouched = 0;
+		for (let hour = 0; hour < 24; hour++) {
+			for (const hours of [16, 18, 24, 36, 48]) {
+				for (const ballProof of ['room', 'cold'] as const) {
+					const readyBy = new Date(Date.UTC(2026, 4, 12, hour, 0));
+					const r = computeSchedule(
+						baseInputs({
+							readyBy,
+							startAt: new Date(readyBy.getTime() - hours * 3_600_000),
+							ballProof
+						})
+					);
+					expect(r.mode).toBe('cold');
+					const leg = findStep(r, ballProof === 'cold' ? 'proof-cold' : 'bulk-cold');
+					expect(leg.durationMinutes, `${hour}:00 / ${hours} h / ${ballProof}`).toBeLessThanOrEqual(
+						r.naturalColdBulkMin!
+					);
+					if (leg.durationMinutes < r.naturalColdBulkMin!) shortened++;
+					else untouched++;
+				}
+			}
+		}
+		expect(shortened).toBeGreaterThan(0);
+		expect(untouched).toBeGreaterThan(0);
 	});
 });
 
