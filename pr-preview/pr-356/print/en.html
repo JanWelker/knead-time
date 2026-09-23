@@ -46,13 +46,19 @@
 		<script>
 			// Theme boot: apply dark before first paint. The legacy bare 'theme'
 			// slot is read as a fallback until loadStoredTheme migrates it to
-			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
-			// cookies") — only the reads are guarded so a blocked storage still
-			// honours the system preference.
+			// the scoped theme key. The scope placeholder in that key is stamped at
+			// prerender time by hooks.server.ts (empty at the root, ':pr-preview-pr-N'
+			// on a preview):
+			// the preview shares the production origin, so this read has to look
+			// in the same scoped slot storedTheme.ts writes or the first paint
+			// would follow the live site's choice. Storage access can throw (Chrome
+			// "Block all cookies") — only the reads are guarded so a blocked
+			// storage still honours the system preference.
 			(function () {
 				var stored = null;
 				try {
-					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+					stored =
+						localStorage.getItem('kneadtime:pr-preview-pr-356:theme') || localStorage.getItem('theme');
 				} catch (e) {}
 				if (
 					stored === 'dark' ||
@@ -62,7 +68,7 @@
 				}
 			})();
 		</script>
-		<link href="../_app/immutable/bundle.C6d3xpOp.js" rel="modulepreload">
+		<link href="../_app/immutable/bundle.B8jGLECh.js" rel="modulepreload">
 		<!--1hugt37--><style>
 		html,
 		body {
@@ -237,24 +243,24 @@
 			font-size: 7pt;
 		}
 	</style><!----><title>Knead Time — Recipe</title>
-		<link href="../_app/immutable/assets/bundle._j9ohIC2.css" rel="stylesheet">
+		<link href="../_app/immutable/assets/bundle.Da-ONccV.css" rel="stylesheet">
 	</head>
 	<body
 		data-sveltekit-preload-data="hover"
 		class="text-ink min-h-screen bg-transparent antialiased"
 	>
-		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><div class="printpage"><header class="printpage-header"><div><h1>Knead Time</h1> <h2 style="margin-top: 3mm;">Recipe</h2> <table class="printpage-summary"><tbody><tr><th>Ready to bake</th><td>Thu, Sep 24 · 07:00 PM</td></tr><tr><th>Pizzas</th><td>6 × 280 g</td></tr><tr><th>Hydration (%)</th><td>70%</td></tr><tr><th>Salt (% of flour)</th><td>3%</td></tr><tr><th>Yeast</th><td>Fresh yeast (cube)</td></tr><tr><th>Room temperature (°C)</th><td>22 °C</td></tr><!--[0--><tr><th>Fridge temperature (°C)</th><td>4 °C</td></tr><!--]--><!--[-1--><!--]--></tbody></table></div> <div><h2>Ingredients</h2> <!--[--><section class="printpage-ingredients-section"><!--[-1--><!--]--> <table class="printpage-ingredients"><tbody><!--[--><tr><th>Caputo Pizzeria<!--[-1--><!--]--></th><td>970 g</td></tr><tr><th>Water<!--[-1--><!--]--></th><td>679 g</td></tr><tr><th>Salt<!--[-1--><!--]--></th><td>29 g</td></tr><tr><th>Fresh yeast<!--[0--> (0.161%)<!--]--></th><td>1.6 g</td></tr><!--]--><!--[0--><tr class="printpage-total"><th>Total dough</th><td>1680 g</td></tr><!--]--></tbody></table></section><!--]--></div></header> <section><h2>Schedule</h2> <table class="printpage-schedule"><thead><tr><th>When</th><th>Step</th><th class="printpage-duration">Duration</th></tr></thead><tbody><!--[--><tr><td class="printpage-when">Wed, Sep 23 · 07:32 PM</td><td><div class="printpage-step-title">Weigh &amp; prep</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>970 g</strong> Flour</span><span class="printpage-ing"><strong>679 g</strong> Water</span><!--]--></div><!--]--> <div class="printpage-step-desc">Weigh the flour and water (about 4 °C — chill it with ice cubes if your kitchen is warm) and mix them into a shaggy, lumpy mass with no dry flour left. No kneading yet, and keep the salt and yeast aside.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Wed, Sep 23 · 07:47 PM</td><td><div class="printpage-step-title">Autolyse rest</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cover the bowl and let the flour and water rest. The flour hydrates fully and gluten begins to form on its own, so the dough needs less kneading and stretches more easily later.</div></td><td class="printpage-duration">30 min</td></tr><tr><td class="printpage-when">Wed, Sep 23 · 08:17 PM</td><td><div class="printpage-step-title">Mix dough</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>29 g</strong> Salt</span><span class="printpage-ing"><strong>1.6 g</strong> Fresh yeast</span><!--]--></div><!--]--> <div class="printpage-step-desc">Add the salt and yeast to the rested dough and bring everything together into a cohesive dough. Knead in the spiral mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Wed, Sep 23 · 08:32 PM</td><td><div class="printpage-step-title">Bulk ferment (room)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cover the dough and let it rise at room temperature.</div></td><td class="printpage-duration">1 h</td></tr><tr><td class="printpage-when">Wed, Sep 23 · 09:32 PM</td><td><div class="printpage-step-title">Bulk ferment (fridge)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Move the covered dough to the fridge. Long, slow fermentation.</div></td><td class="printpage-duration">17 h 13 min</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 02:45 PM</td><td><div class="printpage-step-title">Divide &amp; ball</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cut the dough into 6 equal balls of 280 g each and shape them tight.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 03:00 PM</td><td><div class="printpage-step-title">Final proof</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Let the balls rest at room temperature until they look puffy and relaxed.</div></td><td class="printpage-duration">4 h</td></tr><tr class="printpage-ready"><td class="printpage-when">Thu, Sep 24 · 07:00 PM</td><td><div class="printpage-step-title">Shape &amp; bake</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Open each ball, top, and into the oven.</div></td><td class="printpage-duration">—</td></tr><!--]--></tbody></table></section> <footer class="printpage-footer"><div><p>Time-anchored Neapolitan pizza dough calculator.</p> <p>© 2026 Jan Welker · Licensed under Apache 2.0 · v7.1.17</p></div> <!--[-1--><!--]--></footer></div><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+		<div style="display: contents"><!--[--><!--[0--><!--[--><!--[--><div class="printpage"><header class="printpage-header"><div><h1>Knead Time</h1> <h2 style="margin-top: 3mm;">Recipe</h2> <table class="printpage-summary"><tbody><tr><th scope="row">Ready to bake</th><td>Thu, Sep 24 · 07:00 PM</td></tr><tr><th scope="row">Pizzas</th><td>6 × 280 g</td></tr><tr><th scope="row">Hydration (%)</th><td>70%</td></tr><tr><th scope="row">Salt (% of flour)</th><td>3%</td></tr><tr><th scope="row">Yeast</th><td>Fresh yeast (cube)</td></tr><tr><th scope="row">Room temperature (°C)</th><td>22°C</td></tr><!--[0--><tr><th scope="row">Fridge temperature (°C)</th><td>4°C</td></tr><!--]--><!--[-1--><!--]--></tbody></table></div> <div><h2>Ingredients</h2> <!--[--><section class="printpage-ingredients-section"><!--[-1--><!--]--> <table class="printpage-ingredients"><tbody><!--[--><tr><th scope="row">Caputo Pizzeria<!--[-1--><!--]--></th><td>970 g</td></tr><tr><th scope="row">Water<!--[-1--><!--]--></th><td>679 g</td></tr><tr><th scope="row">Salt<!--[-1--><!--]--></th><td>29 g</td></tr><tr><th scope="row">Fresh yeast<!--[0--> (0.251%)<!--]--></th><td>2.4 g</td></tr><!--]--><!--[0--><tr class="printpage-total"><th scope="row">Total dough</th><td>1680 g</td></tr><!--]--></tbody></table></section><!--]--></div></header> <section><h2>Schedule</h2> <table class="printpage-schedule"><thead><tr><th scope="col">When</th><th scope="col">Step</th><th scope="col" class="printpage-duration">Duration</th></tr></thead><tbody><!--[--><tr><td class="printpage-when">Thu, Sep 24 · 08:00 AM</td><td><div class="printpage-step-title">Weigh &amp; prep</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>970 g</strong> Flour</span><span class="printpage-ing"><strong>679 g</strong> Water</span><!--]--></div><!--]--> <div class="printpage-step-desc">Weigh the flour and water (about 4 °C — chill it with ice cubes if your kitchen is warm) and mix them into a shaggy, lumpy mass with no dry flour left. No kneading yet, and keep the salt and yeast aside.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 08:15 AM</td><td><div class="printpage-step-title">Autolyse rest</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cover the bowl and let the flour and water rest. The flour hydrates fully and gluten begins to form on its own, so the dough needs less kneading and stretches more easily later.</div></td><td class="printpage-duration">30 min</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 08:45 AM</td><td><div class="printpage-step-title">Mix dough</div> <!--[0--><div class="printpage-step-ingredients"><!--[--><span class="printpage-ing"><strong>29 g</strong> Salt</span><span class="printpage-ing"><strong>2.4 g</strong> Fresh yeast</span><!--]--></div><!--]--> <div class="printpage-step-desc">Add the salt and yeast to the rested dough and bring everything together into a cohesive dough. Knead in the spiral mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 09:00 AM</td><td><div class="printpage-step-title">Bulk ferment (room)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cover the dough and let it rise at room temperature.</div></td><td class="printpage-duration">1 h</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 10:00 AM</td><td><div class="printpage-step-title">Bulk ferment (fridge)</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Move the covered dough to the fridge. Long, slow fermentation.</div></td><td class="printpage-duration">4 h 45 min</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 02:45 PM</td><td><div class="printpage-step-title">Divide &amp; ball</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Cut the dough into 6 equal balls of 280 g each and shape them tight.</div></td><td class="printpage-duration">15 min</td></tr><tr><td class="printpage-when">Thu, Sep 24 · 03:00 PM</td><td><div class="printpage-step-title">Final proof</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Let the balls rest at room temperature until they look puffy and relaxed.</div></td><td class="printpage-duration">4 h</td></tr><tr class="printpage-ready"><td class="printpage-when">Thu, Sep 24 · 07:00 PM</td><td><div class="printpage-step-title">Shape &amp; bake</div> <!--[-1--><!--]--> <div class="printpage-step-desc">Open each ball, top, and into the oven.</div></td><td class="printpage-duration">—</td></tr><!--]--></tbody></table></section> <footer class="printpage-footer"><div><p>Time-anchored Neapolitan pizza dough calculator.</p> <p>© 2026 Jan Welker · Licensed under Apache 2.0 · v7.1.27</p></div> <!--[-1--><!--]--></footer></div><!--]--><!----><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
 			
 			<script>
 				{
-					__sveltekit_1h6ewg = {
+					__sveltekit_16klwzc = {
 						base: new URL("..", location).pathname.slice(0, -1),
 						assets: "/pr-preview/pr-356"
 					};
 
 					const element = document.currentScript.parentElement;
 
-					import("../_app/immutable/bundle.C6d3xpOp.js").then((app) => {
+					import("../_app/immutable/bundle.B8jGLECh.js").then((app) => {
 						app.start(element, {
 							node_ids: [0, 3],
 							data: [null,null],
