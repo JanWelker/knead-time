@@ -85,9 +85,11 @@ describe('buildIcs', () => {
 		}
 	];
 	const describe_ = () => ({ summary: 'S', description: 'D' });
+	const now = new Date('2026-05-10T09:30:00Z');
+	const uidsOf = (out: string) => [...out.matchAll(/UID:([^\r\n]+)/g)].map((m) => m[1]);
 
 	it('emits one VEVENT per step', () => {
-		const out = buildIcs(steps, describe_);
+		const out = buildIcs(steps, describe_, now);
 		const events = out.match(/BEGIN:VEVENT/g) ?? [];
 		expect(events.length).toBe(steps.length);
 	});
@@ -101,20 +103,101 @@ describe('buildIcs', () => {
 			{ kind: 'preferment-mix', at, durationMinutes: 300, preFermentType: 'biga' },
 			{ kind: 'preferment-mix', at, durationMinutes: 300, preFermentType: 'poolish' }
 		];
-		const out = buildIcs(clashing, describe_);
-		const uids = [...out.matchAll(/UID:([^\r\n]+)/g)].map((m) => m[1]);
+		const out = buildIcs(clashing, describe_, now);
+		const uids = uidsOf(out);
 		expect(uids).toHaveLength(2);
 		expect(new Set(uids).size).toBe(2);
 	});
 
+	// The UID rule: `<kind>[-<preFermentType>]-<bake day>@kneadtime`, the bake
+	// day being the ready step's UTC date. The old rule keyed every UID on the
+	// step's own timestamp, and since every step time derives from readyBy,
+	// nudging the bake by 15 minutes and exporting again put a second copy of
+	// the whole schedule in the calendar instead of updating the first. The
+	// suite never caught it because it only ever asserted UIDs were unique
+	// within one export, never that they were stable across two.
+	const bakeOn = (readyBy: string) =>
+		computeSchedule(
+			defaultInputs({
+				startAt: new Date(new Date(readyBy).getTime() - 30 * 3_600_000),
+				readyBy: new Date(readyBy),
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			})
+		);
+
+	it("keys every UID on the ready step's UTC day, not on the step's own time", () => {
+		const out = buildIcs(bakeOn('2026-05-12T19:00:00Z').steps, describe_, now);
+		expect(uidsOf(out)).toEqual([
+			'preferment-mix-biga-20260512@kneadtime',
+			'preferment-mix-poolish-20260512@kneadtime',
+			'prep-20260512@kneadtime',
+			'mix-20260512@kneadtime',
+			'bulk-room-20260512@kneadtime',
+			'bulk-cold-20260512@kneadtime',
+			'divide-20260512@kneadtime',
+			'final-proof-20260512@kneadtime',
+			'ready-20260512@kneadtime'
+		]);
+	});
+
+	it('re-exporting the same bake nudged by 15 minutes carries identical UIDs', () => {
+		// The edit people make most on a plan they live inside for two days.
+		// Every step moved, so under the old rule not one UID survived.
+		const before = buildIcs(bakeOn('2026-05-12T19:00:00Z').steps, describe_, now);
+		const after = buildIcs(bakeOn('2026-05-12T19:15:00Z').steps, describe_, now);
+		expect(uidsOf(after)).toEqual(uidsOf(before));
+		// And the events really did move — this is an update, not a no-op.
+		expect(after).not.toBe(before);
+		expect(before.includes('DTSTART:20260512T190000Z')).toBe(true);
+		expect(after.includes('DTSTART:20260512T191500Z')).toBe(true);
+	});
+
+	it('a bake on a different day gets a different set of UIDs', () => {
+		// Two bakes a week apart are two schedules and must coexist in the
+		// calendar; the day is what keeps them apart.
+		const monday = uidsOf(buildIcs(bakeOn('2026-05-12T19:00:00Z').steps, describe_, now));
+		const nextMonday = uidsOf(buildIcs(bakeOn('2026-05-19T19:00:00Z').steps, describe_, now));
+		expect(nextMonday).toHaveLength(monday.length);
+		for (const uid of nextMonday) expect(monday).not.toContain(uid);
+	});
+
+	it('keeps every UID unique within the 9-step worst case (biga + poolish, cold)', () => {
+		// Keying on the day throws away the timestamp that used to separate
+		// the steps, so uniqueness now rests on the kind (and the pre-ferment
+		// type) alone. The longest schedule the app emits is the one to check.
+		const schedule = bakeOn('2026-05-12T19:00:00Z');
+		expect(schedule.steps).toHaveLength(9);
+		const uids = uidsOf(buildIcs(schedule.steps, describe_, now));
+		expect(uids).toHaveLength(9);
+		expect(new Set(uids).size).toBe(9);
+	});
+
+	it('stamps DTSTAMP with the export moment and SEQUENCE with its unix seconds', () => {
+		// A calendar treats a re-import under a known UID as an update only
+		// when it can see it is newer; Google Calendar reads SEQUENCE for that
+		// and ignores a re-import whose SEQUENCE has not risen. Both come from
+		// the `now` parameter, so this can be pinned to a literal.
+		const out = buildIcs(steps, describe_, now);
+		const dtstamps = out.match(/DTSTAMP:[^\r\n]+/g);
+		expect(dtstamps).toEqual(['DTSTAMP:20260510T093000Z', 'DTSTAMP:20260510T093000Z']);
+		const sequences = out.match(/SEQUENCE:[^\r\n]+/g);
+		expect(sequences).toEqual(['SEQUENCE:1778405400', 'SEQUENCE:1778405400']);
+		// A later export outranks an earlier one.
+		const later = buildIcs(steps, describe_, new Date(now.getTime() + 60_000));
+		expect(later.includes('SEQUENCE:1778405460')).toBe(true);
+	});
+
 	it('wraps with BEGIN/END:VCALENDAR', () => {
-		const out = buildIcs(steps, describe_);
+		const out = buildIcs(steps, describe_, now);
 		expect(out.startsWith('BEGIN:VCALENDAR\r\n')).toBe(true);
 		expect(out.endsWith('END:VCALENDAR\r\n')).toBe(true);
 	});
 
 	it('uses DTEND ≥ DTSTART even for zero-duration steps', () => {
-		const out = buildIcs(steps, describe_);
+		const out = buildIcs(steps, describe_, now);
 		expect(out.includes('DTSTART:20260512T190000Z')).toBe(true);
 		expect(out.includes('DTEND:20260512T190100Z')).toBe(true);
 	});
@@ -133,10 +216,14 @@ describe('buildIcs', () => {
 			})
 		);
 		const msgs = MESSAGES.de;
-		const out = buildIcs(schedule.steps, (step) => ({
-			summary: stepTitle(step, msgs),
-			description: stepDetailText(step, msgs, schedule, { includeDetail: true })
-		}));
+		const out = buildIcs(
+			schedule.steps,
+			(step) => ({
+				summary: stepTitle(step, msgs),
+				description: stepDetailText(step, msgs, schedule, { includeDetail: true })
+			}),
+			now
+		);
 		const physical = out.split('\r\n');
 		const over = physical.filter((line) => octets(line) > 75);
 		expect(over).toEqual([]);
@@ -154,7 +241,7 @@ describe('buildIcs', () => {
 	});
 
 	it('uses CRLF line endings (RFC 5545)', () => {
-		const out = buildIcs(steps, describe_);
+		const out = buildIcs(steps, describe_, now);
 		expect(out.includes('\r\n')).toBe(true);
 		// no bare LFs except after CR
 		const bareLfMatches = out.match(/(?<!\r)\n/g);
@@ -190,7 +277,7 @@ describe('buildIcs', () => {
 			at: at(i),
 			durationMinutes: 30
 		}));
-		const blocks = buildIcs(mixedSteps, describe_).split('BEGIN:VEVENT').slice(1);
+		const blocks = buildIcs(mixedSteps, describe_, now).split('BEGIN:VEVENT').slice(1);
 		const transpByIndex = blocks.map((b) =>
 			b.includes('TRANSP:OPAQUE')
 				? 'OPAQUE'

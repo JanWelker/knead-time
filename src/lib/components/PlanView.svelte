@@ -60,12 +60,16 @@
 	}
 
 	function downloadIcs() {
-		const ics = buildIcs(form.schedule.steps, (step) => ({
-			summary: stepTitle(step, t),
-			description: stepDetailText(step, t, form.schedule, {
-				includeDetail: scheduleVerbosity.current === 'descriptive'
-			})
-		}));
+		const ics = buildIcs(
+			form.schedule.steps,
+			(step) => ({
+				summary: stepTitle(step, t),
+				description: stepDetailText(step, t, form.schedule, {
+					includeDetail: scheduleVerbosity.current === 'descriptive'
+				})
+			}),
+			new Date()
+		);
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
