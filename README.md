@@ -113,7 +113,7 @@ scripts/
 ├── test-baseline.json    ← how many tests exist; the floor the script enforces
 └── workflows/
     ├── ci.yml            ← verify (lint + check + coverage gate + build) and e2e, on PRs and pushes to main
-    ├── deploy.yml        ← build + publish to GitHub Pages on main
+    ├── deploy.yml        ← build + publish to GitHub Pages, after CI passes on main
     └── preview.yml       ← build + publish a per-PR preview, comment the URL, clean up on close
 
 vite.config.ts            ← Vite (no test config; runtime build only)
@@ -191,7 +191,7 @@ Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the
 
 ### Deployment
 
-Deployment is fully automated by **`.github/workflows/deploy.yml`**. Every push to `main`:
+Deployment is fully automated by **`.github/workflows/deploy.yml`**. It is triggered by a **successful CI run on `main`** (`on: workflow_run`), not by the push itself, and it builds the exact commit that run passed on — so nothing reaches production, or gets tagged, without a green `verify` and `e2e`. For each such commit it:
 
 1. Runs `npm ci` and builds the static site with `npm run build`.
 2. Pushes the contents of `./build/` to the `gh-pages` branch (root), preserving any `pr-preview/` subdirectories so open PR previews keep working.
@@ -212,9 +212,9 @@ The workflow resolves the **base path** automatically. A **custom domain** (a `s
 
 The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
 
-A separate **`.github/workflows/ci.yml`** runs on every PR and on pushes to `main`, but doesn't deploy. It has two jobs: **`verify`** (lint, type-check, the coverage-gated suite, build) and **`e2e`** (the test-count ratchet, then Playwright against a real build). Both are **required status checks** on `main` — note that `main` is guarded by a repository _ruleset_, so the classic branch-protection API reports it as unprotected; see `gh api repos/JanWelker/knead-time/rulesets`. Adding a CI job does not make it required, that is a separate change to the ruleset.
+A separate **`.github/workflows/ci.yml`** runs on every PR and on pushes to `main`; it doesn't deploy, but a successful run on `main` is what triggers `deploy.yml`. It has two jobs: **`verify`** (lint, type-check, the coverage-gated suite, build) and **`e2e`** (the test-count ratchet, then Playwright against a real build). Both are **required status checks** on `main` — note that `main` is guarded by a repository _ruleset_, so the classic branch-protection API reports it as unprotected; see `gh api repos/JanWelker/knead-time/rulesets`. Adding a CI job does not make it required, that is a separate change to the ruleset.
 
-The `main` runs exist so Codecov gets a main-branch baseline (the badge at the top points at `branch/main`). The CI badge covers the whole workflow, so a failing `e2e` turns it red too — it needs no badge of its own.
+The `main` runs exist so Codecov gets a main-branch baseline (the badge at the top points at `branch/main`) and so the deploy has something to wait for. They are deliberately **not** cancelled when a newer commit lands — cancelling one would leave that commit undeployed, untagged and out of the baseline — while PR runs still supersede each other. The CI badge covers the whole workflow, so a failing `e2e` turns it red too — it needs no badge of its own.
 
 ---
 
