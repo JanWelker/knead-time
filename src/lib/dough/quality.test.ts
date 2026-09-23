@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
 import { fitStars, recipeFitScore, stepQualityFlags, type FitFactor } from './quality';
-import { COLD_BULK_CEIL_MIN, COLD_BULK_FLOOR_MIN, computeSchedule } from './schedule';
+import {
+	COLD_BULK_CEIL_MIN,
+	COLD_BULK_FLOOR_MIN,
+	computeSchedule,
+	ROOM_TEMP_HIGH_C,
+	ROOM_TEMP_LOW_C
+} from './schedule';
 import { defaultInputs as inputs } from './testFixtures';
 import type { ComputedSchedule, DoughInputs, ScheduleStep, ScheduleWarning } from './types';
 
@@ -172,16 +178,46 @@ describe('recipeFitScore — schedule imperfection', () => {
 	});
 
 	it('deducts per hour of cold-bulk shift', () => {
+		// 18 h to a 19:00 bake: the natural 12 h 15 min cold leg would put prep at
+		// 01:00, so the night guard shaves 7 h off it and prep lands at 08:00
+		// sharp — at 3 points an hour that overshoots the 20-point cap. Pinned as
+		// literals: `delta > 0` left the guard free to stop hours short of the
+		// morning without failing anything.
 		const i = inputs({
 			startAt: new Date('2026-05-12T01:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z')
 		});
 		const s = computeSchedule(i);
 		const fit = recipeFitScore(s, i);
-		expect(factorKinds(fit.factors)).toContain('cold-bulk-shifted');
+		expect(factorKinds(fit.factors)).toEqual(['cold-bulk-shifted']);
 		const shiftFactor = fit.factors.find((f) => f.factor === 'cold-bulk-shifted')!;
-		expect(shiftFactor.delta).toBeGreaterThan(0);
-		expect(fit.score).toBeLessThan(100);
+		expect(shiftFactor.delta).toBe(7);
+		expect(fit.score).toBe(80);
+	});
+
+	it('charges a cold leg only for being shortened — a longer-than-natural leg is not a shift', () => {
+		// The night guard searches downward from the natural length and never up
+		// (issue #78), so actual > natural is a schedule no code path produces.
+		// quality.ts carried the positive half anyway, behind Math.abs —
+		// unreachable, and therefore never pinned either way. The direction is
+		// now part of the contract: a synthetic lengthening must fall through
+		// without a factor, a shortening of the same size must be charged.
+		const i = inputs({
+			startAt: new Date('2026-05-11T19:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		});
+		const s = computeSchedule(i);
+		expect(recipeFitScore(s, i).factors).toEqual([]);
+		const bulkCold = s.steps.find((st) => st.kind === 'bulk-cold')!;
+		const actual = bulkCold.durationMinutes;
+
+		const longer = { ...s, naturalColdBulkMin: actual - 120 };
+		expect(recipeFitScore(longer, i).factors).toEqual([]);
+		expect(stepQualityFlags(bulkCold, longer)).toEqual([]);
+
+		const shorter = { ...s, naturalColdBulkMin: actual + 120 };
+		expect(recipeFitScore(shorter, i).factors).toEqual([{ factor: 'cold-bulk-shifted', delta: 2 }]);
+		expect(stepQualityFlags(bulkCold, shorter)).toEqual(['cold-bulk-shifted']);
 	});
 
 	it('deducts when bulk-cold is short-clamped (desired below 12 h floor)', () => {
@@ -295,6 +331,23 @@ describe('recipeFitScore — schedule imperfection', () => {
 		const fit = recipeFitScore(s, i);
 		expect(factorKinds(fit.factors)).toContain('infeasible');
 	});
+
+	it('scores the autolyse-on floor exception as infeasible too (issue #192)', () => {
+		// With the autolyse rest in front of the mix the fixed hands-on frame is
+		// 75 min, so a 60 min window is the documented startAt-floor exception in
+		// its default (autolyse on) shape. Both existing exception tests use the
+		// shared fixture, which opts autolyse off, so this shape had never been
+		// scored at all.
+		const i = inputs({
+			autolyse: true,
+			startAt: new Date('2026-05-12T18:00:00Z'),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		});
+		const s = computeSchedule(i);
+		expect(s.feasible).toBe(false);
+		expect(s.steps[0].at.getTime()).toBe(i.startAt.getTime() - 15 * 60_000);
+		expect(factorKinds(recipeFitScore(s, i).factors)).toContain('infeasible');
+	});
 });
 
 describe('recipeFitScore — recipe-input KPI deviations', () => {
@@ -335,6 +388,48 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 		const s = computeSchedule(i);
 		const fit = recipeFitScore({ ...s, yeastPercent: 0.01 }, i);
 		expect(factorKinds(fit.factors)).toContain('yeast-extreme');
+	});
+
+	it('draws the yeast band at exactly 0.05 and 1.5 % fresh-equivalent, edges inside', () => {
+		// Both edges were only ever exercised from far outside (0.01 %, and a
+		// 5 °C kitchen), so the pair could have moved to 0.2 / 3.0 with the suite
+		// green. The default recipe is fresh yeast, which converts 1:1, so the
+		// injected percent is the fresh-equivalent the band is judged in.
+		const i = inputs();
+		const s = computeSchedule(i);
+		const extreme = (yeastPercent: number) =>
+			factorKinds(recipeFitScore({ ...s, yeastPercent }, i).factors).includes('yeast-extreme');
+		expect(extreme(0.05)).toBe(false);
+		expect(extreme(0.0499)).toBe(true);
+		expect(extreme(1.5)).toBe(false);
+		expect(extreme(1.5001)).toBe(true);
+	});
+
+	it('judges the room temperature against the same 14–30 °C band the warnings fire on', () => {
+		// The fit score used to carry its own 14 and 30, a second copy of the
+		// edges schedule.ts warns on, with nothing tying the two together: one
+		// could have moved and the other stayed, and the plan would have warned
+		// about a kitchen the seal still scored as fine. Both now read one
+		// exported pair — pinned here as literals and checked at the edges on
+		// both consumers at once.
+		expect(ROOM_TEMP_LOW_C).toBe(14);
+		expect(ROOM_TEMP_HIGH_C).toBe(30);
+		for (const { roomTempC, off } of [
+			{ roomTempC: 13.9, off: true },
+			{ roomTempC: 14, off: false },
+			{ roomTempC: 30, off: false },
+			{ roomTempC: 30.1, off: true }
+		]) {
+			const i = inputs({ roomTempC });
+			const s = computeSchedule(i);
+			const warned = s.warnings.includes('too-cold') || s.warnings.includes('too-warm');
+			const factors = recipeFitScore(s, i).factors;
+			expect(warned, `${roomTempC} °C warns`).toBe(off);
+			expect(factorKinds(factors).includes('room-temp-off'), `${roomTempC} °C scores`).toBe(off);
+			if (off) {
+				expect(factors.find((f) => f.factor === 'room-temp-off')!.delta).toBeCloseTo(0.1, 6);
+			}
+		}
 	});
 
 	it('judges the yeast band in fresh-equivalent terms — a normal sourdough is not extreme', () => {
