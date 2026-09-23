@@ -1,5 +1,82 @@
 {
-	"_comment": "Floor for how much testing this repo has. scripts/check-test-baseline.mjs fails on any difference and never writes this file: raise the numbers by hand when you add tests; lowering them is a deliberate, reviewable edit.",
-	"unit": 1042,
-	"e2e": 172
+	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
+	"unit": {
+		"total": 1065,
+		"files": {
+			"scripts/lib/fontLicences.test.mjs": 7,
+			"scripts/lib/testBaseline.test.mjs": 16,
+			"src/lib/community/community.test.ts": 14,
+			"src/lib/components/recipeLabels.test.ts": 15,
+			"src/lib/dough/bakers.test.ts": 58,
+			"src/lib/dough/defaults.test.ts": 8,
+			"src/lib/dough/fermentation.test.ts": 34,
+			"src/lib/dough/flour.test.ts": 27,
+			"src/lib/dough/ics.test.ts": 19,
+			"src/lib/dough/inputBounds.test.ts": 14,
+			"src/lib/dough/quality.test.ts": 71,
+			"src/lib/dough/schedule.test.ts": 301,
+			"src/lib/dough/scheduleStatus.test.ts": 10,
+			"src/lib/dough/urlState.test.ts": 85,
+			"src/lib/dough/windowPresets.test.ts": 49,
+			"src/lib/format.test.ts": 43,
+			"src/lib/i18n/interpolate.test.ts": 3,
+			"src/lib/i18n/messages.test.ts": 6,
+			"src/lib/i18n/storedLocale.test.ts": 14,
+			"src/lib/infoSections.test.ts": 16,
+			"src/lib/ingredientRows.test.ts": 15,
+			"src/lib/pizzerias/pizzerias.test.ts": 35,
+			"src/lib/qr.test.ts": 7,
+			"src/lib/safeStorage.test.ts": 14,
+			"src/lib/stepCopy.test.ts": 62,
+			"src/lib/storageScope.test.ts": 8,
+			"src/lib/storedMode.test.ts": 14,
+			"src/lib/storedPreference.test.ts": 4,
+			"src/lib/storedRecipes.test.ts": 9,
+			"src/lib/storedTheme.test.ts": 17,
+			"src/lib/storedVerbosity.test.ts": 14,
+			"src/lib/trmnl/uuid.test.ts": 22,
+			"src/lib/trmnl/webhook.test.ts": 18,
+			"src/lib/view.test.ts": 9,
+			"src/lib/warningSlots.test.ts": 7
+		}
+	},
+	"e2e": {
+		"total": 173,
+		"files": {
+			"announcements.spec.ts": 6,
+			"ask-flow.spec.ts": 5,
+			"axe.spec.ts": 12,
+			"base-path.spec.ts": 4,
+			"cascade.spec.ts": 5,
+			"focus-dismissal.spec.ts": 5,
+			"form-rules.spec.ts": 13,
+			"headings.spec.ts": 4,
+			"help-text.spec.ts": 5,
+			"info-panel.spec.ts": 1,
+			"landmarks.spec.ts": 6,
+			"layout.spec.ts": 9,
+			"persistence.spec.ts": 7,
+			"pwa.spec.ts": 10,
+			"recipe-collections.spec.ts": 8,
+			"recipe-output.spec.ts": 19,
+			"save-recipe.spec.ts": 2,
+			"self-hosted.spec.ts": 5,
+			"view-modes.spec.ts": 8,
+			"views.spec.ts": 14,
+			"warnings.spec.ts": 8,
+			"window-slider.spec.ts": 17
+		}
+	},
+	"coverage": {
+		"include": ["src/lib/**/*.ts", "scripts/lib/**/*.mjs"],
+		"exclude": [
+			"src/lib/**/*.test.ts",
+			"scripts/lib/**/*.test.mjs",
+			"src/lib/**/*.svelte.ts",
+			"src/lib/dough/types.ts",
+			"src/lib/dough/testFixtures.ts",
+			"src/lib/storageFixtures.ts",
+			"src/lib/i18n/messages.ts"
+		]
+	}
 }

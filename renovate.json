@@ -25,6 +25,13 @@
 			"matchUpdateTypes": ["minor", "patch", "digest"]
 		},
 		{
+			"description": "Two versions of github-pages-deploy-action write gh-pages: the one deploy.yml pins, and the one rossjrw/pr-preview-action pins inside itself, which no manager can see. Keeping the two actions in one PR is the nearest thing to a reminder: when either bumps, check the nested pin in the preview action's action.yml against deploy.yml's.",
+			"matchManagers": ["github-actions"],
+			"matchPackageNames": ["JamesIves/github-pages-deploy-action", "rossjrw/pr-preview-action"],
+			"matchUpdateTypes": ["major"],
+			"groupName": "gh-pages-writers"
+		},
+		{
 			"matchPackageNames": [
 				"svelte",
 				"svelte-check",
