@@ -312,11 +312,43 @@ describe('urlState versioning', () => {
 	// pinned to CURRENT_VERSION, so a major bump raises the stamp whether or not
 	// a key moved. These two hold it to that — a stamp and nothing else.
 	it('v=7 adds no key to the encoding', () => {
-		const keysAt7 = [...new URLSearchParams(encodeInputs(base)).keys()].sort();
-		// The same recipe hand-stamped as v=6: every key the previous schema had.
-		const asV6 = new URLSearchParams(encodeInputs(base));
-		asV6.set('v', '6');
-		expect(keysAt7).toEqual([...asV6.keys()].sort());
+		// The literal key set v=6 wrote, for a recipe with every optional field
+		// forced onto the wire. A new key fails this list; the previous version of
+		// this test re-stamped the same encoded string as v=6 and compared its
+		// keys to itself, so it could not fail whatever the encoder emitted.
+		const full = encodeInputs({
+			...base,
+			oilPercent: 2,
+			sugarPercent: 1,
+			yeastType: 'sourdough',
+			preFermentTempC: 16,
+			ballProof: 'cold',
+			mixingMethod: 'hand',
+			autolyse: false,
+			flourW: 310,
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
+		});
+		expect([...new URLSearchParams(full).keys()].sort()).toEqual([
+			'al',
+			'b',
+			'bp',
+			'ft',
+			'fw',
+			'h',
+			'mm',
+			'n',
+			'o',
+			'p',
+			'pt',
+			'r',
+			's',
+			'sa',
+			'sg',
+			'sh',
+			't',
+			'v',
+			'y'
+		]);
 	});
 
 	it('a v=7 link decodes exactly like the same link stamped v=6', () => {
@@ -407,17 +439,42 @@ describe('urlState versioning', () => {
 		expect(encoded).not.toContain('sg=');
 	});
 
-	it('falls back to the current decoder when the requested version is unknown', () => {
-		// A future deployment shipped v=99; today's app should still extract
-		// whatever it understands of the current schema rather than failing hard.
-		const out = decodeInputs('?v=99&n=4&b=280&h=70&y=f&t=22');
-		expect(out.pizzaCount).toBe(4);
-		expect(out.yeastType).toBe('fresh');
+	// The version controls exactly two things: the `al` gate (autolyse off below
+	// v5) and the `fw` gate (no flour below v6). Every assertion about which
+	// decoder a link reached therefore has to look at those two — the previous
+	// tests here checked `pizzaCount`, which decodes the same at every version,
+	// so `Number(v) || 1` sending 'v=garbage' to v1 (autolyse off, flour gone:
+	// a different schedule and yeast weight) passed them for two major versions.
+	const RECIPE = 'n=4&b=280&h=70&y=f&t=22';
+
+	it('a missing v is a legacy link: autolyse off, no flour stated', () => {
+		const out = decodeInputs(`?${RECIPE}`);
+		expect(out.autolyse).toBe(false);
+		expect(out.flourW).toBeNull();
 	});
 
-	it('treats a non-numeric v as the current version', () => {
-		const out = decodeInputs('?v=garbage&n=4');
+	it('falls back to the current decoder when the requested version is unknown', () => {
+		// A future deployment shipped v=99; today's app should still extract
+		// whatever it understands of the current schema rather than failing hard —
+		// and both gates are below it, so the current defaults fill in.
+		const out = decodeInputs(`?v=99&${RECIPE}`);
 		expect(out.pizzaCount).toBe(4);
+		expect(out.autolyse).toBeUndefined();
+		expect(out.flourW).toBeUndefined();
+		expect(out).toEqual(decodeInputs(`?v=7&${RECIPE}`));
+	});
+
+	it('a present but unreadable v is a mangled current link, not a legacy one', () => {
+		// 'v=garbage', 'v=' and 'v=0' all come from a link the current app wrote
+		// and something along the way chewed. Reading them as v1 silently turned
+		// autolyse off and dropped the flour.
+		for (const v of ['garbage', '', '0', '-1', '6.5']) {
+			const out = decodeInputs(`?v=${v}&${RECIPE}`);
+			expect(out.pizzaCount, `v=${v}`).toBe(4);
+			expect(out.autolyse, `v=${v}`).toBeUndefined();
+			expect(out.flourW, `v=${v}`).toBeUndefined();
+			expect(out, `v=${v}`).toEqual(decodeInputs(`?v=7&${RECIPE}`));
+		}
 	});
 });
 
@@ -508,12 +565,27 @@ describe('hasRecipeParams', () => {
 			].sort()
 		);
 		for (const key of keys) {
-			expect(hasRecipeParams(`?${key}=1`)).toBe(true);
+			// 'md' is the one key the encoder writes that is NOT recipe — see below.
+			expect(hasRecipeParams(`?${key}=1`), key).toBe(key !== 'md');
 		}
 	});
 
 	it('is true when a recipe key hides between foreign params', () => {
 		expect(hasRecipeParams('?utm_source=x&n=4&fbclid=z')).toBe(true);
+	});
+
+	it('the view-mode key alone is not a recipe link', () => {
+		// 'md' is interface state: the query is the recipe and nothing else.
+		// Counting it meant '?md=b' alone suppressed the device's last-recipe
+		// restore and landed the visitor on a plan of default values. It stays
+		// decodable — the mode it asks for is still honoured.
+		expect(hasRecipeParams('?md=b')).toBe(false);
+		expect(hasRecipeParams('?md=e')).toBe(false);
+		expect(hasRecipeParams('?md=b&utm_source=x')).toBe(false);
+		expect(decodeUiMode('?md=b')).toBe('beginner');
+		expect(decodeUiMode('?md=e')).toBe('expert');
+		// With a recipe attached it is a recipe link like any other.
+		expect(hasRecipeParams('?md=b&n=4')).toBe(true);
 	});
 
 	it('accepts the query with or without the leading question mark', () => {

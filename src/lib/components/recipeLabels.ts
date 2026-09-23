@@ -15,7 +15,13 @@ export interface RecipeSectionCopy {
 	heading: string;
 	intro: string;
 	empty: string;
-	contribute: {
+	/**
+	 * The "add yours" footer. Optional the same way the oil and sugar labels
+	 * are: My recipes hangs in the same shell but is device-local, so there is
+	 * no .md file to send a pull request against — having no copy for it is
+	 * exactly what stops the footer rendering.
+	 */
+	contribute?: {
 		before_md: string;
 		md: string;
 		between: string;

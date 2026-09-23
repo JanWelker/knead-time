@@ -78,3 +78,95 @@ test('the card details list only the fields a section actually has', async ({ pa
 	for (const card of await withOil.all()) await card.locator('details summary').click();
 	await expect(pizzerias.locator('li dl dt', { hasText: /^Oil/ }).first()).toBeVisible();
 });
+
+// The rack is three sheets, not two and a lookalike: My recipes re-implemented
+// RecipeSection's disclosure by hand — ink band, arrow, heading, body, intro,
+// empty state — so a change to the shell reached two of the three and the third
+// drifted. Nothing caught it, because each section was only ever checked
+// against its own copy. This walks all three and demands the same structure.
+test('all three sheets on the rack are printed from one shell', async ({ page }) => {
+	await loadLibrary(page, RECIPE);
+
+	for (const heading of ['My recipes', 'Community recipes', '50 Top Pizza recipes']) {
+		const details = page.locator('details').filter({
+			has: page.getByRole('heading', { name: heading })
+		});
+		const summary = details.locator('> summary');
+		await expect(summary).toHaveClass(/card-header/);
+		// The band carries the turning arrow and the reversed-out heading.
+		await expect(summary.locator('.disclosure-mark')).toHaveCount(1);
+		await expect(summary.locator('h2.card-header-title')).toHaveText(heading);
+		await expect(details.locator('> .card-body')).toHaveCount(1);
+	}
+});
+
+// The repeated Tailwind lists behind the rack's tickets and tables were given
+// names in app.css. `@apply` there takes utilities only — reaching for another
+// @layer components class makes Tailwind drop the WHOLE declaration without
+// erroring, so a name can exist, be applied everywhere, and style nothing while
+// the build stays green. Only a browser can tell; this reads the real values.
+test('the rack renders through its named shapes, not through dropped declarations', async ({
+	page
+}) => {
+	await loadLibrary(page, RECIPE);
+
+	const community = page.locator('details').filter({
+		has: page.getByRole('heading', { name: 'Community recipes' })
+	});
+	await community.locator('summary').first().click();
+
+	// The disclosure arrow: 0.7rem of tracked-in type that turns when it opens.
+	// Tailwind v4 writes `rotate-90` to the standalone `rotate` property, not
+	// into `transform` — reading the wrong one says "none" on a turned arrow.
+	const mark = community.locator('> summary .disclosure-mark');
+	expect(await mark.evaluate((el) => getComputedStyle(el).fontSize)).toBe('11.2px');
+	// Polled, because `transition-transform` means the read can land mid-turn.
+	await expect.poll(() => mark.evaluate((el) => getComputedStyle(el).rotate)).toBe('90deg');
+
+	// The table: heads reversed out of the ink band, figures ranged right.
+	const head = community.locator('th.head-cell').first();
+	expect(
+		await head.evaluate((el) => {
+			const cs = getComputedStyle(el);
+			return { pad: cs.padding, caps: cs.textTransform };
+		})
+	).toEqual({ pad: '8px 12px', caps: 'uppercase' });
+
+	const figure = community.locator('td.figure-cell').first();
+	expect(
+		await figure.evaluate((el) => {
+			const cs = getComputedStyle(el);
+			return { pad: cs.padding, align: cs.textAlign, weight: cs.fontWeight };
+		})
+	).toEqual({ pad: '12px', align: 'right', weight: '600' });
+
+	// The cards below the table breakpoint: a ticket trimmed like the sheet it
+	// hangs in, and a caption-set summary tucking its figures away.
+	await page.setViewportSize({ width: 390, height: 900 });
+	const ticket = community.locator('li.ticket').first();
+	expect(
+		await ticket.evaluate((el) => {
+			const cs = getComputedStyle(el);
+			return { pad: cs.padding, border: cs.borderTopWidth, radius: cs.borderTopLeftRadius };
+		})
+	).toEqual({ pad: '12px', border: '2px', radius: '2px' });
+
+	const ticketSummary = ticket.locator('summary.ticket-summary');
+	expect(
+		await ticketSummary.evaluate((el) => {
+			const cs = getComputedStyle(el);
+			return { caps: cs.textTransform, cursor: cs.cursor };
+		})
+	).toEqual({ caps: 'uppercase', cursor: 'pointer' });
+
+	// The plaque centres its own label now. It is an <a> as often as a <button>,
+	// and an anchor does not centre text on its own — four call sites had said
+	// so by hand, which is one typo away from an off-centre button.
+	const open = ticket.getByRole('link', { name: 'Open' });
+	expect(
+		await open.evaluate((el) => {
+			const cs = getComputedStyle(el);
+			return { display: cs.display, justify: cs.justifyContent };
+		})
+	).toEqual({ display: 'inline-flex', justify: 'center' });
+});

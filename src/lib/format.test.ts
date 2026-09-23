@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	combineDateTimeInputs,
 	formatBallWeight,
+	formatBallWeightGrams,
 	formatDateTime,
 	formatDuration,
 	formatDurationHHMM,
@@ -77,6 +78,32 @@ describe('formatGrams', () => {
 		expect(formatGrams(9.99)).toBe('10.0 g');
 		expect(formatGrams(10)).toBe('10 g');
 	});
+	it('punctuates the weight in the language it is read in', () => {
+		// It was `toFixed` + ' g', which is English whatever the page says, so a
+		// German sheet put "1.3 g" next to "Frischhefe" while the percentage
+		// beside it had already been fixed to "0,35 %". Every locale with a
+		// decimal comma was wrong on every weight under 10 g.
+		expect(formatGrams(2.35, 'de')).toBe('2,4 g');
+		expect(formatGrams(0.123, 'it')).toBe('0,12 g');
+		expect(formatGrams(0.123, 'nl')).toBe('0,12 g');
+		// French puts a narrow no-break space (U+202F) before the unit, which is
+		// why the unit comes from Intl rather than a ' g' literal.
+		expect(formatGrams(2.35, 'fr')).toBe('2,4\u202fg');
+		expect(formatGrams(124, 'fr')).toBe('124\u202fg');
+	});
+	it('leaves the digits ungrouped in every locale', () => {
+		// Grouping is off on purpose: Intl would render the same figure as
+		// "1,240 g" in English and "1.240 g" in German, which changes every
+		// weight on the page instead of fixing the punctuation of some.
+		expect(formatGrams(1240)).toBe('1240 g');
+		expect(formatGrams(1240, 'de')).toBe('1240 g');
+	});
+	it('rounds a half-way value under a gram up', () => {
+		// `toFixed` read 0.045 off its binary representation and gave 0.04;
+		// Intl rounds the decimal value, so the yeast row now says 0.05 g. The
+		// only figure in the app this can reach is a yeast weight under 1 g.
+		expect(formatGrams(0.045)).toBe('0.05 g');
+	});
 });
 
 describe('formatBallWeight', () => {
@@ -91,6 +118,20 @@ describe('formatBallWeight', () => {
 	it('rounds to 0.1 g precision', () => {
 		expect(formatBallWeight(288.55)).toBe('288.6');
 		expect(formatBallWeight(288.04)).toBe('288');
+	});
+	it('punctuates the ball weight in the language it is read in', () => {
+		// Same bug as the weights: it reached the divide step's copy ("balls of
+		// 288.6 g") in all five languages with an English decimal point.
+		expect(formatBallWeight(288.6, 'de')).toBe('288,6');
+		expect(formatBallWeight(288.6, 'fr')).toBe('288,6');
+	});
+	it('keeps the tenth when shown with its unit, and the locale spacing', () => {
+		// formatGrams' digit rule would round 288.5 to 289 and throw away the
+		// tenth Round numbers had just moved, so the print sheet's "6 × 288,5 g"
+		// needs its own formatter rather than the ingredient one.
+		expect(formatBallWeightGrams(288.5, 'de')).toBe('288,5 g');
+		expect(formatBallWeightGrams(280, 'fr')).toBe('280\u202fg');
+		expect(formatBallWeightGrams(280)).toBe('280 g');
 	});
 });
 

@@ -12,7 +12,11 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # PR runs supersede each other; runs on main must not. deploy.yml is gated on
+  # a successful CI run for the commit, so cancelling the first of two merges
+  # that land close together would leave that commit undeployed, untagged and
+  # missing from the Codecov main baseline.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   verify:
@@ -60,7 +64,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: coverage/lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -79,10 +83,33 @@ jobs:
 
       - uses: ./.github/actions/node-setup
 
+      # The browser download is the slowest step in this job and changes only
+      # when Playwright does, so key the cache on the version the lockfile
+      # resolves (Renovate bumps that file, so the key follows on its own).
+      - name: Resolve Playwright version
+        id: playwright-version
+        run: |
+          VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")
+          echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.value }}
+
       # Chromium only: the suite asserts layout geometry and copy, not engine
       # differences, and a second browser would double the wall clock for no
       # extra signal.
-      - run: npx playwright install --with-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      # Only ~/.cache/ms-playwright is cached; the OS libraries the browser links
+      # against are installed system-wide and are not, so they still have to be
+      # laid down on a hit.
+      - if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
 
       # Refuses a change that quietly removes tests, in either suite, or that
       # relaxes the coverage gate. Collects without running, so it is quick and

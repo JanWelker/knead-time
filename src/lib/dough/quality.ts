@@ -1,13 +1,21 @@
 import { freshEquivalentPercent, PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
 import { flourWindowHours } from './flour';
-import { ACTIVE_NIGHT_KINDS, COLD_BULK_CEIL_MIN, COLD_BULK_FLOOR_MIN, isAtNight } from './schedule';
+import {
+	ACTIVE_NIGHT_KINDS,
+	COLD_BULK_CEIL_MIN,
+	COLD_BULK_FLOOR_MIN,
+	isAtNight,
+	ROOM_TEMP_HIGH_C,
+	ROOM_TEMP_LOW_C
+} from './schedule';
 import type { ComputedSchedule, DoughInputs, ScheduleStep } from './types';
 
 // Schedule-imperfection penalties (0–100 scale). The UI renders the score as
-// 0–5 stars (one star per 20 points), so rates are tuned generously — a 2 h
-// cold-bulk night-shift costs ~6 points and still reads as 5 stars; only real
-// stacking of problems pulls a recipe below 4. A residual night-step warning
-// is a bigger ding because nothing the math did managed to dodge it.
+// 0–5 stars (one star per 20 points), so rates are tuned generously — 2 h
+// shaved off the cold bulk by the night guard costs ~6 points and still reads
+// as 5 stars; only real stacking of problems pulls a recipe below 4. A
+// residual night-step warning is a bigger ding because nothing the math did
+// managed to dodge it.
 // Infeasibility is the largest penalty: the dough literally can't ferment in
 // the window.
 const SHIFT_PCT_PER_HOUR = 3;
@@ -37,8 +45,8 @@ const BALL_HIGH = 320;
 const BALL_PCT_PER_GRAM = 0.1;
 const BALL_MAX_DEDUCT = 8;
 
-const ROOM_TEMP_LOW = 14;
-const ROOM_TEMP_HIGH = 30;
+// The room band is schedule.ts's ROOM_TEMP_{LOW,HIGH}_C — the same edges the
+// too-cold / too-warm warnings fire on, imported so the two can't drift apart.
 const ROOM_TEMP_PCT_PER_DEGREE = 1.5;
 const ROOM_TEMP_MAX_DEDUCT = 8;
 
@@ -95,7 +103,8 @@ export type FitFactor =
 export interface FitFactorDetail {
 	factor: FitFactor;
 	// Magnitude of deviation, units depend on the factor:
-	//   schedule shift/clamp factors → hours
+	//   cold-bulk-shifted → hours the night guard shortened the cold leg by
+	//   clamp factors → hours
 	//   hydration-off, salt-off → percentage points outside the band
 	//   ball-weight-off → grams outside the band
 	//   room-temp-off, fridge-temp-off → degrees outside the band
@@ -122,13 +131,18 @@ function isColdLeg(kind: ScheduleStep['kind']): boolean {
 	return kind === 'bulk-cold' || kind === 'proof-cold';
 }
 
-function coldBulkShiftMin(schedule: ComputedSchedule): number {
+// Minutes the night guard took off the cold leg. It can only ever shorten it:
+// adjustColdMinForNight searches downward from the natural length, because
+// lengthening would pull the first step before startAt (issue #78). So the
+// difference is one-signed, and a negative one — which no schedule produces —
+// simply falls under the noise floor with the sub-minute drift.
+function coldBulkShrinkMin(schedule: ComputedSchedule): number {
 	if (schedule.mode !== 'cold' || schedule.naturalColdBulkMin === null) return 0;
 	// In cold mode schedule.ts always emits exactly one cold-leg step, so the
 	// find is guaranteed to succeed — the `!` reflects that invariant.
 	const actual = schedule.steps.find((s) => isColdLeg(s.kind))!;
-	const delta = actual.durationMinutes - schedule.naturalColdBulkMin;
-	return Math.abs(delta) < SHIFT_NOISE_FLOOR_MIN ? 0 : delta;
+	const shrink = schedule.naturalColdBulkMin - actual.durationMinutes;
+	return shrink < SHIFT_NOISE_FLOOR_MIN ? 0 : shrink;
 }
 
 function coldBulkClampMin(schedule: ComputedSchedule): { short: number; long: number } {
@@ -180,9 +194,7 @@ export function stepQualityFlags(
 	if (isNightStep(step)) flags.push('night');
 
 	if (isColdLeg(step.kind)) {
-		if (Math.abs(coldBulkShiftMin(schedule)) >= SHIFT_NOISE_FLOOR_MIN) {
-			flags.push('cold-bulk-shifted');
-		}
+		if (coldBulkShrinkMin(schedule) > 0) flags.push('cold-bulk-shifted');
 		const { short, long } = coldBulkClampMin(schedule);
 		if (short > 0) flags.push('cold-bulk-clamped-short');
 		if (long > 0) flags.push('cold-bulk-clamped-long');
@@ -205,10 +217,8 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 
 	if (!schedule.feasible) factors.push({ factor: 'infeasible', delta: 0 });
 
-	const shift = coldBulkShiftMin(schedule);
-	if (Math.abs(shift) >= SHIFT_NOISE_FLOOR_MIN) {
-		factors.push({ factor: 'cold-bulk-shifted', delta: Math.abs(shift) / 60 });
-	}
+	const shrink = coldBulkShrinkMin(schedule);
+	if (shrink > 0) factors.push({ factor: 'cold-bulk-shifted', delta: shrink / 60 });
 
 	const coldClamp = coldBulkClampMin(schedule);
 	if (coldClamp.short > 0) {
@@ -243,7 +253,7 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 	const ball = outsideBand(inputs.ballWeight, BALL_LOW, BALL_HIGH);
 	if (ball > 0) factors.push({ factor: 'ball-weight-off', delta: ball });
 
-	const roomT = outsideBand(inputs.roomTempC, ROOM_TEMP_LOW, ROOM_TEMP_HIGH);
+	const roomT = outsideBand(inputs.roomTempC, ROOM_TEMP_LOW_C, ROOM_TEMP_HIGH_C);
 	if (roomT > 0) factors.push({ factor: 'room-temp-off', delta: roomT });
 
 	const fridgeT = outsideBand(inputs.fridgeTempC, FRIDGE_TEMP_LOW, FRIDGE_TEMP_HIGH);

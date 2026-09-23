@@ -128,22 +128,81 @@ export function formatDurationHHMM(minutes: number): string {
 	return padZero(h) + ':' + padZero(m);
 }
 
-export function formatGramsValue(value: number): string {
-	if (value < 1) return value.toFixed(2);
-	if (value < 10) return value.toFixed(1);
-	return String(Math.round(value));
+// A weight is read next to the percentage beside it, so it has to be
+// punctuated the same way: these went out as `toFixed` + ' g', which is
+// English whatever the page around it says, and put "1.3 g" against
+// "Frischhefe". Grouping stays off on purpose — Intl would start writing
+// "1,240 g" in English and "1.240 g" in German for a figure the whole app has
+// always shown as 1240, which is a change to every weight on the page rather
+// than a fix to the punctuation of some. The unit comes from Intl too, because
+// the space before it is not a plain one in French.
+// A weight is read next to the percentage beside it, so it has to be
+// punctuated the same way: these went out as `toFixed` + ' g', which is
+// English whatever the page around it says, and put "1.3 g" against
+// "Frischhefe". Grouping stays off on purpose — Intl would start writing
+// "1,240 g" in English and "1.240 g" in German for a figure the whole app has
+// always shown as 1240, which is a change to every weight on the page rather
+// than a fix to the punctuation of some. The unit comes from Intl too, because
+// the space before it is not a plain one in French.
+//
+// Under a gram is a yeast weight and wants both decimals; a whole gram of it
+// still wants one; past ten grams the tenths are noise on a kitchen scale. The
+// three are built once per locale, like every other formatter here — the digit
+// count is an index into them, not a reason to construct another.
+function gramsDigits(value: number): number {
+	if (value < 1) return 2;
+	if (value < 10) return 1;
+	return 0;
 }
 
-export function formatGrams(value: number): string {
-	return formatGramsValue(value) + ' g';
+function byDigits(make: (digits: number) => Intl.NumberFormat): Intl.NumberFormat[] {
+	return [0, 1, 2].map(make);
+}
+
+const gramsFormatter = perLocale((locale) =>
+	byDigits(
+		(digits) =>
+			new Intl.NumberFormat(locale, {
+				style: 'unit',
+				unit: 'gram',
+				unitDisplay: 'short',
+				useGrouping: false,
+				minimumFractionDigits: digits,
+				maximumFractionDigits: digits
+			})
+	)
+);
+
+const numberFormatter = perLocale((locale) =>
+	byDigits(
+		(digits) =>
+			new Intl.NumberFormat(locale, {
+				useGrouping: false,
+				minimumFractionDigits: digits,
+				maximumFractionDigits: digits
+			})
+	)
+);
+
+export function formatGrams(value: number, locale: Locale = 'en'): string {
+	return gramsFormatter(locale)[gramsDigits(value)].format(value);
 }
 
 // Ball weight is stored at 0.1 g precision (the Round-numbers action shifts it by
 // fractional amounts to land flour/water on tidy values). Display it with the
 // same precision so the user sees the round actually moved something.
-export function formatBallWeight(value: number): string {
+// Shown with its unit, the ball weight still wants the locale's own spacing
+// before the g — which in French is not a plain space. It cannot go through
+// formatGrams, whose digit rule would round 288.5 to 289 and throw away the
+// tenth the Round-numbers action just moved.
+export function formatBallWeightGrams(value: number, locale: Locale = 'en'): string {
 	const tenth = Math.round(value * 10) / 10;
-	return Number.isInteger(tenth) ? String(tenth) : tenth.toFixed(1);
+	return gramsFormatter(locale)[Number.isInteger(tenth) ? 0 : 1].format(tenth);
+}
+
+export function formatBallWeight(value: number, locale: Locale = 'en'): string {
+	const tenth = Math.round(value * 10) / 10;
+	return numberFormatter(locale)[Number.isInteger(tenth) ? 0 : 1].format(tenth);
 }
 
 export function formatPercent(value: number, locale: Locale = 'en'): string {

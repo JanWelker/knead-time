@@ -340,6 +340,36 @@ describe('roundBallWeight', () => {
 		expect((a.pizzaCount * newBw * 100) / pctSum).toBeCloseTo(50, 6);
 	});
 
+	it('a 1 × 100 g ball never rounds below the 100 g floor', () => {
+		// 1 × 100 g at the default percentages is ~58 g of flour, which snaps
+		// to 50 g and asks for an 86.5 g ball. The result is written into the
+		// raw ball-weight field, which is not clamped (only the derived inputs
+		// are), so the box read 86.5 while the recipe used 100 — and the flour
+		// was not round either way. The old suite only ever rounded from the
+		// middle of the band, where the snap never leaves it.
+		const a = { ...args, pizzaCount: 1, ballWeight: 100 };
+		expect(flourFor(1, 100, a)).toBeCloseTo(57.78, 2);
+		expect(roundBallWeight(a)).toBe(100);
+	});
+
+	it('a 1 × 580 g ball never rounds above the 600 g ceiling', () => {
+		// ~335 g of flour snaps up to 350 g, which wants a 605.8 g ball — over
+		// the ceiling by the same mechanism as the floor case.
+		const a = { ...args, pizzaCount: 1, ballWeight: 580 };
+		expect(flourFor(1, 580, a)).toBeCloseTo(335.1, 1);
+		expect(roundBallWeight(a)).toBe(600);
+	});
+
+	it('is idempotent at both band edges', () => {
+		// Before the clamp the second click started from the clamped recipe
+		// value rather than the number in the box, so it was no longer a no-op.
+		for (const ballWeight of [100, 580]) {
+			const first = roundBallWeight({ ...args, pizzaCount: 1, ballWeight });
+			const second = roundBallWeight({ ...args, pizzaCount: 1, ballWeight: first });
+			expect(second).toBe(first);
+		}
+	});
+
 	it('works for sourdough (yeast % is not part of pctSum)', () => {
 		const sd = {
 			...args,

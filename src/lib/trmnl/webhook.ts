@@ -75,9 +75,12 @@ export function buildMergeVariables(
 		sourdough: 'yeast_sourdough'
 	} as const;
 	const yeastLabel = msgs.form[YEAST_LABEL_KEYS[inputs.yeastType]];
+	// The schedule's list, not the form's: effectivePreFerments empties it
+	// for sourdough, so a starter recipe with a biga still toggled has no
+	// preferment-mix step - and the device must not announce one.
 	const preFermentLabel =
-		inputs.preFerments.length > 0
-			? inputs.preFerments
+		schedule.preFerments.length > 0
+			? schedule.preFerments
 					.map((pf) =>
 						// "Biga (stiff, ~50% hydration)" → "Biga"; the parenthetical
 						// blows the 2 KB payload budget for no e-ink value.
@@ -90,6 +93,9 @@ export function buildMergeVariables(
 	const modeLabel = schedule.mode === 'cold' ? msgs.mode.cold : msgs.mode.room;
 
 	const summary =
+		// English punctuation on purpose: this string is measured against a hard
+		// 2 KB budget in every locale, and the separators Intl would reach for
+		// here are multi-byte. The device's own rendering is not the page's.
 		`${inputs.pizzaCount} × ${formatBallWeight(inputs.ballWeight)} g · ${inputs.hydration}% · ${yeastLabel}` +
 		(preFermentLabel ? ` · ${preFermentLabel}` : '') +
 		` · ${modeLabel}`;

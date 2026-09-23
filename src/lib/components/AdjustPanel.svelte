@@ -62,7 +62,9 @@
 				<span class="data text-ink text-sm">
 					{formatDuration(form.fermentWindowHours * 60, locale)}
 				</span>
-				<span class="data text-ink text-sm">{formatGrams(form.schedule.ingredients.flour)}</span>
+				<span class="data text-ink text-sm"
+					>{formatGrams(form.schedule.ingredients.flour, locale)}</span
+				>
 				<ModeBadge mode={form.schedule.mode} />
 			</p>
 		</div>

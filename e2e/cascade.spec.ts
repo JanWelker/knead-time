@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openQuestion, openRecipe, sheet } from './helpers';
+import { openAdjust, openMenu, openQuestion, openRecipe, sheet } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -47,12 +47,47 @@ test('every control keeps the focus ring, including the TRMNL uuid field', async
 	expect(await ring(sheet(page).locator('select'))).toBe('rgb(200, 64, 26) solid 3px');
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
 
-	// The trigger is a <summary>; Playwright does not expose it as a button.
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await openMenu(page);
 	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
 	// By its accessible name: there is more than one dialog with a text field
 	// in the page now, and "the input inside a dialog" stopped being unique.
 	const uuid = page.getByRole('textbox', { name: 'Plugin UUID' });
 	await expect(uuid).toBeVisible();
 	expect(await ring(uuid)).toBe('rgb(200, 64, 26) solid 3px');
+});
+
+// The two fermentation-band fills — the room band and the cold band on the
+// window rail, plus the swatch that explains them — were the last raw `basil-*`
+// classes anywhere in src/ and the only `dark:` variants, because they had no
+// `--kt-*` role to reach for. They have one now (`band-room` / `band-cold`),
+// and it has to resolve to exactly the colour it replaced in each theme: a
+// tokenisation that shifts a fill by one step of the scale is invisible in the
+// diff, invisible to every other spec, and only ever shows on the rail.
+test('the fermentation bands keep their exact fills in both themes', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+	await openAdjust(page);
+
+	const fills = () =>
+		page.evaluate(() => {
+			// The rail paints the room band first and the cold band second, then
+			// the stop notches; Caputo Pizzeria (W 265) has both bands.
+			const [room, cold] = [...document.querySelector('.window-rail')!.children];
+			const swatch = document.querySelector('#window-band span')!;
+			const bg = (el: Element) => getComputedStyle(el).backgroundColor;
+			return { room: bg(room), cold: bg(cold), swatch: bg(swatch) };
+		});
+
+	// 32 h is a cold plan, so the swatch wears the cold band's colour.
+	expect(await fills()).toEqual({
+		room: 'rgb(140, 196, 114)',
+		cold: 'rgb(101, 169, 77)',
+		swatch: 'rgb(101, 169, 77)'
+	});
+
+	await page.evaluate(() => document.documentElement.classList.add('dark'));
+	expect(await fills()).toEqual({
+		room: 'rgb(32, 64, 26)',
+		cold: 'rgb(44, 87, 34)',
+		swatch: 'rgb(44, 87, 34)'
+	});
 });

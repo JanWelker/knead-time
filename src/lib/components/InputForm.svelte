@@ -371,10 +371,7 @@
 			<summary
 				class="label-caps text-accent-ink flex cursor-pointer list-none items-center gap-2 select-none"
 			>
-				<span
-					class="text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
-					aria-hidden="true">▶</span
-				>
+				<span class="disclosure-mark" aria-hidden="true">▶</span>
 				<span>{t.form.info_heading}</span>
 			</summary>
 			<div class="mt-3 min-w-0 space-y-4 leading-relaxed">

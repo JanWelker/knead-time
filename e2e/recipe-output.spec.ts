@@ -71,6 +71,23 @@ test('"Round numbers" lands the flour on a tidy figure and is idempotent', async
 	await expect(ball()).toHaveValue(ballAfterFirst);
 });
 
+test('"Round numbers" never leaves the ball-weight box outside its own band', async ({ page }) => {
+	// 1 × 100 g rounds ~58 g of flour to 50 g, which asks for an 86.5 g ball.
+	// The result went into the raw field, which is not clamped — only the
+	// derived inputs are — so the box read 86.5 while the recipe silently used
+	// 100. The existing round-numbers test starts from the middle of the band,
+	// where the snap never leaves it, so nothing caught it.
+	await openRecipe(page, `v=6&n=1&b=100&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z`);
+
+	const round = page.locator('button:has-text("Round numbers")');
+	await round.click();
+	await openAdjust(page);
+	const ball = sheet(page).locator('label', { hasText: 'Ball weight' }).locator('input');
+	const min = Number(await ball.getAttribute('min'));
+	expect(Number(await ball.inputValue())).toBeGreaterThanOrEqual(min);
+	await expect(ball).toHaveValue('100');
+});
+
 test('a pre-v5 link reproduces its original no-autolyse recipe', async ({ page }) => {
 	// The version gate: `al` is absent from old links and must read as OFF,
 	// or every bookmark silently gains a rest step it never had.
@@ -140,6 +157,90 @@ test('the print sheet weighs exactly what the screen weighs', async ({ page }) =
 	const onPaper = await rows(page.locator('.printpage-ingredients'));
 
 	expect(onPaper).toEqual(onScreen);
+});
+
+test('the German print sheet punctuates the yeast percentage the German way', async ({ page }) => {
+	// ingredientRows called formatPercent without the locale, so every locale
+	// printed "0.35%" - English punctuation beside German weights. The unit
+	// pin on formatPercent(x, 'de') never reached a renderer; this is the
+	// paper itself.
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
+	await page.goto(`/print/de?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	const ingredients = page.locator('.printpage-ingredients').last();
+	await expect(ingredients).toContainText('Frischhefe');
+	await expect(ingredients).toContainText(/\(\d+,\d+\s%\)/);
+	await expect(ingredients).not.toContainText(/\d\.\d+%/);
+});
+
+test('the German print sheet punctuates the weights the German way too', async ({ page }) => {
+	// The percentage was fixed one PR before the weights, which left the German
+	// sheet reading "1.3 g" on the very row whose hint said "0,35 %". Weights
+	// reach the paper through three separate renderers — the ingredient ticket,
+	// the batch line and the schedule's own step lists — so this reads the
+	// whole page rather than one table.
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
+	// A small batch, so the yeast lands under a gram and shows its decimals.
+	await page.goto(`/print/de?v=6&n=2&b=180&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z`);
+	const sheet = page.locator('body');
+	await expect(sheet).toContainText('Frischhefe');
+	await expect(sheet).toContainText(/\d,\d+\sg/);
+	await expect(sheet).not.toContainText(/\d\.\d+\sg/);
+});
+
+// `app.html` carried `lang="en"` for every page, so all five prerendered print
+// sheets claimed English while shipping German, Italian, French or Dutch. The
+// app route corrects itself after hydration, which is exactly the fix the print
+// route cannot rely on: it is SSR'd and prerendered *because* the print dialog
+// can fire before the bundle has parsed. So this reads the raw bytes with
+// `page.request.get` — no browser, no hydration — which is the only way to see
+// what a screen reader, a translator or a print-to-PDF gets on a cold cache.
+test('each prerendered print sheet declares the language it is written in', async ({ page }) => {
+	for (const [path, lang] of [
+		['/print/de', 'de'],
+		['/print/nl', 'nl'],
+		// No locale in the path is English, which is what the attribute used to
+		// say for everyone.
+		['/print', 'en'],
+		['/print/en', 'en']
+	]) {
+		const html = await (await page.request.get(path)).text();
+		expect(html, path).toContain(`<html lang="${lang}"`);
+	}
+
+	// And the app route, which is not locale-addressed, keeps the value it had.
+	expect(await (await page.request.get('/')).text()).toContain('<html lang="en"');
+});
+
+// The print sheet forces `background: #fff !important` and prints black on
+// white, but the layout used to call `theme.init()` on every route — so on a
+// dark system the pre-paint boot script's `dark` class stayed on the element
+// and brought `color-scheme: dark` with it, styling the browser's own widgets
+// and scrollbars against a page that is white by decree.
+test.describe('the print sheet on a machine set to dark', () => {
+	test.use({ colorScheme: 'dark' });
+
+	test('is not dressed in the dark palette', async ({ page }) => {
+		await page.clock.install({ time: NOW });
+		await page.addInitScript(() => {
+			window.print = () => {};
+		});
+		await page.goto(`/print/en?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+		await expect(page.locator('.printpage-ingredients').first()).toBeVisible();
+
+		await expect(page.locator('html')).not.toHaveClass(/\bdark\b/);
+		expect(await page.locator('html').evaluate((el) => getComputedStyle(el).colorScheme)).toBe(
+			'light'
+		);
+
+		// The app route on the same machine still resolves dark — this is about
+		// the print sheet, not about disabling the theme.
+		await page.goto(`/?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+		await expect(page.locator('html')).toHaveClass(/\bdark\b/);
+	});
 });
 
 test('the flour select is shelved by what each strength is for', async ({ page }) => {

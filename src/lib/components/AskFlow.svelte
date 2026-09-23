@@ -102,7 +102,9 @@
 {/snippet}
 
 <div class="view" data-view="ask">
-	<Masthead>
+	<!-- The sign is the way back to the plan everywhere but on the plan itself
+	     (see Masthead.svelte). Left without `home` it was dead text here alone. -->
+	<Masthead home={onplan}>
 		<MastheadMenu items={askMenu} />
 		<!-- The escape hatch stays in the row rather than going into the menu: a
 		     sequence of questions with no visible way out reads as a trap. -->

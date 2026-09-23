@@ -85,6 +85,14 @@
 	// off instead. Clamping the caption's own box into the rail is the same rule
 	// stated in the units that decide it, and it holds at every width, in every
 	// locale, for a caption of any length.
+	//
+	// One measurement, taken once. Both marker rows used to bind clientWidth to
+	// this, which put two ResizeObservers on one piece of state — and each of
+	// them is conditional, so which observer was actually feeding the clamp
+	// depended on whether the bake flag and the ideal marker happened to be on
+	// screen. It is bound to the tick-label row instead: that row is always
+	// rendered and carries the same `mx-2.5` inset as the markers, so it is the
+	// rail's own coordinate system rather than an approximation of it.
 	let railPx = $state(0);
 	let markerCaptionPx = $state(0);
 	let idealCaptionPx = $state(0);
@@ -198,7 +206,7 @@
 	     nothing on the rail to point at, and the fallback below does name the
 	     moment, so it keeps the field's own label. -->
 	{#if unreachableFromPct < 100}
-		<div class="relative mx-2.5 mt-2 h-9" bind:clientWidth={railPx} aria-hidden="true">
+		<div class="relative mx-2.5 mt-2 h-9" aria-hidden="true">
 			<!-- Caption and arrow are placed separately on purpose: the caption
 			     pivots near the ends so it cannot hang off the rail, and the
 			     arrow never does, because pivoting it too would point it away
@@ -248,13 +256,13 @@
 		>
 			{#if zones?.room}
 				<div
-					class="bg-basil-300 dark:bg-basil-800 absolute inset-y-0"
+					class="bg-band-room absolute inset-y-0"
 					style="left:{axis(zones.room.min)}%;width:{axis(zones.room.max) - axis(zones.room.min)}%"
 				></div>
 			{/if}
 			{#if zones?.cold}
 				<div
-					class="bg-basil-400 dark:bg-basil-700 absolute inset-y-0"
+					class="bg-band-cold absolute inset-y-0"
 					style="left:{axis(zones.cold.min)}%;width:{axis(zones.cold.max) - axis(zones.cold.min)}%"
 				></div>
 			{/if}
@@ -310,7 +318,7 @@
 	     deadline flagged from above. It is a real stop on the rail, so the
 	     arrow always sits on a position the thumb can land on. -->
 	{#if idealPct !== null}
-		<div class="relative mx-2.5 mt-1 h-9" bind:clientWidth={railPx} aria-hidden="true">
+		<div class="relative mx-2.5 mt-1 h-9" aria-hidden="true">
 			<svg
 				class="fill-herb absolute top-0 -translate-x-1/2"
 				style="left:{idealPct}%"
@@ -335,7 +343,7 @@
 		</div>
 	{/if}
 
-	<div class="relative mx-2.5 mt-1 h-4" aria-hidden="true">
+	<div class="relative mx-2.5 mt-1 h-4" bind:clientWidth={railPx} aria-hidden="true">
 		{#each labelledStops as stop (stop)}
 			<span
 				class="text-ink-soft absolute -translate-x-1/2 text-[0.65rem] font-bold tabular-nums {narrowLabelledStops.includes(
@@ -364,8 +372,8 @@
 				<span
 					class="border-rule mr-0.5 inline-block size-2 border align-baseline {form.schedule
 						.mode === 'cold'
-						? 'bg-basil-400 dark:bg-basil-700'
-						: 'bg-basil-300 dark:bg-basil-800'}"
+						? 'bg-band-cold'
+						: 'bg-band-room'}"
 					aria-hidden="true"
 				></span>
 				{inBand ? t.schedule.window_in_band : t.schedule.window_out_of_band}
@@ -396,13 +404,21 @@
 		</p>
 	{/if}
 
-	{#if form.startDayMoved}
-		<p class="notice notice-info mt-2" role="status">
+	<!-- Always in the DOM, empty while the start has not moved off its day. It
+	     used to be created by the same {#if} that filled it, and a live region
+	     that arrives together with its first message is not announced by most
+	     screen readers — so the one consequence of a drag that is easy to miss
+	     while watching the hours count was announced to nobody. The same trap
+	     the schedule warnings, the share status and the TRMNL push status were
+	     each pulled out of. `role="status"` rather than the neighbouring
+	     `role="alert"`: the slider did its job, this is the receipt. -->
+	<p class={form.startDayMoved ? 'notice notice-info mt-2' : 'sr-only'} role="status">
+		{#if form.startDayMoved}
 			{interpolate(t.schedule.window_start_moved, {
 				start: formatDateTime(form.startAt, i18n.locale)
 			})}
-		</p>
-	{/if}
+		{/if}
+	</p>
 
 	<!-- The schedule's own window warnings — too short, a step at night, past
 	     what the flour tolerates — read here, next to the control that both

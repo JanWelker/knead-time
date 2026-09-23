@@ -18,7 +18,9 @@
 
 	// What is weighed, and in what order, is decided in src/lib/ingredientRows.ts
 	// — the print sheet renders the same list, so the two cannot disagree.
-	const sections = $derived(ingredientSections(ingredients, yeastType, yeastPercent, flourW, t));
+	const sections = $derived(
+		ingredientSections(ingredients, yeastType, yeastPercent, flourW, t, i18n.locale)
+	);
 </script>
 
 <!-- A deli ticket: every weight walks to its number on a dotted leader, the

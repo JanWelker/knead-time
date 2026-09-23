@@ -1,6 +1,6 @@
 {
 	"name": "knead-time",
-	"version": "7.1.2",
+	"version": "7.1.16",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
@@ -39,7 +39,7 @@
 		"globals": "^17.0.0",
 		"husky": "^9.1.0",
 		"lint-staged": "^17.0.0",
-		"prettier": "3.9.6",
+		"prettier": "3.9.9",
 		"prettier-plugin-svelte": "^4.0.0",
 		"prettier-plugin-tailwindcss": "^0.8.0",
 		"svelte": "^5.0.0",

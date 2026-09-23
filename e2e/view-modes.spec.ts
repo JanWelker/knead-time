@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { chooseInMenu, currentView, NOW, openAdjust, sheet, waitForHydration } from './helpers';
+import { chooseInMenu, currentView, openAdjust, openRecipe, sheet } from './helpers';
 
 // Beginner/expert and short/detailed are resolved from three sources in a fixed
 // order (URL → recipe params → localStorage → default) and persisted only on an
@@ -12,9 +12,7 @@ const RECIPE = 'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-06T17%3A00
 // each visit opens it. A bare visit lands on the first question, not the plan,
 // so it is walked to the plan first.
 async function open(page: import('@playwright/test').Page, query = '') {
-	await page.clock.install({ time: NOW });
-	await page.goto(query ? `/?${query}` : '/');
-	await waitForHydration(page);
+	await openRecipe(page, query);
 	if ((await currentView(page)) === 'ask') {
 		await page.getByRole('button', { name: 'Skip to the plan' }).click();
 	}

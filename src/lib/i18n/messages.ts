@@ -493,7 +493,7 @@ const en: Messages = {
 			"For yeast-carried recipes (fresh or dry), all of the recipe's yeast goes into the pre-ferments — split proportional to their flour shares, none on baking day. A biga is mixed stiff at 50% hydration, a poolish pourable at 100% — both drawn from the recipe's existing flour and water budget. Sourdough ignores biga/poolish (the starter is itself the pre-ferment).",
 		info_switch_title: 'Cold ↔ room switch',
 		info_switch_body:
-			'After reserving the longest pre-ferment, a remaining window of 16 h or more activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 16× slower than 22 °C). Shorter windows stay at room temperature.',
+			'After reserving the longest pre-ferment, a remaining window of 16 h or more activates a cold-bulk phase at your chosen fridge temperature, far slower than the room phases (4 °C ≈ 3.5× slower than 22 °C). Shorter windows stay at room temperature.',
 		info_budget_title: 'How the window is divided',
 		info_budget_body:
 			'Fixed handwork comes off the top: 15 min prep + 15 min mix (20 in a stand mixer, 25 by hand) + 15 min divide, plus a 60 min settle and the fixed 4 h final proof in cold mode. Room mode gives a third of the remaining budget to the final proof (capped at 90 min) and the rest to bulk. Cold mode sends the whole remainder to the fridge leg, capped at 48 h. When even that does not fit, the cold leg shrinks first, then the pre-ferments — the first step never lands before your start time. With a cold ball proof the same cold leg simply moves to the other side of divide: the balls ripen in the fridge instead of the bulk.',
@@ -511,7 +511,7 @@ const en: Messages = {
 			'Sourdough — starter is just flour + water from the existing budget, split by its hydration (flour = mass ÷ (1 + hydration/100), the rest water):',
 		info_round_title: 'Round numbers',
 		info_round_body:
-			'The rounding button nudges the ball weight in 0.1 g steps until the flour lands on a multiple of 100 g — 50 g for batches under 400 g flour, so small doughs keep a sensible ball weight.',
+			'The rounding button nudges the ball weight in 0.1 g steps until the flour lands on a multiple of 100 g — 50 g for batches under 400 g flour, so small doughs keep a sensible ball weight. The ball weight stays inside its 100–600 g band, so right at those edges the flour may stay unround.',
 		info_fit_title: 'The star rating',
 		info_fit_body:
 			'Starts at 100 points; one star per 20. Points come off when the schedule had to bend (a cold leg or pre-ferment forced off its natural length, a step stuck in the night window, an infeasible window) and when inputs leave the contemporary Neapolitan bands: 60-80% hydration, 2-3.5% salt, 200-320 g balls, 14-30 °C room, 2-8 °C fridge, solved yeast 0.05-1.5% in fresh-yeast terms (dry yeast and starter convert first) — and when the window falls outside what the chosen flour tolerates. Every deduction is capped, so one wild input cannot zero the rating.',
@@ -716,7 +716,7 @@ const en: Messages = {
 	quality: {
 		step_imperfect: 'This step deviates from the math’s natural schedule.',
 		flag_night: 'Lands between 22:00 and 08:00.',
-		flag_cold_bulk_shifted: 'Extended to keep baker steps out of the night.',
+		flag_cold_bulk_shifted: 'Shortened to keep baker steps out of the night.',
 		flag_cold_bulk_clamped_short: 'Window forced the cold bulk above its natural duration.',
 		flag_cold_bulk_clamped_long: 'Window exceeded the cold-bulk 48 h ceiling.',
 		flag_preferment_clamped_short:
@@ -726,7 +726,7 @@ const en: Messages = {
 		fit_heading: 'fit',
 		fit_perfect: 'Schedule and recipe match the contemporary Neapolitan ideal.',
 		fit_aria: 'Recipe fit {stars} of 5 stars',
-		factor_cold_bulk_shifted: 'Cold bulk extended by {delta} h to dodge a baker step at night.',
+		factor_cold_bulk_shifted: 'Cold bulk shortened by {delta} h to dodge a baker step at night.',
 		factor_cold_bulk_clamped_short: 'Window forces cold bulk {delta} h above the natural duration.',
 		factor_cold_bulk_clamped_long:
 			'Window asks for {delta} h more cold bulk than the 48 h ceiling allows.',
@@ -1004,7 +1004,7 @@ const de: Messages = {
 			'Bei Rezepten mit Hefe (frisch oder trocken) landet die gesamte Hefe in den Vorteigen — aufgeteilt nach ihren Mehlanteilen, am Backtag kommt keine mehr dazu. Eine Biga wird fest bei 50% Hydration angesetzt, ein Poolish gießfähig bei 100% — beide stammen aus dem vorhandenen Mehl- und Wasserbudget des Rezepts. Sauerteig ignoriert Biga/Poolish (das Anstellgut ist selbst der Vorteig).',
 		info_switch_title: 'Wechsel Kühlschrank ↔ Raum',
 		info_switch_body:
-			'Nachdem der längste Vorteig reserviert ist, aktiviert ein verbleibendes Fenster von 16 h oder mehr eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 16× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
+			'Nachdem der längste Vorteig reserviert ist, aktiviert ein verbleibendes Fenster von 16 h oder mehr eine Kühlphase bei deiner gewählten Kühlschranktemperatur — deutlich langsamer als die Raumphasen (4 °C ≈ 3,5× langsamer als 22 °C). Kürzere Fenster bleiben bei Raumtemperatur.',
 		info_budget_title: 'Wie das Fenster aufgeteilt wird',
 		info_budget_body:
 			'Feste Handarbeit geht vorab ab: 15 min Vorbereiten + 15 min Mischen (20 in der Küchenmaschine, 25 von Hand) + 15 min Portionieren, dazu 60 min Ruhe und im Kühlmodus die feste Stückgare von 4 h. Im Raummodus bekommt die Stückgare ein Drittel des verbleibenden Budgets (höchstens 90 min), der Rest geht an die Stockgare. Im Kühlmodus wandert der gesamte Rest in die Kühlphase, begrenzt auf 48 h. Passt selbst das nicht, schrumpft zuerst die Kühlphase, dann die Vorteige — der erste Schritt liegt nie vor deiner Startzeit. Bei kalter Stückgare wandert dieselbe Kühlphase einfach auf die andere Seite des Portionierens: statt des Teigs reifen die Teiglinge im Kühlschrank.',
@@ -1021,7 +1021,7 @@ const de: Messages = {
 			'Sauerteig — Anstellgut ist nur Mehl + Wasser aus dem bestehenden Budget, aufgeteilt nach seiner Hydration (Mehl = Masse ÷ (1 + Hydration/100), der Rest Wasser):',
 		info_round_title: 'Runde Zahlen',
 		info_round_body:
-			'Der Rundungs-Button verschiebt den Teigling in Schritten von 0,1 g, bis das Mehl auf einem Vielfachen von 100 g landet — 50 g bei Mengen unter 400 g Mehl, damit kleine Teige einen sinnvollen Teigling behalten.',
+			'Der Rundungs-Button verschiebt den Teigling in Schritten von 0,1 g, bis das Mehl auf einem Vielfachen von 100 g landet — 50 g bei Mengen unter 400 g Mehl, damit kleine Teige einen sinnvollen Teigling behalten. Der Teigling bleibt innerhalb seines Bereichs von 100–600 g, direkt an diesen Rändern kann das Mehl also unrund bleiben.',
 		info_fit_title: 'Die Sterne-Bewertung',
 		info_fit_body:
 			'Startet bei 100 Punkten; ein Stern pro 20. Punkte gehen ab, wenn der Zeitplan sich biegen musste (Kühlphase oder Vorteig abseits der natürlichen Dauer, ein Schritt im Nachtfenster, ein nicht machbares Fenster) und wenn Eingaben die zeitgenössischen neapolitanischen Bänder verlassen: 60–80% Hydration, 2–3,5% Salz, 200–320 g Teiglinge, 14–30 °C Raum, 2–8 °C Kühlschrank, gelöste Hefe 0,05–1,5% in Frischhefe-Einheiten (Trockenhefe und Anstellgut werden zuerst umgerechnet) — und wenn das Fenster außerhalb dessen liegt, was das gewählte Mehl verträgt. Jeder Abzug ist gedeckelt, sodass eine einzelne wilde Eingabe die Bewertung nicht auf null bringen kann.',
@@ -1230,7 +1230,7 @@ const de: Messages = {
 	quality: {
 		step_imperfect: 'Dieser Schritt weicht vom natürlichen Zeitplan ab.',
 		flag_night: 'Liegt zwischen 22:00 und 08:00 Uhr.',
-		flag_cold_bulk_shifted: 'Verlängert, um aktive Schritte aus der Nacht zu schieben.',
+		flag_cold_bulk_shifted: 'Verkürzt, um aktive Schritte aus der Nacht zu schieben.',
 		flag_cold_bulk_clamped_short:
 			'Zeitfenster zwingt die Kühl-Reifezeit über die natürliche Dauer.',
 		flag_cold_bulk_clamped_long:
@@ -1242,7 +1242,7 @@ const de: Messages = {
 		fit_heading: 'Bewertung',
 		fit_perfect: 'Zeitplan und Rezept entsprechen dem zeitgemäßen neapolitanischen Ideal.',
 		fit_aria: 'Rezeptbewertung {stars} von 5 Sternen',
-		factor_cold_bulk_shifted: 'Kühl-Reifezeit um {delta} h verlängert, um die Nacht zu meiden.',
+		factor_cold_bulk_shifted: 'Kühl-Reifezeit um {delta} h verkürzt, um die Nacht zu meiden.',
 		factor_cold_bulk_clamped_short:
 			'Zeitfenster zwingt die Kühl-Reifezeit {delta} h über die natürliche Dauer.',
 		factor_cold_bulk_clamped_long:
@@ -1523,7 +1523,7 @@ const it: Messages = {
 			'Per le ricette con lievito (fresco o secco), tutto il lievito va nei preimpasti — suddiviso in proporzione alle loro quote di farina, niente lievito il giorno della cottura. La biga si impasta soda al 50% di idratazione, il poolish colabile al 100% — entrambi attingono alla farina e all’acqua già previste dalla ricetta. Il lievito madre ignora biga/poolish (il madre è già di per sé un preimpasto).',
 		info_switch_title: 'Passaggio frigo ↔ ambiente',
 		info_switch_body:
-			'Dopo aver riservato il preimpasto più lungo, una finestra rimanente di 16 h o più attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 16× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
+			'Dopo aver riservato il preimpasto più lungo, una finestra rimanente di 16 h o più attiva una puntata in frigo alla temperatura del frigo impostata, molto più lenta delle fasi a temperatura ambiente (4 °C ≈ 3,5× più lenta di 22 °C). Finestre più corte restano a temperatura ambiente.',
 		info_budget_title: 'Come si divide la finestra',
 		info_budget_body:
 			'Il lavoro manuale fisso si toglie subito: 15 min di preparazione + 15 min di impasto (20 con la planetaria, 25 a mano) + 15 min di staglio, più 60 min di riposo e, in modalità frigo, l’appretto fisso di 4 h. In modalità ambiente un terzo del budget rimanente va all’appretto (al massimo 90 min) e il resto alla puntata. In modalità frigo tutto il resto va alla fase in frigo, limitata a 48 h. Se nemmeno così ci sta, si accorcia prima la fase in frigo, poi i preimpasti — il primo passo non cade mai prima dell’ora di inizio. Con l’appretto a freddo la stessa fase si sposta semplicemente dall’altra parte dello staglio: in frigorifero maturano i panetti invece dell’impasto.',
@@ -1541,7 +1541,7 @@ const it: Messages = {
 			'Lievito madre — è solo farina + acqua dal totale esistente, divise secondo la sua idratazione (farina = massa ÷ (1 + idratazione/100), il resto acqua):',
 		info_round_title: 'Numeri tondi',
 		info_round_body:
-			'Il pulsante di arrotondamento sposta il peso del panetto a passi di 0,1 g finché la farina non cade su un multiplo di 100 g — 50 g per quantità sotto i 400 g di farina, così gli impasti piccoli mantengono un panetto sensato.',
+			'Il pulsante di arrotondamento sposta il peso del panetto a passi di 0,1 g finché la farina non cade su un multiplo di 100 g — 50 g per quantità sotto i 400 g di farina, così gli impasti piccoli mantengono un panetto sensato. Il peso del panetto resta entro il suo intervallo di 100–600 g, quindi proprio a quei limiti la farina può restare non tonda.',
 		info_fit_title: 'La valutazione a stelle',
 		info_fit_body:
 			'Parte da 100 punti; una stella ogni 20. I punti calano quando il programma si è dovuto piegare (fase in frigo o preimpasto fuori dalla durata naturale, un passo bloccato nella fascia notturna, una finestra non fattibile) e quando gli input escono dalle bande napoletane contemporanee: idratazione 60–80%, sale 2–3,5%, panetti 200–320 g, ambiente 14–30 °C, frigo 2–8 °C, lievito risolto 0,05–1,5% in termini di lievito fresco (secco e lievito madre vengono prima convertiti) — e quando la finestra esce da ciò che la farina scelta tollera. Ogni detrazione ha un tetto, quindi un singolo input estremo non può azzerare la valutazione.',
@@ -1750,7 +1750,7 @@ const it: Messages = {
 	quality: {
 		step_imperfect: 'Questo passo si discosta dal programma naturale del calcolo.',
 		flag_night: 'Si svolge tra le 22:00 e le 08:00.',
-		flag_cold_bulk_shifted: 'Allungata per spostare i passi attivi fuori dalla notte.',
+		flag_cold_bulk_shifted: 'Accorciata per spostare i passi attivi fuori dalla notte.',
 		flag_cold_bulk_clamped_short:
 			'La finestra costringe la maturazione in frigo oltre la durata naturale.',
 		flag_cold_bulk_clamped_long: 'La finestra supera il tetto di 48 h di maturazione in frigo.',
@@ -1762,7 +1762,7 @@ const it: Messages = {
 		fit_perfect: 'Programma e ricetta corrispondono al canone napoletano contemporaneo.',
 		fit_aria: 'Valutazione ricetta {stars} stelle su 5',
 		factor_cold_bulk_shifted:
-			'Maturazione in frigo prolungata di {delta} h per evitare un passo notturno.',
+			'Maturazione in frigo accorciata di {delta} h per evitare un passo notturno.',
 		factor_cold_bulk_clamped_short:
 			'La finestra costringe la maturazione in frigo {delta} h oltre la durata naturale.',
 		factor_cold_bulk_clamped_long:
@@ -2044,7 +2044,7 @@ const fr: Messages = {
 			"Pour les recettes avec levure (fraîche ou sèche), toute la levure va dans les pré-ferments — répartie au prorata de leur part de farine, aucune le jour de la cuisson. Une biga se mélange ferme à 50% d'hydratation, un poolish coulant à 100% — tous deux puisés dans le budget de farine et d'eau existant de la recette. Le levain ignore biga/poolish (le levain est lui-même un pré-ferment).",
 		info_switch_title: 'Bascule frigo ↔ ambiante',
 		info_switch_body:
-			"Après réservation du pré-ferment le plus long, une fenêtre restante de 16 h ou plus active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 16× plus lent qu'à 22 °C). Les fenêtres plus courtes restent à température ambiante.",
+			"Après réservation du pré-ferment le plus long, une fenêtre restante de 16 h ou plus active une phase au frigo à la température de frigo choisie, bien plus lente que les phases à température ambiante (4 °C ≈ 3,5× plus lent qu'à 22 °C). Les fenêtres plus courtes restent à température ambiante.",
 		info_budget_title: 'Comment la fenêtre se répartit',
 		info_budget_body:
 			"Le travail manuel fixe est retiré d'emblée : 15 min de préparation + 15 min de pétrissage (20 au robot pâtissier, 25 à la main) + 15 min de division, plus 60 min de repos et, en mode frigo, l'apprêt fixe de 4 h. En mode ambiant, un tiers du budget restant va à l'apprêt (plafonné à 90 min) et le reste au pointage. En mode frigo, tout le reste part dans la phase au frigo, plafonnée à 48 h. Si même cela ne rentre pas, la phase au frigo raccourcit d'abord, puis les pré-ferments — la première étape ne tombe jamais avant votre heure de départ. Avec un apprêt à froid, la même phase froide passe simplement de l'autre côté de la division : ce sont les pâtons qui mûrissent au réfrigérateur, et non la masse.",
@@ -2062,7 +2062,7 @@ const fr: Messages = {
 			"Levain — c'est juste de la farine + eau prises sur le budget existant, réparties selon son hydratation (farine = masse ÷ (1 + hydratation/100), le reste en eau) :",
 		info_round_title: 'Nombres ronds',
 		info_round_body:
-			"Le bouton d'arrondi ajuste le pâton par pas de 0,1 g jusqu'à ce que la farine tombe sur un multiple de 100 g — 50 g pour les quantités sous 400 g de farine, afin que les petites pâtes gardent un pâton sensé.",
+			"Le bouton d'arrondi ajuste le pâton par pas de 0,1 g jusqu'à ce que la farine tombe sur un multiple de 100 g — 50 g pour les quantités sous 400 g de farine, afin que les petites pâtes gardent un pâton sensé. Le pâton reste dans sa plage de 100–600 g, donc tout au bord de celle-ci la farine peut rester non ronde.",
 		info_fit_title: 'La note en étoiles',
 		info_fit_body:
 			'Part de 100 points ; une étoile par tranche de 20. Des points sont retirés quand le programme a dû se plier (phase au frigo ou pré-ferment écartés de leur durée naturelle, une étape coincée dans la fenêtre nocturne, une fenêtre infaisable) et quand les entrées sortent des bandes napolitaines contemporaines : hydratation 60–80%, sel 2–3,5%, pâtons 200–320 g, ambiante 14–30 °C, frigo 2–8 °C, levure résolue 0,05–1,5% en équivalent levure fraîche (levure sèche et levain sont convertis au préalable) — et quand la fenêtre sort de ce que la farine choisie tolère. Chaque déduction est plafonnée, donc une seule entrée extrême ne peut pas mettre la note à zéro.',
@@ -2275,7 +2275,7 @@ const fr: Messages = {
 	quality: {
 		step_imperfect: 'Cette étape s’écarte du programme naturel du calcul.',
 		flag_night: 'A lieu entre 22h et 08h.',
-		flag_cold_bulk_shifted: 'Allongée pour sortir les étapes actives de la nuit.',
+		flag_cold_bulk_shifted: 'Raccourcie pour sortir les étapes actives de la nuit.',
 		flag_cold_bulk_clamped_short:
 			'La fenêtre force le pointage au frigo au-delà de sa durée naturelle.',
 		flag_cold_bulk_clamped_long: 'La fenêtre dépasse le plafond de 48 h de pointage au frigo.',
@@ -2287,7 +2287,7 @@ const fr: Messages = {
 		fit_perfect: 'Le programme et la recette correspondent au canon napolitain contemporain.',
 		fit_aria: 'Note de la recette {stars} étoiles sur 5',
 		factor_cold_bulk_shifted:
-			'Pointage au frigo allongé de {delta} h pour éviter une étape la nuit.',
+			'Pointage au frigo raccourci de {delta} h pour éviter une étape la nuit.',
 		factor_cold_bulk_clamped_short:
 			'La fenêtre force le pointage au frigo {delta} h au-delà de sa durée naturelle.',
 		factor_cold_bulk_clamped_long:
@@ -2571,7 +2571,7 @@ const nl: Messages = {
 			'Bij recepten met gist (vers of gedroogd) zit alle gist in de voordegen — verdeeld naar hun bloemaandeel, niets op de bakdag. Een biga wordt stijf aangemaakt op 50% hydratatie, een poolish gietbaar op 100% — beide komen uit het bestaande bloem- en waterbudget van het recept. Zuurdesem negeert biga/poolish (de desem is zelf het voordeeg).',
 		info_switch_title: 'Wissel koelkast ↔ kamer',
 		info_switch_body:
-			'Na het reserveren van het langste voordeeg activeert een resterend venster van 16 u of meer een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 16× trager dan 22 °C). Kortere vensters blijven op kamertemperatuur.',
+			'Na het reserveren van het langste voordeeg activeert een resterend venster van 16 u of meer een koelfase bij je gekozen koelkasttemperatuur — veel trager dan de kamerfases (4 °C ≈ 3,5× trager dan 22 °C). Kortere vensters blijven op kamertemperatuur.',
 		info_budget_title: 'Hoe het venster wordt verdeeld',
 		info_budget_body:
 			'Vast handwerk gaat er eerst af: 15 min voorbereiden + 15 min mengen (20 in de keukenmachine, 25 met de hand) + 15 min verdelen, plus 60 min rust en in de koelmodus de vaste narijs van 4 u. In de kamermodus krijgt de narijs een derde van het resterende budget (hoogstens 90 min) en de rest gaat naar de bulkrijs. In de koelmodus gaat de hele rest naar de koelfase, begrensd op 48 u. Past zelfs dat niet, dan krimpt eerst de koelfase en daarna de voordegen — de eerste stap valt nooit vóór je starttijd. Bij koude narijs verschuift dezelfde koude fase gewoon naar de andere kant van het verdelen: de bollen rijpen in de koelkast in plaats van het deeg.',
@@ -2589,7 +2589,7 @@ const nl: Messages = {
 			'Zuurdesem — desem is alleen bloem + water uit het bestaande budget, gesplitst naar zijn hydratatie (bloem = massa ÷ (1 + hydratatie/100), de rest water):',
 		info_round_title: 'Ronde getallen',
 		info_round_body:
-			'De afrondknop verschuift het bolletjesgewicht in stappen van 0,1 g tot de bloem op een veelvoud van 100 g uitkomt — 50 g bij hoeveelheden onder 400 g bloem, zodat kleine degen een zinnig bolletjesgewicht houden.',
+			'De afrondknop verschuift het bolletjesgewicht in stappen van 0,1 g tot de bloem op een veelvoud van 100 g uitkomt — 50 g bij hoeveelheden onder 400 g bloem, zodat kleine degen een zinnig bolletjesgewicht houden. Het bolletjesgewicht blijft binnen zijn bereik van 100–600 g, dus precies aan die randen kan de bloem onrond blijven.',
 		info_fit_title: 'De sterrenwaardering',
 		info_fit_body:
 			'Begint op 100 punten; één ster per 20. Er gaan punten af wanneer het schema moest buigen (koelfase of voordeeg buiten de natuurlijke duur, een stap vast in het nachtvenster, een onhaalbaar venster) en wanneer invoer buiten de hedendaagse Napolitaanse banden valt: 60–80% hydratatie, 2–3,5% zout, bolletjes van 200–320 g, kamer 14–30 °C, koelkast 2–8 °C, opgeloste gist 0,05–1,5% in verse-gist-termen (gedroogde gist en desem worden eerst omgerekend) — en wanneer het venster buiten valt wat het gekozen meel verdraagt. Elke aftrek is gemaximeerd, dus één wilde invoerwaarde kan de waardering niet op nul zetten.',
@@ -2799,7 +2799,7 @@ const nl: Messages = {
 	quality: {
 		step_imperfect: 'Deze stap wijkt af van het natuurlijke schema.',
 		flag_night: 'Valt tussen 22:00 en 08:00.',
-		flag_cold_bulk_shifted: 'Verlengd om actieve stappen uit de nacht te houden.',
+		flag_cold_bulk_shifted: 'Ingekort om actieve stappen uit de nacht te houden.',
 		flag_cold_bulk_clamped_short: 'Het venster dwingt de koelrijs boven de natuurlijke duur.',
 		flag_cold_bulk_clamped_long: 'Het venster overschrijdt het 48-uurs-plafond van de koelrijs.',
 		flag_preferment_clamped_short:
@@ -2810,7 +2810,7 @@ const nl: Messages = {
 		fit_perfect: 'Schema en recept voldoen aan het hedendaagse Napolitaanse ideaal.',
 		fit_aria: 'Receptbeoordeling {stars} van 5 sterren',
 		factor_cold_bulk_shifted:
-			'Koelrijs met {delta} u verlengd om een nachtelijke stap te vermijden.',
+			'Koelrijs met {delta} u ingekort om een nachtelijke stap te vermijden.',
 		factor_cold_bulk_clamped_short:
 			'Het venster dwingt de koelrijs {delta} u boven de natuurlijke duur.',
 		factor_cold_bulk_clamped_long:

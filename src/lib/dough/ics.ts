@@ -22,8 +22,17 @@ const FREE_KINDS: ReadonlySet<ScheduleStepKind> = new Set([
 	'final-proof'
 ]);
 
-export function buildIcs(steps: ScheduleStep[], describe: EventDescriptorFn): string {
-	const dtstamp = formatUtc(new Date());
+// `now` is the export moment. It is a parameter rather than a `new Date()`
+// inside, so the module stays pure and a test can pin DTSTAMP and SEQUENCE.
+export function buildIcs(steps: ScheduleStep[], describe: EventDescriptorFn, now: Date): string {
+	const dtstamp = formatUtc(now);
+	// A re-export is only an update if the calendar can tell it is newer than
+	// what it already holds under the same UID. RFC 5545 §3.8.7.4 leaves that
+	// to SEQUENCE, and Google Calendar in particular ignores a re-import whose
+	// SEQUENCE has not risen — DTSTAMP alone is not enough there. Unix seconds
+	// of the export moment is a sequence number that only ever goes up.
+	const sequence = Math.floor(now.getTime() / 1000);
+	const bakeDay = bakeDayOf(steps);
 	const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//kneadtime//EN', 'CALSCALE:GREGORIAN'];
 	for (const step of steps) {
 		const start = step.at;
@@ -32,8 +41,9 @@ export function buildIcs(steps: ScheduleStep[], describe: EventDescriptorFn): st
 		const transp = FREE_KINDS.has(step.kind) ? 'TRANSPARENT' : 'OPAQUE';
 		lines.push(
 			'BEGIN:VEVENT',
-			`UID:${stableUid(step)}@kneadtime`,
+			`UID:${stableUid(step, bakeDay)}@kneadtime`,
 			`DTSTAMP:${dtstamp}`,
+			`SEQUENCE:${sequence}`,
 			`DTSTART:${formatUtc(start)}`,
 			`DTEND:${formatUtc(end)}`,
 			`SUMMARY:${escapeText(summary)}`,
@@ -98,9 +108,27 @@ export function formatUtc(date: Date): string {
 	);
 }
 
-function stableUid(step: ScheduleStep): string {
+// The day of the bake, as YYYYMMDD in UTC — the `ready` step is always the
+// last one and sits exactly on readyBy. UTC rather than local because every
+// time in this file is written as a UTC `Z` value, so the day that anchors
+// the UIDs is read off the same clock the events are.
+function bakeDayOf(steps: ScheduleStep[]): string {
+	return formatUtc(steps[steps.length - 1].at).slice(0, 8);
+}
+
+function stableUid(step: ScheduleStep, bakeDay: string): string {
 	// Two parallel pre-ferment mixes can share a start time when both were
 	// shrunk to the same wall budget — the type keeps their UIDs distinct.
 	const typeSuffix = step.preFermentType ? `-${step.preFermentType}` : '';
-	return `${step.kind}${typeSuffix}-${step.at.getTime()}`;
+	// The UID is keyed on the bake DAY, not the step's own time. Every step
+	// time derives from readyBy, so a UID carrying the step's timestamp
+	// changed on every edit — nudging the bake by 15 minutes and exporting
+	// again left the baker with two whole schedules in the calendar, on an
+	// app people live inside for two days, across the one edit they make
+	// most. Keyed on the day, a re-export of the same day's bake carries the
+	// same UIDs and the calendar updates the events in place. The trade is
+	// that two different bakes on the same day share UIDs and the second
+	// import overwrites the first; a second bake on one day is rare enough,
+	// and a doubled schedule common enough, that this is the right side.
+	return `${step.kind}${typeSuffix}-${bakeDay}`;
 }
