@@ -71,6 +71,23 @@ test('"Round numbers" lands the flour on a tidy figure and is idempotent', async
 	await expect(ball()).toHaveValue(ballAfterFirst);
 });
 
+test('"Round numbers" never leaves the ball-weight box outside its own band', async ({ page }) => {
+	// 1 × 100 g rounds ~58 g of flour to 50 g, which asks for an 86.5 g ball.
+	// The result went into the raw field, which is not clamped — only the
+	// derived inputs are — so the box read 86.5 while the recipe silently used
+	// 100. The existing round-numbers test starts from the middle of the band,
+	// where the snap never leaves it, so nothing caught it.
+	await openRecipe(page, `v=6&n=1&b=100&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z`);
+
+	const round = page.locator('button:has-text("Round numbers")');
+	await round.click();
+	await openAdjust(page);
+	const ball = sheet(page).locator('label', { hasText: 'Ball weight' }).locator('input');
+	const min = Number(await ball.getAttribute('min'));
+	expect(Number(await ball.inputValue())).toBeGreaterThanOrEqual(min);
+	await expect(ball).toHaveValue('100');
+});
+
 test('a pre-v5 link reproduces its original no-autolyse recipe', async ({ page }) => {
 	// The version gate: `al` is absent from old links and must read as OFF,
 	// or every bookmark silently gains a rest step it never had.
