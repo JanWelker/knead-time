@@ -32,7 +32,9 @@ describe('the "Get nerdy" panel and the message bundle agree', () => {
 		for (const locale of LOCALES) {
 			const form = MESSAGES[locale].form as Record<string, string>;
 			for (const key of infoSectionKeys()) {
-				expect(form[key], `${locale}.form.${key}`).toBeTruthy();
+				// `toBeTruthy` passed on any non-empty value, including a non-string.
+				expect(typeof form[key], `${locale}.form.${key}`).toBe('string');
+				expect(form[key], `${locale}.form.${key}`).not.toBe('');
 			}
 		}
 	});

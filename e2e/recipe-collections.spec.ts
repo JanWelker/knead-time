@@ -1,5 +1,18 @@
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { openLibrary, openRecipe } from './helpers';
+
+// The data rows of a shipped markdown table, counted the way the unit suites
+// count them (community.test.ts, pizzerias.test.ts): every row that carries a
+// link. Read from the file rather than pinned as a literal so adding a recipe
+// does not mean editing a browser test — the parser dropping a row is what
+// this is guarding against, and that shows as a count the file disagrees with.
+function dataRows(md: string): number {
+	return readFileSync(new URL(`../src/lib/${md}`, import.meta.url), 'utf8')
+		.split('\n')
+		.filter((line) => line.trim().startsWith('|') && line.includes('http'))
+		.filter((line) => !line.includes('---')).length;
+}
 
 // The collections moved out of the foot of the calculator and into a view of
 // their own: they are entry points to a recipe, not an appendix to one.
@@ -18,7 +31,7 @@ const RECIPE =
 const SECTIONS = [
 	{ heading: 'Community recipes', md: 'community/community.md' },
 	{ heading: '50 Top Pizza recipes', md: 'pizzerias/pizzerias.md' }
-] as const;
+].map((s) => ({ ...s, rows: dataRows(s.md) }));
 
 for (const section of SECTIONS) {
 	test(`${section.heading}: ships collapsed, opens to rows that link back into the app`, async ({
@@ -34,9 +47,14 @@ for (const section of SECTIONS) {
 		await expect(open.first()).toBeHidden();
 
 		await details.locator('summary').first().click();
-		expect(await open.count()).toBeGreaterThan(0);
-		// Every row hands its recipe to the calculator as a share query.
-		expect(await open.first().getAttribute('href')).toContain('?');
+		// One Open link per data row of the shipped markdown, counted the same way
+		// the unit suites count them — `> 0` would have passed with one row of
+		// many rendered.
+		await expect(open).toHaveCount(section.rows);
+		// Every row hands its recipe to the calculator as a versioned share query.
+		for (const href of await open.evaluateAll((as) => as.map((a) => a.getAttribute('href')))) {
+			expect(href).toMatch(/^\/\?(?:.*&)?v=\d+(?:&|$)/);
+		}
 	});
 
 	test(`${section.heading}: the contribute note points at its own source file`, async ({

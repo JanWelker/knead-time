@@ -512,3 +512,61 @@ describe('computeIngredients — oil & sugar', () => {
 		).toBeCloseTo(1120, 6);
 	});
 });
+
+// The carrier × pre-ferment matrix at the ingredient level. The full schedule
+// matrix (schedule.test.ts) covers the same invariant through computeSchedule;
+// this is the row CLAUDE.md's "new yeast carrier → new row in each matrix"
+// points at for the file that owns computeIngredients — until it existed,
+// `active-dry` appeared nowhere in this suite.
+describe('computeIngredients — carrier × pre-ferment mass balance', () => {
+	const carriers = [
+		{ yeastType: 'fresh', yeastPercent: 0.2 },
+		{ yeastType: 'instant', yeastPercent: 0.2 / 3 },
+		{ yeastType: 'active-dry', yeastPercent: 0.2 * 0.4 },
+		{ yeastType: 'sourdough', yeastPercent: 20 }
+	] as const;
+	const shapes = [
+		{ label: 'none', preFerments: [] },
+		{ label: 'biga', preFerments: [{ type: 'biga', flourPercent: 30 }] },
+		{ label: 'poolish', preFerments: [{ type: 'poolish', flourPercent: 30 }] },
+		{
+			label: 'biga+poolish',
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		}
+	] as const;
+
+	describe.each(carriers)('$yeastType', ({ yeastType, yeastPercent }) => {
+		it.each(shapes)('pre-ferment: $label', ({ preFerments }) => {
+			const r = computeIngredients({
+				...baseArgs,
+				yeastType,
+				yeastPercent,
+				preFerments: [...preFerments]
+			});
+			// Sourdough drops the pre-ferments — the starter is the pre-ferment.
+			expect(r.preFerments).toHaveLength(yeastType === 'sourdough' ? 0 : preFerments.length);
+
+			const pfMass = r.preFerments.reduce((s, pf) => s + pf.flour + pf.water + pf.yeast, 0);
+			expect(r.flour + r.water + r.salt + r.yeast + r.oil + r.sugar + pfMass).toBeCloseTo(1120, 6);
+			expect(r.totalDough).toBe(1120);
+
+			// pctSum branch: a yeast carrier adds its own mass, the starter is
+			// flour + water from the existing budget.
+			const pctSum = 100 + 70 + 3 + (yeastType === 'sourdough' ? 0 : yeastPercent);
+			const flourTotal = (1120 * 100) / pctSum;
+			const pfFlour = r.preFerments.reduce((s, pf) => s + pf.flour, 0);
+			if (yeastType === 'sourdough') {
+				expect(r.flour + r.yeast / 2).toBeCloseTo(flourTotal, 6);
+			} else {
+				expect(r.flour + pfFlour).toBeCloseTo(flourTotal, 6);
+				// Under a pre-ferment the carrier's whole mass moves into the pre-doughs.
+				const yeastAll = r.yeast + r.preFerments.reduce((s, pf) => s + pf.yeast, 0);
+				expect(yeastAll).toBeCloseTo((flourTotal * yeastPercent) / 100, 6);
+				if (preFerments.length > 0) expect(r.yeast).toBe(0);
+			}
+		});
+	});
+});

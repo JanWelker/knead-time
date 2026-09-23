@@ -78,10 +78,19 @@ test('no warning is rendered twice, and none is dropped', async ({ page }) => {
 		'v=6&n=6&b=280&h=70&s=3&y=f&t=10&ft=4&fw=310&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-05T14%3A00%3A00.000Z'
 	);
 
+	// The exact three, one per family — "at least two" let two of the three
+	// mount points stop rendering on the one spec whose job is that all exist.
+	// The severity word is the sr-only prefix each notice carries.
 	const all = await page.locator('ul[aria-live="polite"] li').allInnerTexts();
-	const trimmed = all.map((t) => t.trim());
+	const trimmed = all.map((t) => t.replace(/\s+/g, ' ').trim());
 	expect(new Set(trimmed).size).toBe(trimmed.length);
-	expect(trimmed.length).toBeGreaterThanOrEqual(2);
+	expect(trimmed.map((t) => t.replace(/^(Warning|Note): /, '')).sort()).toEqual(
+		[
+			'Kitchen looks chilly — fermentation will be sluggish at this temperature.',
+			'Shorter than this flour needs — a weaker flour would do the same job.',
+			'Yeast is unusually high — double-check the inputs.'
+		].sort()
+	);
 });
 
 test('the schedule itself carries no warnings', async ({ page }) => {
