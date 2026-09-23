@@ -140,7 +140,7 @@
 				{@const current = isCurrent(step)}
 				{@const wait = WAIT_KINDS.has(step.kind)}
 				{@const flags = stepQualityFlags(step, schedule)}
-				{@const ingredients = stepIngredients(step, t, schedule)}
+				{@const ingredients = stepIngredients(step, t, schedule, locale)}
 				<!-- Past steps are NOT dimmed: fading them read as a rendering glitch
 				     rather than as information. The fermentation-window card says
 				     outright when the schedule opens before now. `past` still mutes
@@ -253,7 +253,7 @@
 						{/if}
 
 						<p class="text-ink-soft mt-2 text-sm leading-snug">
-							{stepDescription(step, t, schedule)}
+							{stepDescription(step, t, schedule, locale)}
 						</p>
 
 						{#if verbosity === 'descriptive'}

@@ -43,10 +43,9 @@ export function ingredientSections(
 	yeastPercent: number,
 	flourW: number | null,
 	msgs: Messages,
-	// The yeast percentage is the one figure on the ticket that carries
-	// punctuation, and formatPercent defaults to English - so without the
-	// locale every German sheet read "0.35%" where the rest of the page said
-	// "0,35 %".
+	// Every figure on the ticket carries punctuation — the percentage and the
+	// weights alike — and both formatters default to English, so without the
+	// locale a German sheet read "1.3 g" and "0.35%" beside "Frischhefe".
 	locale: Locale
 ): IngredientSection[] {
 	const i = msgs.ingredients;
@@ -54,7 +53,7 @@ export function ingredientSections(
 	const yeast = yeastIngredientName(yeastType, msgs);
 	const row = (label: string, grams: number, hint?: string): IngredientRow => ({
 		label,
-		amount: formatGrams(grams),
+		amount: formatGrams(grams, locale),
 		...(hint === undefined ? {} : { hint })
 	});
 

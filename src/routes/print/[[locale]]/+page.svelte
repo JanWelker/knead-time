@@ -8,7 +8,7 @@
 	import { computeSchedule } from '$lib/dough/schedule';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeight, formatDateTime, formatDuration } from '$lib/format';
+	import { formatBallWeightGrams, formatDateTime, formatDuration } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { isLocale, type Locale } from '$lib/i18n/messages';
@@ -264,7 +264,7 @@
 					</tr>
 					<tr>
 						<th>{t.form.pizzaCount}</th>
-						<td>{inputs.pizzaCount} × {formatBallWeight(inputs.ballWeight)} g</td>
+						<td>{inputs.pizzaCount} × {formatBallWeightGrams(inputs.ballWeight, locale)}</td>
 					</tr>
 					<tr><th>{t.form.hydration}</th><td>{inputs.hydration}%</td></tr>
 					<tr><th>{t.form.salt}</th><td>{inputs.saltPercent}%</td></tr>
@@ -326,7 +326,7 @@
 				     which can share a start time when both shrink to the wall budget. -->
 				{#each schedule.steps as step (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
 					{@const isReady = step.kind === 'ready'}
-					{@const ingredients = stepIngredients(step, t, schedule)}
+					{@const ingredients = stepIngredients(step, t, schedule, locale)}
 					<tr class:printpage-ready={isReady}>
 						<td class="printpage-when">{formatDateTime(step.at, locale)}</td>
 						<td>
@@ -338,7 +338,7 @@
 									{/each}
 								</div>
 							{/if}
-							<div class="printpage-step-desc">{stepDescription(step, t, schedule)}</div>
+							<div class="printpage-step-desc">{stepDescription(step, t, schedule, locale)}</div>
 						</td>
 						<td class="printpage-duration">
 							{step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—'}

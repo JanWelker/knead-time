@@ -346,6 +346,41 @@ describe('stepIngredients — weighed amounts', () => {
 	});
 });
 
+describe('weights in the language the step is read in', () => {
+	// stepIngredients and stepDescription formatted every weight with the
+	// English decimal point whatever language the step was in, so a German
+	// schedule listed "1.3 g Frischhefe" and told the baker to divide into
+	// balls of "288.5 g". The step copy suite compared its expectations against
+	// formatGrams() called the same way, so both sides moved together and
+	// nothing could fail.
+	it('punctuates a step ingredient list in the given locale', () => {
+		const r = computeSchedule(inputs());
+		const prep = stepIngredients(findStep(r, 'prep'), MESSAGES.de, r, 'de');
+		expect(prep.every((ing) => !/\d\.\d/.test(ing.amount))).toBe(true);
+		expect(prep.some((ing) => /\d,\d/.test(ing.amount))).toBe(true);
+	});
+
+	it('punctuates the ball weight in the divide copy', () => {
+		const r = computeSchedule(inputs());
+		const divide = findStep(r, 'divide');
+		expect(stepDescription(divide, MESSAGES.de, r, 'de')).toContain('288,5');
+		expect(stepDescription(divide, MESSAGES.de, r, 'de')).not.toContain('288.5');
+		// The default is still English, which is what every caller that has no
+		// locale to give (and the raw-template path) gets.
+		expect(stepDescription(divide, MESSAGES.en, r)).toContain('288.5');
+	});
+
+	it('carries the locale into the calendar text, which must match the page', () => {
+		const r = computeSchedule(inputs());
+		const prep = findStep(r, 'prep');
+		const lines = stepDetailText(prep, MESSAGES.de, r, { locale: 'de' }).split('\n');
+		expect(lines[0]).toBe(
+			`${formatGrams(r.ingredients.flour, 'de')} ${MESSAGES.de.ingredients.flour}`
+		);
+		expect(lines.every((l) => !/\d\.\d/.test(l))).toBe(true);
+	});
+});
+
 describe('stepDetailText — flat .ics form', () => {
 	it('joins the ingredient list and the method into newline-separated text', () => {
 		const r = computeSchedule(inputs());

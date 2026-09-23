@@ -93,6 +93,9 @@ export function buildMergeVariables(
 	const modeLabel = schedule.mode === 'cold' ? msgs.mode.cold : msgs.mode.room;
 
 	const summary =
+		// English punctuation on purpose: this string is measured against a hard
+		// 2 KB budget in every locale, and the separators Intl would reach for
+		// here are multi-byte. The device's own rendering is not the page's.
 		`${inputs.pizzaCount} × ${formatBallWeight(inputs.ballWeight)} g · ${inputs.hydration}% · ${yeastLabel}` +
 		(preFermentLabel ? ` · ${preFermentLabel}` : '') +
 		` · ${modeLabel}`;

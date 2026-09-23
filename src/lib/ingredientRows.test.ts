@@ -42,6 +42,17 @@ describe('a recipe with no pre-ferment', () => {
 		expect(yeast.hint).toMatch(/%$/);
 	});
 
+	it("punctuates every weight in the reader's locale, not in English", () => {
+		// The percentage was fixed first and the weights were left behind, so a
+		// German ticket read "1.3 g" on the row whose hint already said
+		// "0,35 %". Both renderers take this list, so this is the screen and
+		// the paper at once.
+		const rows = sectionsFor({}, 'de')[0].rows;
+		expect(rows.every((r) => !/\d\.\d/.test(r.amount))).toBe(true);
+		expect(sectionsFor({ ballWeight: 100, pizzaCount: 1 }, 'de')[0].rows[3].amount).toMatch(
+			/^0,\d\d g$/
+		);
+	});
 	it("punctuates the yeast percentage in the reader's locale, not in English", () => {
 		// Both renderers called formatPercent without the locale, so a German
 		// sheet read "0.35%" beside weights and dates set the German way. The

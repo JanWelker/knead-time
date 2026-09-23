@@ -174,6 +174,23 @@ test('the German print sheet punctuates the yeast percentage the German way', as
 	await expect(ingredients).not.toContainText(/\d\.\d+%/);
 });
 
+test('the German print sheet punctuates the weights the German way too', async ({ page }) => {
+	// The percentage was fixed one PR before the weights, which left the German
+	// sheet reading "1.3 g" on the very row whose hint said "0,35 %". Weights
+	// reach the paper through three separate renderers — the ingredient ticket,
+	// the batch line and the schedule's own step lists — so this reads the
+	// whole page rather than one table.
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
+	// A small batch, so the yeast lands under a gram and shows its decimals.
+	await page.goto(`/print/de?v=6&n=2&b=180&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z`);
+	const sheet = page.locator('body');
+	await expect(sheet).toContainText('Frischhefe');
+	await expect(sheet).toContainText(/\d,\d+\sg/);
+	await expect(sheet).not.toContainText(/\d\.\d+\sg/);
+});
+
 // `app.html` carried `lang="en"` for every page, so all five prerendered print
 // sheets claimed English while shipping German, Italian, French or Dutch. The
 // app route corrects itself after hydration, which is exactly the fix the print

@@ -2,7 +2,7 @@ import { flourPresetForW } from './dough/flour';
 import type { ComputedSchedule, ScheduleStep, ScheduleStepKind, YeastType } from './dough/types';
 import { formatBallWeight, formatGrams } from './format';
 import { interpolate } from './i18n/interpolate';
-import type { Messages } from './i18n/messages';
+import type { Locale, Messages } from './i18n/messages';
 
 // preferment-mix has no single title/description — the step's own
 // preFermentType picks the biga or poolish copy, so both maps exclude it.
@@ -105,7 +105,10 @@ export function stepTitle(step: ScheduleStep, msgs: Messages): string {
 export function stepIngredients(
 	step: ScheduleStep,
 	msgs: Messages,
-	schedule: ComputedSchedule
+	schedule: ComputedSchedule,
+	// Every amount below is a weight, and a weight is punctuated by the
+	// language it is read in — the same reason the ingredient ticket takes one.
+	locale: Locale = 'en'
 ): StepIngredient[] {
 	const { ingredients } = schedule;
 	const i = msgs.ingredients;
@@ -113,8 +116,10 @@ export function stepIngredients(
 
 	// Oil/sugar are weighed for the main dough; they never enter the pre-ferment.
 	const extras: StepIngredient[] = [];
-	if (ingredients.oil > 0) extras.push({ amount: formatGrams(ingredients.oil), name: i.oil });
-	if (ingredients.sugar > 0) extras.push({ amount: formatGrams(ingredients.sugar), name: i.sugar });
+	if (ingredients.oil > 0)
+		extras.push({ amount: formatGrams(ingredients.oil, locale), name: i.oil });
+	if (ingredients.sugar > 0)
+		extras.push({ amount: formatGrams(ingredients.sugar, locale), name: i.sugar });
 
 	switch (step.kind) {
 		case 'preferment-mix': {
@@ -122,18 +127,18 @@ export function stepIngredients(
 			// type picks the matching entry.
 			const pf = ingredients.preFerments.find((p) => p.type === step.preFermentType)!;
 			return [
-				{ amount: formatGrams(pf.flour), name: i.flour },
-				{ amount: formatGrams(pf.water), name: i.water },
+				{ amount: formatGrams(pf.flour, locale), name: i.flour },
+				{ amount: formatGrams(pf.water, locale), name: i.water },
 				// The pre-ferment carries the recipe's yeast — whichever type it is.
-				{ amount: formatGrams(pf.yeast), name: yeastName }
+				{ amount: formatGrams(pf.yeast, locale), name: yeastName }
 			];
 		}
 		case 'prep': {
 			const flourWater: StepIngredient[] = [
-				{ amount: formatGrams(ingredients.flour), name: i.flour },
-				{ amount: formatGrams(ingredients.water), name: i.water }
+				{ amount: formatGrams(ingredients.flour, locale), name: i.flour },
+				{ amount: formatGrams(ingredients.water, locale), name: i.water }
 			];
-			const salt = { amount: formatGrams(ingredients.salt), name: i.salt };
+			const salt = { amount: formatGrams(ingredients.salt, locale), name: i.salt };
 			// Autolyse: only flour and water go on the scale now; salt, yeast and
 			// any oil/sugar are held back and weighed at the mix.
 			if (hasAutolyse(schedule)) return flourWater;
@@ -143,7 +148,7 @@ export function stepIngredients(
 			return [
 				...flourWater,
 				salt,
-				{ amount: formatGrams(ingredients.yeast), name: yeastName },
+				{ amount: formatGrams(ingredients.yeast, locale), name: yeastName },
 				...extras
 			];
 		}
@@ -152,8 +157,8 @@ export function stepIngredients(
 			// weighed here, onto the rested flour-water dough.
 			if (hasAutolyse(schedule)) {
 				return [
-					{ amount: formatGrams(ingredients.salt), name: i.salt },
-					{ amount: formatGrams(ingredients.yeast), name: yeastName },
+					{ amount: formatGrams(ingredients.salt, locale), name: i.salt },
+					{ amount: formatGrams(ingredients.yeast, locale), name: yeastName },
 					...extras
 				];
 			}
@@ -173,7 +178,8 @@ export function stepIngredients(
 export function stepDescription(
 	step: ScheduleStep,
 	msgs: Messages,
-	schedule?: ComputedSchedule
+	schedule?: ComputedSchedule,
+	locale: Locale = 'en'
 ): string {
 	// The step's own type carries everything the pre-ferment copy needs, so
 	// this works with or without schedule context.
@@ -202,7 +208,7 @@ export function stepDescription(
 		case 'divide':
 			return interpolate(template, {
 				n: schedule.pizzaCount,
-				weight: formatBallWeight(schedule.ballWeight)
+				weight: formatBallWeight(schedule.ballWeight, locale)
 			});
 		case 'prep':
 			if (prefermentTypes.length > 0) return msgs.steps.prep_desc_with_preferment;
@@ -243,10 +249,13 @@ export function stepDetailText(
 	step: ScheduleStep,
 	msgs: Messages,
 	schedule: ComputedSchedule,
-	opts?: { includeDetail?: boolean }
+	opts?: { includeDetail?: boolean; locale?: Locale }
 ): string {
-	const lines = stepIngredients(step, msgs, schedule).map((ing) => `${ing.amount} ${ing.name}`);
-	lines.push(stepDescription(step, msgs, schedule));
+	const locale = opts?.locale ?? 'en';
+	const lines = stepIngredients(step, msgs, schedule, locale).map(
+		(ing) => `${ing.amount} ${ing.name}`
+	);
+	lines.push(stepDescription(step, msgs, schedule, locale));
 	if (opts?.includeDetail) lines.push(stepDetail(step, msgs));
 	return lines.join('\n');
 }
