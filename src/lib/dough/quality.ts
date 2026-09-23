@@ -1,4 +1,10 @@
-import { freshEquivalentPercent, PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
+import {
+	freshEquivalentPercent,
+	PREFERMENT_MAX_HOURS,
+	PREFERMENT_MIN_HOURS,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW
+} from './fermentation';
 import { flourWindowHours } from './flour';
 import {
 	ACTIVE_NIGHT_KINDS,
@@ -63,8 +69,9 @@ const FRIDGE_TEMP_MAX_DEDUCT = 8;
 const FLOUR_WINDOW_PCT_PER_HOUR = 1.5;
 const FLOUR_WINDOW_MAX_DEDUCT = 12;
 
-const YEAST_PCT_LOW = 0.05;
-const YEAST_PCT_HIGH = 1.5;
+// The yeast band is fermentation.ts's YEAST_PCT_{LOW,HIGH} — the same edges
+// the yeast-tiny / yeast-large warnings fire on, imported so the score cannot
+// deduct where no warning shows.
 const YEAST_EXTREME_PENALTY = 8;
 
 // Sub-minute drift between natural and actual is rounding noise, not a real

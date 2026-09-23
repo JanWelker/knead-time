@@ -14,6 +14,8 @@ import {
 	TARGET_FDT_C,
 	TARGET_UNITS_FRESH,
 	temperatureFactor,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW,
 	yeastPercentForPhases
 } from './dough/fermentation';
 import { flourWindowHours } from './dough/flour';
@@ -296,6 +298,21 @@ describe('the formulas the panel prints', () => {
 		for (const locale of LOCALES) {
 			expect(MESSAGES[locale].form.info_switch_body, locale).toMatch(figure);
 			expect(MESSAGES[locale].form.info_switch_body, locale).toContain(`${REF_TEMP_C} °C`);
+		}
+	});
+
+	it('the yeast band in the fit copy and the factor copy is the one the code judges', () => {
+		// The band lived in three places: quality.ts (0.05 / 1.5), schedule.ts's
+		// warnings (0.02 / 2) and this prose in five locales. The two code copies
+		// disagreed for several releases and nothing noticed, because the prose
+		// was pinned to neither. Both now read fermentation.ts's pair; the copy
+		// is held to it here in each locale's own decimal notation.
+		const figure = new RegExp(
+			`${String(YEAST_PCT_LOW).replace('.', '[.,]')}–${String(YEAST_PCT_HIGH).replace('.', '[.,]')}%`
+		);
+		for (const locale of LOCALES) {
+			expect(MESSAGES[locale].form.info_fit_body, locale).toMatch(figure);
+			expect(MESSAGES[locale].quality.factor_yeast_extreme, locale).toMatch(figure);
 		}
 	});
 });
