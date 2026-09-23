@@ -173,7 +173,8 @@ time the recipe changes, click **Send to TRMNL** again from the menu.
   Shared Markup or a half/quadrant tab.
 - **Webhook returns "Large payload received"** — your recipe exceeds the
   free-tier 2 KB cap. A regression test keeps the worst case — cold mode
-  with biga + poolish (9 step rows) — under 2 KB in every locale; if
+  with biga + poolish (9 step rows; the autolyse rest cannot add a tenth,
+  it only runs without a pre-ferment) — under 2 KB in every locale; if
   you're seeing this anyway, open an issue.
 - **Webhook returns "Private Plugin not found"** — the UUID is wrong.
   Copy it again from `/api/custom_plugins/<uuid>` in the plugin's webhook
@@ -191,7 +192,7 @@ the default template doesn't render them.
 | Field     | Type    | Notes                                                                |
 | --------- | ------- | -------------------------------------------------------------------- |
 | `t`       | string  | App title, localized.                                                |
-| `s`       | string  | `6 × 280 g · 70 % · Fresh yeast · Cold ferment` — already formatted. |
+| `s`       | string  | `6 × 280 g · 70% · Fresh yeast · Cold ferment` — already formatted.  |
 | `rl`      | string  | "Ready by" in the user's locale.                                     |
 | `rt`      | string  | Pre-formatted ready time, no commas.                                 |
 | `l.n`     | string  | "Now" label (featured panel mid-schedule).                           |
@@ -214,7 +215,8 @@ the default template doesn't render them.
 
 - **Payload size**: free tier ≤ 2 KB, TRMNL+ ≤ 5 KB. Knead Time targets the
   free tier — a cold-mode + biga + poolish recipe (the worst case, 9 step
-  rows) stays under 2 KB in every locale with the short-key encoding above,
+  rows; autolyse only runs without a pre-ferment, so it can never add a
+  tenth) stays under 2 KB in every locale with the short-key encoding above,
   enforced by a regression test in `webhook.test.ts`.
 - **Rate**: free tier 12 POST/h, TRMNL+ 30/h. You're well under unless you
   click Send dozens of times in an hour.
