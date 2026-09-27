@@ -271,7 +271,6 @@ One orchestrated moment: moving between two questions slides the whole question 
 
 A class here is closer to an API than a style, and renaming one means grepping `e2e/` too. `e2e/helpers.ts` reaches the app through `[data-view]` (`view`/`currentView`), `section, aside` filtered by heading (`region`), the `summary` reading `Menu` and the `menu` role behind it (`openMenu`), a `menuitemradio` by name (`chooseInMenu`), the `Recipes` `menuitem` (`openLibrary`), `dialog[open]` containing a form (`sheet`) and the `Edit recipe` button that opens it (`openAdjust`), `.window-card` + its first `.data` (`chosenWindow`), `#field-window` (`slider`), `dialog input[type="date"]` / `[type="time"]` by position (`dateField`, `timeField`), a `label` by its text inside the sheet (`sheetField`), and the marker paths `M5 0` / `M5 6` (`arrowCentreX`). Beyond the helpers, the specs also name `summary[aria-label^="Recipe fit"]` (`layout.spec.ts`, `focus-dismissal.spec.ts`), `.card-loud`, `.card-header`, `.window-rail`, `.rail-caption` and `.label-caps` directly.
 
-
 ## Git workflow
 
 `main` is protected by a repository **ruleset** — the classic branch-protection API answers "Branch not protected", which is easy to misread as unprotected (`gh api repos/JanWelker/knead-time/rulesets`). **Never commit or push directly to `main`.** Branch → commit → push → PR → CI green (`verify` and `e2e` are both required) → merge.

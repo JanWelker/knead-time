@@ -41,7 +41,7 @@
 		}
 	},
 	"e2e": {
-		"total": 173,
+		"total": 175,
 		"files": {
 			"announcements.spec.ts": 6,
 			"ask-flow.spec.ts": 5,
@@ -61,7 +61,7 @@
 			"recipe-output.spec.ts": 19,
 			"save-recipe.spec.ts": 2,
 			"self-hosted.spec.ts": 5,
-			"view-modes.spec.ts": 8,
+			"view-modes.spec.ts": 10,
 			"views.spec.ts": 14,
 			"warnings.spec.ts": 8,
 			"window-slider.spec.ts": 17

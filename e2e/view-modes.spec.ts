@@ -125,18 +125,16 @@ test('verbosity is a device preference, not part of the share URL', async ({ pag
 // test at all — grepping e2e/ for `.chip-field` found nothing.
 test('the plan carries the same blanks in expert as in beginner', async ({ page }) => {
 	async function chipLabels() {
-		await waitForHydration(page);
 		expect(await currentView(page)).toBe('plan');
 		// textContent, not innerText: `.label-caps` sets the caps in CSS, and a
 		// rendered-text read would pin the type treatment alongside the membership.
 		return page.locator('.chip-field .label-caps').allTextContents();
 	}
 
-	await page.clock.install({ time: NOW });
-	await page.goto(`/?${RECIPE}`);
+	await openRecipe(page, RECIPE);
 	const expert = await chipLabels();
 
-	await page.goto(`/?md=b&${RECIPE}`);
+	await openRecipe(page, `md=b&${RECIPE}`);
 	const beginner = await chipLabels();
 
 	// Named, not merely equal: two empty rows would also match each other, and
@@ -152,9 +150,7 @@ test('the plan carries the same blanks in expert as in beginner', async ({ page 
 // plan whose knead time cannot be checked — and the blank has to reach the
 // field that sets it, which is only true if the sheet still carries that id.
 test('the plan names the mixer, and the blank opens the field that sets it', async ({ page }) => {
-	await page.clock.install({ time: NOW });
-	await page.goto(`/?${RECIPE}&mm=h`);
-	await waitForHydration(page);
+	await openRecipe(page, `${RECIPE}&mm=h`);
 
 	const chip = page.getByRole('button', { name: /Mixing/ });
 	await expect(chip).toContainText('By hand');
