@@ -1,4 +1,8 @@
 <!doctype html>
+<!-- `lang` is filled in per page by the handle hook in src/hooks.server.ts, from
+     the locale in the URL path: the print route prerenders one file per
+     language and they all used to claim `en`. Everything else resolves to `en`,
+     which is what this attribute used to say outright. -->
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -42,13 +46,19 @@
 		<script>
 			// Theme boot: apply dark before first paint. The legacy bare 'theme'
 			// slot is read as a fallback until loadStoredTheme migrates it to
-			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
-			// cookies") — only the reads are guarded so a blocked storage still
-			// honours the system preference.
+			// the scoped theme key. The scope placeholder in that key is stamped at
+			// prerender time by hooks.server.ts (empty at the root, ':pr-preview-pr-N'
+			// on a preview):
+			// the preview shares the production origin, so this read has to look
+			// in the same scoped slot storedTheme.ts writes or the first paint
+			// would follow the live site's choice. Storage access can throw (Chrome
+			// "Block all cookies") — only the reads are guarded so a blocked
+			// storage still honours the system preference.
 			(function () {
 				var stored = null;
 				try {
-					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+					stored =
+						localStorage.getItem('kneadtime:pr-preview-pr-319:theme') || localStorage.getItem('theme');
 				} catch (e) {}
 				if (
 					stored === 'dark' ||
@@ -58,9 +68,9 @@
 				}
 			})();
 		</script>
-		<link href="./_app/immutable/bundle.LlwICp7j.js" rel="modulepreload">
+		<link href="./_app/immutable/bundle.C-6X-oDr.js" rel="modulepreload">
 		
-		<link href="./_app/immutable/assets/bundle.B68vfio8.css" rel="stylesheet">
+		<link href="./_app/immutable/assets/bundle.CUqwt2AT.css" rel="stylesheet">
 	</head>
 	<body
 		data-sveltekit-preload-data="hover"
@@ -69,14 +79,14 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_ieidbx = {
+					__sveltekit_1un2hud = {
 						base: new URL(".", location).pathname.slice(0, -1),
 						assets: "/pr-preview/pr-319"
 					};
 
 					const element = document.currentScript.parentElement;
 
-					import("./_app/immutable/bundle.LlwICp7j.js").then((app) => {
+					import("./_app/immutable/bundle.C-6X-oDr.js").then((app) => {
 						app.start(element)
 					});
 
