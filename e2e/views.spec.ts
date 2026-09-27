@@ -31,8 +31,12 @@ test('a genuinely fresh visit is asked the first question', async ({ page }) => 
 	await openRecipe(page);
 
 	expect(await currentView(page)).toBe('ask');
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('When are you eating?');
-	expect(new URL(page.url()).hash).toBe('#ask/when');
+	// Which route to take is the first question, because its answer decides
+	// which of the rest are asked at all (issue #316).
+	await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+		'How much do you want to decide?'
+	);
+	expect(new URL(page.url()).hash).toBe('#ask/mode');
 });
 
 test('a remembered recipe also lands on the plan', async ({ page }) => {
@@ -149,19 +153,20 @@ test('the recipe query is untouched by every move between views', async ({ page 
 	expect(new URL(page.url()).searchParams.has('view')).toBe(false);
 });
 
-test('answering a question moves the plan forming beside it', async ({ page }) => {
-	// A sequence of questions that shows no consequence is a survey. The glance
-	// beside the question is what stops this being one.
-	await openRecipe(page, '', '#ask/pizzas');
+// The question flow used to carry a running "your plan so far" stub beside the
+// question. Below `lg` it stacked *under* it, so on a phone — the width this
+// flow is written for — a visitor met a block of figures about a recipe they
+// had not started yet, and the control they were being asked to use was off
+// screen. What shows the consequence now is the copy under each question.
+test('the first question puts its control on a phone screen, not below one', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 780 });
+	await openRecipe(page, '', '#ask/mode');
 
-	const flour = page
-		.locator('aside dl > div')
-		.filter({ has: page.getByText('Flour', { exact: true }) })
-		.locator('dd');
-	const before = await flour.innerText();
-
-	await page.getByRole('button', { name: 'One more' }).click();
-	await expect.poll(() => flour.innerText()).not.toBe(before);
+	const control = page.getByRole('radio', { name: /^Advanced/ });
+	const box = (await control.boundingBox())!;
+	expect(box.y + box.height).toBeLessThan(780);
+	// And nothing on the page reaches sideways past the trimmed edge.
+	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
 test('the last question hands over to the plan', async ({ page }) => {
@@ -255,7 +260,7 @@ test('the sign on the questions is the way to the plan', async ({ page }) => {
 	// The ask flow rendered it without its `home` callback, so it was the one
 	// place the sign was dead text — and nothing noticed, because the plan's own
 	// masthead test asserts the sign is *not* a button there.
-	await openRecipe(page, RECIPE, '#ask/pizzas');
+	await openRecipe(page, RECIPE, '#ask/batch');
 
 	await page.locator('header').getByRole('button', { name: 'Your plan', exact: true }).click();
 	await expect.poll(() => currentView(page)).toBe('plan');

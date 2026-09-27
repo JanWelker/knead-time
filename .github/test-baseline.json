@@ -1,7 +1,7 @@
 {
 	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
 	"unit": {
-		"total": 1065,
+		"total": 1071,
 		"files": {
 			"scripts/lib/fontLicences.test.mjs": 7,
 			"scripts/lib/testBaseline.test.mjs": 16,
@@ -36,15 +36,15 @@
 			"src/lib/storedVerbosity.test.ts": 14,
 			"src/lib/trmnl/uuid.test.ts": 22,
 			"src/lib/trmnl/webhook.test.ts": 18,
-			"src/lib/view.test.ts": 9,
+			"src/lib/view.test.ts": 15,
 			"src/lib/warningSlots.test.ts": 7
 		}
 	},
 	"e2e": {
-		"total": 173,
+		"total": 176,
 		"files": {
 			"announcements.spec.ts": 6,
-			"ask-flow.spec.ts": 5,
+			"ask-flow.spec.ts": 8,
 			"axe.spec.ts": 12,
 			"base-path.spec.ts": 4,
 			"cascade.spec.ts": 5,

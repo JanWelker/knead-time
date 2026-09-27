@@ -17,7 +17,7 @@ Nothing to install and nothing to sign up for. Add it to your Home Screen and it
 - **A recipe you can trust.** Baker's percentages with a mass balance that always adds up, a Q10 fermentation model that solves the yeast for your window and temperatures, and a fit score that tells you when the inputs stray from Neapolitan practice.
 - **Your flour, your window.** Twelve flour presets, shelved by strength (W), paint the fermentation window each flour tolerates. A slider snaps to the windows Neapolitan practice uses and re-picks the best one when you change the bake time or the flour.
 - **Real pre-ferments.** Biga and poolish, alone or together, each with its own flour share and cellar temperature. Fresh, instant, active-dry or sourdough. Optional autolyse, oil and sugar. Cold or room ball proof. Spiral, stand-mixer or hand kneading, each with its own water temperature.
-- **Beginner and expert views.** Five questions answered in one gesture each, or one dense sheet with every number on it.
+- **Simple and advanced routes.** Six questions answered in one gesture each, or nine that walk every group of the recipe sheet, and one dense sheet with every number on it either way.
 - **Take it with you.** An `.ics` export for your calendar, a print sheet that fits one page with a QR code back to the recipe, a share link that encodes the whole recipe, and a push to a [TRMNL](https://trmnl.com/) e-ink display.
 - **A recipe book.** Your own saved recipes, a community collection, and dough recipes from pizzerias in the [50 Top Pizza](https://www.50toppizza.it/) guide, each with a primary source.
 - **Five languages.** English, German, Italian, French and Dutch. Metric only.

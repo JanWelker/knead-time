@@ -197,7 +197,7 @@ test('the ask flow counts pizzas inside the same band as the sheet', async ({ pa
 	// in the stepper's clamp and the box's attributes, so the two entry points
 	// could disagree about one field. The attributes and the stepper's floor are
 	// the two places that copy showed.
-	await openQuestion(page, 'pizzas', `${CAPUTO}&${FAR_BAKE}`);
+	await openQuestion(page, 'batch', `${CAPUTO}&${FAR_BAKE}`);
 	const box = page.getByRole('spinbutton', { name: 'Pizzas' });
 	await expect(box).toHaveAttribute('min', String(INPUT_BOUNDS.pizzaCount.min));
 	await expect(box).toHaveAttribute('max', String(INPUT_BOUNDS.pizzaCount.max));

@@ -10,9 +10,9 @@
 	// colour from here through currentColor.
 	//
 	// `explain` makes the seal open what the mode means, the way the fit seal
-	// opens its factors. Off elsewhere: on the ask flow's ticket stub and in the
-	// adjust sheet's header the seal is one status among several, and a sentence
-	// of prose hanging off it there would be a second conversation.
+	// opens its factors. Off in the adjust sheet's header, where the seal is one
+	// status among several, and a sentence of prose hanging off it there would
+	// be a second conversation.
 	let { mode, explain = false }: { mode: FermentMode; explain?: boolean } = $props();
 	const t = $derived(i18n.t);
 	const blurb = $derived(mode === 'cold' ? t.mode.cold_blurb : t.mode.room_blurb);
