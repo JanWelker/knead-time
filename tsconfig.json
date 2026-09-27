@@ -8,6 +8,10 @@
 		"sourceMap": true,
 		"strict": true,
 		"moduleResolution": "bundler",
+		// vite.config.ts imports src/lib/storageScope.ts with its extension spelled
+		// out: Vite's upcoming native config loader (Node type-stripping) does not
+		// resolve extensionless TS imports and warns on every build until then.
+		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true
 	}
 }

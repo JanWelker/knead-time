@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
+import {
+	freshEquivalentPercent,
+	PREFERMENT_MAX_HOURS,
+	PREFERMENT_MIN_HOURS,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW
+} from './fermentation';
 import { fitStars, recipeFitScore, stepQualityFlags, type FitFactor } from './quality';
 import {
 	COLD_BULK_CEIL_MIN,
@@ -403,6 +409,37 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 		expect(extreme(0.0499)).toBe(true);
 		expect(extreme(1.5)).toBe(false);
 		expect(extreme(1.5001)).toBe(true);
+	});
+
+	it('flags extreme yeast on exactly the recipes the yeast warnings fire on', () => {
+		// The score used to judge 0.05–1.5 % while schedule.ts warned at 0.02 / 2:
+		// a 1.8 % recipe lost a star for being extreme with no warning anywhere
+		// on the page. Both now import fermentation.ts's band; this sweep holds
+		// them to it on solved recipes either side of both edges.
+		expect(YEAST_PCT_LOW).toBe(0.05);
+		expect(YEAST_PCT_HIGH).toBe(1.5);
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		let extreme = 0;
+		let sane = 0;
+		for (const roomTempC of [10, 14, 22, 30, 46, 60]) {
+			for (const hours of [2, 3, 6, 14, 36, 72]) {
+				const i = inputs({
+					roomTempC,
+					readyBy,
+					startAt: new Date(readyBy.getTime() - hours * 3_600_000)
+				});
+				const s = computeSchedule(i);
+				const fresh = freshEquivalentPercent(s.yeastPercent, s.yeastType);
+				if (!(fresh > 0)) continue;
+				const warned = s.warnings.includes('yeast-tiny') || s.warnings.includes('yeast-large');
+				const flagged = factorKinds(recipeFitScore(s, i).factors).includes('yeast-extreme');
+				expect(flagged, `${roomTempC} °C / ${hours} h → ${fresh}`).toBe(warned);
+				if (flagged) extreme++;
+				else sane++;
+			}
+		}
+		expect(extreme).toBeGreaterThan(0);
+		expect(sane).toBeGreaterThan(0);
 	});
 
 	it('judges the room temperature against the same 14–30 °C band the warnings fire on', () => {

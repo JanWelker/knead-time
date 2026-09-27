@@ -60,8 +60,14 @@ describe('urlState round-trip', () => {
 	it('round-trips the cold ball proof and omits the classic default', () => {
 		expect(encodeInputs(base)).not.toContain('bp=');
 		expect(decodeInputs(encodeInputs({ ...base, ballProof: 'cold' })).ballProof).toBe('cold');
-		// encode never emits it, but hand-crafted URLs should still resolve.
+	});
+
+	it('bp=r is a tolerated hand-written spelling the encoder never writes', () => {
+		// The classic shape is the omitted default, so no link the app made ever
+		// carries bp=r — but a hand-edited one may, and a published key shape
+		// stays understood forever.
 		expect(decodeInputs('?v=4&n=4&bp=r').ballProof).toBe('room');
+		expect(decodeInputs('?v=4&n=4&bp=c').ballProof).toBe('cold');
 	});
 
 	it('round-trips the dry yeast types', () => {
@@ -572,6 +578,28 @@ describe('hasRecipeParams', () => {
 
 	it('is true when a recipe key hides between foreign params', () => {
 		expect(hasRecipeParams('?utm_source=x&n=4&fbclid=z')).toBe(true);
+	});
+
+	it('every decoder takes the query with or without its leading ?', () => {
+		// Three of them used to strip the '?' by hand before handing the string
+		// to URLSearchParams, which strips it itself; the fourth said so in a
+		// comment. The strips are gone, so this is what holds both call shapes.
+		const q = 'v=7&n=4&h=65&md=b';
+		expect(decodeInputs(`?${q}`)).toEqual(decodeInputs(q));
+		expect(decodeInputs(q).hydration).toBe(65);
+		expect(decodeUiMode(`?${q}`)).toBe(decodeUiMode(q));
+		expect(decodeUiMode(q)).toBe('beginner');
+		expect(hasRecipeParams(`?${q}`)).toBe(hasRecipeParams(q));
+		expect(hasRecipeParams('?utm_source=x')).toBe(false);
+		expect(hasRecipeParams('utm_source=x')).toBe(false);
+	});
+
+	it('md=e is a tolerated hand-written spelling the encoder never writes', () => {
+		// encode stamps md only for beginner; a link that says expert outright
+		// still has to be honoured, because a published key shape is forever.
+		expect(encodeInputs(base, { mode: 'expert' })).not.toContain('md=');
+		expect(decodeUiMode('?md=e')).toBe('expert');
+		expect(decodeUiMode('?md=e&n=4')).toBe('expert');
 	});
 
 	it('the view-mode key alone is not a recipe link', () => {

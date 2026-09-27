@@ -1,5 +1,6 @@
-import type { Messages } from '../i18n/messages';
+import type { Locale, Messages } from '../i18n/messages';
 import type { SerializableInputs } from '../dough/urlState';
+import { formatBallWeightGrams, formatNumber, formatPercent, formatTemperature } from '../format';
 
 // Helpers and copy shapes shared by the Community and Pizzerias tables/cards.
 // Each takes a localized message bundle to keep the components free of i18n
@@ -71,6 +72,23 @@ export function preFermentLabel(inputs: Partial<SerializableInputs>, t: Messages
 		.join(' + ');
 }
 
-export function numLabel(value: number | undefined, suffix = ''): string {
-	return value === undefined ? '—' : `${value}${suffix}`;
+// The figures in the library's tables and cards. These concatenated the raw
+// number with a hardcoded suffix, which put "2.75%" and "288.5 g" on a German
+// or French rack while the plan behind it wrote "2,75 %" — the same decimal
+// trap the weights fell into (PR #346), one renderer further out. Every unit
+// goes through format.ts so the rack and the ticket punctuate alike.
+export type NumUnit = 'g' | '%' | '°C';
+
+export function numLabel(value: number | undefined, locale: Locale, unit?: NumUnit): string {
+	if (value === undefined) return '—';
+	switch (unit) {
+		case 'g':
+			return formatBallWeightGrams(value, locale);
+		case '%':
+			return formatPercent(value, locale);
+		case '°C':
+			return formatTemperature(value, locale);
+		default:
+			return formatNumber(value, locale);
+	}
 }

@@ -3,17 +3,20 @@ import {
 	combineDateTimeInputs,
 	formatBallWeight,
 	formatBallWeightGrams,
+	formatDate,
 	formatDateTime,
 	formatDuration,
-	formatDurationHHMM,
 	formatGrams,
 	formatIsoDate,
+	formatNumber,
 	formatPercent,
 	formatShortDate,
+	formatTemperature,
 	formatTime,
 	toDatePart,
 	toTimePart
 } from './format';
+import { LOCALES, type Locale } from './i18n/messages';
 
 describe('formatDuration', () => {
 	it('formats minutes only when under an hour', () => {
@@ -38,25 +41,20 @@ describe('formatDuration', () => {
 		expect(formatDuration(59.4, 'en')).toBe('59 min');
 	});
 
-	it('handles all supported locales', () => {
-		expect(formatDuration(90, 'de')).toContain('Std');
-		expect(formatDuration(90, 'it')).toContain('h');
-	});
-});
-
-describe('formatDurationHHMM', () => {
-	it('pads single-digit hours and minutes', () => {
-		expect(formatDurationHHMM(0)).toBe('00:00');
-		expect(formatDurationHHMM(5)).toBe('00:05');
-		expect(formatDurationHHMM(65)).toBe('01:05');
-	});
-	it('handles multi-hour durations', () => {
-		expect(formatDurationHHMM(12 * 60)).toBe('12:00');
-		expect(formatDurationHHMM(36 * 60 + 30)).toBe('36:30');
-	});
-	it('rounds fractional minutes and floors negatives to zero', () => {
-		expect(formatDurationHHMM(59.6)).toBe('01:00');
-		expect(formatDurationHHMM(-10)).toBe('00:00');
+	it('writes the hour and minute units in every supported locale', () => {
+		// Was two of five locales, checked with `toContain('h')` — which almost
+		// any output satisfies. One literal per locale, both shapes.
+		const expected: Record<Locale, [string, string]> = {
+			en: ['1 h 30 min', '2 h 5 min'],
+			de: ['1 Std 30 Min', '2 Std 5 Min'],
+			it: ['1 h 30 min', '2 h 5 min'],
+			fr: ['1 h 30 min', '2 h 5 min'],
+			nl: ['1 u 30 min', '2 u 5 min']
+		};
+		for (const locale of LOCALES) {
+			expect(formatDuration(90, locale), locale).toBe(expected[locale][0]);
+			expect(formatDuration(125, locale), locale).toBe(expected[locale][1]);
+		}
 	});
 });
 
@@ -278,5 +276,71 @@ describe('formatIsoDate', () => {
 		// path a shipped row takes: never render "Invalid Date" at a reader.
 		expect(formatIsoDate('not-a-date', 'en')).toBe('not-a-date');
 		expect(formatIsoDate('2026-09', 'en')).toBe('2026-09');
+	});
+});
+
+// The plan's expert chips and the print summary wrote `${roomTempC} °C` as a
+// template string, and the library's numLabel concatenated `${value}°C`, so a
+// half-degree room came out "22.5 °C" in every language while the weights
+// beside it had already been fixed (PR #346). The five results are pinned as
+// literals: the unit spacing differs per locale and Intl owns it.
+describe('formatTemperature', () => {
+	it('punctuates a half degree in every locale, with the unit spacing Intl gives it', () => {
+		expect(formatTemperature(22.5, 'en')).toBe('22.5°C');
+		expect(formatTemperature(22.5, 'de')).toBe('22,5 °C');
+		expect(formatTemperature(22.5, 'it')).toBe('22,5 °C');
+		expect(formatTemperature(22.5, 'fr')).toBe('22,5\u202f°C');
+		expect(formatTemperature(22.5, 'nl')).toBe('22,5°C');
+	});
+
+	it('writes a whole degree without a decimal', () => {
+		expect(formatTemperature(4, 'en')).toBe('4°C');
+		expect(formatTemperature(4, 'de')).toBe('4 °C');
+	});
+
+	it('rounds finer than the half-degree step the form allows', () => {
+		expect(formatTemperature(22.26, 'en')).toBe('22.3°C');
+	});
+});
+
+// The fit score's factor copy interpolated a raw JS number for {delta}, so a
+// German reader saw "2.5 h" inside a German sentence. One decimal at most:
+// that is what the copy was already rounding to by hand.
+describe('formatNumber', () => {
+	it('uses the locale decimal separator and at most one decimal', () => {
+		expect(formatNumber(2.5, 'en')).toBe('2.5');
+		expect(formatNumber(2.5, 'de')).toBe('2,5');
+		expect(formatNumber(2.5, 'fr')).toBe('2,5');
+		expect(formatNumber(2.55, 'en')).toBe('2.6');
+	});
+
+	it('writes an integer bare', () => {
+		expect(formatNumber(5, 'en')).toBe('5');
+		expect(formatNumber(5, 'de')).toBe('5');
+	});
+
+	it('never groups thousands, like every other figure here', () => {
+		expect(formatNumber(1240, 'en')).toBe('1240');
+		expect(formatNumber(1240, 'de')).toBe('1240');
+	});
+});
+
+// MyRecipes built its own Intl.DateTimeFormat with these exact options, so the
+// saved-recipe date was the one date on the page that did not come through
+// here. formatIsoDate and formatDate now share one formatter per locale.
+describe('formatDate', () => {
+	const savedAt = new Date(2026, 8, 5, 14, 30);
+
+	it('renders the calendar day the way formatIsoDate does', () => {
+		expect(formatDate(savedAt, 'en')).toBe(formatIsoDate('2026-09-05', 'en'));
+		expect(formatDate(savedAt, 'de')).toBe(formatIsoDate('2026-09-05', 'de'));
+	});
+
+	it('pins the five locales', () => {
+		expect(formatDate(savedAt, 'en')).toBe('Sep 5, 2026');
+		expect(formatDate(savedAt, 'de')).toBe('5. Sept. 2026');
+		expect(formatDate(savedAt, 'it')).toBe('5 set 2026');
+		expect(formatDate(savedAt, 'fr')).toBe('5 sept. 2026');
+		expect(formatDate(savedAt, 'nl')).toBe('5 sep 2026');
 	});
 });

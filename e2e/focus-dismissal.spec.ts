@@ -110,3 +110,35 @@ test('the masthead menu roves focus across its items', async ({ page }) => {
 	await page.keyboard.press('ArrowUp');
 	await expect(items.last()).toBeFocused();
 });
+
+// ModeBadge registered its dismissal handlers whether or not it had a panel to
+// dismiss. Two of its three callers — the ask flow's ticket stub and the adjust
+// sheet's header — render the seal without `explain`, so each left a permanent
+// pair of document listeners behind, guarding a <details> that never existed.
+// Nothing visible went wrong, which is why it lasted: the guard read a null ref
+// and did nothing, on every click and every key, on every view. Chromium's
+// debugger is the only place a document listener can be counted from, so this
+// asks it directly: one keydown listener per seal that actually opens.
+test('a seal without a panel attaches no dismissal listeners', async ({ page }) => {
+	const keydownListeners = async () => {
+		const cdp = await page.context().newCDPSession(page);
+		const { result } = await cdp.send('Runtime.evaluate', { expression: 'document' });
+		const { listeners } = await cdp.send('DOMDebugger.getEventListeners', {
+			objectId: result.objectId!
+		});
+		await cdp.detach();
+		return listeners.filter((l) => l.type === 'keydown').length;
+	};
+
+	// The first question: the stub's seal and the sheet's seal are both on the
+	// page, neither opens, and nothing else on this view listens for a key.
+	await openRecipe(page, RECIPE, '#ask/when');
+	await expect(page.locator('details:has(.seal-panel)')).toHaveCount(0);
+	expect(await keydownListeners()).toBe(0);
+
+	// The plan: the mode seal and the fit seal open, the sheet's seal does not.
+	// The menu attaches its handler only while open, so it is not in the count.
+	await openRecipe(page, RECIPE);
+	await expect(page.locator('details:has(.seal-panel)')).toHaveCount(2);
+	expect(await keydownListeners()).toBe(2);
+});

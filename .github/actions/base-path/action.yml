@@ -20,6 +20,11 @@ runs:
   steps:
     - id: resolve
       shell: bash
+      # Through the environment, not interpolated into the script: `${{ }}` is
+      # substituted before bash sees the text, so a value with a quote or a `$`
+      # in it would be evaluated as shell. An env var is a string whatever it holds.
+      env:
+        SUBDIR: ${{ inputs.subdir }}
       run: |
         REPO_NAME="${GITHUB_REPOSITORY#*/}"
         OWNER="${GITHUB_REPOSITORY%%/*}"
@@ -28,4 +33,4 @@ runs:
         else
           ROOT="/${REPO_NAME}"
         fi
-        echo "value=${ROOT}${{ inputs.subdir }}" >> "$GITHUB_OUTPUT"
+        echo "value=${ROOT}${SUBDIR}" >> "$GITHUB_OUTPUT"

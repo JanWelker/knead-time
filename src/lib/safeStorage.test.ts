@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { safeGet, safeLocalStorage, safeRemove, safeSet } from './safeStorage';
+import { safeGet, safeLocalStorage, safeRemove, safeSet, storageKey } from './safeStorage';
 import { makeStorage, makeThrowingStorage } from './storageFixtures';
 
 describe('safeLocalStorage', () => {
@@ -88,5 +88,14 @@ describe('safeRemove', () => {
 
 	it('swallows a throwing removal and reports failure', () => {
 		expect(safeRemove(makeThrowingStorage(), 'k')).toBe(false);
+	});
+});
+
+describe('storageKey', () => {
+	// vitest.config.ts defines __STORAGE_SCOPE__ as '' — the root deployment — so
+	// the key must be the exact literal every returning device already holds. A
+	// scope leaking into the unit-test build would silently rename every slot.
+	it('is the historical kneadtime:<name> literal at the root scope', () => {
+		expect(storageKey('theme')).toBe('kneadtime:theme');
 	});
 });

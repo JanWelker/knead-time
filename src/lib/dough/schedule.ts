@@ -6,6 +6,8 @@ import {
 	prefermentDurationHours,
 	prefermentRefHours,
 	temperatureFactor,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW,
 	yeastPercentForPhases,
 	type FermentPhase
 } from './fermentation';
@@ -406,8 +408,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const { yeastPercent: yeastPct, steps } = plan;
 
 	const freshEquivalentPct = freshEquivalentPercent(yeastPct, inputs.yeastType);
-	if (freshEquivalentPct > 0 && freshEquivalentPct < 0.02) warnings.push('yeast-tiny');
-	if (freshEquivalentPct > 2) warnings.push('yeast-large');
+	if (freshEquivalentPct > 0 && freshEquivalentPct < YEAST_PCT_LOW) warnings.push('yeast-tiny');
+	if (freshEquivalentPct > YEAST_PCT_HIGH) warnings.push('yeast-large');
 
 	// Cold mode shifts coldMin to avoid the night window for the pre-cold
 	// cluster, but the post-cold divide is anchored to readyBy and room mode

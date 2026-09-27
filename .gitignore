@@ -1,7 +1,9 @@
 node_modules
 .DS_Store
 .svelte-kit
+.svelte-kit-base
 build
+build-base
 dist
 .env
 .env.*

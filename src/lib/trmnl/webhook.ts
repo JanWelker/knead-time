@@ -10,7 +10,7 @@ import { stepTitle } from '../stepCopy';
 export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
 
 // TRMNL's free tier caps webhook payloads at 2 KB. A cold-mode recipe with
-// a pre-ferment and seven localized step descriptions blows past 2 KB with
+// biga + poolish and its nine localized step descriptions blows past 2 KB with
 // human-readable JSON keys. Short keys trade verbosity for ~600 bytes of
 // headroom; the Liquid template uses the same names. Mapping documented
 // in docs/trmnl-setup.md.
@@ -34,7 +34,7 @@ export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
 // are intentionally NOT in the payload. The default Full-Markup template
 // renders only titles + times + durations, and including descriptions
 // blew past the 2 KB cap in de/it/fr (each long German description costs
-// ~80 bytes × 8 steps).
+// ~80 bytes, nine of them in the worst case).
 export interface TrmnlMergeVariables {
 	t: string;
 	s: string;

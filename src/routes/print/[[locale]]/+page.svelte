@@ -8,7 +8,13 @@
 	import { computeSchedule } from '$lib/dough/schedule';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeightGrams, formatDateTime, formatDuration } from '$lib/format';
+	import {
+		formatBallWeightGrams,
+		formatDateTime,
+		formatDuration,
+		formatPercent,
+		formatTemperature
+	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { isLocale, type Locale } from '$lib/i18n/messages';
@@ -259,22 +265,37 @@
 			<table class="printpage-summary">
 				<tbody>
 					<tr>
-						<th>{t.form.readyBy}</th>
+						<th scope="row">{t.form.readyBy}</th>
 						<td>{formatDateTime(inputs.readyBy, locale)}</td>
 					</tr>
 					<tr>
-						<th>{t.form.pizzaCount}</th>
+						<th scope="row">{t.form.pizzaCount}</th>
 						<td>{inputs.pizzaCount} × {formatBallWeightGrams(inputs.ballWeight, locale)}</td>
 					</tr>
-					<tr><th>{t.form.hydration}</th><td>{inputs.hydration}%</td></tr>
-					<tr><th>{t.form.salt}</th><td>{inputs.saltPercent}%</td></tr>
-					<tr><th>{t.form.yeastType}</th><td>{yeastTypeLabel}</td></tr>
-					<tr><th>{t.form.roomTemp}</th><td>{inputs.roomTempC} °C</td></tr>
+					<tr
+						><th scope="row">{t.form.hydration}</th><td
+							>{formatPercent(inputs.hydration, locale)}</td
+						></tr
+					>
+					<tr
+						><th scope="row">{t.form.salt}</th><td>{formatPercent(inputs.saltPercent, locale)}</td
+						></tr
+					>
+					<tr><th scope="row">{t.form.yeastType}</th><td>{yeastTypeLabel}</td></tr>
+					<tr
+						><th scope="row">{t.form.roomTemp}</th><td
+							>{formatTemperature(inputs.roomTempC, locale)}</td
+						></tr
+					>
 					{#if schedule.mode === 'cold'}
-						<tr><th>{t.form.fridgeTemp}</th><td>{inputs.fridgeTempC} °C</td></tr>
+						<tr
+							><th scope="row">{t.form.fridgeTemp}</th><td
+								>{formatTemperature(inputs.fridgeTempC, locale)}</td
+							></tr
+						>
 					{/if}
 					{#if preFermentLabel}
-						<tr><th>{t.form.preFerment}</th><td>{preFermentLabel}</td></tr>
+						<tr><th scope="row">{t.form.preFerment}</th><td>{preFermentLabel}</td></tr>
 					{/if}
 				</tbody>
 			</table>
@@ -292,7 +313,7 @@
 						<tbody>
 							{#each section.rows as row (row.label)}
 								<tr>
-									<th
+									<th scope="row"
 										>{row.label}{#if row.hint}&nbsp;({row.hint}){/if}</th
 									>
 									<td>{row.amount}</td>
@@ -300,7 +321,7 @@
 							{/each}
 							{#if section.total}
 								<tr class="printpage-total">
-									<th>{section.total.label}</th>
+									<th scope="row">{section.total.label}</th>
 									<td>{section.total.amount}</td>
 								</tr>
 							{/if}
@@ -316,9 +337,9 @@
 		<table class="printpage-schedule">
 			<thead>
 				<tr>
-					<th>{t.schedule.col_when}</th>
-					<th>{t.schedule.col_step}</th>
-					<th class="printpage-duration">{t.schedule.col_duration}</th>
+					<th scope="col">{t.schedule.col_when}</th>
+					<th scope="col">{t.schedule.col_step}</th>
+					<th scope="col" class="printpage-duration">{t.schedule.col_duration}</th>
 				</tr>
 			</thead>
 			<tbody>

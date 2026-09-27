@@ -2,6 +2,7 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
 	import { INFO_SECTIONS } from '$lib/infoSections';
+	import { INPUT_BOUNDS, PREFERMENT_SHARE_MAX, PREFERMENT_SHARE_MIN } from '$lib/dough/inputBounds';
 	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import FieldHelp from './FieldHelp.svelte';
@@ -123,8 +124,8 @@
 		{#if uiMode.current === 'expert' && form.flourW !== null}
 			<FormField
 				label={t.form.flourW}
-				min={150}
-				max={400}
+				min={INPUT_BOUNDS.flourW.min}
+				max={INPUT_BOUNDS.flourW.max}
 				step={5}
 				help={t.form.flourW_help}
 				bind:value={form.flourW}
@@ -143,8 +144,8 @@
 		<FormField
 			id="field-pizzaCount"
 			label={t.form.pizzaCount}
-			min={1}
-			max={100}
+			min={INPUT_BOUNDS.pizzaCount.min}
+			max={INPUT_BOUNDS.pizzaCount.max}
 			step={1}
 			bind:value={form.pizzaCount}
 		/>
@@ -152,8 +153,8 @@
 			<FormField
 				id="field-ballWeight"
 				label={t.form.ballWeight}
-				min={100}
-				max={600}
+				min={INPUT_BOUNDS.ballWeight.min}
+				max={INPUT_BOUNDS.ballWeight.max}
 				step={1}
 				bind:value={form.ballWeight}
 			/>
@@ -166,8 +167,8 @@
 			<FormField
 				id="field-hydration"
 				label={t.form.hydration}
-				min={50}
-				max={90}
+				min={INPUT_BOUNDS.hydration.min}
+				max={INPUT_BOUNDS.hydration.max}
 				step={1}
 				help={t.form.hydration_help}
 				bind:value={form.hydration}
@@ -176,16 +177,16 @@
 			<FormField
 				id="field-salt"
 				label={t.form.salt}
-				min={0}
-				max={5}
+				min={INPUT_BOUNDS.saltPercent.min}
+				max={INPUT_BOUNDS.saltPercent.max}
 				step={0.1}
 				bind:value={form.saltPercent}
 			/>
 
 			<FormField
 				label={t.form.oil}
-				min={0}
-				max={15}
+				min={INPUT_BOUNDS.oilPercent.min}
+				max={INPUT_BOUNDS.oilPercent.max}
 				step={0.1}
 				help={t.form.oil_help}
 				bind:value={form.oilPercent}
@@ -193,8 +194,8 @@
 
 			<FormField
 				label={t.form.sugar}
-				min={0}
-				max={5}
+				min={INPUT_BOUNDS.sugarPercent.min}
+				max={INPUT_BOUNDS.sugarPercent.max}
 				step={0.1}
 				help={t.form.sugar_help}
 				bind:value={form.sugarPercent}
@@ -233,8 +234,8 @@
 			{#if form.yeastType === 'sourdough'}
 				<FormField
 					label={t.form.starterHydration}
-					min={40}
-					max={150}
+					min={INPUT_BOUNDS.starterHydration.min}
+					max={INPUT_BOUNDS.starterHydration.max}
 					step={5}
 					help={t.form.starterHydration_help}
 					bind:value={form.starterHydration}
@@ -242,32 +243,28 @@
 			{:else}
 				<fieldset class="space-y-2">
 					<legend class="field-label">{t.form.preFerment}</legend>
-					<label class="text-ink flex items-center gap-2 text-sm font-medium">
-						<input type="checkbox" class="accent-accent size-4" bind:checked={form.bigaEnabled} />
+					<label class="check-row">
+						<input type="checkbox" class="check-box" bind:checked={form.bigaEnabled} />
 						{t.form.preFerment_biga}
 					</label>
 					{#if form.bigaEnabled}
 						<FormField
 							label={t.form.preFermentFlour_biga}
-							min={5}
-							max={80 - (form.poolishEnabled ? form.poolishFlourPercent : 0)}
+							min={PREFERMENT_SHARE_MIN}
+							max={PREFERMENT_SHARE_MAX - (form.poolishEnabled ? form.poolishFlourPercent : 0)}
 							step={5}
 							bind:value={form.bigaFlourPercent}
 						/>
 					{/if}
-					<label class="text-ink flex items-center gap-2 text-sm font-medium">
-						<input
-							type="checkbox"
-							class="accent-accent size-4"
-							bind:checked={form.poolishEnabled}
-						/>
+					<label class="check-row">
+						<input type="checkbox" class="check-box" bind:checked={form.poolishEnabled} />
 						{t.form.preFerment_poolish}
 					</label>
 					{#if form.poolishEnabled}
 						<FormField
 							label={t.form.preFermentFlour_poolish}
-							min={5}
-							max={80 - (form.bigaEnabled ? form.bigaFlourPercent : 0)}
+							min={PREFERMENT_SHARE_MIN}
+							max={PREFERMENT_SHARE_MAX - (form.bigaEnabled ? form.bigaFlourPercent : 0)}
 							step={5}
 							bind:value={form.poolishFlourPercent}
 						/>
@@ -276,19 +273,15 @@
 						<span class="text-ink-soft block text-xs">{t.form.preFerment_sum_help}</span>
 					{/if}
 					{#if form.bigaEnabled || form.poolishEnabled}
-						<label class="text-ink flex items-center gap-2 text-sm font-medium">
-							<input
-								type="checkbox"
-								class="accent-accent size-4"
-								bind:checked={form.preFermentTempEnabled}
-							/>
+						<label class="check-row">
+							<input type="checkbox" class="check-box" bind:checked={form.preFermentTempEnabled} />
 							{t.form.preFermentTemp_toggle}
 						</label>
 						{#if form.preFermentTempEnabled}
 							<FormField
 								label={t.form.preFermentTemp}
-								min={4}
-								max={35}
+								min={INPUT_BOUNDS.preFermentTempC.min}
+								max={INPUT_BOUNDS.preFermentTempC.max}
 								step={0.5}
 								help={t.form.preFermentTemp_help}
 								bind:value={form.preFermentTempValue}
@@ -301,13 +294,11 @@
 			<!-- Autolyse applies only with no pre-ferment (sourdough always
 			     qualifies — its starter is not a schedule pre-ferment). -->
 			{#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
-				<label class="group text-ink flex items-center gap-2 text-sm font-medium">
-					<input type="checkbox" class="accent-accent size-4" bind:checked={form.autolyse} />
+				<label class="check-row group">
+					<input type="checkbox" class="check-box" bind:checked={form.autolyse} />
 					<span>
 						{t.form.autolyse_toggle}
-						<span class="text-ink-soft hidden text-xs font-normal group-focus-within:block">
-							{t.form.autolyse_help}
-						</span>
+						<FieldHelp text={t.form.autolyse_help} extra="font-normal" />
 					</span>
 				</label>
 			{/if}
@@ -315,26 +306,24 @@
 
 		<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 			<legend class="banner col-span-full mb-1">{t.adjust.group_proof}</legend>
-			<label class="group text-ink col-span-full flex items-center gap-2 text-sm font-medium">
+			<label class="check-row group col-span-full">
 				<input
 					type="checkbox"
-					class="accent-accent size-4"
+					class="check-box"
 					checked={form.ballProof === 'cold'}
 					onchange={(e) => (form.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
 				/>
 				<span>
 					{t.form.ballProof_toggle}
-					<span class="text-ink-soft hidden text-xs font-normal group-focus-within:block">
-						{t.form.ballProof_help}
-					</span>
+					<FieldHelp text={t.form.ballProof_help} extra="font-normal" />
 				</span>
 			</label>
 
 			<FormField
 				id="field-roomTemp"
 				label={t.form.roomTemp}
-				min={10}
-				max={35}
+				min={INPUT_BOUNDS.roomTempC.min}
+				max={INPUT_BOUNDS.roomTempC.max}
 				step={0.5}
 				help={t.form.roomTemp_help}
 				bind:value={form.roomTempC}
@@ -342,8 +331,8 @@
 
 			<FormField
 				label={t.form.fridgeTemp}
-				min={0}
-				max={12}
+				min={INPUT_BOUNDS.fridgeTempC.min}
+				max={INPUT_BOUNDS.fridgeTempC.max}
 				step={0.5}
 				help={t.form.fridgeTemp_help}
 				bind:value={form.fridgeTempC}

@@ -13,6 +13,7 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { onMount } from 'svelte';
+	import { minuteClock } from '$lib/now.svelte';
 	import Warnings from './Warnings.svelte';
 	import type { FormState } from '$lib/state.svelte';
 
@@ -37,13 +38,12 @@
 		form.flourW === null ? null : flourZones(form.flourW, COLD_MODE_THRESHOLD_MIN / 60)
 	);
 
-	// Same minute tick as the schedule table, so an open tab notices when the
-	// window slips into the past rather than holding its mount value.
-	let now = $state(new Date());
-	onMount(() => {
-		const id = setInterval(() => (now = new Date()), 60_000);
-		return () => clearInterval(id);
-	});
+	// The same minute as the schedule table — one clock, not a second one
+	// seeded when the sheet opens — so an open tab notices when the window slips
+	// into the past, and the card and the table never disagree about whether
+	// the first step is still running.
+	onMount(() => minuteClock.subscribe());
+	const now = $derived(minuteClock.now);
 
 	// Fires once the opening step is wholly behind us — the same test the table
 	// used to grey steps with, so the card now states what the fade only hinted.

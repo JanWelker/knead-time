@@ -52,7 +52,7 @@
 							     to its weight across whatever width is left. It is painted as the
 							     cell's background rather than laid out as a box between the two,
 							     so a name that wraps still gets its leader on the line it ends on. -->
-							<th class="leader-cell text-ink w-full py-2 pr-3 text-left font-semibold">
+							<th scope="row" class="leader-cell text-ink w-full py-2 pr-3 text-left font-semibold">
 								<span class="leader-text">
 									{row.label}
 									{#if row.hint}
@@ -79,7 +79,10 @@
 				<table class="rule-double mt-5 w-full border-collapse tabular-nums">
 					<tbody>
 						<tr>
-							<th class="font-display text-ink w-full pt-3 pr-3 text-left text-lg uppercase">
+							<th
+								scope="row"
+								class="font-display text-ink w-full pt-3 pr-3 text-left text-lg uppercase"
+							>
 								{section.total.label}
 							</th>
 							<td

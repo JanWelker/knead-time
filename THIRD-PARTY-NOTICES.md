@@ -10,19 +10,26 @@ runtime library, bundled into the single script the app is served as.
 Copyright 2020 The Anton Project Authors (<https://github.com/googlefonts/AntonFont>)
 
 Licensed under the SIL Open Font License, Version 1.1
-(<https://openfontlicense.org>). The full text ships with the font package, at
-`node_modules/@fontsource/anton/LICENSE`.
+(<https://openfontlicense.org>). The full text is
+[`static/licenses/anton-OFL.txt`](static/licenses/anton-OFL.txt), served with the
+site at `/licenses/anton-OFL.txt`.
 
 ## Archivo
 
 Copyright 2020 The Archivo Project Authors (<https://github.com/Omnibus-Type/Archivo>)
 
 Licensed under the SIL Open Font License, Version 1.1
-(<https://openfontlicense.org>). The full text ships with the font package, at
-`node_modules/@fontsource-variable/archivo/LICENSE`.
+(<https://openfontlicense.org>). The full text is
+[`static/licenses/archivo-OFL.txt`](static/licenses/archivo-OFL.txt), served with
+the site at `/licenses/archivo-OFL.txt`.
 
 Both are packaged by [Fontsource](https://fontsource.org/); only the Latin and
-Latin Extended subsets are declared in `src/app.css`.
+Latin Extended subsets are declared in `src/app.css`. The OFL asks for its text
+to accompany the font files it covers, and the deploy is what redistributes
+them, so the two licence files are copied out of the packages into `static/`
+and ship next to the `.woff2` files. `node scripts/sync-font-licences.mjs`
+refreshes the copies after a Fontsource bump; `scripts/lib/fontLicences.test.mjs`
+fails while they differ from the packages' own.
 
 ## qrcode-generator
 

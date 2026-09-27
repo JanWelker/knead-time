@@ -15,9 +15,14 @@ import type { Handle } from '@sveltejs/kit';
 // Anything that is not one of our locales — the app route, the `404.html`
 // fallback, `/print` with no locale — falls back to English, which is the value
 // the file used to hard-code.
+//
+// `%storage-scope%` rides the same mechanism: the theme boot script in app.html
+// reads localStorage before any module runs, so the deployment's storage scope
+// (see storageScope.ts) has to be written into the markup rather than imported.
 export const handle: Handle = async ({ event, resolve }) => {
 	const locale = isLocale(event.params.locale) ? event.params.locale : 'en';
 	return resolve(event, {
-		transformPageChunk: ({ html }) => html.replace('%lang%', locale)
+		transformPageChunk: ({ html }) =>
+			html.replace('%lang%', locale).replaceAll('%storage-scope%', __STORAGE_SCOPE__)
 	});
 };

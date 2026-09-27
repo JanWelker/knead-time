@@ -1,3 +1,4 @@
+import { storageKey } from './safeStorage';
 import { storedPreference } from './storedPreference';
 
 export type ScheduleVerbosity = 'short' | 'descriptive';
@@ -7,7 +8,7 @@ export function isScheduleVerbosity(value: unknown): value is ScheduleVerbosity 
 }
 
 const pref = storedPreference<ScheduleVerbosity>({
-	key: 'kneadtime:scheduleVerbosity',
+	key: storageKey('scheduleVerbosity'),
 	isValid: isScheduleVerbosity
 });
 

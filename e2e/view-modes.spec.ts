@@ -87,15 +87,20 @@ test('the schedule verbosity toggle shows and hides the step explanations', asyn
 	await open(page, RECIPE);
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
 
+	// RECIPE is an eight-step cold schedule (prep, autolyse, mix, room bulk,
+	// cold bulk, divide, final proof, ready). Every step carries its method
+	// paragraph; the detailed level adds one explanation paragraph per step.
+	// The counts are pinned rather than compared: `short < before` held with
+	// one explanation of eight dropped, and would hold with the method copy
+	// hidden too.
 	const detail = page.locator('ol li p');
-	const before = await detail.count();
+	await expect(detail).toHaveCount(16);
 
 	await chooseInMenu(page, 'Short');
-	const short = await detail.count();
-	expect(short).toBeLessThan(before);
+	await expect(detail).toHaveCount(8);
 
 	await chooseInMenu(page, 'Detailed');
-	await expect.poll(() => detail.count()).toBe(before);
+	await expect(detail).toHaveCount(16);
 });
 
 test('verbosity is a device preference, not part of the share URL', async ({ page }) => {

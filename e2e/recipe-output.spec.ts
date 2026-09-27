@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { NOW, openAdjust, openRecipe, region, sheet } from './helpers';
+import { chooseInMenu, NOW, openAdjust, openLibrary, openRecipe, region, sheet } from './helpers';
 
 const BASE = 'n=6&b=280&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z';
 
@@ -105,18 +105,44 @@ test('a pre-v6 link claims no flour it was never made with', async ({ page }) =>
 	await expect(sheet(page).locator('select').first()).toHaveValue('none');
 });
 
-test('the print route renders the same recipe as the screen', async ({ page }) => {
+// The ingredient rows of one rendering, "label amount" per two-cell row, for
+// holding the screen and the paper together. The summary block beside the print
+// ticket is a table too — only the ingredient ones are passed in.
+const ingredientRows = (scope: ReturnType<typeof region>) =>
+	scope.locator('tr').evaluateAll((trs) =>
+		trs
+			.map((tr) => {
+				const cells = tr.querySelectorAll('th, td');
+				return cells.length === 2
+					? `${cells[0].textContent} ${cells[1].textContent}`.replace(/\s+/g, ' ').trim()
+					: '';
+			})
+			.filter(Boolean)
+	);
+
+test('the print sheet shows the recipe in its URL, not the prerendered defaults', async ({
+	page
+}) => {
 	// issue #191: print is its own SSR route and had drifted from the screen.
+	// This used to read "Flour", "Water", "Salt" and a step title off the body
+	// straight after `goto` — every one of which the prerendered defaults
+	// already print — so it compared nothing and waited for nothing. Five 260 g
+	// balls are not the defaults; their total is what the sheet has to reach.
+	const PLAIN = `v=6&n=5&b=260&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z&sa=2026-09-05T09%3A00%3A00.000Z`;
+	await openRecipe(page, PLAIN);
+	const onScreen = await ingredientRows(region(page, 'Ingredients'));
+	// flour, water, salt, yeast and the total — one flat table, no pre-dough
+	expect(onScreen).toHaveLength(5);
+
 	await page.clock.install({ time: NOW });
 	// the route auto-calls window.print() on mount; stub it so the run is headless-safe
 	await page.addInitScript(() => {
 		window.print = () => {};
 	});
-	await page.goto(`/print/en?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	await page.goto(`/print/en?${PLAIN}`);
+	await expect(page.locator('.printpage-ingredients')).toContainText('1300 g');
 
-	await expect(page.locator('body')).toContainText('Flour');
-	await expect(page.locator('body')).toContainText('Water');
-	await expect(page.locator('body')).toContainText('Salt');
+	expect(await ingredientRows(page.locator('.printpage-ingredients'))).toEqual(onScreen);
 	await expect(page.locator('body')).toContainText('Weigh & prep');
 });
 
@@ -126,22 +152,16 @@ test('the print route renders the same recipe as the screen', async ({ page }) =
 // pre-doughs, a main dough and a totals section, with oil and sugar in play.
 test('the print sheet weighs exactly what the screen weighs', async ({ page }) => {
 	const RICH = `v=6&${BASE}&o=2&sg=1&p=b30_p20&sa=2026-09-05T09%3A00%3A00.000Z`;
-	const rows = (scope: ReturnType<typeof region>) =>
-		scope.locator('tr').evaluateAll((trs) =>
-			trs
-				.map((tr) => {
-					const cells = tr.querySelectorAll('th, td');
-					return cells.length === 2
-						? `${cells[0].textContent} ${cells[1].textContent}`.replace(/\s+/g, ' ').trim()
-						: '';
-				})
-				.filter(Boolean)
-		);
+	const rows = ingredientRows;
 
 	await openRecipe(page, RICH);
 	const onScreen = await rows(region(page, 'Ingredients'));
-	// biga + poolish + main + totals, each with its rows, plus the total line
-	expect(onScreen.length).toBeGreaterThan(10);
+	// Biga (flour, water, yeast) + poolish (the same three) + main dough
+	// (flour, water, salt, oil, sugar) + totals (flour, water, salt, oil,
+	// sugar, yeast) + the total-dough line = 3 + 3 + 5 + 6 + 1. Pinned: the
+	// row count for a fixed recipe is deterministic, and `> 10` left a
+	// dropped row invisible.
+	expect(onScreen).toHaveLength(18);
 
 	await page.addInitScript(() => {
 		window.print = () => {};
@@ -167,8 +187,15 @@ test('the German print sheet punctuates the yeast percentage the German way', as
 	await page.addInitScript(() => {
 		window.print = () => {};
 	});
-	await page.goto(`/print/de?v=6&${BASE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	// Five 260 g balls, because the German sheet is prerendered with the six
+	// 280 g defaults and a fresh-yeast row: every assertion below was already
+	// true before the URL's recipe arrived, which is the trap the sibling test
+	// two below documents. The 1300 g total only exists once it has.
+	await page.goto(
+		`/print/de?v=6&n=5&b=260&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z&sa=2026-09-05T09%3A00%3A00.000Z`
+	);
 	const ingredients = page.locator('.printpage-ingredients').last();
+	await expect(ingredients).toContainText(/1300\s?g/);
 	await expect(ingredients).toContainText('Frischhefe');
 	await expect(ingredients).toContainText(/\(\d+,\d+\s%\)/);
 	await expect(ingredients).not.toContainText(/\d\.\d+%/);
@@ -186,6 +213,9 @@ test('the German print sheet punctuates the weights the German way too', async (
 	// A small batch, so the yeast lands under a gram and shows its decimals.
 	await page.goto(`/print/de?v=6&n=2&b=180&h=70&s=3&y=f&t=22&ft=4&r=2026-09-06T17%3A00%3A00.000Z`);
 	const sheet = page.locator('body');
+	// 2 × 180 g = 360 g: wait for the decoded recipe before reading the page,
+	// or the prerendered defaults answer for it.
+	await expect(sheet).toContainText(/360\s?g/);
 	await expect(sheet).toContainText('Frischhefe');
 	await expect(sheet).toContainText(/\d,\d+\sg/);
 	await expect(sheet).not.toContainText(/\d\.\d+\sg/);
@@ -316,4 +346,52 @@ test.describe('a flour name too long for one line', () => {
 			await longRow.locator('th').evaluate((el) => getComputedStyle(el).backgroundImage)
 		).toContain('gradient');
 	});
+});
+
+// The weights were fixed in PR #346 and the percentage one PR before that, and
+// both times a renderer further out kept the English point: the plan's expert
+// chips and the print summary wrote `${saltPercent} %` as a template string,
+// and the library's numLabel concatenated its own suffix. Salt steps by 0.1
+// and the room by 0.5, so both carry a decimal to get wrong. Three tests, one
+// per renderer, each on a value whose default has no decimal — so the
+// prerendered page cannot satisfy them before the recipe is decoded.
+const DECIMALS = 'v=7&n=6&b=280&h=70&s=2.5&y=f&t=22.5&ft=4&r=2026-09-06T17%3A00%3A00.000Z';
+
+test('the German plan punctuates a decimal salt and a half-degree room the German way', async ({
+	page
+}) => {
+	await openRecipe(page, `${DECIMALS}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	await chooseInMenu(page, 'Deutsch');
+
+	const chips = page.locator('.chip-field');
+	await expect(chips.filter({ hasText: /2,5\s%/ })).toHaveCount(1);
+	await expect(chips.filter({ hasText: /22,5\s°C/ })).toHaveCount(1);
+	await expect(chips.filter({ hasText: /\d\.\d/ })).toHaveCount(0);
+});
+
+test('the German print summary punctuates the salt and the temperatures the German way', async ({
+	page
+}) => {
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
+	await page.goto(`/print/de?${DECIMALS}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	const summary = page.locator('.printpage-summary');
+	await expect(summary).toContainText(/2,5\s%/);
+	await expect(summary).toContainText(/22,5\s°C/);
+	await expect(summary).not.toContainText(/\d\.\d/);
+});
+
+test('the German library punctuates a pizzeria’s decimal salt the German way', async ({ page }) => {
+	// Pepe in Grani's row carries 2.75 % salt; it is the one figure on the rack
+	// with two decimals.
+	await openRecipe(page, `${DECIMALS}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	await openLibrary(page);
+	await chooseInMenu(page, 'Deutsch');
+	const rack = page.locator('details').filter({
+		has: page.getByRole('heading', { name: /50.Top.Pizza/ })
+	});
+	await rack.locator('summary').first().click();
+	await expect(rack).toContainText(/2,75\s%/);
+	await expect(rack).not.toContainText(/2\.75/);
 });

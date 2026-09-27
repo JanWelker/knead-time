@@ -32,6 +32,22 @@ describe('messages parity', () => {
 		}
 	});
 
+	// Three separators lived in components as literals — the comma in "City,
+	// Country", the colon in "Could not send: <reason>", the "(W 265)" after a
+	// flour — so no locale could own them, and French, which spaces before a
+	// colon, was wrong by construction. They are messages now; this pins the one
+	// place the five actually differ, so folding them back into a literal fails.
+	it('the send error separator is French in French and a plain colon elsewhere', () => {
+		expect(MESSAGES.fr.trmnl_push.error_reason).toBe('{error} : {reason}');
+		for (const loc of LOCALES.filter((l) => l !== 'fr')) {
+			expect(MESSAGES[loc].trmnl_push.error_reason, loc).toBe('{error}: {reason}');
+		}
+		for (const loc of LOCALES) {
+			expect(MESSAGES[loc].pizzerias.place, loc).toBe('{city}, {country}');
+			expect(MESSAGES[loc].form.flour_option, loc).toBe('{name} (W {w})');
+		}
+	});
+
 	it('every key interpolates the same {placeholder} set in every locale', () => {
 		// A translation that drops or misspells a {token} silently prints the
 		// raw brace text to the user — pin the placeholder sets to English.

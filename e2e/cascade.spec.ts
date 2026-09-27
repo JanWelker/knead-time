@@ -1,4 +1,7 @@
 import { expect, test } from '@playwright/test';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { openAdjust, openMenu, openQuestion, openRecipe, sheet } from './helpers';
 
 const RECIPE =
@@ -90,4 +93,69 @@ test('the fermentation bands keep their exact fills in both themes', async ({ pa
 		cold: 'rgb(44, 87, 34)',
 		swatch: 'rgb(44, 87, 34)'
 	});
+});
+
+// The scrim behind every <dialog> was `backdrop:bg-stone-950/50` — the last raw
+// Tailwind colour anywhere in src/, and the one surface that stayed a cool
+// near-black while html.dark re-inked everything else. It is the ink role at
+// half strength now, so it has to be exactly what the palette says that is, in
+// both themes. Compared against a reference element mixing `--kt-ink` the same
+// way rather than against rgb literals: Tailwind mixes in oklab and Chromium
+// reports the result as oklab(), whose channels would only be pinnable to the
+// float formatting of one browser build.
+test('the dialog scrim is the ink at half strength in both themes', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+	await openAdjust(page);
+
+	const scrim = () =>
+		page.evaluate(() => {
+			const reference = document.createElement('div');
+			reference.style.backgroundColor = 'color-mix(in oklab, var(--kt-ink) 50%, transparent)';
+			document.body.append(reference);
+			const expected = getComputedStyle(reference).backgroundColor;
+			reference.remove();
+			const actual = getComputedStyle(
+				document.querySelector('dialog[open]')!,
+				'::backdrop'
+			).backgroundColor;
+			return { actual, expected };
+		});
+
+	const light = await scrim();
+	expect(light.actual).toBe(light.expected);
+	expect(light.actual).toMatch(/^oklab\(.* \/ 0\.5\)$/);
+
+	await page.evaluate(() => document.documentElement.classList.add('dark'));
+	const dark = await scrim();
+	expect(dark.actual).toBe(dark.expected);
+	// Re-inked, not the same near-black under a different name.
+	expect(dark.actual).not.toBe(light.actual);
+});
+
+// "Never reach past the roles for a raw `stone-*` or `bg-white`" is a hard
+// rule, and half the tree once broke it — which is how the palette resolved to
+// "cream plus one red" whatever the tokens said. No browser check can cover
+// every file, so this one reads the source. Copy (messages.ts) and tests are
+// left out; everything that can carry a class is in.
+test('no raw Tailwind colour scale utility survives in src/', () => {
+	const RAW =
+		/\b(?:bg|text|border|ring|fill|stroke|from|via|to|outline|accent|decoration|shadow|placeholder|divide|caret)-(?:stone|gray|zinc|neutral|slate|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)(?:-\d{2,3})?(?:\/\d+)?\b/g;
+	const src = fileURLToPath(new URL('../src', import.meta.url));
+	const hits: string[] = [];
+	const walk = (dir: string) => {
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			const path = join(dir, entry.name);
+			if (entry.isDirectory()) walk(path);
+			else if (
+				/\.(svelte|css|ts|html)$/.test(entry.name) &&
+				!/\.test\.ts$|^messages\.ts$/.test(entry.name)
+			) {
+				for (const match of readFileSync(path, 'utf8').matchAll(RAW)) {
+					hits.push(`${relative(src, path)}: ${match[0]}`);
+				}
+			}
+		}
+	};
+	walk(src);
+	expect(hits).toEqual([]);
 });

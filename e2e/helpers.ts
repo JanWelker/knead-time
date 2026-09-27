@@ -34,7 +34,7 @@ export async function waitForHydration(page: Page) {
  * so a spec can assert where the visitor landed.
  */
 export function view(page: Page) {
-	return page.locator('main [data-view]');
+	return page.locator('[data-view]');
 }
 
 export async function currentView(page: Page): Promise<string | null> {

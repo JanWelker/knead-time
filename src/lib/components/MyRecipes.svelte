@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { formatDate } from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import type { SavedRecipe } from '$lib/storedRecipes';
 	import RecipeSection from './RecipeSection.svelte';
@@ -8,10 +9,6 @@
 		$props();
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
-
-	const dateFormatter = $derived(
-		new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' })
-	);
 </script>
 
 <!-- Device-local recipe book, hung on the rack in the same shell as the two
@@ -30,7 +27,7 @@
 						{recipe.name}
 					</span>
 					<span class="text-ink-soft block text-xs">
-						{dateFormatter.format(new Date(recipe.savedAt))}
+						{formatDate(new Date(recipe.savedAt), locale)}
 					</span>
 				</div>
 				<div class="flex shrink-0 items-center gap-2">

@@ -2,11 +2,13 @@
 	import { resolve } from '$app/paths';
 	import { pizzeriaEntries, type PizzeriaEntry, type Ranking } from '$lib/pizzerias/pizzerias';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { interpolate } from '$lib/i18n/interpolate';
 	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 	import RecipeSection from './RecipeSection.svelte';
 	import RecipeSpecList from './RecipeSpecList.svelte';
 
 	const t = $derived(i18n.t);
+	const locale = $derived(i18n.locale);
 
 	const entries: PizzeriaEntry[] = pizzeriaEntries;
 
@@ -62,7 +64,7 @@
 						{@render pizzeriaName(entry)}
 					</span>
 					<span class="text-ink-soft text-xs whitespace-nowrap">
-						{entry.city}, {entry.country}
+						{interpolate(t.pizzerias.place, { city: entry.city, country: entry.country })}
 					</span>
 				</div>
 				<div class="mt-2">{@render rankingChips(entry.rankings)}</div>
@@ -92,15 +94,15 @@
 		<table class="w-full min-w-[840px] border-collapse text-left text-sm tabular-nums">
 			<thead>
 				<tr class="bg-rule text-paper">
-					<th class="head-cell">{t.pizzerias.col_pizzeria}</th>
-					<th class="head-cell">{t.pizzerias.col_location}</th>
-					<th class="head-cell">{t.pizzerias.col_rankings}</th>
-					<th class="head-cell text-right">{t.pizzerias.col_hydration}</th>
-					<th class="head-cell text-right">{t.pizzerias.col_salt}</th>
-					<th class="head-cell">{t.pizzerias.col_yeast}</th>
-					<th class="head-cell">{t.pizzerias.col_preFerment}</th>
-					<th class="head-cell">{t.pizzerias.col_open}</th>
-					<th class="head-cell">{t.pizzerias.col_source}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_pizzeria}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_location}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_rankings}</th>
+					<th scope="col" class="head-cell text-right">{t.pizzerias.col_hydration}</th>
+					<th scope="col" class="head-cell text-right">{t.pizzerias.col_salt}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_yeast}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_preFerment}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_open}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_source}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -118,14 +120,14 @@
 							{/if}
 						</td>
 						<td class="text-ink-soft px-3 py-3 whitespace-nowrap">
-							{entry.city}, {entry.country}
+							{interpolate(t.pizzerias.place, { city: entry.city, country: entry.country })}
 						</td>
 						<td class="px-3 py-3">{@render rankingChips(entry.rankings)}</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.hydration, '%')}
+							{numLabel(entry.inputs.hydration, locale, '%')}
 						</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.saltPercent, '%')}
+							{numLabel(entry.inputs.saltPercent, locale, '%')}
 						</td>
 						<td class="px-3 py-3">{yeastLabel(entry.inputs, t)}</td>
 						<td class="px-3 py-3">{preFermentLabel(entry.inputs, t)}</td>

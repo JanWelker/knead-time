@@ -1,4 +1,10 @@
-import { freshEquivalentPercent, PREFERMENT_MAX_HOURS, PREFERMENT_MIN_HOURS } from './fermentation';
+import {
+	freshEquivalentPercent,
+	PREFERMENT_MAX_HOURS,
+	PREFERMENT_MIN_HOURS,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW
+} from './fermentation';
 import { flourWindowHours } from './flour';
 import {
 	ACTIVE_NIGHT_KINDS,
@@ -28,8 +34,9 @@ const MAX_CLAMP_DEDUCT = 20;
 // Contemporary Neapolitan KPI bands. Inputs inside the band score 100; each
 // unit outside subtracts the per-unit rate, capped at the factor's max
 // deduction so one extreme input can't pin the score to 0 by itself. The
-// defaults from CLAUDE.md (280 g / 70 % / 3 % salt / 22 °C / 4 °C) sit in
-// the middle of every band — a defaults-only recipe scores 100.
+// defaults from CLAUDE.md (280 g / 70 % / 3 % salt / 22 °C / 4 °C) all sit
+// inside their band — not centred, 3 % salt is near the top of 2–3.5 — so a
+// defaults-only recipe scores 100.
 const HYDRATION_LOW = 60;
 const HYDRATION_HIGH = 80;
 const HYDRATION_PCT_PER_POINT = 1;
@@ -62,8 +69,9 @@ const FRIDGE_TEMP_MAX_DEDUCT = 8;
 const FLOUR_WINDOW_PCT_PER_HOUR = 1.5;
 const FLOUR_WINDOW_MAX_DEDUCT = 12;
 
-const YEAST_PCT_LOW = 0.05;
-const YEAST_PCT_HIGH = 1.5;
+// The yeast band is fermentation.ts's YEAST_PCT_{LOW,HIGH} — the same edges
+// the yeast-tiny / yeast-large warnings fire on, imported so the score cannot
+// deduct where no warning shows.
 const YEAST_EXTREME_PENALTY = 8;
 
 // Sub-minute drift between natural and actual is rounding noise, not a real

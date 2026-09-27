@@ -342,8 +342,23 @@ html.dark {
 	/* Both modals and the adjust sheet: a native <dialog>. Width and position
 	   are the caller's, everything else is shared. */
 	.dialog-panel {
-		@apply border-rule bg-sheet text-ink rounded-[2px] border-2 p-0 text-sm backdrop:bg-stone-950/50;
+		/* The scrim is the ink at half strength, not a raw `stone-950`: it was
+		   the last colour in src/ reaching past the roles, and the one surface
+		   that stayed a cool near-black when the rest of the page went to the
+		   night shift. */
+		@apply border-rule bg-sheet text-ink backdrop:bg-ink/50 rounded-[2px] border-2 p-0 text-sm;
 		box-shadow: 6px 6px 0 0 var(--kt-rule);
+	}
+
+	/* A checkbox or radio with its label on one line. The sheet wrote the row
+	   out five times and the control six; the ask flow's tiles carry the same
+	   control inside `.tile`. */
+	.check-row {
+		@apply text-ink flex items-center gap-2 text-sm font-medium;
+	}
+
+	.check-box {
+		@apply accent-accent size-4;
 	}
 
 	/* ---- Bands and rules ------------------------------------------------ */
@@ -531,14 +546,15 @@ html.dark {
 
 	/* ---- Stamps, chips, seals ------------------------------------------- */
 
-	/* A rubber stamp: hard border in its own colour, condensed caps, and a
-	   degree and a half off square because a hand pressed it. Non-interactive
+	/* A rubber stamp: hard border in its own colour, condensed caps, and 1.7°
+	   off square because a hand pressed it. Non-interactive
 	   by contract — nothing rotated may be a tap target. */
 
 	/* The one stamp left: the "Now" mark on the step the clock is standing in.
 	   The mode and the fit outgrew this shape and became GuildSeal roundels, but
 	   a running step wants a small hand-pressed mark, not a certificate. Off
-	   square by a degree and a half, because a hand pressed it. */
+	   square by 1.7°, because a hand pressed it — the same tilt the icon's top
+	   edge is cut at. */
 	.stamp {
 		@apply label-caps inline-flex items-center gap-1.5 rounded-[1px] border-2 border-current px-2 py-1;
 		color: var(--kt-accent-ink);
