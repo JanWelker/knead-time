@@ -2,6 +2,7 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
 	import { INFO_SECTIONS } from '$lib/infoSections';
+	import { INPUT_BOUNDS } from '$lib/dough/inputBounds';
 	import { uiMode } from '$lib/mode.svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import DoughFields from './DoughFields.svelte';
@@ -126,8 +127,8 @@
 		{#if uiMode.current === 'expert' && form.flourW !== null}
 			<FormField
 				label={t.form.flourW}
-				min={150}
-				max={400}
+				min={INPUT_BOUNDS.flourW.min}
+				max={INPUT_BOUNDS.flourW.max}
 				step={5}
 				help={t.form.flourW_help}
 				bind:value={form.flourW}
@@ -146,8 +147,8 @@
 		<FormField
 			id="field-pizzaCount"
 			label={t.form.pizzaCount}
-			min={1}
-			max={100}
+			min={INPUT_BOUNDS.pizzaCount.min}
+			max={INPUT_BOUNDS.pizzaCount.max}
 			step={1}
 			bind:value={form.pizzaCount}
 		/>
@@ -155,8 +156,8 @@
 			<FormField
 				id="field-ballWeight"
 				label={t.form.ballWeight}
-				min={100}
-				max={600}
+				min={INPUT_BOUNDS.ballWeight.min}
+				max={INPUT_BOUNDS.ballWeight.max}
 				step={1}
 				bind:value={form.ballWeight}
 			/>
@@ -212,10 +213,7 @@
 			<summary
 				class="label-caps text-accent-ink flex cursor-pointer list-none items-center gap-2 select-none"
 			>
-				<span
-					class="text-[0.7rem] tracking-tight transition-transform group-open:rotate-90"
-					aria-hidden="true">▶</span
-				>
+				<span class="disclosure-mark" aria-hidden="true">▶</span>
 				<span>{t.form.info_heading}</span>
 			</summary>
 			<div class="mt-3 min-w-0 space-y-4 leading-relaxed">

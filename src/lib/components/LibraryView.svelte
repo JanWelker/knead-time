@@ -25,7 +25,7 @@
 <div class="view" data-view="library">
 	<Masthead home={onback} />
 
-	<div class="view-pad flex-1 pt-8 pb-10 sm:pt-10">
+	<main class="view-pad flex-1 pt-8 pb-10 sm:pt-10">
 		<!-- Under the flag with the plan's, not in the masthead: the row reads the
 		     same on every view, right-aligned and ending with the menu, whose panel
 		     hangs from that edge. The way back is a ruled plaque like Guide me —
@@ -61,5 +61,5 @@
 			<section><Community /></section>
 			<section><Pizzerias /></section>
 		</div>
-	</div>
+	</main>
 </div>

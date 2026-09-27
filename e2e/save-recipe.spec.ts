@@ -1,11 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { openLibrary, openRecipe, region } from './helpers';
+import { openLibrary, openMenu, openRecipe, region } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
 
 async function openSaveDialog(page: import('@playwright/test').Page) {
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await openMenu(page);
 	await page.getByRole('menuitem', { name: 'Save recipe' }).click();
 	return page.getByRole('dialog', { name: 'Save recipe' });
 }

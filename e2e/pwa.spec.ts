@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { currentView, NOW, openRecipe, waitForHydration } from './helpers';
+import { currentView, NOW, openRecipe, region, waitForHydration } from './helpers';
 
 const RECIPE =
 	'v=7&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -122,6 +122,53 @@ test('the home-screen icon is opaque to the corner', async ({ page }) => {
 	expect(corner.a).toBe(255);
 });
 
+// An adaptive launcher crops the maskable to a shape of its choosing and only
+// guarantees the inner 80 % — a circle of radius 205 in a 512 icon. The ticket
+// is a rectangle, so what has to clear that circle is its DIAGONAL, and the
+// scale in icon-maskable.svg is the only thing holding it there. Re-drawing the
+// mark changes the diagonal without changing the scale, which is exactly what
+// happened when it was re-traced off the original (issue #314): 0.7 of the old
+// 336 × 416 was safe, 0.7 of the new 246 × 358 was safe and also visibly
+// smaller, and 0.94 of it would have had the corners shaved on a round crop
+// with nothing failing. Measured off the rendered PNG rather than the source,
+// because that is the file the launcher gets.
+test('the maskable mark stays inside the circle a launcher may crop to', async ({ page }) => {
+	await page.goto('/');
+
+	const reach = await page.evaluate(async () => {
+		const image = new Image();
+		image.src = 'icon-maskable-512.png';
+		await image.decode();
+		const canvas = document.createElement('canvas');
+		canvas.width = image.width;
+		canvas.height = image.height;
+		const context = canvas.getContext('2d')!;
+		context.drawImage(image, 0, 0);
+		const { data } = context.getImageData(0, 0, image.width, image.height);
+		// The ground is the cream stock; anything appreciably darker or redder
+		// than it is the mark. Sampled against the corner so the test does not
+		// carry a copy of the palette.
+		const [gr, gg, gb] = data;
+		const centre = image.width / 2;
+		let worst = 0;
+		for (let y = 0; y < image.height; y++) {
+			for (let x = 0; x < image.width; x++) {
+				const i = (y * image.width + x) * 4;
+				const off =
+					Math.abs(data[i] - gr) + Math.abs(data[i + 1] - gg) + Math.abs(data[i + 2] - gb);
+				if (off < 30) continue;
+				worst = Math.max(worst, Math.hypot(x + 0.5 - centre, y + 0.5 - centre));
+			}
+		}
+		return worst;
+	});
+
+	expect(reach).toBeLessThanOrEqual(205);
+	// And it must still fill the icon: a mark that shrank to nothing would pass
+	// the line above without anyone noticing it had.
+	expect(reach).toBeGreaterThan(170);
+});
+
 test('the service worker precaches the whole app, bundle and pages alike', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 	await waitForController(page);
@@ -140,6 +187,10 @@ test('the service worker precaches the whole app, bundle and pages alike', async
 	expect(cached.some((p) => /\/_app\/immutable\/bundle\..*\.js$/.test(p))).toBe(true);
 	expect(cached.some((p) => /\/_app\/immutable\/assets\/bundle\..*\.css$/.test(p))).toBe(true);
 	expect(cached.filter((p) => p.endsWith('.woff2'))).toHaveLength(4);
+	// The faces' licence text travels with them — the OFL asks for that, and
+	// offline is the one place a visitor cannot go and fetch it elsewhere.
+	expect(cached).toContain('/licenses/anton-OFL.txt');
+	expect(cached).toContain('/licenses/archivo-OFL.txt');
 	expect(cached).toContain('/manifest.webmanifest');
 	expect(cached).toContain('/apple-touch-icon.png');
 	expect(cached).toContain('/');
@@ -150,7 +201,13 @@ test('the service worker precaches the whole app, bundle and pages alike', async
 });
 
 test('the plan still opens with the network cut', async ({ page, context }) => {
-	await openRecipe(page, RECIPE);
+	// Five 260 g balls, not the six 280 g ones the prerendered page carries as
+	// build-time defaults: the check used to look for "280", which the offline
+	// fallback would have shown even if the query had been lost on the way.
+	await openRecipe(
+		page,
+		'v=7&n=5&b=260&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z'
+	);
 	await waitForController(page);
 
 	await context.setOffline(true);
@@ -160,7 +217,8 @@ test('the plan still opens with the network cut', async ({ page, context }) => {
 	expect(await currentView(page)).toBe('plan');
 	// Not just "something rendered": the recipe in the query has to survive,
 	// because a share link opened cold in a kitchen is the whole point.
-	await expect(page.getByText('280', { exact: false }).first()).toBeVisible();
+	// 5 × 260 g = 1300 g of dough, a total no default recipe produces.
+	await expect(region(page, 'Ingredients')).toContainText('1300 g');
 });
 
 // A share link the device has never seen before: '/?v=7&n=6…' is not a URL

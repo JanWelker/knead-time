@@ -53,7 +53,11 @@ export const INFO_SECTIONS: readonly InfoSection[] = [
 			text('info_preferment_body'),
 			{ kind: 'list', keys: ['info_preferment_biga', 'info_preferment_poolish'] },
 			text('info_preferment_wall'),
-			formula('wallHours = refHours / f(roomTempC),  8 ≤ wallHours ≤ 24'),
+			// Two lines rather than one: the pre-ferment matures wherever the user
+			// says it does, so naming that temperature is half the calculation —
+			// and inlining the fallback made a line no phone could hold.
+			formula('T = preFermentTempC ?? roomTempC'),
+			formula('wallHours = refHours / f(T),  8 ≤ wallHours ≤ 24'),
 			text('info_preferment_yeast')
 		]
 	},
@@ -68,7 +72,7 @@ export const INFO_SECTIONS: readonly InfoSection[] = [
 		title: 'info_mass_title',
 		parts: [
 			text('info_mass_body'),
-			formula('flour = total / pctSum'),
+			formula('flour = total · 100 / pctSum'),
 			text('info_mass_caption_fresh'),
 			formula('pctSum = 100 + hydration + salt% + yeast% + oil% + sugar%'),
 			text('info_mass_caption_sourdough'),

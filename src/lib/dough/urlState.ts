@@ -148,18 +148,26 @@ function parsePreFerments(encoded: string): PreFermentSpec[] {
 	return [...out.filter((pf) => pf.type === 'biga'), ...out.filter((pf) => pf.type === 'poolish')];
 }
 
-// Every key any published URL version has ever written (the single decode()
-// keeps understanding all of them, so the union is exactly v + md + KEYS_V4).
-const KNOWN_KEYS: ReadonlySet<string> = new Set([VERSION_KEY, MODE_KEY, ...Object.values(KEYS_V4)]);
+// Every RECIPE key any published URL version has ever written (the single
+// decode() keeps understanding all of them, so the union is exactly v +
+// KEYS_V4). 'md' is deliberately not here: it is interface state, not part of
+// the recipe — the query is the recipe and nothing else — so '?md=b' alone
+// must read as a bare visit. Counting it once skipped the device's last-recipe
+// restore and landed the visitor on a plan of default values.
+const RECIPE_KEYS: ReadonlySet<string> = new Set([VERSION_KEY, ...Object.values(KEYS_V4)]);
 
-// True when the query carries at least one key Knead Time has ever encoded —
-// the test for "is this a recipe link". Foreign params alone (utm_source,
-// fbclid, …) must behave like a bare visit: they suppress neither the
-// last-recipe restore nor the stored beginner preference (issue #201).
+// True when the query carries at least one recipe key Knead Time has ever
+// encoded — the test for "is this a recipe link". Foreign params alone
+// (utm_source, fbclid, …) and the view-mode key alone must behave like a bare
+// visit: they suppress neither the last-recipe restore nor the stored beginner
+// preference (issue #201).
+//
+// Every decoder here takes the query with or without its leading '?' —
+// URLSearchParams strips it itself, so no caller has to.
 export function hasRecipeParams(query: string): boolean {
-	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	const params = new URLSearchParams(query);
 	for (const key of params.keys()) {
-		if (KNOWN_KEYS.has(key)) return true;
+		if (RECIPE_KEYS.has(key)) return true;
 	}
 	return false;
 }
@@ -170,7 +178,7 @@ export function hasRecipeParams(query: string): boolean {
 // today's full view); otherwise the caller falls back to the stored
 // preference and finally to beginner.
 export function decodeUiMode(query: string): UiMode | null {
-	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	const params = new URLSearchParams(query);
 	const md = params.get(MODE_KEY);
 	if (md === 'b') return 'beginner';
 	if (md === 'e') return 'expert';
@@ -186,13 +194,12 @@ export function decodeUiMode(query: string): UiMode | null {
 // current default fill in. An explicit 'fw=0' is still a real choice and wins.
 export function decodeStoredRecipe(query: string): Partial<SerializableInputs> {
 	const out = decodeInputs(query);
-	// URLSearchParams strips a leading '?' itself, so both call shapes work.
 	if (!new URLSearchParams(query).has(KEYS_V4.flourW)) delete out.flourW;
 	return out;
 }
 
 export function decodeInputs(query: string): Partial<SerializableInputs> {
-	const params = new URLSearchParams(query.startsWith('?') ? query.slice(1) : query);
+	const params = new URLSearchParams(query);
 	// Every published version (v1, v2, v3, missing-v=legacy) adds keys without
 	// renaming or repurposing them, so a single decoder handles them all.
 	// Branch on the version param the first time a future version DOES break
@@ -260,14 +267,20 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	if (bp === 'c') out.ballProof = 'cold';
 	if (bp === 'r') out.ballProof = 'room';
 
+	// The schema version drives exactly two defaults (the `al` and `fw` gates
+	// below). A MISSING v is a legacy link and reads as v1, the off/absent side
+	// of both gates. A v that is PRESENT but unreadable — 'v=garbage', 'v=',
+	// 'v=0', a fraction — is a mangled current link, not a legacy one, and reads
+	// as the current schema: `Number(...) || 1` used to send it to v1, which
+	// silently turned autolyse off and dropped the flour, a different schedule
+	// and yeast weight from what the sender shared. An unknown future v also
+	// falls to the current decoder.
+	const version = parseVersion(params.get(VERSION_KEY));
+
 	// Autolyse: 'al=0' is the expert opt-out, any other value means on. When the
 	// key is absent we version-gate the default — v ≥ 5 links were computed with
 	// autolyse on (the new default, so it's simply omitted), while pre-v5 links
 	// predate the feature and must reproduce their original no-autolyse schedule.
-	// Missing v = v1 (legacy), so it falls to the off side.
-	// Missing v = v1 (legacy), which falls to the off/absent side of both gates.
-	const version = Number(params.get(VERSION_KEY)) || 1;
-
 	const al = params.get(KEYS_V4.autolyse);
 	if (al !== null) out.autolyse = al !== '0';
 	else if (version < 5) out.autolyse = false;
@@ -285,6 +298,15 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	}
 
 	return out;
+}
+
+// Missing → 1 (legacy, pre-versioning). Present but not a whole number ≥ 1 →
+// CURRENT_VERSION: every published version is a positive integer, so
+// anything else is a mangled stamp on a link the current app wrote.
+function parseVersion(raw: string | null): number {
+	if (raw === null) return 1;
+	const n = Number(raw);
+	return Number.isInteger(n) && n >= 1 ? n : CURRENT_VERSION;
 }
 
 // Plain decimal syntax only — everything String(number) emits for in-band

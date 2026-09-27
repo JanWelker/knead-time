@@ -1,3 +1,4 @@
+import { storageKey } from '../safeStorage';
 import { storedPreference } from '../storedPreference';
 
 // TRMNL Private Plugin webhooks are addressed by a UUIDv4 baked into the
@@ -10,7 +11,7 @@ export function isTrmnlUuid(value: unknown): value is string {
 }
 
 const pref = storedPreference({
-	key: 'kneadtime:trmnlUuid',
+	key: storageKey('trmnlUuid'),
 	isValid: isTrmnlUuid,
 	// Pre-rename key (the project was once called 'doughcalc').
 	legacyKey: 'doughcalc:trmnlUuid'

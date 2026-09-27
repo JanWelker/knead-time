@@ -11,6 +11,15 @@ import { defineConfig, devices } from '@playwright/test';
 // sequence is itself something worth testing.
 const PORT = Number(process.env.E2E_PORT ?? 4173);
 
+// A second build, served under a preview-style base path. Every PR preview
+// ships at `/pr-preview/pr-<n>/` on the production origin, and the suite used
+// to run only at the root — so the `$app/paths` rule and the storage scope that
+// keeps a preview out of the live site's localStorage were never exercised by
+// a browser. `e2e/base-path.spec.ts` is the only spec that runs here; it has
+// its own SvelteKit and adapter output so the two builds can run concurrently.
+const BASE_PATH = '/pr-preview/pr-0';
+const BASE_PORT = PORT + 1;
+
 export default defineConfig({
 	testDir: 'e2e',
 	// The suite mutates only its own page, so parallel is safe.
@@ -28,11 +37,34 @@ export default defineConfig({
 		locale: 'en-US',
 		trace: 'on-first-retry'
 	},
-	projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-	webServer: {
-		command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
-		port: PORT,
-		reuseExistingServer: !process.env.CI,
-		timeout: 120_000
-	}
+	projects: [
+		{
+			name: 'chromium',
+			use: { ...devices['Desktop Chrome'] },
+			testIgnore: /base-path\.spec\.ts/
+		},
+		{
+			name: 'base-path',
+			use: {
+				...devices['Desktop Chrome'],
+				baseURL: `http://localhost:${BASE_PORT}${BASE_PATH}`
+			},
+			testMatch: /base-path\.spec\.ts/
+		}
+	],
+	webServer: [
+		{
+			command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
+			port: PORT,
+			reuseExistingServer: !process.env.CI,
+			timeout: 120_000
+		},
+		{
+			command: `npm run build && npm run preview -- --port ${BASE_PORT} --strictPort`,
+			env: { BASE_PATH, KIT_OUT_DIR: '.svelte-kit-base', BUILD_DIR: 'build-base' },
+			port: BASE_PORT,
+			reuseExistingServer: !process.env.CI,
+			timeout: 120_000
+		}
+	]
 });

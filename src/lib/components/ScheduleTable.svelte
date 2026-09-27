@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { minuteClock } from '$lib/now.svelte';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { formatDuration, formatShortDate, formatTime } from '$lib/format';
 	import { stepDescription, stepDetail, stepIngredients, stepTitle } from '$lib/stepCopy';
@@ -23,12 +24,10 @@
 	const locale = $derived(i18n.locale);
 
 	// "Now" advances every minute so a long-open tab keeps surfacing past and
-	// current steps as time progresses, instead of holding the mount value.
-	let now = $state(new Date());
-	onMount(() => {
-		const id = setInterval(() => (now = new Date()), 60_000);
-		return () => clearInterval(id);
-	});
+	// current steps as time progresses, instead of holding the mount value. The
+	// minute is the page's, shared with the window card (see now.svelte.ts).
+	onMount(() => minuteClock.subscribe());
+	const now = $derived(minuteClock.now);
 
 	// Fermentation phases — the rail leaving these nodes is the long wait, drawn
 	// dashed so the eye reads "nothing to do here, time just passes".
@@ -140,7 +139,7 @@
 				{@const current = isCurrent(step)}
 				{@const wait = WAIT_KINDS.has(step.kind)}
 				{@const flags = stepQualityFlags(step, schedule)}
-				{@const ingredients = stepIngredients(step, t, schedule)}
+				{@const ingredients = stepIngredients(step, t, schedule, locale)}
 				<!-- Past steps are NOT dimmed: fading them read as a rendering glitch
 				     rather than as information. The fermentation-window card says
 				     outright when the schedule opens before now. `past` still mutes
@@ -253,7 +252,7 @@
 						{/if}
 
 						<p class="text-ink-soft mt-2 text-sm leading-snug">
-							{stepDescription(step, t, schedule)}
+							{stepDescription(step, t, schedule, locale)}
 						</p>
 
 						{#if verbosity === 'descriptive'}

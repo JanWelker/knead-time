@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { chooseInMenu, currentView, NOW, openAdjust, sheet, waitForHydration } from './helpers';
+import { chooseInMenu, currentView, openAdjust, openRecipe, sheet } from './helpers';
 
 // Beginner/expert and short/detailed are resolved from three sources in a fixed
 // order (URL → recipe params → localStorage → default) and persisted only on an
@@ -12,9 +12,7 @@ const RECIPE = 'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-06T17%3A00
 // each visit opens it. A bare visit lands on the first question, not the plan,
 // so it is walked to the plan first.
 async function open(page: import('@playwright/test').Page, query = '') {
-	await page.clock.install({ time: NOW });
-	await page.goto(query ? `/?${query}` : '/');
-	await waitForHydration(page);
+	await openRecipe(page, query);
 	if ((await currentView(page)) === 'ask') {
 		await page.getByRole('button', { name: 'Skip to the plan' }).click();
 	}
@@ -89,15 +87,20 @@ test('the schedule verbosity toggle shows and hides the step explanations', asyn
 	await open(page, RECIPE);
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
 
+	// RECIPE is an eight-step cold schedule (prep, autolyse, mix, room bulk,
+	// cold bulk, divide, final proof, ready). Every step carries its method
+	// paragraph; the detailed level adds one explanation paragraph per step.
+	// The counts are pinned rather than compared: `short < before` held with
+	// one explanation of eight dropped, and would hold with the method copy
+	// hidden too.
 	const detail = page.locator('ol li p');
-	const before = await detail.count();
+	await expect(detail).toHaveCount(16);
 
 	await chooseInMenu(page, 'Short');
-	const short = await detail.count();
-	expect(short).toBeLessThan(before);
+	await expect(detail).toHaveCount(8);
 
 	await chooseInMenu(page, 'Detailed');
-	await expect.poll(() => detail.count()).toBe(before);
+	await expect(detail).toHaveCount(16);
 });
 
 test('verbosity is a device preference, not part of the share URL', async ({ page }) => {

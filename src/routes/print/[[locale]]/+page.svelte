@@ -8,7 +8,13 @@
 	import { computeSchedule } from '$lib/dough/schedule';
 	import type { DoughInputs } from '$lib/dough/types';
 	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeight, formatDateTime, formatDuration } from '$lib/format';
+	import {
+		formatBallWeightGrams,
+		formatDateTime,
+		formatDuration,
+		formatPercent,
+		formatTemperature
+	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { isLocale, type Locale } from '$lib/i18n/messages';
@@ -48,7 +54,8 @@
 			inputs.yeastType,
 			schedule.yeastPercent,
 			inputs.flourW,
-			t
+			t,
+			locale
 		)
 	);
 	const yeastTypeLabel = $derived(yeastTypeLabelFor(inputs, t));
@@ -80,6 +87,16 @@
 			background: #ffffff !important;
 			color: #000000 !important;
 			margin: 0;
+		}
+		/* This sheet has no dark half — it is black on white and it is about to
+		   be printed. The boot script in app.html stamps `dark` on the element
+		   before first paint on a dark system, which would otherwise bring
+		   app.css's `color-scheme: dark` with it and render the browser's own
+		   widgets and scrollbars against a page that forces white. Unlayered, so
+		   it beats that rule regardless of the class; the layout also strips the
+		   class itself once it mounts. */
+		html {
+			color-scheme: light;
 		}
 		@page {
 			size: auto;
@@ -248,22 +265,37 @@
 			<table class="printpage-summary">
 				<tbody>
 					<tr>
-						<th>{t.form.readyBy}</th>
+						<th scope="row">{t.form.readyBy}</th>
 						<td>{formatDateTime(inputs.readyBy, locale)}</td>
 					</tr>
 					<tr>
-						<th>{t.form.pizzaCount}</th>
-						<td>{inputs.pizzaCount} × {formatBallWeight(inputs.ballWeight)} g</td>
+						<th scope="row">{t.form.pizzaCount}</th>
+						<td>{inputs.pizzaCount} × {formatBallWeightGrams(inputs.ballWeight, locale)}</td>
 					</tr>
-					<tr><th>{t.form.hydration}</th><td>{inputs.hydration}%</td></tr>
-					<tr><th>{t.form.salt}</th><td>{inputs.saltPercent}%</td></tr>
-					<tr><th>{t.form.yeastType}</th><td>{yeastTypeLabel}</td></tr>
-					<tr><th>{t.form.roomTemp}</th><td>{inputs.roomTempC} °C</td></tr>
+					<tr
+						><th scope="row">{t.form.hydration}</th><td
+							>{formatPercent(inputs.hydration, locale)}</td
+						></tr
+					>
+					<tr
+						><th scope="row">{t.form.salt}</th><td>{formatPercent(inputs.saltPercent, locale)}</td
+						></tr
+					>
+					<tr><th scope="row">{t.form.yeastType}</th><td>{yeastTypeLabel}</td></tr>
+					<tr
+						><th scope="row">{t.form.roomTemp}</th><td
+							>{formatTemperature(inputs.roomTempC, locale)}</td
+						></tr
+					>
 					{#if schedule.mode === 'cold'}
-						<tr><th>{t.form.fridgeTemp}</th><td>{inputs.fridgeTempC} °C</td></tr>
+						<tr
+							><th scope="row">{t.form.fridgeTemp}</th><td
+								>{formatTemperature(inputs.fridgeTempC, locale)}</td
+							></tr
+						>
 					{/if}
 					{#if preFermentLabel}
-						<tr><th>{t.form.preFerment}</th><td>{preFermentLabel}</td></tr>
+						<tr><th scope="row">{t.form.preFerment}</th><td>{preFermentLabel}</td></tr>
 					{/if}
 				</tbody>
 			</table>
@@ -281,7 +313,7 @@
 						<tbody>
 							{#each section.rows as row (row.label)}
 								<tr>
-									<th
+									<th scope="row"
 										>{row.label}{#if row.hint}&nbsp;({row.hint}){/if}</th
 									>
 									<td>{row.amount}</td>
@@ -289,7 +321,7 @@
 							{/each}
 							{#if section.total}
 								<tr class="printpage-total">
-									<th>{section.total.label}</th>
+									<th scope="row">{section.total.label}</th>
 									<td>{section.total.amount}</td>
 								</tr>
 							{/if}
@@ -305,9 +337,9 @@
 		<table class="printpage-schedule">
 			<thead>
 				<tr>
-					<th>{t.schedule.col_when}</th>
-					<th>{t.schedule.col_step}</th>
-					<th class="printpage-duration">{t.schedule.col_duration}</th>
+					<th scope="col">{t.schedule.col_when}</th>
+					<th scope="col">{t.schedule.col_step}</th>
+					<th scope="col" class="printpage-duration">{t.schedule.col_duration}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -315,7 +347,7 @@
 				     which can share a start time when both shrink to the wall budget. -->
 				{#each schedule.steps as step (step.kind + (step.preFermentType ?? '') + '-' + step.at.getTime())}
 					{@const isReady = step.kind === 'ready'}
-					{@const ingredients = stepIngredients(step, t, schedule)}
+					{@const ingredients = stepIngredients(step, t, schedule, locale)}
 					<tr class:printpage-ready={isReady}>
 						<td class="printpage-when">{formatDateTime(step.at, locale)}</td>
 						<td>
@@ -327,7 +359,7 @@
 									{/each}
 								</div>
 							{/if}
-							<div class="printpage-step-desc">{stepDescription(step, t, schedule)}</div>
+							<div class="printpage-step-desc">{stepDescription(step, t, schedule, locale)}</div>
 						</td>
 						<td class="printpage-duration">
 							{step.durationMinutes > 0 ? formatDuration(step.durationMinutes, locale) : '—'}

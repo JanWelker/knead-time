@@ -2,13 +2,16 @@ import { safeGet, safeRemove, safeSet } from './safeStorage';
 
 // One shape for every device-local preference: the view mode, the schedule
 // verbosity, the theme, the language, the TRMNL device id. Each is a single
-// string under a `kneadtime:` key, validated on the way out because storage is
-// shared with whatever else the origin runs and can be hand-edited.
+// string under a `kneadtime:` key (`storageKey()` in safeStorage.ts, which
+// adds the deployment's scope so a PR preview on the production origin does
+// not share a bucket with the live site), validated on the way out because
+// storage is shared with whatever else the origin runs and can be hand-edited.
 //
 // Three of them also carry a legacy slot — 'theme' from before keys were
-// prefixed (the app deploys to a shared *.github.io origin, where a bare key
-// is visible to every other project page) and two 'doughcalc:' keys from
-// before the rename. That migration was written out three times, identically,
+// prefixed (the app deployed to a shared *.github.io origin, where a bare key
+// was visible to every other project page) and two 'doughcalc:' keys from
+// before the rename. Legacy slots were only ever written at the root, so they
+// are deliberately not scoped. That migration was written out three times, identically,
 // which is three chances for one of them to forget to clear the old slot.
 //
 // Reads never throw: everything goes through safeStorage, so a blocked or full

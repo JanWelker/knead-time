@@ -1,7 +1,7 @@
 import { ingredientTotals } from './dough/bakers';
 import type { Ingredients, YeastType } from './dough/types';
 import { formatGrams, formatPercent } from './format';
-import type { Messages } from './i18n/messages';
+import type { Locale, Messages } from './i18n/messages';
 import { flourIngredientName, yeastIngredientName } from './stepCopy';
 
 // What the ingredients table says, as data. The screen and the print sheet
@@ -42,14 +42,18 @@ export function ingredientSections(
 	yeastType: YeastType,
 	yeastPercent: number,
 	flourW: number | null,
-	msgs: Messages
+	msgs: Messages,
+	// Every figure on the ticket carries punctuation — the percentage and the
+	// weights alike — and both formatters default to English, so without the
+	// locale a German sheet read "1.3 g" and "0.35%" beside "Frischhefe".
+	locale: Locale
 ): IngredientSection[] {
 	const i = msgs.ingredients;
 	const flour = flourIngredientName(flourW, msgs);
 	const yeast = yeastIngredientName(yeastType, msgs);
 	const row = (label: string, grams: number, hint?: string): IngredientRow => ({
 		label,
-		amount: formatGrams(grams),
+		amount: formatGrams(grams, locale),
 		...(hint === undefined ? {} : { hint })
 	});
 
@@ -72,7 +76,7 @@ export function ingredientSections(
 					row(i.water, ingredients.water),
 					row(i.salt, ingredients.salt),
 					...extras,
-					row(yeast, ingredients.yeast, formatPercent(yeastPercent))
+					row(yeast, ingredients.yeast, formatPercent(yeastPercent, locale))
 				],
 				total: totalRow
 			}
@@ -114,7 +118,7 @@ export function ingredientSections(
 				row(i.water, totals.water),
 				row(i.salt, totals.salt),
 				...extras,
-				row(yeast, totals.yeast, formatPercent(yeastPercent))
+				row(yeast, totals.yeast, formatPercent(yeastPercent, locale))
 			],
 			total: totalRow
 		}

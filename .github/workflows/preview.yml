@@ -28,6 +28,24 @@ jobs:
     # external contribution. Skip the job cleanly for forks.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    # A hung gh-pages push would otherwise hold the shared group for GitHub's
+    # six-hour default and take the production deploy down with it.
+    timeout-minutes: 15
+    concurrency:
+      # Shared with deploy.yml, because both push to gh-pages and a merge fires
+      # both at once: the deploy of main, and this workflow's `closed` run
+      # cleaning the preview up. The deploy force-pushes while this one rebases,
+      # so unserialised the two either clobber each other or fail
+      # non-fast-forward. `cancel-in-progress: false` serialises them, but it is
+      # not a queue: GitHub keeps at most one running and one pending job per
+      # group, and a third job arriving cancels the one that was pending. A
+      # build of another PR landing while this cleanup waits behind a deploy
+      # therefore still cancels the cleanup, and the closed PR's directory stays
+      # on gh-pages with no later run to remove it — the residual risk, fixed by
+      # hand (delete `pr-preview/pr-<n>` on gh-pages). The per-PR group above
+      # still cancels a superseded build of the same PR.
+      group: gh-pages
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -48,6 +66,10 @@ jobs:
         run: npm run build
 
       - name: Deploy preview
+        # Pins JamesIves/github-pages-deploy-action v4.7.4 inside itself, while
+        # deploy.yml runs v4.9.0 against the same branch. Renovate cannot see the
+        # nested pin; renovate.json groups the two actions so a bump of either
+        # is the prompt to compare them.
         uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1.8.1
         with:
           source-dir: build

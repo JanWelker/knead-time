@@ -3,10 +3,10 @@
 // Both store encoded share-URL query strings — the same format links use, so
 // decodeInputs is the single reader.
 
-import { safeGet, safeSet } from './safeStorage';
+import { safeGet, safeSet, storageKey } from './safeStorage';
 
-export const LAST_RECIPE_KEY = 'kneadtime:lastRecipe';
-export const RECIPES_KEY = 'kneadtime:recipes';
+export const LAST_RECIPE_KEY = storageKey('lastRecipe');
+export const RECIPES_KEY = storageKey('recipes');
 
 export interface SavedRecipe {
 	name: string;

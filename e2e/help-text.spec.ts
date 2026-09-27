@@ -1,11 +1,7 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openRecipe, sheet, windowCard } from './helpers';
+import { openForm, sheet, windowCard } from './helpers';
 
 // Field help is a property of the recipe sheet, so every test opens it.
-async function openForm(page: import('@playwright/test').Page, query: string) {
-	await openRecipe(page, query);
-	await openAdjust(page);
-}
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -13,6 +9,7 @@ const RECIPE =
 const START_HELP = "The earliest you're available to start";
 const OIL_HELP = 'Olive oil or similar';
 const AUTOLYSE_HELP = 'Rest flour and water for 30 min';
+const BALL_PROOF_HELP = 'Divide before the cold phase';
 
 // Standing help under every field was 32 % of the form's height — 576 px of
 // 1791 in expert. Beginner reads it standing; expert reads it while editing.
@@ -53,6 +50,16 @@ test('the notes on expert-only fields are reachable again', async ({ page }) => 
 	await expect(autolyse).toBeHidden();
 	await page.getByRole('checkbox', { name: /Autolyse/ }).focus();
 	await expect(autolyse).toBeVisible();
+
+	// Autolyse and the cold ball proof had written the reveal-on-focus rule out
+	// by hand inside their own labels instead of through FieldHelp — two more
+	// copies of the ternary that component exists to replace, and with no
+	// beginner branch, so they were one fieldset move away from disagreeing.
+	// They go through FieldHelp now; this holds the behaviour they had.
+	const ballProof = page.getByText(BALL_PROOF_HELP);
+	await expect(ballProof).toBeHidden();
+	await page.getByRole('checkbox', { name: /Proof the balls in the fridge/ }).focus();
+	await expect(ballProof).toBeVisible();
 });
 
 // The window card is the slider's own readout, not per-field help, and the

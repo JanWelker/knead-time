@@ -9,6 +9,7 @@
 		encodeInputs,
 		hasRecipeParams
 	} from '$lib/dough/urlState';
+	import { defaultInputs } from '$lib/dough/defaults';
 	import { safeLocalStorage } from '$lib/safeStorage';
 	import { uiMode } from '$lib/mode.svelte';
 	import { loadStoredMode } from '$lib/storedMode';
@@ -61,6 +62,11 @@
 	// kneadtime:lastRecipe (issue #201). Deliberately mode-less: toggling
 	// beginner/expert is a view preference, not a recipe edit.
 	let hydratedRecipeQs = '';
+	// Once the recipe has left that snapshot the memory follows the screen —
+	// including back onto the snapshot itself, and through the history stack.
+	// Without this a baker who edits and then presses Back to where they
+	// started is left with the edit in memory and the original on screen.
+	let edited = false;
 
 	function currentUrl(next: ViewLocation): string {
 		const qs = encodeInputs(form.serializable(), { mode: uiMode.current });
@@ -115,8 +121,28 @@
 		hydratedRecipeQs = encodeInputs(form.serializable());
 		hydrated = true;
 
-		const onPopState = () =>
-			(where = initialLocation({ hash: window.location.hash, hasRecipe: true, hasMemory: false }));
+		// A history entry is a whole URL — the recipe in its query as much as the
+		// place in its fragment — and both come back on Back and Forward. Reading
+		// only the fragment here moved the view but kept the edited recipe, and
+		// then the URL effect below, seeing the form disagree with the restored
+		// entry, wrote the edit over it: the earlier recipe was gone from the
+		// stack and Forward could not bring it back either.
+		//
+		// The defaults go under the decoded query because the encoder omits a
+		// key at its default (no `p` means no pre-ferment, no `mm` means spiral):
+		// `apply()` on the decode alone leaves those fields wherever the edit put
+		// them. Laid over a full set of defaults, an omitted key is restored too.
+		// This cannot loop: the effect only writes the URL and never the form, and
+		// the entry was written by this same encoder, so once the form matches it
+		// there is nothing left to replace.
+		//
+		// The mode is deliberately left alone. It is a device preference that
+		// never pushes an entry of its own, so the `md` stamp on an older entry
+		// is just how the page looked at the time, not something to go back to.
+		const onPopState = () => {
+			form.apply({ ...defaultInputs(), ...decodeInputs(window.location.search) });
+			where = initialLocation({ hash: window.location.hash, hasRecipe: true, hasMemory: false });
+		};
 		window.addEventListener('popstate', onPopState);
 		return () => window.removeEventListener('popstate', onPopState);
 	});
@@ -140,7 +166,12 @@
 		}
 		// Remember the working recipe so a fresh visit picks up where the
 		// baker left off — but only once the user actually changed something.
-		if (encodeInputs(form.serializable()) !== hydratedRecipeQs) {
+		// A popped history entry counts: it is the user's own earlier state,
+		// reached by their own gesture, so what they see is what is remembered.
+		// Opening someone's link and walking to the library and back never
+		// leaves the snapshot, so that still writes nothing (issue #201).
+		if (edited || encodeInputs(form.serializable()) !== hydratedRecipeQs) {
+			edited = true;
 			saveLastRecipe(
 				safeLocalStorage(),
 				encodeInputs(form.serializable(), { mode: uiMode.current })
@@ -168,35 +199,39 @@
 	<title>{t.app.title} — {t.app.tagline}</title>
 </svelte:head>
 
-<main>
-	{#if where.view === 'ask'}
-		<AskFlow
-			{form}
-			step={where.step}
-			onstep={(step) => go('ask', step)}
-			onplan={() => go('plan')}
-			onlibrary={() => go('library')}
-		/>
-	{:else if where.view === 'library'}
-		<LibraryView
-			recipes={savedRecipes}
-			onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
-			onback={() => go('plan')}
-		/>
-	{:else}
-		<PlanView
-			{form}
-			sourceTiming={activePizzeria?.timing}
-			onadjust={(field) => adjustPanel?.open(field)}
-			onlibrary={() => go('library')}
-			onrestart={() => go('ask', ASK_STEPS[0])}
-			onsaverecipe={saveCurrentRecipe}
-		/>
-		<!-- Mounted with the plan only: the ask flow carries a window slider of
-		     its own, and two of them in one document would fight over the id the
-		     plan's chips focus. -->
-		<AdjustPanel bind:this={adjustPanel} {form} />
-	{/if}
+<!-- No <main> around the views: each view renders its own, after the
+     Masthead's <header>, and the footer follows the view as a sibling. Nested
+     inside a main, <header> and <footer> lose their banner and contentinfo
+     roles (the HTML-AAM scopes both to the body), and those are the two
+     landmarks a screen-reader user jumps to first. Pinned in
+     e2e/landmarks.spec.ts. -->
+{#if where.view === 'ask'}
+	<AskFlow
+		{form}
+		step={where.step}
+		onstep={(step) => go('ask', step)}
+		onplan={() => go('plan')}
+		onlibrary={() => go('library')}
+	/>
+{:else if where.view === 'library'}
+	<LibraryView
+		recipes={savedRecipes}
+		onDelete={(name) => (savedRecipes = deleteRecipe(safeLocalStorage(), name))}
+		onback={() => go('plan')}
+	/>
+{:else}
+	<PlanView
+		{form}
+		sourceTiming={activePizzeria?.timing}
+		onadjust={(field) => adjustPanel?.open(field)}
+		onlibrary={() => go('library')}
+		onrestart={() => go('ask', ASK_STEPS[0])}
+		onsaverecipe={saveCurrentRecipe}
+	/>
+	<!-- Mounted with the plan only: the ask flow carries a window slider of
+	     its own, and two of them in one document would fight over the id the
+	     plan's chips focus. -->
+	<AdjustPanel bind:this={adjustPanel} {form} />
+{/if}
 
-	<SiteFooter />
-</main>
+<SiteFooter />

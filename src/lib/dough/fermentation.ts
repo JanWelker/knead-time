@@ -8,8 +8,8 @@
 
 import type { MixingMethod, YeastType } from './types';
 
-const REF_TEMP_C = 22;
-const Q10 = 2;
+export const REF_TEMP_C = 22;
+export const Q10 = 2;
 
 // Calibration constants — units of (yeast_pct × hours) at reference temperature.
 // Fresh: 0.2% yeast × ~8 h at 22 °C = 1.6 units (matches the bench rule of thumb).
@@ -47,13 +47,23 @@ export const PREFERMENT_REF_HOURS_POOLISH = 12;
 export const PREFERMENT_MIN_HOURS = 8;
 export const PREFERMENT_MAX_HOURS = 24;
 
+// The fresh-equivalent percent band a Neapolitan dough is comfortable in.
+// Below 0.05 % the amount is hard to weigh on a kitchen scale and the ferment
+// is running on fumes; above 1.5 % it is a bread dough in a hurry, not a pizza.
+// One band, two readers: the yeast-tiny / yeast-large warnings in schedule.ts
+// and the fit score's yeast-extreme factor in quality.ts. The warnings used to
+// carry their own copy (0.02 / 2) with nothing tying the two together, so a
+// 1.8 % recipe lost a star for being "extreme" while no warning fired.
+export const YEAST_PCT_LOW = 0.05;
+export const YEAST_PCT_HIGH = 1.5;
+
 export function temperatureFactor(tempC: number): number {
 	return Math.pow(Q10, (tempC - REF_TEMP_C) / 10);
 }
 
 // Target final dough temperature for contemporary Neapolitan dough — 1 °C below
 // the 24 °C cap commonly cited as the safe upper bound during long room ferments.
-const TARGET_FDT_C = 23;
+export const TARGET_FDT_C = 23;
 // Heat the dough picks up during mixing. Spiral: calibrated against an
 // observed run — 10 min on a spiral with 4 °C water in a 22 °C kitchen lands
 // the dough at 24 °C; back-solving the desired-temp formula gives friction

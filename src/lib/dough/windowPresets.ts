@@ -21,11 +21,17 @@ import type { FermentWindowBand } from './flour';
 //          maximal pre-ferment can still spend. Kept as the last stop so those
 //          schedules stay reachable and the strongest flours' "too long"
 //          warning can still be triggered from the slider.
-export const WINDOW_STOPS = [6, 8, 12, 16, 18, 24, 36, 48, 72, 80];
+// `readonly` so a caller that is handed the list itself (stopsWithIdeal
+// returns it unchanged when there is nothing to splice) cannot sort or push
+// into the canonical rail — a compile error where a runtime test used to stand.
+export const WINDOW_STOPS: readonly number[] = [6, 8, 12, 16, 18, 24, 36, 48, 72, 80];
 
 // Index of the stop closest to an arbitrary window. Ties keep the shorter
 // stop, which is the safer direction for a dough.
-export function nearestWindowStopIndex(hours: number, stops: number[] = WINDOW_STOPS): number {
+export function nearestWindowStopIndex(
+	hours: number,
+	stops: readonly number[] = WINDOW_STOPS
+): number {
 	let best = 0;
 	for (let i = 1; i < stops.length; i++) {
 		if (Math.abs(stops[i] - hours) < Math.abs(stops[best] - hours)) best = i;
@@ -41,7 +47,7 @@ export function nearestWindowStopIndex(hours: number, stops: number[] = WINDOW_S
 // — unusable with a thumb on a phone. Spacing the stops evenly gives every
 // choice the same target size, and interpolating between them keeps the
 // tolerance zones and tick labels aligned with the same axis.
-export function windowAxisPercent(hours: number, stops: number[] = WINDOW_STOPS): number {
+export function windowAxisPercent(hours: number, stops: readonly number[] = WINDOW_STOPS): number {
 	const last = stops.length - 1;
 	if (hours <= stops[0]) return 0;
 	if (hours >= stops[last]) return 100;
@@ -79,7 +85,10 @@ export function fermentationBenefitTier(hours: number): FermentationBenefitTier 
 // bake time is the anchor and the window is measured back from it — so any
 // stop longer than the time remaining would have had to start before now. The
 // slider greys those out rather than offering a plan that is already lost.
-export function reachableStopIndex(hoursUntilBake: number, stops: number[] = WINDOW_STOPS): number {
+export function reachableStopIndex(
+	hoursUntilBake: number,
+	stops: readonly number[] = WINDOW_STOPS
+): number {
 	for (let i = stops.length - 1; i >= 0; i--) {
 		if (stops[i] <= hoursUntilBake) return i;
 	}
@@ -108,7 +117,7 @@ export function reachableStopIndex(hoursUntilBake: number, stops: number[] = WIN
 export function bestWindowStopIndex(
 	hoursUntilBake: number,
 	zones: { room: FermentWindowBand | null; cold: FermentWindowBand | null } | null,
-	stops: number[] = WINDOW_STOPS
+	stops: readonly number[] = WINDOW_STOPS
 ): number | null {
 	if (zones === null) return null;
 	const reachable = reachableStopIndex(hoursUntilBake, stops);
@@ -166,15 +175,15 @@ export function idealWindowHours(
 }
 
 // The rail's stops with the ideal spliced in, or the canonical list unchanged
-// when there is no ideal, it already coincides with a stop, or it falls outside
-// the rail. The rail is linear in stop *index*, so this list is what positions
-// every notch, zone edge and tick label — the tick labels shift slightly when
-// the ideal appears or moves, which only happens on a flour or bake-time
-// change, never mid-drag.
-export function stopsWithIdeal(ideal: number | null): number[] {
-	if (ideal === null || ideal < WINDOW_STOPS[0]) return WINDOW_STOPS;
-	if (ideal > WINDOW_STOPS[WINDOW_STOPS.length - 1] || WINDOW_STOPS.includes(ideal)) {
-		return WINDOW_STOPS;
-	}
+// when there is no ideal or it already coincides with a stop. The ideal is
+// always on the rail: idealWindowHours refuses anything below the shortest
+// stop, and the tolerance model's longest band ends at the 72 h anchor, under
+// the 80 h last stop — pinned in the test, so no range guard is needed here.
+// The rail is linear in stop *index*, so this list is what positions every
+// notch, zone edge and tick label — the tick labels shift slightly when the
+// ideal appears or moves, which only happens on a flour or bake-time change,
+// never mid-drag.
+export function stopsWithIdeal(ideal: number | null): readonly number[] {
+	if (ideal === null || WINDOW_STOPS.includes(ideal)) return WINDOW_STOPS;
 	return [...WINDOW_STOPS, ideal].sort((a, b) => a - b);
 }

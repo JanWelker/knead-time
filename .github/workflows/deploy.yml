@@ -1,38 +1,121 @@
 name: Deploy to GitHub Pages
 
+# Deploys a commit only after CI has gone green on that exact commit. This used
+# to run `on: push` to main, in parallel with ci.yml and with no dependency on
+# it, so a commit could reach production and mint its v<version> tag with no
+# passing run at all — and because ci.yml cancelled in-progress runs on main,
+# two merges landing close together cancelled the first one's CI outright while
+# its deploy carried on regardless.
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
 
-concurrency:
-  group: pages-deploy
-  cancel-in-progress: false
-
 jobs:
   build-and-deploy:
-    # Guard workflow_dispatch: dispatching from a feature branch would deploy
-    # unreviewed code and mint the v<version> tag on a non-main commit.
-    if: github.ref == 'refs/heads/main'
+    # workflow_run fires for failed and cancelled runs too, so the conclusion has
+    # to be checked here. `event == 'push'` keeps a fork PR whose head branch is
+    # also called `main` from matching the branch filter and getting deployed.
+    # workflow_dispatch carries no workflow_run context, so it is guarded on the
+    # ref instead: dispatching from a feature branch would deploy unreviewed code
+    # and mint the v<version> tag on a non-main commit.
+    if: >-
+      (github.event_name == 'workflow_run'
+      && github.event.workflow_run.conclusion == 'success'
+      && github.event.workflow_run.event == 'push')
+      || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
+    # A hung gh-pages push would otherwise hold the shared group for GitHub's
+    # six-hour default and drop every deploy that queued behind it.
+    timeout-minutes: 15
+    concurrency:
+      # Shared with preview.yml, because both push to gh-pages and a merge fires
+      # both at once: this deploy, and the PR's `closed` run cleaning its preview
+      # up. The deploy force-pushes (the action's default) while the preview
+      # rebases, so unserialised the two either clobber each other or fail
+      # non-fast-forward. `cancel-in-progress: false` serialises them, but it is
+      # not a queue: GitHub keeps at most one running and one pending job per
+      # group, and a third job arriving cancels the one that was pending. A
+      # preview build landing while a cleanup waits behind this deploy therefore
+      # still cancels the cleanup, and its directory stays on gh-pages with no
+      # later run to remove it — the residual risk, fixed by hand (delete
+      # `pr-preview/pr-<n>` on gh-pages).
+      group: gh-pages
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # workflow_run runs in the context of the default branch, so an
+          # unpinned checkout would build whatever main's tip is by then rather
+          # than the commit CI passed on. Deploy and tag that commit exactly.
+          # Empty on workflow_dispatch, where main's tip is what was asked for.
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+      # Two gates, both on the commit actually checked out above.
+      #
+      # 1. It has to be main's tip. workflow_run fires once per CI run, in the
+      #    order the runs *finish*, not the order the commits landed: when two
+      #    merges land close together and the second one's CI is faster, the
+      #    first commit's deploy runs last in the gh-pages group and force-pushes
+      #    the older build over the newer one, with a green tick on every run
+      #    and nothing to redeploy until the next merge. A commit that is no
+      #    longer the tip is therefore skipped — the newer commit deploys from
+      #    its own run. The trade is that if that newer commit's CI fails,
+      #    production stays where it was until a green commit lands, rather
+      #    than picking up the older green one; a silent regression is the worse
+      #    of the two.
+      #
+      # 2. On workflow_dispatch, CI has to have passed on it. The workflow_run
+      #    path checks the run's conclusion in the job's `if`; a dispatch has no
+      #    run to check and used to build and tag main's tip on one click, which
+      #    is exactly the hole this workflow exists to close.
+      - name: Gate on main's tip and a green CI run
+        id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SHA=$(git rev-parse HEAD)
+          git fetch --depth=1 origin main
+          TIP=$(git rev-parse origin/main)
+          if [ "$SHA" != "$TIP" ]; then
+            echo "::notice::Skipping deploy of $SHA: main has moved on to $TIP, which deploys from its own CI run."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            GREEN=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$SHA&status=success&event=push&per_page=1" --jq '.total_count')
+            if [ "$GREEN" = "0" ]; then
+              echo "::error::No successful CI run for $SHA. Wait for CI to pass on main (or re-run it), then dispatch again."
+              exit 1
+            fi
+          fi
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
 
       - uses: ./.github/actions/node-setup
+        if: steps.gate.outputs.deploy == 'true'
 
       - name: Resolve base path
         id: base
+        if: steps.gate.outputs.deploy == 'true'
         uses: ./.github/actions/base-path
 
       - name: Build
+        if: steps.gate.outputs.deploy == 'true'
         env:
           BASE_PATH: ${{ steps.base.outputs.value }}
         run: npm run build
 
       - name: Deploy to gh-pages
+        if: steps.gate.outputs.deploy == 'true'
+        # preview.yml writes the same branch through rossjrw/pr-preview-action,
+        # which pins its own copy of this action (v4.7.4 at v1.8.1). Renovate
+        # bumps this pin and never sees that one, so when this moves, check the
+        # nested version still agrees on how it treats the branch.
         uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           folder: build
@@ -43,11 +126,13 @@ jobs:
             pr-preview/**
 
       - name: Tag release
+        if: steps.gate.outputs.deploy == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
           TAG="v$VERSION"
-          # Idempotent: every push to main runs this job, but we only tag
-          # when package.json has been bumped to a version we haven't tagged.
+          # Idempotent: every deploy runs this step, but we only tag when
+          # package.json has been bumped to a version we haven't tagged. HEAD is
+          # the commit checked out above, i.e. the one that was just deployed.
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists on origin, skipping."
             exit 0

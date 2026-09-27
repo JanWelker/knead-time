@@ -2,6 +2,7 @@
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import type { FormState } from '$lib/state.svelte';
 	import FormField from './FormField.svelte';
+	import { INPUT_BOUNDS } from '$lib/dough/inputBounds';
 
 	// The baker's percentages, everything measured against the flour. Rendered
 	// bare — no fieldset, no legend — because two surfaces frame them
@@ -18,8 +19,8 @@
 <FormField
 	id="field-hydration"
 	label={t.form.hydration}
-	min={50}
-	max={90}
+	min={INPUT_BOUNDS.hydration.min}
+	max={INPUT_BOUNDS.hydration.max}
 	step={1}
 	help={t.form.hydration_help}
 	bind:value={form.hydration}
@@ -28,16 +29,16 @@
 <FormField
 	id="field-salt"
 	label={t.form.salt}
-	min={0}
-	max={5}
+	min={INPUT_BOUNDS.saltPercent.min}
+	max={INPUT_BOUNDS.saltPercent.max}
 	step={0.1}
 	bind:value={form.saltPercent}
 />
 
 <FormField
 	label={t.form.oil}
-	min={0}
-	max={15}
+	min={INPUT_BOUNDS.oilPercent.min}
+	max={INPUT_BOUNDS.oilPercent.max}
 	step={0.1}
 	help={t.form.oil_help}
 	bind:value={form.oilPercent}
@@ -45,8 +46,8 @@
 
 <FormField
 	label={t.form.sugar}
-	min={0}
-	max={5}
+	min={INPUT_BOUNDS.sugarPercent.min}
+	max={INPUT_BOUNDS.sugarPercent.max}
 	step={0.1}
 	help={t.form.sugar_help}
 	bind:value={form.sugarPercent}

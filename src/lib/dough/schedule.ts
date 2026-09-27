@@ -6,6 +6,8 @@ import {
 	prefermentDurationHours,
 	prefermentRefHours,
 	temperatureFactor,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW,
 	yeastPercentForPhases,
 	type FermentPhase
 } from './fermentation';
@@ -65,6 +67,13 @@ export const ROOM_MIN_TOTAL_MIN = 3 * 60;
 // the middle of the night. Bounds are read against the browser's local timezone.
 export const NIGHT_START_HOUR = 22;
 export const NIGHT_END_HOUR = 8;
+
+// The room temperature a Neapolitan dough is comfortable in. One band, two
+// readers: the too-cold / too-warm warnings here and the fit score's
+// room-temp-off factor in quality.ts, which used to carry its own copy of 14
+// and 30 with nothing tying the two together.
+export const ROOM_TEMP_LOW_C = 14;
+export const ROOM_TEMP_HIGH_C = 30;
 
 // Sum of every fixed-duration step around the variable bulk-cold leg
 // (prep + autolyse + mix + initial bulk-room + divide + final proof). Lets the
@@ -164,7 +173,7 @@ function adjustColdMinForNight(
 // biga/poolish on top would stack two cultures, which is not what the user
 // wants. Centralising this rule here keeps the bakers' module and UI from
 // having to repeat the same check.
-function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
+export function effectivePreFerments(inputs: DoughInputs): PreFermentSpec[] {
 	if (inputs.yeastType === 'sourdough') return [];
 	return inputs.preFerments;
 }
@@ -289,12 +298,13 @@ function roomSchedule({
 		// untouched. Bulk and final-proof are 0.
 		//
 		// Degenerate exception: when the window is shorter than the fixed hands-on
-		// steps themselves (totalAvailableMin < roomFixedMin), the budget bottoms
-		// out at 0 but prep + mix + divide keep their physical durations anchored
-		// to readyBy — the first step lands BEFORE startAt. We never compress fixed
-		// steps or slip readyBy; instead the schedule is honest about being
-		// infeasible: roomFixedMin is always well below ROOM_MIN_TOTAL_MIN, so the
-		// 'too-short' warning (feasible = false, quality.ts's 'infeasible' factor)
+		// steps themselves (totalAvailableMin < roomFixedMin — 45–55 min, or 75–85
+		// with the autolyse rest in front of the mix), the budget bottoms out at 0
+		// but prep (+ autolyse) + mix + divide keep their physical durations
+		// anchored to readyBy — the first step lands BEFORE startAt. We never
+		// compress fixed steps or slip readyBy; instead the schedule is honest about
+		// being infeasible: roomFixedMin is always well below ROOM_MIN_TOTAL_MIN, so
+		// the 'too-short' warning (feasible = false, quality.ts's 'infeasible' factor)
 		// has already fired by the time this runs.
 		const budget = Math.max(0, totalAvailableMin - roomFixedMin);
 		durations = durations.map((d) => ({ ...d, min: Math.min(d.min, budget) }));
@@ -359,8 +369,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		}));
 	const warnings: ScheduleWarning[] = [];
 
-	if (inputs.roomTempC < 14) warnings.push('too-cold');
-	if (inputs.roomTempC > 30) warnings.push('too-warm');
+	if (inputs.roomTempC < ROOM_TEMP_LOW_C) warnings.push('too-cold');
+	if (inputs.roomTempC > ROOM_TEMP_HIGH_C) warnings.push('too-warm');
 
 	// Cold mode is gated on the time available AFTER the natural pre-ferment
 	// fits — a 17 h window with a 12 h poolish leaves 5 h, well in room-mode
@@ -398,8 +408,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	const { yeastPercent: yeastPct, steps } = plan;
 
 	const freshEquivalentPct = freshEquivalentPercent(yeastPct, inputs.yeastType);
-	if (freshEquivalentPct > 0 && freshEquivalentPct < 0.02) warnings.push('yeast-tiny');
-	if (freshEquivalentPct > 2) warnings.push('yeast-large');
+	if (freshEquivalentPct > 0 && freshEquivalentPct < YEAST_PCT_LOW) warnings.push('yeast-tiny');
+	if (freshEquivalentPct > YEAST_PCT_HIGH) warnings.push('yeast-large');
 
 	// Cold mode shifts coldMin to avoid the night window for the pre-cold
 	// cluster, but the post-cold divide is anchored to readyBy and room mode

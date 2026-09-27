@@ -340,6 +340,36 @@ describe('roundBallWeight', () => {
 		expect((a.pizzaCount * newBw * 100) / pctSum).toBeCloseTo(50, 6);
 	});
 
+	it('a 1 × 100 g ball never rounds below the 100 g floor', () => {
+		// 1 × 100 g at the default percentages is ~58 g of flour, which snaps
+		// to 50 g and asks for an 86.5 g ball. The result is written into the
+		// raw ball-weight field, which is not clamped (only the derived inputs
+		// are), so the box read 86.5 while the recipe used 100 — and the flour
+		// was not round either way. The old suite only ever rounded from the
+		// middle of the band, where the snap never leaves it.
+		const a = { ...args, pizzaCount: 1, ballWeight: 100 };
+		expect(flourFor(1, 100, a)).toBeCloseTo(57.78, 2);
+		expect(roundBallWeight(a)).toBe(100);
+	});
+
+	it('a 1 × 580 g ball never rounds above the 600 g ceiling', () => {
+		// ~335 g of flour snaps up to 350 g, which wants a 605.8 g ball — over
+		// the ceiling by the same mechanism as the floor case.
+		const a = { ...args, pizzaCount: 1, ballWeight: 580 };
+		expect(flourFor(1, 580, a)).toBeCloseTo(335.1, 1);
+		expect(roundBallWeight(a)).toBe(600);
+	});
+
+	it('is idempotent at both band edges', () => {
+		// Before the clamp the second click started from the clamped recipe
+		// value rather than the number in the box, so it was no longer a no-op.
+		for (const ballWeight of [100, 580]) {
+			const first = roundBallWeight({ ...args, pizzaCount: 1, ballWeight });
+			const second = roundBallWeight({ ...args, pizzaCount: 1, ballWeight: first });
+			expect(second).toBe(first);
+		}
+	});
+
 	it('works for sourdough (yeast % is not part of pctSum)', () => {
 		const sd = {
 			...args,
@@ -480,5 +510,63 @@ describe('computeIngredients — oil & sugar', () => {
 		expect(
 			r.flour + r.water + r.salt + r.yeast + r.oil + r.sugar + pf.flour + pf.water + pf.yeast
 		).toBeCloseTo(1120, 6);
+	});
+});
+
+// The carrier × pre-ferment matrix at the ingredient level. The full schedule
+// matrix (schedule.test.ts) covers the same invariant through computeSchedule;
+// this is the row CLAUDE.md's "new yeast carrier → new row in each matrix"
+// points at for the file that owns computeIngredients — until it existed,
+// `active-dry` appeared nowhere in this suite.
+describe('computeIngredients — carrier × pre-ferment mass balance', () => {
+	const carriers = [
+		{ yeastType: 'fresh', yeastPercent: 0.2 },
+		{ yeastType: 'instant', yeastPercent: 0.2 / 3 },
+		{ yeastType: 'active-dry', yeastPercent: 0.2 * 0.4 },
+		{ yeastType: 'sourdough', yeastPercent: 20 }
+	] as const;
+	const shapes = [
+		{ label: 'none', preFerments: [] },
+		{ label: 'biga', preFerments: [{ type: 'biga', flourPercent: 30 }] },
+		{ label: 'poolish', preFerments: [{ type: 'poolish', flourPercent: 30 }] },
+		{
+			label: 'biga+poolish',
+			preFerments: [
+				{ type: 'biga', flourPercent: 30 },
+				{ type: 'poolish', flourPercent: 20 }
+			]
+		}
+	] as const;
+
+	describe.each(carriers)('$yeastType', ({ yeastType, yeastPercent }) => {
+		it.each(shapes)('pre-ferment: $label', ({ preFerments }) => {
+			const r = computeIngredients({
+				...baseArgs,
+				yeastType,
+				yeastPercent,
+				preFerments: [...preFerments]
+			});
+			// Sourdough drops the pre-ferments — the starter is the pre-ferment.
+			expect(r.preFerments).toHaveLength(yeastType === 'sourdough' ? 0 : preFerments.length);
+
+			const pfMass = r.preFerments.reduce((s, pf) => s + pf.flour + pf.water + pf.yeast, 0);
+			expect(r.flour + r.water + r.salt + r.yeast + r.oil + r.sugar + pfMass).toBeCloseTo(1120, 6);
+			expect(r.totalDough).toBe(1120);
+
+			// pctSum branch: a yeast carrier adds its own mass, the starter is
+			// flour + water from the existing budget.
+			const pctSum = 100 + 70 + 3 + (yeastType === 'sourdough' ? 0 : yeastPercent);
+			const flourTotal = (1120 * 100) / pctSum;
+			const pfFlour = r.preFerments.reduce((s, pf) => s + pf.flour, 0);
+			if (yeastType === 'sourdough') {
+				expect(r.flour + r.yeast / 2).toBeCloseTo(flourTotal, 6);
+			} else {
+				expect(r.flour + pfFlour).toBeCloseTo(flourTotal, 6);
+				// Under a pre-ferment the carrier's whole mass moves into the pre-doughs.
+				const yeastAll = r.yeast + r.preFerments.reduce((s, pf) => s + pf.yeast, 0);
+				expect(yeastAll).toBeCloseTo((flourTotal * yeastPercent) / 100, 6);
+				if (preFerments.length > 0) expect(r.yeast).toBe(0);
+			}
+		});
 	});
 });

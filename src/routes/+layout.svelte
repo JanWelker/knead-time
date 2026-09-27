@@ -16,13 +16,24 @@
 		// Auto-detecting from navigator.languages would clobber that — the
 		// URL is authoritative on that route.
 		const ownsLocale = page.route.id?.startsWith('/print');
-		if (!ownsLocale) {
-			// A persisted user choice wins over navigator detect so a full
-			// reload (e.g. via a community Open link) doesn't snap back.
-			const stored = loadStoredLocale(safeLocalStorage());
-			i18n.set(stored ?? detectLocale(navigator.languages));
+		if (ownsLocale) {
+			// The print sheet is a black-on-white page that sets its own ground
+			// with `background: #fff !important`, so it has no dark half to
+			// resolve — but the pre-paint boot script in app.html cannot know
+			// which route it is on and stamps `dark` on a dark system anyway,
+			// which drags `color-scheme: dark` onto a sheet about to be printed.
+			// Undo it here; the route's own inline `color-scheme: light` covers
+			// the window before this runs.
+			document.documentElement.classList.remove('dark');
+			return;
 		}
-		theme.init();
+		// A persisted user choice wins over navigator detect so a full
+		// reload (e.g. via a community Open link) doesn't snap back.
+		const stored = loadStoredLocale(safeLocalStorage());
+		i18n.set(stored ?? detectLocale(navigator.languages));
+		// Returned so the system-preference listener it attaches is torn down
+		// with the layout rather than outliving it.
+		return theme.init();
 	});
 
 	// Mirror i18n.locale onto <html lang>; effects only run client-side,

@@ -2,11 +2,13 @@
 	import { resolve } from '$app/paths';
 	import { pizzeriaEntries, type PizzeriaEntry, type Ranking } from '$lib/pizzerias/pizzerias';
 	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { interpolate } from '$lib/i18n/interpolate';
 	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 	import RecipeSection from './RecipeSection.svelte';
 	import RecipeSpecList from './RecipeSpecList.svelte';
 
 	const t = $derived(i18n.t);
+	const locale = $derived(i18n.locale);
 
 	const entries: PizzeriaEntry[] = pizzeriaEntries;
 
@@ -56,35 +58,26 @@
 	     is exactly what the cards exist to avoid. -->
 	<ul class="flex flex-col gap-3 lg:hidden">
 		{#each entries as entry (entry.recipeUrl)}
-			<li class="border-rule bg-paper rounded-[2px] border-2 p-3">
+			<li class="ticket">
 				<div class="flex items-baseline justify-between gap-3">
 					<span class="text-ink font-bold">
 						{@render pizzeriaName(entry)}
 					</span>
 					<span class="text-ink-soft text-xs whitespace-nowrap">
-						{entry.city}, {entry.country}
+						{interpolate(t.pizzerias.place, { city: entry.city, country: entry.country })}
 					</span>
 				</div>
 				<div class="mt-2">{@render rankingChips(entry.rankings)}</div>
 				<div class="mt-3 flex flex-wrap gap-2">
-					<a
-						href={resolve('/') + entry.recipeSearch}
-						rel="external"
-						class="btn-tomato inline-flex items-center justify-center"
-					>
+					<a href={resolve('/') + entry.recipeSearch} rel="external" class="btn-tomato">
 						{t.pizzerias.open_link}
 					</a>
-					<a
-						href={entry.sourceUrl}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="btn-tomato inline-flex items-center justify-center"
-					>
+					<a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer" class="btn-tomato">
 						{t.pizzerias.source_link}
 					</a>
 				</div>
 				<details class="mt-3 text-sm">
-					<summary class="label-caps text-ink-soft cursor-pointer">
+					<summary class="ticket-summary">
 						{t.pizzerias.details_label}
 					</summary>
 					<RecipeSpecList inputs={entry.inputs} labels={t.pizzerias} />
@@ -101,15 +94,15 @@
 		<table class="w-full min-w-[840px] border-collapse text-left text-sm tabular-nums">
 			<thead>
 				<tr class="bg-rule text-paper">
-					<th class="label-caps text-paper px-3 py-2">{t.pizzerias.col_pizzeria}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.pizzerias.col_location}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.pizzerias.col_rankings}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.pizzerias.col_hydration}</th>
-					<th class="label-caps text-paper px-3 py-2 text-right">{t.pizzerias.col_salt}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.pizzerias.col_yeast}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.pizzerias.col_preFerment}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.pizzerias.col_open}</th>
-					<th class="label-caps text-paper px-3 py-2">{t.pizzerias.col_source}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_pizzeria}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_location}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_rankings}</th>
+					<th scope="col" class="head-cell text-right">{t.pizzerias.col_hydration}</th>
+					<th scope="col" class="head-cell text-right">{t.pizzerias.col_salt}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_yeast}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_preFerment}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_open}</th>
+					<th scope="col" class="head-cell">{t.pizzerias.col_source}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -127,14 +120,14 @@
 							{/if}
 						</td>
 						<td class="text-ink-soft px-3 py-3 whitespace-nowrap">
-							{entry.city}, {entry.country}
+							{interpolate(t.pizzerias.place, { city: entry.city, country: entry.country })}
 						</td>
 						<td class="px-3 py-3">{@render rankingChips(entry.rankings)}</td>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums">
-							{numLabel(entry.inputs.hydration, '%')}
+						<td class="figure-cell">
+							{numLabel(entry.inputs.hydration, locale, '%')}
 						</td>
-						<td class="px-3 py-3 text-right font-semibold tabular-nums">
-							{numLabel(entry.inputs.saltPercent, '%')}
+						<td class="figure-cell">
+							{numLabel(entry.inputs.saltPercent, locale, '%')}
 						</td>
 						<td class="px-3 py-3">{yeastLabel(entry.inputs, t)}</td>
 						<td class="px-3 py-3">{preFermentLabel(entry.inputs, t)}</td>

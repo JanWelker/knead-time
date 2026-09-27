@@ -1,5 +1,9 @@
 <!doctype html>
-<html lang="en">
+<!-- `lang` is filled in per page by the handle hook in src/hooks.server.ts, from
+     the locale in the URL path: the print route prerenders one file per
+     language and they all used to claim `en`. Everything else resolves to `en`,
+     which is what this attribute used to say outright. -->
+<html lang="%lang%">
 	<head>
 		<meta charset="utf-8" />
 		<!-- One mark, one file: the tab, the Home Screen and the manifest all point
@@ -42,13 +46,19 @@
 		<script>
 			// Theme boot: apply dark before first paint. The legacy bare 'theme'
 			// slot is read as a fallback until loadStoredTheme migrates it to
-			// 'kneadtime:theme'. Storage access can throw (Chrome "Block all
-			// cookies") — only the reads are guarded so a blocked storage still
-			// honours the system preference.
+			// the scoped theme key. The scope placeholder in that key is stamped at
+			// prerender time by hooks.server.ts (empty at the root, ':pr-preview-pr-N'
+			// on a preview):
+			// the preview shares the production origin, so this read has to look
+			// in the same scoped slot storedTheme.ts writes or the first paint
+			// would follow the live site's choice. Storage access can throw (Chrome
+			// "Block all cookies") — only the reads are guarded so a blocked
+			// storage still honours the system preference.
 			(function () {
 				var stored = null;
 				try {
-					stored = localStorage.getItem('kneadtime:theme') || localStorage.getItem('theme');
+					stored =
+						localStorage.getItem('kneadtime%storage-scope%:theme') || localStorage.getItem('theme');
 				} catch (e) {}
 				if (
 					stored === 'dark' ||

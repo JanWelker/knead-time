@@ -7,6 +7,18 @@
 // blocked or full storage degrades to no-persistence instead of killing the
 // mount.
 
+import { scopedStorageKey } from './storageScope';
+
+/**
+ * The key a device-local slot is written under on this deployment:
+ * `kneadtime:<name>` at the root, `kneadtime:<scope>:<name>` on a PR preview.
+ * `__STORAGE_SCOPE__` is inlined at build time from BASE_PATH (vite.config.ts),
+ * because the preview and the live site share one origin — see storageScope.ts.
+ */
+export function storageKey(name: string): string {
+	return scopedStorageKey(name, __STORAGE_SCOPE__);
+}
+
 export function safeLocalStorage(): Storage | null {
 	try {
 		return typeof localStorage === 'undefined' ? null : localStorage;

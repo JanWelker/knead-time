@@ -340,6 +340,30 @@ describe('idealWindowHours', () => {
 		expect(idealWindowHours(zonesFor(310), 20)).toBe(16);
 	});
 
+	it('the ideal is always on the rail, so stopsWithIdeal needs no range guard', () => {
+		// stopsWithIdeal used to guard against an ideal below the first stop or
+		// past the last one, and two tests fed it 3 and 200 to reach those
+		// branches — values no producer can emit. The guards are gone; this is
+		// what makes their absence safe: the floor is the shortest stop (6 h,
+		// refused below by idealWindowHours) and the ceiling is the top of the
+		// W 310 cold anchor (72 h), which the tolerance model clamps at rather
+		// than extrapolating past, so no flour can reach the 80 h last stop.
+		expect(WINDOW_STOPS[0]).toBe(6);
+		expect(WINDOW_STOPS[WINDOW_STOPS.length - 1]).toBe(80);
+		let lowest = Infinity;
+		let highest = -Infinity;
+		for (const w of [100, 180, 220, 265, 280, 310, 350, 380, 500]) {
+			for (let h = 0; h <= 200; h += 0.5) {
+				const ideal = idealWindowHours(zonesFor(w), h);
+				if (ideal === null) continue;
+				lowest = Math.min(lowest, ideal);
+				highest = Math.max(highest, ideal);
+			}
+		}
+		expect(lowest).toBe(6);
+		expect(highest).toBe(72);
+	});
+
 	it('has no ideal for a flour whose band closes before the rail starts', () => {
 		// Supermarket 00: room band 2–4 h, no cold zone at all.
 		expect(idealWindowHours(zonesFor(180), 1000)).toBeNull();
@@ -359,8 +383,6 @@ describe('stopsWithIdeal', () => {
 	it('leaves the canonical list alone when there is nothing to add', () => {
 		expect(stopsWithIdeal(null)).toEqual(WINDOW_STOPS);
 		expect(stopsWithIdeal(72)).toEqual(WINDOW_STOPS); // already a stop
-		expect(stopsWithIdeal(3)).toEqual(WINDOW_STOPS); // below the rail
-		expect(stopsWithIdeal(200)).toEqual(WINDOW_STOPS); // past the rail
 	});
 
 	it('stays strictly ascending, so the axis stays monotonic', () => {
@@ -370,11 +392,6 @@ describe('stopsWithIdeal', () => {
 				expect(stops[i]).toBeGreaterThan(stops[i - 1]);
 			}
 		}
-	});
-
-	it('never mutates WINDOW_STOPS', () => {
-		stopsWithIdeal(40);
-		expect(WINDOW_STOPS).toEqual([6, 8, 12, 16, 18, 24, 36, 48, 72, 80]);
 	});
 });
 

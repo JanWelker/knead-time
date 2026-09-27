@@ -1,3 +1,4 @@
+import { clampInput } from './inputBounds';
 import type { Ingredients, PreFermentSpec, YeastType } from './types';
 
 // Traditional pre-dough consistencies: a biga is stiff, a poolish pours.
@@ -146,7 +147,9 @@ export interface RoundBallWeightArgs {
 // that produces it exactly. Always snaps to the nearest 100 g — the whole point
 // of the button is a round bag-of-flour number — except for small batches
 // (< 400 g flour) where a 100 g jump would shift the ball weight noticeably;
-// those snap to 50 g instead.
+// those snap to 50 g instead. The coarse side needs no floor: a flour already
+// at 400 g or more rounds to 400 at the least. The fine side does — a tiny
+// enriched batch can round to 0 g of flour, which would hand back a 0 g ball.
 const ROUND_FLOUR_COARSE_MIN_G = 400;
 
 export function roundBallWeight(args: RoundBallWeightArgs): number {
@@ -156,9 +159,15 @@ export function roundBallWeight(args: RoundBallWeightArgs): number {
 
 	const targetFlour =
 		currentFlour >= ROUND_FLOUR_COARSE_MIN_G
-			? Math.max(100, Math.round(currentFlour / 100) * 100)
+			? Math.round(currentFlour / 100) * 100
 			: Math.max(50, Math.round(currentFlour / 50) * 50);
 
 	const newTotal = (targetFlour * pctSum) / 100;
-	return Math.round((newTotal / args.pizzaCount) * 10) / 10;
+	// The result is written straight into the ball-weight field, which is not
+	// clamped — only the derived inputs are. Near the band edges the snapped
+	// flour asks for a ball outside [100, 600] g, so an unclamped return showed
+	// one number in the box while the recipe silently used another, and the
+	// second click no longer landed where the first one had. Clamp here so the
+	// field and the recipe agree; at the edges the flour stays unround.
+	return clampInput('ballWeight', Math.round((newTotal / args.pizzaCount) * 10) / 10);
 }

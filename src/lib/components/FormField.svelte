@@ -1,14 +1,15 @@
 <script lang="ts">
 	import FieldHelp from './FieldHelp.svelte';
 
+	// Always a number box: every caller is a number, and the `value` binding is
+	// typed as one. The `type` and `inputmode` props that used to make that
+	// configurable had no caller at all.
 	type Props = {
 		label: string;
 		value: number;
-		type?: 'number' | 'text';
 		min?: number;
 		max?: number;
 		step?: number | string;
-		inputmode?: 'numeric' | 'decimal' | 'text';
 		id?: string;
 		help?: string;
 		// Fires on the input's `change`, i.e. once the value is committed rather
@@ -16,28 +17,16 @@
 		// fields, which would be unbearable mid-typing.
 		oncommit?: () => void;
 	};
-	let {
-		label,
-		value = $bindable(),
-		type = 'number',
-		min,
-		max,
-		step,
-		inputmode,
-		id,
-		help,
-		oncommit
-	}: Props = $props();
+	let { label, value = $bindable(), min, max, step, id, help, oncommit }: Props = $props();
 </script>
 
 <label class="group block" for={id}>
 	<span class="field-label">{label}</span>
 	<input
-		{type}
+		type="number"
 		{min}
 		{max}
 		{step}
-		{inputmode}
 		{id}
 		bind:value
 		onchange={(e) => {

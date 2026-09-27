@@ -1,8 +1,15 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { buildIcs } from '$lib/dough/ics';
 	import { encodeInputs } from '$lib/dough/urlState';
-	import { formatBallWeight, formatDateTime, formatDuration } from '$lib/format';
+	import {
+		formatBallWeight,
+		formatDateTime,
+		formatDuration,
+		formatPercent,
+		formatTemperature
+	} from '$lib/format';
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import { interpolate } from '$lib/i18n/interpolate';
 	import { uiMode } from '$lib/mode.svelte';
@@ -48,6 +55,11 @@
 	const locale = $derived(i18n.locale);
 
 	let copied = $state<'share' | 'failed' | null>(null);
+	// The "Copied" note clears itself on a timer. Held so the timer can be
+	// cancelled when the view goes away — a copy immediately before leaving the
+	// plan left a callback writing to a destroyed component's state.
+	let copiedTimer: ReturnType<typeof setTimeout> | undefined;
+	onMount(() => () => clearTimeout(copiedTimer));
 	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
 	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
 
@@ -60,12 +72,19 @@
 	}
 
 	function downloadIcs() {
-		const ics = buildIcs(form.schedule.steps, (step) => ({
-			summary: stepTitle(step, t),
-			description: stepDetailText(step, t, form.schedule, {
-				includeDetail: scheduleVerbosity.current === 'descriptive'
-			})
-		}));
+		const ics = buildIcs(
+			form.schedule.steps,
+			(step) => ({
+				summary: stepTitle(step, t),
+				description: stepDetailText(step, t, form.schedule, {
+					includeDetail: scheduleVerbosity.current === 'descriptive',
+					// The calendar event has to match the on-page step verbatim,
+					// weights included.
+					locale
+				})
+			}),
+			new Date()
+		);
 		const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
@@ -81,7 +100,8 @@
 		try {
 			await navigator.clipboard.writeText(window.location.href);
 			copied = 'share';
-			setTimeout(() => (copied = null), 1500);
+			clearTimeout(copiedTimer);
+			copiedTimer = setTimeout(() => (copied = null), 1500);
 		} catch {
 			// A denied clipboard used to be swallowed here. The reasoning was that
 			// the URL is in the address bar anyway — true, but the user has just
@@ -98,7 +118,7 @@
 				label: t.form.pizzaCount,
 				value: interpolate(t.plan.batch, {
 					n: form.inputs.pizzaCount,
-					weight: formatBallWeight(form.inputs.ballWeight)
+					weight: formatBallWeight(form.inputs.ballWeight, locale)
 				}),
 				field: 'field-pizzaCount'
 			},
@@ -119,9 +139,21 @@
 		// at their defaults, and a row of untouched defaults is noise.
 		if (uiMode.current === 'expert') {
 			out.push(
-				{ label: t.form.hydration, value: `${form.inputs.hydration} %`, field: 'field-hydration' },
-				{ label: t.form.salt, value: `${form.inputs.saltPercent} %`, field: 'field-salt' },
-				{ label: t.form.roomTemp, value: `${form.inputs.roomTempC} °C`, field: 'field-roomTemp' }
+				{
+					label: t.form.hydration,
+					value: formatPercent(form.inputs.hydration, locale),
+					field: 'field-hydration'
+				},
+				{
+					label: t.form.salt,
+					value: formatPercent(form.inputs.saltPercent, locale),
+					field: 'field-salt'
+				},
+				{
+					label: t.form.roomTemp,
+					value: formatTemperature(form.inputs.roomTempC, locale),
+					field: 'field-roomTemp'
+				}
 			);
 		}
 		return out;
@@ -240,7 +272,7 @@
 	<TrmnlPush bind:this={trmnlPush} inputs={form.serializable()} schedule={form.schedule} {locale} />
 	<SaveRecipeDialog bind:this={saveDialog} onsave={onsaverecipe} />
 
-	<div class="view-pad flex-1 pt-6 pb-6 sm:pt-8">
+	<main class="view-pad flex-1 pt-6 pb-6 sm:pt-8">
 		<div class="grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-10">
 			<!-- The bake moment is the app's whole premise, so it is set as the sign
 			     on the ticket: its name reversed out of an ink band, the moment
@@ -263,10 +295,6 @@
 			</h1>
 
 			<div class="min-w-0 lg:pt-2">
-				<!-- The three ways into the app, in one aligned row at the top of the
-				     block, with the values they act on underneath. They were staggered
-				     at three heights for a while to echo the ragged rows below them; at
-				     three buttons that reads as scattered rather than as hand-placed,
 				<!-- The three ways into the app, in one aligned row at the top of the
 				     block, with the values they act on underneath. Right-aligned and
 				     ordered quiet to loud in reverse — Guide me leaves the plan, Edit
@@ -415,5 +443,5 @@
 				</div>
 			</section>
 		</div>
-	</div>
+	</main>
 </div>

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openRecipe, sheet } from './helpers';
+import { menuTrigger, openAdjust, openMenu, openRecipe, sheet } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -65,20 +65,21 @@ test('the fit-score panel closes on Escape and on an outside click', async ({ pa
 test('the actions menu closes on Escape and on an outside click', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 
-	const menu = page.locator('summary').filter({ hasText: 'Menu' });
+	const menu = menuTrigger(page);
 	const items = page.getByRole('menuitem');
 
 	// Wait for focus, not merely for the item to be visible: <details> opens
 	// itself the moment the summary is clicked, while moving focus to the first
 	// item and attaching the key handler both happen in the effect that follows.
-	// "Visible" is therefore true a tick before Escape can be heard.
-	await menu.click();
+	// "Visible" is therefore true a tick before Escape can be heard. openMenu()
+	// itself waits for nothing, so the wait stays here where its reason is.
+	await openMenu(page);
 	await expect(items.first()).toBeFocused();
 	await page.keyboard.press('Escape');
 	await expect(items.first()).toBeHidden();
 	await expect(menu).toBeFocused();
 
-	await menu.click();
+	await openMenu(page);
 	await expect(items.first()).toBeFocused();
 	await page.getByRole('heading', { name: 'Schedule' }).click();
 	await expect(items.first()).toBeHidden();
@@ -95,7 +96,7 @@ test('the actions menu closes on Escape and on an outside click', async ({ page 
 test('the masthead menu roves focus across its items', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 
-	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await openMenu(page);
 	const items = page.locator('[role="menuitem"], [role="menuitemradio"]');
 	await expect(items.first()).toBeFocused();
 
@@ -108,4 +109,36 @@ test('the masthead menu roves focus across its items', async ({ page }) => {
 	await expect(items.first()).toBeFocused();
 	await page.keyboard.press('ArrowUp');
 	await expect(items.last()).toBeFocused();
+});
+
+// ModeBadge registered its dismissal handlers whether or not it had a panel to
+// dismiss. Two of its three callers — the ask flow's ticket stub and the adjust
+// sheet's header — render the seal without `explain`, so each left a permanent
+// pair of document listeners behind, guarding a <details> that never existed.
+// Nothing visible went wrong, which is why it lasted: the guard read a null ref
+// and did nothing, on every click and every key, on every view. Chromium's
+// debugger is the only place a document listener can be counted from, so this
+// asks it directly: one keydown listener per seal that actually opens.
+test('a seal without a panel attaches no dismissal listeners', async ({ page }) => {
+	const keydownListeners = async () => {
+		const cdp = await page.context().newCDPSession(page);
+		const { result } = await cdp.send('Runtime.evaluate', { expression: 'document' });
+		const { listeners } = await cdp.send('DOMDebugger.getEventListeners', {
+			objectId: result.objectId!
+		});
+		await cdp.detach();
+		return listeners.filter((l) => l.type === 'keydown').length;
+	};
+
+	// The first question: the stub's seal and the sheet's seal are both on the
+	// page, neither opens, and nothing else on this view listens for a key.
+	await openRecipe(page, RECIPE, '#ask/when');
+	await expect(page.locator('details:has(.seal-panel)')).toHaveCount(0);
+	expect(await keydownListeners()).toBe(0);
+
+	// The plan: the mode seal and the fit seal open, the sheet's seal does not.
+	// The menu attaches its handler only while open, so it is not in the count.
+	await openRecipe(page, RECIPE);
+	await expect(page.locator('details:has(.seal-panel)')).toHaveCount(2);
+	expect(await keydownListeners()).toBe(2);
 });

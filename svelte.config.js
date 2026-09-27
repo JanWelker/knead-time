@@ -2,14 +2,22 @@ import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 const base = process.env.BASE_PATH ?? '';
+// The browser suite builds the app twice — once at the root and once under a
+// preview-style base path — and the two builds run concurrently, so each needs
+// its own SvelteKit output and adapter output. Unset outside that suite.
+const outDir = process.env.KIT_OUT_DIR ?? '.svelte-kit';
+const buildDir = process.env.BUILD_DIR ?? 'build';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	preprocess: vitePreprocess(),
 	kit: {
 		adapter: adapter({
+			pages: buildDir,
+			assets: buildDir,
 			fallback: '404.html'
 		}),
+		outDir,
 		paths: {
 			base
 		},

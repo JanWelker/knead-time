@@ -12,31 +12,32 @@
 		$props();
 
 	const t = $derived(i18n.t);
+	const locale = $derived(i18n.locale);
 </script>
 
 <dl class="text-ink-soft mt-2 grid grid-cols-[max-content_1fr] gap-x-3 gap-y-1">
 	<dt class="label-caps self-center">{labels.col_pizzas}</dt>
-	<dd class="tabular-nums">{numLabel(inputs.pizzaCount)}</dd>
+	<dd class="tabular-nums">{numLabel(inputs.pizzaCount, locale)}</dd>
 	<dt class="label-caps self-center">{labels.col_ball}</dt>
-	<dd class="tabular-nums">{numLabel(inputs.ballWeight, ' g')}</dd>
+	<dd class="tabular-nums">{numLabel(inputs.ballWeight, locale, 'g')}</dd>
 	<dt class="label-caps self-center">{labels.col_hydration}</dt>
-	<dd class="tabular-nums">{numLabel(inputs.hydration, '%')}</dd>
+	<dd class="tabular-nums">{numLabel(inputs.hydration, locale, '%')}</dd>
 	<dt class="label-caps self-center">{labels.col_salt}</dt>
-	<dd class="tabular-nums">{numLabel(inputs.saltPercent, '%')}</dd>
+	<dd class="tabular-nums">{numLabel(inputs.saltPercent, locale, '%')}</dd>
 	{#if labels.col_oil && (inputs.oilPercent ?? 0) > 0}
 		<dt class="label-caps self-center">{labels.col_oil}</dt>
-		<dd class="tabular-nums">{numLabel(inputs.oilPercent, '%')}</dd>
+		<dd class="tabular-nums">{numLabel(inputs.oilPercent, locale, '%')}</dd>
 	{/if}
 	{#if labels.col_sugar && (inputs.sugarPercent ?? 0) > 0}
 		<dt class="label-caps self-center">{labels.col_sugar}</dt>
-		<dd class="tabular-nums">{numLabel(inputs.sugarPercent, '%')}</dd>
+		<dd class="tabular-nums">{numLabel(inputs.sugarPercent, locale, '%')}</dd>
 	{/if}
 	<dt class="label-caps self-center">{labels.col_yeast}</dt>
 	<dd>{yeastLabel(inputs, t)}</dd>
 	<dt class="label-caps self-center">{labels.col_temp}</dt>
-	<dd class="tabular-nums">{numLabel(inputs.roomTempC, '°C')}</dd>
+	<dd class="tabular-nums">{numLabel(inputs.roomTempC, locale, '°C')}</dd>
 	<dt class="label-caps self-center">{labels.col_fridge}</dt>
-	<dd class="tabular-nums">{numLabel(inputs.fridgeTempC, '°C')}</dd>
+	<dd class="tabular-nums">{numLabel(inputs.fridgeTempC, locale, '°C')}</dd>
 	<dt class="label-caps self-center">{labels.col_preFerment}</dt>
 	<dd>{preFermentLabel(inputs, t)}</dd>
 </dl>

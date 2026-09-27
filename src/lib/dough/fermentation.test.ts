@@ -10,9 +10,23 @@ import {
 	TARGET_UNITS_FRESH,
 	TARGET_UNITS_SOURDOUGH,
 	temperatureFactor,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW,
 	yeastMassFactor,
 	yeastPercentForPhases
 } from './fermentation';
+
+describe('the yeast sanity band', () => {
+	it('is 0.05–1.5 % fresh-equivalent, and there is exactly one of it', () => {
+		// schedule.ts warned below 0.02 % and above 2 % while quality.ts deducted
+		// below 0.05 % and above 1.5 %: two bands for one judgement, so a recipe
+		// could lose a star with no warning saying why. Both now read this pair;
+		// the literals are pinned here because a constant only ever compared to
+		// itself is free to move.
+		expect(YEAST_PCT_LOW).toBe(0.05);
+		expect(YEAST_PCT_HIGH).toBe(1.5);
+	});
+});
 
 describe('yeastMassFactor', () => {
 	it.each([
@@ -79,14 +93,15 @@ describe('yeastPercentForPhases — fresh yeast', () => {
 		expect(warm).toBeLessThan(cool);
 	});
 
-	it('cold + warm phases combine sensibly', () => {
+	it('solves the classic 1 h room + 24 h fridge + 4 h proof shape to 0.1345 %', () => {
+		// Was a band (0 < y < 0.2) that any arithmetic slip inside it passed.
+		// 1.6 / (1 + 24 · 2^((4 − 22) / 10) + 4) = 0.13454…
 		const yPct = yeastPercentForPhases('fresh', [
 			{ hours: 1, tempC: 22 },
 			{ hours: 24, tempC: 4 },
 			{ hours: 4, tempC: 22 }
 		]);
-		expect(yPct).toBeGreaterThan(0);
-		expect(yPct).toBeLessThan(0.2);
+		expect(yPct).toBeCloseTo(0.13454208034953388, 12);
 	});
 });
 
@@ -108,9 +123,20 @@ describe('yeastPercentForPhases — degenerate input', () => {
 });
 
 describe('prefermentDurationHours', () => {
+	it('references 14 h for a biga and 12 h for a poolish', () => {
+		// The poolish figure was only ever compared against itself
+		// (`toBeCloseTo(PREFERMENT_REF_HOURS_POOLISH)`), so it could have moved to
+		// 10 h with a green suite. Both are hours a baker plans an evening around.
+		expect(PREFERMENT_REF_HOURS_BIGA).toBe(14);
+		expect(PREFERMENT_REF_HOURS_POOLISH).toBe(12);
+	});
 	it('equals the type reference hours at 22 °C', () => {
-		expect(prefermentDurationHours('biga', 22)).toBeCloseTo(PREFERMENT_REF_HOURS_BIGA, 6);
-		expect(prefermentDurationHours('poolish', 22)).toBeCloseTo(PREFERMENT_REF_HOURS_POOLISH, 6);
+		expect(prefermentDurationHours('biga', 22)).toBe(14);
+		expect(prefermentDurationHours('poolish', 22)).toBe(12);
+	});
+	it('stretches a poolish to 15.83 h in an 18 °C kitchen (12 / 2^(−0.4))', () => {
+		expect(prefermentDurationHours('poolish', 18)).toBeCloseTo(15.834094929274732, 9);
+		expect(prefermentDurationHours('biga', 18)).toBeCloseTo(18.47311075082052, 9);
 	});
 	it('lengthens at cooler temperatures (Q10 inverse scaling)', () => {
 		expect(prefermentDurationHours('biga', 18)).toBeGreaterThan(PREFERMENT_REF_HOURS_BIGA);

@@ -10,7 +10,7 @@ import { stepTitle } from '../stepCopy';
 export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
 
 // TRMNL's free tier caps webhook payloads at 2 KB. A cold-mode recipe with
-// a pre-ferment and seven localized step descriptions blows past 2 KB with
+// biga + poolish and its nine localized step descriptions blows past 2 KB with
 // human-readable JSON keys. Short keys trade verbosity for ~600 bytes of
 // headroom; the Liquid template uses the same names. Mapping documented
 // in docs/trmnl-setup.md.
@@ -34,7 +34,7 @@ export const TRMNL_WEBHOOK_BASE = 'https://trmnl.com/api/custom_plugins/';
 // are intentionally NOT in the payload. The default Full-Markup template
 // renders only titles + times + durations, and including descriptions
 // blew past the 2 KB cap in de/it/fr (each long German description costs
-// ~80 bytes × 8 steps).
+// ~80 bytes, nine of them in the worst case).
 export interface TrmnlMergeVariables {
 	t: string;
 	s: string;
@@ -75,9 +75,12 @@ export function buildMergeVariables(
 		sourdough: 'yeast_sourdough'
 	} as const;
 	const yeastLabel = msgs.form[YEAST_LABEL_KEYS[inputs.yeastType]];
+	// The schedule's list, not the form's: effectivePreFerments empties it
+	// for sourdough, so a starter recipe with a biga still toggled has no
+	// preferment-mix step - and the device must not announce one.
 	const preFermentLabel =
-		inputs.preFerments.length > 0
-			? inputs.preFerments
+		schedule.preFerments.length > 0
+			? schedule.preFerments
 					.map((pf) =>
 						// "Biga (stiff, ~50% hydration)" → "Biga"; the parenthetical
 						// blows the 2 KB payload budget for no e-ink value.
@@ -90,6 +93,9 @@ export function buildMergeVariables(
 	const modeLabel = schedule.mode === 'cold' ? msgs.mode.cold : msgs.mode.room;
 
 	const summary =
+		// English punctuation on purpose: this string is measured against a hard
+		// 2 KB budget in every locale, and the separators Intl would reach for
+		// here are multi-byte. The device's own rendering is not the page's.
 		`${inputs.pizzaCount} × ${formatBallWeight(inputs.ballWeight)} g · ${inputs.hydration}% · ${yeastLabel}` +
 		(preFermentLabel ? ` · ${preFermentLabel}` : '') +
 		` · ${modeLabel}`;

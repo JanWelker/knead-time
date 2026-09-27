@@ -19,7 +19,7 @@ import {
 	PREP_MIN,
 	ROOM_MIN_TOTAL_MIN
 } from './schedule';
-import { freshEquivalentPercent } from './fermentation';
+import { freshEquivalentPercent, YEAST_PCT_HIGH, YEAST_PCT_LOW } from './fermentation';
 import { defaultInputs, findStep } from './testFixtures';
 import type { DoughInputs } from './types';
 
@@ -444,10 +444,10 @@ describe('computeSchedule — room mode with pre-ferment', () => {
 		expect(r.mode).toBe('room');
 		const preferment = findStep(r, 'preferment-mix');
 		const prep = findStep(r, 'prep');
-		expect(preferment).toBeDefined();
-		expect(prep).toBeDefined();
 		const diffMin = (prep.at.getTime() - preferment.at.getTime()) / 60_000;
-		expect(diffMin).toBeCloseTo(prefermentDurationHours('poolish', 22) * 60, 0);
+		// 12 h × 60, as a literal: the expectation used to be derived from
+		// prefermentDurationHours itself, so the poolish reference was free to move.
+		expect(diffMin).toBe(720);
 	});
 });
 
@@ -648,23 +648,25 @@ describe('computeSchedule — pre-ferment temperature', () => {
 			baseInputs({ ...window, preFerments: biga, preFermentTempC: 17 })
 		);
 		const durOf = (s: typeof counter) => findStep(s, 'preferment-mix').durationMinutes;
-		expect(durOf(cellar)).toBeCloseTo(Math.round(prefermentDurationHours('biga', 17) * 60), 0);
-		expect(durOf(cellar)).toBeGreaterThan(durOf(counter));
+		// 14 h at 22 °C; 14 / 2^((17 − 22) / 10) = 19.8 h at 17 °C. Literals, not
+		// prefermentDurationHours(…) — an expectation derived from the function
+		// under test moves with it.
+		expect(durOf(counter)).toBe(840);
+		expect(durOf(cellar)).toBe(1188);
 	});
 
 	it('feeds the pre-ferment leg into the yeast solve at its own temperature', () => {
-		// Inside the clamp band wall × f(T) = ref, so the equivalent hours —
-		// and therefore the yeast % — stay put while the wall-clock stretches.
+		// Inside the clamp band wall × f(T) = ref, so the equivalent hours of the
+		// pre-ferment leg stay put while the wall-clock stretches; the solve then
+		// differs only through the schedule geometry (a longer reservation leaves
+		// less cold-bulk). Both figures are pinned: the old assertion — "positive,
+		// and within 50 % of the counter" — held with the temperature ignored.
 		const counter = computeSchedule(baseInputs({ ...window, preFerments: biga }));
 		const cellar = computeSchedule(
 			baseInputs({ ...window, preFerments: biga, preFermentTempC: 17 })
 		);
-		// The longer reservation leaves less cold-bulk, so solve differs only
-		// through the schedule geometry — sanity-check it stays in range.
-		expect(cellar.yeastPercent).toBeGreaterThan(0);
-		expect(
-			Math.abs(cellar.yeastPercent - counter.yeastPercent) / counter.yeastPercent
-		).toBeLessThan(0.5);
+		expect(counter.yeastPercent).toBeCloseTo(0.058394465938160625, 12);
+		expect(cellar.yeastPercent).toBeCloseTo(0.05839294373379321, 12);
 	});
 
 	it('computes the quality naturals at the pre-ferment temperature', () => {
@@ -741,7 +743,7 @@ describe('computeSchedule — temperature warnings', () => {
 
 describe('computeSchedule — yeast magnitude warnings', () => {
 	it('warns yeast-large on cold-room short-window fresh ferments', () => {
-		// 3 h room window at 5 °C → eq ≈ 0.69 → yeastPct ≈ 2.3 (above the 2% guard).
+		// 3 h room window at 5 °C → eq ≈ 0.69 → yeastPct ≈ 2.3 (above the 1.5 % band).
 		// Co-fires with too-cold; we only assert the yeast warning here.
 		const r = computeSchedule(
 			baseInputs({
@@ -756,7 +758,7 @@ describe('computeSchedule — yeast magnitude warnings', () => {
 
 	it('warns yeast-tiny when equivalent ferment hours blow past the fresh-yeast budget', () => {
 		// Non-physical room temp is the only way through computeSchedule to push
-		// yeastPct below 0.02 — guards the defensive branch, not a realistic
+		// yeastPct below 0.05 — guards the defensive branch, not a realistic
 		// scenario. computeSchedule has no input bounds (form validation lives in
 		// the UI), so this is a legitimate call.
 		const r = computeSchedule(
@@ -931,6 +933,32 @@ describe('computeSchedule — startAt is a hard floor (issue #78)', () => {
 		const fixedMin = PREP_MIN + MIX_MIN_SPIRAL + DIVIDE_MIN;
 		expect(firstStepAt(r).getTime()).toBe(readyBy.getTime() - fixedMin * 60_000);
 		expect(firstStepAt(r).getTime()).toBeLessThan(startAt.getTime());
+	});
+
+	it('keeps the exception at 75–85 min with autolyse on: the rest is a fixed step too', () => {
+		// CLAUDE.md documented the exception as "prep + mix + divide, 45–55 min",
+		// but autolyse is the default and adds its 30 min rest to the fixed frame
+		// — and the two exception tests above use the fixture, which opts autolyse
+		// off, so the default shape was never pinned. A 60 min window is 15 min
+		// short of the spiral frame: every hands-on step keeps its physical
+		// length, so the first step lands exactly 15 min before startAt.
+		const readyBy = new Date('2026-05-12T19:00:00Z');
+		const startAt = new Date('2026-05-12T18:00:00Z');
+		const r = computeSchedule(baseInputs({ startAt, readyBy, autolyse: true }));
+		expect(r.feasible).toBe(false);
+		expect(r.warnings).toContain('too-short');
+		expect(findStep(r, 'prep').durationMinutes).toBe(15);
+		expect(findStep(r, 'autolyse').durationMinutes).toBe(30);
+		expect(findStep(r, 'mix').durationMinutes).toBe(15);
+		expect(findStep(r, 'divide').durationMinutes).toBe(15);
+		expect(firstStepAt(r).getTime()).toBe(readyBy.getTime() - 75 * 60_000);
+		expect(firstStepAt(r).getTime()).toBe(startAt.getTime() - 15 * 60_000);
+
+		// The band's other end: hand kneading is the slowest mix.
+		const hand = computeSchedule(
+			baseInputs({ startAt, readyBy, autolyse: true, mixingMethod: 'hand' })
+		);
+		expect(firstStepAt(hand).getTime()).toBe(readyBy.getTime() - 85 * 60_000);
 	});
 
 	it('night-window adjuster never extends cold-bulk past natural (would push start before startAt)', () => {
@@ -1417,6 +1445,42 @@ describe('computeSchedule — room-mode ferment budget', () => {
 	});
 });
 
+describe('computeSchedule — the night guard can only shorten the cold leg', () => {
+	it('never emits a cold leg longer than naturalColdBulkMin, whichever hour the bake is at', () => {
+		// quality.ts charges `natural − actual` as a one-signed shortening and has
+		// dropped the positive half; that is only sound if the schedule really
+		// never lengthens the leg. Sweep every bake hour over a spread of cold
+		// windows and both cold-leg positions: the guard has to have fired on a
+		// good share of them (so the sweep exercises it, not just the untouched
+		// path) and never once the other way.
+		let shortened = 0;
+		let untouched = 0;
+		for (let hour = 0; hour < 24; hour++) {
+			for (const hours of [16, 18, 24, 36, 48]) {
+				for (const ballProof of ['room', 'cold'] as const) {
+					const readyBy = new Date(Date.UTC(2026, 4, 12, hour, 0));
+					const r = computeSchedule(
+						baseInputs({
+							readyBy,
+							startAt: new Date(readyBy.getTime() - hours * 3_600_000),
+							ballProof
+						})
+					);
+					expect(r.mode).toBe('cold');
+					const leg = findStep(r, ballProof === 'cold' ? 'proof-cold' : 'bulk-cold');
+					expect(leg.durationMinutes, `${hour}:00 / ${hours} h / ${ballProof}`).toBeLessThanOrEqual(
+						r.naturalColdBulkMin!
+					);
+					if (leg.durationMinutes < r.naturalColdBulkMin!) shortened++;
+					else untouched++;
+				}
+			}
+		}
+		expect(shortened).toBeGreaterThan(0);
+		expect(untouched).toBeGreaterThan(0);
+	});
+});
+
 describe('computeSchedule — warning thresholds', () => {
 	// The bands themselves, not just a value comfortably outside them. Both
 	// edges could be moved a degree without failing anything.
@@ -1430,11 +1494,15 @@ describe('computeSchedule — warning thresholds', () => {
 		expect(r.warnings.includes(warning)).toBe(fires);
 	});
 
-	it('fires yeast-large exactly above 2 % fresh-equivalent, never below', () => {
+	it('fires yeast-large exactly above 1.5 % fresh-equivalent, never below', () => {
 		// The threshold was only ever exercised from far outside it, so it could
 		// drift a whole percentage point unnoticed. Sweeping windows and room
 		// temperatures lands solved percentages either side of the edge; the
-		// warning has to agree with the band on every one of them.
+		// warning has to agree with the band on every one of them. The edge is
+		// the fit score's too: the warning used to fire above 2 % while the score
+		// deducted above 1.5 %, so a 1.8 % recipe lost a star for being extreme
+		// with no warning on the page saying why.
+		expect(YEAST_PCT_HIGH).toBe(1.5);
 		const readyBy = new Date('2026-05-12T19:00:00Z');
 		let over = 0;
 		let under = 0;
@@ -1449,9 +1517,9 @@ describe('computeSchedule — warning thresholds', () => {
 				);
 				const fresh = freshEquivalentPercent(r.yeastPercent, r.yeastType);
 				expect(r.warnings.includes('yeast-large'), `${roomTempC} °C / ${hours} h → ${fresh}`).toBe(
-					fresh > 2
+					fresh > YEAST_PCT_HIGH
 				);
-				if (fresh > 2) over++;
+				if (fresh > YEAST_PCT_HIGH) over++;
 				else under++;
 			}
 		}
@@ -1460,10 +1528,13 @@ describe('computeSchedule — warning thresholds', () => {
 		expect(under).toBeGreaterThan(0);
 	});
 
-	it('fires yeast-tiny exactly below 0.02 % fresh-equivalent, never at zero', () => {
+	it('fires yeast-tiny exactly below 0.05 % fresh-equivalent, never at zero', () => {
 		// Only a non-physical room temperature pushes the solve this low —
 		// computeSchedule has no input bounds (the form and the URL decoder own
-		// that), which is what makes the threshold testable at all.
+		// that), which is what makes the threshold testable at all. The edge is
+		// the fit score's: the warning used to sit at 0.02 %, a second copy of a
+		// band the score judged at 0.05 %.
+		expect(YEAST_PCT_LOW).toBe(0.05);
 		const window = {
 			startAt: new Date('2026-05-11T07:00:00Z'),
 			readyBy: new Date('2026-05-12T19:00:00Z')
@@ -1474,9 +1545,9 @@ describe('computeSchedule — warning thresholds', () => {
 			const r = computeSchedule(baseInputs({ ...window, roomTempC }));
 			const fresh = freshEquivalentPercent(r.yeastPercent, r.yeastType);
 			expect(r.warnings.includes('yeast-tiny'), `${roomTempC} °C → ${fresh}`).toBe(
-				fresh > 0 && fresh < 0.02
+				fresh > 0 && fresh < YEAST_PCT_LOW
 			);
-			if (fresh < 0.02) under++;
+			if (fresh < YEAST_PCT_LOW) under++;
 			else over++;
 		}
 		expect(over).toBeGreaterThan(0);

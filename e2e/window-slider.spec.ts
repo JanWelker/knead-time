@@ -1,24 +1,26 @@
 import { expect, test, type Page } from '@playwright/test';
+import { defaultInputs } from '../src/lib/dough/defaults';
+import { computeSchedule } from '../src/lib/dough/schedule';
+import { decodeInputs } from '../src/lib/dough/urlState';
+import { MESSAGES } from '../src/lib/i18n/messages';
+import { stepTitle as titleOf } from '../src/lib/stepCopy';
 import {
 	allStops,
 	arrowCentreX,
 	chosenWindow,
 	dragTo,
 	openAdjust,
-	openRecipe,
+	openForm,
 	sheet,
 	slider,
 	thumbCentreX,
+	waitForHydration,
 	windowCard
 } from './helpers';
 
 // The window control lives in the recipe sheet on the plan (and gets a whole
 // screen of its own on the ask flow — see ask-flow.spec.ts). Every geometry
 // rule below is the same one, reached through the sheet.
-async function openForm(page: import('@playwright/test').Page, query: string) {
-	await openRecipe(page, query);
-	await openAdjust(page);
-}
 
 // Caputo Pizzeria (W 265): cold band tops out at 40 h, which is not one of the
 // canonical stops — the case the ideal-as-its-own-stop work exists for.
@@ -66,7 +68,9 @@ test('a decoded link reproduces its own window, without re-picking', async ({ pa
 	await openForm(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
 
 	expect(await chosenWindow(page)).toBe('32 h');
-	await expect(windowCard(page).locator('[role="status"]')).toHaveCount(0);
+	// The region is always mounted (see announcements.spec.ts); what a decoded
+	// link must not produce is a *message* in it.
+	await expect(windowCard(page).locator('[role="status"]')).toHaveText('');
 });
 
 test('the ideal window is a stop the slider can reach', async ({ page }) => {
@@ -84,7 +88,11 @@ test('the ideal marker names the same window the app picks', async ({ page }) =>
 	await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-06');
 	await expect.poll(() => chosenWindow(page)).toBe('40 h');
 
-	await expect(windowCard(page)).toContainText('40 h');
+	// The marker's own caption, not the card: the previous assertion read
+	// `windowCard … toContainText('40 h')`, which the readout polled two lines
+	// above already satisfied, so the caption could have named any hour.
+	const marker = windowCard(page).locator('div:has(> svg path[d^="M5 0"])');
+	await expect(marker.locator('.rail-caption')).toHaveText(['Best for this flour', '40 h']);
 	expect(await arrowCentreX(page, 'up')).not.toBeNull();
 });
 
@@ -285,8 +293,56 @@ test('the band caption carries a swatch in the band colour', async ({ page }) =>
 	await expect(swatch).toHaveCount(1);
 	const colour = await swatch.evaluate((el) => getComputedStyle(el).backgroundColor);
 	const rail = await windowCard(page)
-		.locator('div.bg-basil-400, div.bg-basil-300')
+		// The band fills are `--kt-band-{room,cold}` roles now, not raw scale
+		// steps — see e2e/cascade.spec.ts, which pins what they resolve to.
+		.locator('div.bg-band-cold, div.bg-band-room')
 		.last()
 		.evaluate((el) => getComputedStyle(el).backgroundColor);
 	expect(colour).toBe(rail);
+});
+
+// The schedule table and this card each ran a 60 s `setInterval` of their own,
+// each seeded with its own `new Date()`: two clocks for one page, free to
+// disagree about the minute for one render — the table calling the first step
+// current while the card said the start had been missed. Both read one clock
+// now (now.svelte.ts). Two things pin it: the page registers exactly one
+// minute timer, counted by wrapping `setInterval` before the app loads, and one
+// tick moves both readouts together. The pinned clock stands 30 s before the
+// first step ends, so that tick is the one that ends it.
+test('the schedule and the window card read one clock', async ({ page }) => {
+	const query = `${CAPUTO}&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z`;
+	const inputs = { ...defaultInputs(), ...decodeInputs(query) };
+	const first = computeSchedule(inputs).steps[0];
+	const firstEnds = first.at.getTime() + first.durationMinutes * 60_000;
+	const stepTitle = (step: typeof first) => titleOf(step, MESSAGES.en);
+
+	// The clock first, so the wrapper wraps the fake timers the app will see.
+	await page.clock.install({ time: new Date(firstEnds - 30_000) });
+	await page.addInitScript(() => {
+		const w = window as Window & { __minuteTimers?: number };
+		w.__minuteTimers = 0;
+		const original = window.setInterval;
+		window.setInterval = ((handler: TimerHandler, ms?: number, ...rest: unknown[]) => {
+			if (ms === 60_000) w.__minuteTimers = (w.__minuteTimers ?? 0) + 1;
+			return original(handler, ms, ...rest);
+		}) as typeof window.setInterval;
+	});
+	await page.goto(`/?${query}`);
+	await waitForHydration(page);
+	await openAdjust(page);
+
+	// Table and card are both mounted and reading; there is one timer.
+	expect(
+		await page.evaluate(() => (window as Window & { __minuteTimers?: number }).__minuteTimers)
+	).toBe(1);
+
+	const nowStamp = page.locator('.stamp');
+	const missed = windowCard(page).getByText(/This window started/);
+	await expect(nowStamp.locator('xpath=..')).toContainText(stepTitle(first));
+	await expect(missed).toHaveCount(0);
+
+	// One tick moves both: the stamp leaves the first step and the card says so.
+	await page.clock.runFor(60_000);
+	await expect(missed).toHaveCount(1);
+	await expect(nowStamp.locator('xpath=..')).not.toContainText(stepTitle(first));
 });

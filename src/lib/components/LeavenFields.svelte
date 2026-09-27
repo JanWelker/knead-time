@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { i18n } from '$lib/i18n/i18n.svelte';
 	import type { FormState } from '$lib/state.svelte';
+	import FieldHelp from './FieldHelp.svelte';
 	import FormField from './FormField.svelte';
+	import { INPUT_BOUNDS, PREFERMENT_SHARE_MAX, PREFERMENT_SHARE_MIN } from '$lib/dough/inputBounds';
 
 	// What raises the dough: the carrier, any pre-ferment, and the autolyse.
 	// Rendered bare so the adjust sheet and the ask flow can frame it their own
@@ -37,8 +39,8 @@
 {#if form.yeastType === 'sourdough'}
 	<FormField
 		label={t.form.starterHydration}
-		min={40}
-		max={150}
+		min={INPUT_BOUNDS.starterHydration.min}
+		max={INPUT_BOUNDS.starterHydration.max}
 		step={5}
 		help={t.form.starterHydration_help}
 		bind:value={form.starterHydration}
@@ -46,28 +48,28 @@
 {:else}
 	<fieldset class="space-y-2">
 		<legend class="field-label">{t.form.preFerment}</legend>
-		<label class="text-ink flex items-center gap-2 text-sm font-medium">
-			<input type="checkbox" class="accent-accent size-4" bind:checked={form.bigaEnabled} />
+		<label class="check-row">
+			<input type="checkbox" class="check-box" bind:checked={form.bigaEnabled} />
 			{t.form.preFerment_biga}
 		</label>
 		{#if form.bigaEnabled}
 			<FormField
 				label={t.form.preFermentFlour_biga}
-				min={5}
-				max={80 - (form.poolishEnabled ? form.poolishFlourPercent : 0)}
+				min={PREFERMENT_SHARE_MIN}
+				max={PREFERMENT_SHARE_MAX - (form.poolishEnabled ? form.poolishFlourPercent : 0)}
 				step={5}
 				bind:value={form.bigaFlourPercent}
 			/>
 		{/if}
-		<label class="text-ink flex items-center gap-2 text-sm font-medium">
-			<input type="checkbox" class="accent-accent size-4" bind:checked={form.poolishEnabled} />
+		<label class="check-row">
+			<input type="checkbox" class="check-box" bind:checked={form.poolishEnabled} />
 			{t.form.preFerment_poolish}
 		</label>
 		{#if form.poolishEnabled}
 			<FormField
 				label={t.form.preFermentFlour_poolish}
-				min={5}
-				max={80 - (form.bigaEnabled ? form.bigaFlourPercent : 0)}
+				min={PREFERMENT_SHARE_MIN}
+				max={PREFERMENT_SHARE_MAX - (form.bigaEnabled ? form.bigaFlourPercent : 0)}
 				step={5}
 				bind:value={form.poolishFlourPercent}
 			/>
@@ -76,19 +78,15 @@
 			<span class="text-ink-soft block text-xs">{t.form.preFerment_sum_help}</span>
 		{/if}
 		{#if form.bigaEnabled || form.poolishEnabled}
-			<label class="text-ink flex items-center gap-2 text-sm font-medium">
-				<input
-					type="checkbox"
-					class="accent-accent size-4"
-					bind:checked={form.preFermentTempEnabled}
-				/>
+			<label class="check-row">
+				<input type="checkbox" class="check-box" bind:checked={form.preFermentTempEnabled} />
 				{t.form.preFermentTemp_toggle}
 			</label>
 			{#if form.preFermentTempEnabled}
 				<FormField
 					label={t.form.preFermentTemp}
-					min={4}
-					max={35}
+					min={INPUT_BOUNDS.preFermentTempC.min}
+					max={INPUT_BOUNDS.preFermentTempC.max}
 					step={0.5}
 					help={t.form.preFermentTemp_help}
 					bind:value={form.preFermentTempValue}
@@ -101,13 +99,11 @@
 <!-- Autolyse applies only with no pre-ferment (sourdough always
      qualifies — its starter is not a schedule pre-ferment). -->
 {#if form.yeastType === 'sourdough' || !(form.bigaEnabled || form.poolishEnabled)}
-	<label class="group text-ink flex items-center gap-2 text-sm font-medium">
-		<input type="checkbox" class="accent-accent size-4" bind:checked={form.autolyse} />
+	<label class="check-row group">
+		<input type="checkbox" class="check-box" bind:checked={form.autolyse} />
 		<span>
 			{t.form.autolyse_toggle}
-			<span class="text-ink-soft hidden text-xs font-normal group-focus-within:block">
-				{t.form.autolyse_help}
-			</span>
+			<FieldHelp text={t.form.autolyse_help} extra="font-normal" />
 		</span>
 	</label>
 {/if}

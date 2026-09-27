@@ -1,3 +1,4 @@
+import { storageKey } from './safeStorage';
 import { storedPreference } from './storedPreference';
 import type { ThemeChoice } from './theme.svelte';
 
@@ -6,12 +7,13 @@ function isThemeChoice(value: unknown): value is ThemeChoice {
 }
 
 const pref = storedPreference<ThemeChoice>({
-	key: 'kneadtime:theme',
+	key: storageKey('theme'),
 	isValid: isThemeChoice,
-	// Pre-prefix key. The app deploys to a shared *.github.io origin where the
-	// bare 'theme' slot is visible to every other project page. The inline boot
-	// script in app.html reads it as a fallback too, so the pre-migration first
-	// paint still honours a stored choice.
+	// Pre-prefix key from when the app deployed to a shared *.github.io origin,
+	// where the bare 'theme' slot was visible to every other project page. Only
+	// ever written at the root, so it stays unscoped. The inline boot script in
+	// app.html reads it as a fallback too, so the pre-migration first paint
+	// still honours a stored choice.
 	legacyKey: 'theme',
 	// 'system' is the absence of a user choice, so we clear the slot rather than
 	// write it — keeps storage tidy and gives a clean fresh-install signal.

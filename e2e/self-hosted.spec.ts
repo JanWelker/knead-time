@@ -51,6 +51,10 @@ test('the print sheet fetches nothing from another origin either', async ({ page
 	const foreign = foreignRequests(page);
 
 	await page.clock.install({ time: NOW });
+	// the route auto-calls window.print() on mount; stub it so the run is headless-safe
+	await page.addInitScript(() => {
+		window.print = () => {};
+	});
 	await page.goto(`/print/en?${RECIPE}`);
 	await page.evaluate(() => document.fonts.ready);
 
@@ -97,4 +101,17 @@ test('the whole app arrives as one script and one stylesheet', async ({ page }) 
 
 	expect(served.filter((t) => t === 'script')).toHaveLength(1);
 	expect(served.filter((t) => t === 'stylesheet')).toHaveLength(1);
+});
+
+// Self-hosting the faces made this origin their redistributor, and the SIL
+// Open Font License asks for its text to accompany the font files. The build
+// shipped the four .woff2 files with the notices pointing at node_modules,
+// which nobody visiting the site can read. A grep of THIRD-PARTY-NOTICES.md
+// cannot tell whether the text is served; a request can.
+test('the fonts’ licence text is served from the same origin as the fonts', async ({ page }) => {
+	for (const file of ['anton-OFL.txt', 'archivo-OFL.txt']) {
+		const response = await page.request.get(`/licenses/${file}`);
+		expect(response.status(), file).toBe(200);
+		expect(await response.text()).toContain('SIL Open Font License, Version 1.1');
+	}
 });
