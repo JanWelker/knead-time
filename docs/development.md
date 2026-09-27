@@ -57,13 +57,14 @@ src/
 │   │   ├── types.ts           shared types
 │   │   └── *.test.ts          colocated tests
 │   ├── components/       ← Svelte 5 UI (uses runes); AskFlow / PlanView / LibraryView are the three views,
-│   │                        AdjustPanel is the sheet that holds every input
+│   │                        AdjustPanel is the sheet that holds every input, and
+│   │                        DoughFields / LeavenFields / ProofFields are the field groups both share
 │   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table in the Recipes view
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
-│   ├── view.ts           ← the three views (ask / plan / library) and where a visitor lands
+│   ├── view.ts           ← the three views (ask / plan / library), the questions each route asks, and where a visitor lands
 │   ├── warningSlots.ts   ← which surface each schedule warning is rendered on
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)

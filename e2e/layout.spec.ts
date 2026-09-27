@@ -175,8 +175,8 @@ test.describe('nothing paints past the edge of the page', () => {
 		await noSidewaysScroll(page);
 	});
 
-	// The ask flow carries the perforated ticket stub, the widest single piece of
-	// type in the app, and the one animation: the question block slides in from
+	// The ask flow carries the question, the widest single piece of type in the
+	// app, and the one animation: the question block slides in from
 	// 2 rem to the right of where it lands, which painted 32 px past the sheet
 	// and put a horizontal scrollbar under every move between questions. It was
 	// invisible on a desktop, where the page is wider than its own content.

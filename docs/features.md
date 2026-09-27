@@ -4,7 +4,7 @@ What Knead Time does, by feature and by the version that brought it. The major v
 
 ## The job ticket (v7)
 
-The app is a service that prints its own paperwork. It opens with one question set 72 px tall, _when are you eating?_, and walks through four more, each answerable in a single gesture, with the order forming beside you as a ticket stub and the Italian flag painting itself across a progress rule as you go.
+The app is a service that prints its own paperwork. It opens with one question set 72 px tall, _which route?_, and walks the one you chose, each question answerable in a single gesture and each saying what its answer buys and what it costs, with the Italian flag painting itself across a progress rule as you go. Simple is six questions; advanced adds the sheet's own dough, leaven and proof groups for nine.
 
 The answer is a job ticket you return to: a full-screen numbered schedule you open at 07:00 with flour on your hands, the weights beside it set as a deli ticket with dotted leaders, a tear-off perforation and a double-ruled total. Every value on the ticket is a blank on a printed form; tap one and the **Adjust** order pad opens with that field under the cursor.
 

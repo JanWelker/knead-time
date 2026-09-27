@@ -260,7 +260,7 @@ test('the sign on the questions is the way to the plan', async ({ page }) => {
 	// The ask flow rendered it without its `home` callback, so it was the one
 	// place the sign was dead text — and nothing noticed, because the plan's own
 	// masthead test asserts the sign is *not* a button there.
-	await openRecipe(page, RECIPE, '#ask/pizzas');
+	await openRecipe(page, RECIPE, '#ask/batch');
 
 	await page.locator('header').getByRole('button', { name: 'Your plan', exact: true }).click();
 	await expect.poll(() => currentView(page)).toBe('plan');
