@@ -22,4 +22,15 @@ describe('stripTemplateComments', () => {
 		const html = '<!-- first -->\n<a></a>\n<!-- second -->\n<b></b>';
 		expect(stripTemplateComments(html)).toBe('<a></a>\n<b></b>');
 	});
+
+	// CodeQL flagged the first version, a single regex replace, because removing
+	// one comment can splice a fresh opener together out of its neighbours and
+	// leave it in the output. The loop runs until no prose opener is left.
+	it('leaves no prose opener behind when removing one splices another', () => {
+		expect(stripTemplateComments('<!-<!-- x -->- y -->z')).toBe('z');
+	});
+
+	it('stops on an unterminated comment instead of hanging', () => {
+		expect(stripTemplateComments('<a></a><!-- never closed')).toBe('<a></a><!-- never closed');
+	});
 });
