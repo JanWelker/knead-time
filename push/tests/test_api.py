@@ -161,3 +161,24 @@ async def test_metrics_are_prometheus_text(client, sender):
     assert res.headers["content-type"].startswith("text/plain")
     assert "# TYPE kneadtime_push_sent_total counter" in res.text
     assert "kneadtime_push_subscriptions " in res.text
+
+
+async def test_a_flood_from_one_address_is_refused_with_a_retry_after(client, pool):
+    from kneadtime_push.ratelimit import BURST
+
+    for _ in range(BURST):
+        assert (await client.get("/v1/vapid")).status_code == 200
+    res = await client.get("/v1/vapid")
+    assert res.status_code == 429
+    assert res.headers["retry-after"] == "2"
+    assert res.json() == {"detail": "too many requests from this address"}
+    # The probes and a CORS preflight are never counted or refused.
+    assert (await client.get("/healthz")).status_code == 200
+    assert (await client.get("/readyz")).status_code == 200
+    preflight = await client.options(
+        "/v1/schedules",
+        headers={"Origin": "https://kneadtime.pizza", "Access-Control-Request-Method": "PUT"},
+    )
+    assert preflight.status_code == 200
+    assert "kneadtime_push_limited_total 1" in (await client.get("/metrics")).text
+    assert await count(pool, "subscriptions") == 0
