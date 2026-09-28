@@ -13,6 +13,8 @@ export default defineConfig({
 		// The localStorage scope: '' at the root, ':<slug>' on a PR preview, which
 		// is served from the production origin (static/CNAME) and would otherwise
 		// read and write the live site's saved recipes. See src/lib/storageScope.ts.
-		__STORAGE_SCOPE__: JSON.stringify(storageScopeFor(process.env.BASE_PATH ?? ''))
+		__STORAGE_SCOPE__: JSON.stringify(storageScopeFor(process.env.BASE_PATH ?? '')),
+		// The reminder service (push/). Overridden for a local run; see push/README.md.
+		__PUSH_ORIGIN__: JSON.stringify(process.env.PUSH_ORIGIN ?? 'https://kneadtime.k8s.wlkr.ch')
 	}
 });

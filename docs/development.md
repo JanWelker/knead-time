@@ -62,6 +62,7 @@ src/
 │   ├── community/        ← community.md (data) + parser, rendered as a table in the Recipes view
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
 │   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
+│   ├── push/             ← step reminders: which steps, the payload, the service client, the worker's push handlers
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
 │   ├── view.ts           ← the three views (ask / plan / library) and where a visitor lands
 │   ├── warningSlots.ts   ← which surface each schedule warning is rendered on
@@ -80,7 +81,10 @@ src/
 │                           one authored set per theme) and the component layer every
 │                           surface, band, stamp and control is built from
 ├── app.html              ← shell (theme boot, manifest + Home Screen meta; no third-party links)
-└── service-worker.ts     ← precaches the whole app so it opens offline (SvelteKit registers it)
+└── service-worker.ts     ← precaches the whole app so it opens offline (SvelteKit registers it); shows the pushes
+
+push/                     ← the reminder service (Python, FastAPI, PostgreSQL): its own uv project, tests,
+                            Dockerfile and README; the one server the app talks to, on an explicit tap
 
 static/                   ← copied verbatim to the site root
 ├── manifest.webmanifest  ← the PWA manifest; every URL in it is relative, so BASE_PATH needs no help
@@ -100,8 +104,9 @@ scripts/
 │   ├── node-setup/       ← installs the .nvmrc Node version and runs npm ci
 │   └── base-path/        ← resolves BASE_PATH (custom domain, user site or /<repo>) for deploy and preview
 └── workflows/
-    ├── ci.yml            ← verify (lint + check + coverage gate + build) and e2e, on PRs and pushes to main
+    ├── ci.yml            ← verify (lint + check + coverage gate + build), push (the service's tests) and e2e
     ├── deploy.yml        ← build + publish to GitHub Pages, after CI passes on main
+    ├── push-image.yml    ← build + publish the reminder service's image once per version, on pushes to main
     └── preview.yml       ← build + publish a per-PR preview, comment the URL, clean up on close
 
 vite.config.ts            ← Vite (no test config; runtime build only)

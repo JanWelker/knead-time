@@ -11,9 +11,11 @@ const RECIPE =
 // reached the head, or a precache list that quietly stopped covering the bundle
 // all leave the app working perfectly in a tab and broken on a home screen.
 //
-// What is deliberately NOT here: anything about notifications. iOS only wakes a
-// service worker for an incoming push message, so a step reminder needs a
-// server to send it — see issue #306.
+// What is deliberately NOT here: the reminders. iOS only wakes a service worker
+// for an incoming push message, so a step reminder needs a server to send it
+// (push/, see issue #306); the page's half of that is pinned in
+// reminders.spec.ts, and the worker's push handler is unit-tested through
+// src/lib/push/swHandlers.ts because Chromium has no way to deliver a push here.
 
 /** The manifest, parsed, plus the URL it was served from (icons resolve against it). */
 async function manifest(page: Page) {

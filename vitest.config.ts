@@ -4,7 +4,8 @@ export default defineConfig({
 	// Unit tests run at the root scope, so every stored key is the literal a
 	// returning user's device already holds (pinned in storedPreference.test.ts).
 	define: {
-		__STORAGE_SCOPE__: '""'
+		__STORAGE_SCOPE__: '""',
+		__PUSH_ORIGIN__: '"https://kneadtime.k8s.wlkr.ch"'
 	},
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}', 'scripts/**/*.test.mjs'],

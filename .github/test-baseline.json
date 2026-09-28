@@ -1,7 +1,7 @@
 {
 	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
 	"unit": {
-		"total": 1065,
+		"total": 1110,
 		"files": {
 			"scripts/lib/fontLicences.test.mjs": 7,
 			"scripts/lib/testBaseline.test.mjs": 16,
@@ -25,6 +25,12 @@
 			"src/lib/infoSections.test.ts": 16,
 			"src/lib/ingredientRows.test.ts": 15,
 			"src/lib/pizzerias/pizzerias.test.ts": 35,
+			"src/lib/push/api.test.ts": 11,
+			"src/lib/push/key.test.ts": 3,
+			"src/lib/push/reminders.test.ts": 16,
+			"src/lib/push/stored.test.ts": 4,
+			"src/lib/push/support.test.ts": 5,
+			"src/lib/push/swHandlers.test.ts": 6,
 			"src/lib/qr.test.ts": 7,
 			"src/lib/safeStorage.test.ts": 14,
 			"src/lib/stepCopy.test.ts": 62,
@@ -41,7 +47,7 @@
 		}
 	},
 	"e2e": {
-		"total": 173,
+		"total": 179,
 		"files": {
 			"announcements.spec.ts": 6,
 			"ask-flow.spec.ts": 5,
@@ -59,6 +65,7 @@
 			"pwa.spec.ts": 10,
 			"recipe-collections.spec.ts": 8,
 			"recipe-output.spec.ts": 19,
+			"reminders.spec.ts": 6,
 			"save-recipe.spec.ts": 2,
 			"self-hosted.spec.ts": 5,
 			"view-modes.spec.ts": 8,

@@ -6,6 +6,7 @@ import { VERBOSITY_STORAGE_KEY } from './storedVerbosity';
 import { THEME_STORAGE_KEY } from './storedTheme';
 import { LOCALE_STORAGE_KEY } from './i18n/storedLocale';
 import { TRMNL_UUID_STORAGE_KEY } from './trmnl/uuid';
+import { REMINDERS_STORAGE_KEY } from './push/stored';
 import { LAST_RECIPE_KEY, RECIPES_KEY } from './storedRecipes';
 import { scopedStorageKey, storageScopeFor } from './storageScope';
 
@@ -19,6 +20,7 @@ const ALL_KEYS = [
 	THEME_STORAGE_KEY,
 	LOCALE_STORAGE_KEY,
 	TRMNL_UUID_STORAGE_KEY,
+	REMINDERS_STORAGE_KEY,
 	LAST_RECIPE_KEY,
 	RECIPES_KEY
 ];
@@ -31,6 +33,7 @@ describe('the storage slots', () => {
 			'kneadtime:theme',
 			'kneadtime:locale',
 			'kneadtime:trmnlUuid',
+			'kneadtime:reminders',
 			'kneadtime:lastRecipe',
 			'kneadtime:recipes'
 		]);
@@ -60,6 +63,7 @@ describe('the storage slots', () => {
 			'kneadtime:pr-preview-pr-12:theme',
 			'kneadtime:pr-preview-pr-12:locale',
 			'kneadtime:pr-preview-pr-12:trmnlUuid',
+			'kneadtime:pr-preview-pr-12:reminders',
 			'kneadtime:pr-preview-pr-12:lastRecipe',
 			'kneadtime:pr-preview-pr-12:recipes'
 		]);

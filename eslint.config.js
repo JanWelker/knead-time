@@ -17,7 +17,8 @@ export default ts.config(
 				...globals.node,
 				// Inlined at build time by vite (see vite.config.ts `define`).
 				__APP_VERSION__: 'readonly',
-				__STORAGE_SCOPE__: 'readonly'
+				__STORAGE_SCOPE__: 'readonly',
+				__PUSH_ORIGIN__: 'readonly'
 			}
 		}
 	},

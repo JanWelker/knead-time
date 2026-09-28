@@ -367,6 +367,33 @@ export interface Messages {
 		setup_hint: string;
 		setup_link: string;
 	};
+	reminders: {
+		menu_item: string;
+		dialog_heading: string;
+		dialog_intro: string;
+		privacy: string;
+		needs_install: string;
+		unsupported: string;
+		denied: string;
+		none_ahead: string;
+		count_one: string;
+		count_many: string;
+		set: string;
+		update: string;
+		working: string;
+		done: string;
+		done_no_receipt: string;
+		off: string;
+		off_done: string;
+		lost: string;
+		close: string;
+		error: string;
+		error_reason: string;
+		error_permission: string;
+		stale: string;
+		receipt_title: string;
+		guide: string;
+	};
 	warnings: {
 		// Spoken prefix so severity is not carried by colour alone.
 		severity_danger: string;
@@ -821,6 +848,36 @@ const en: Messages = {
 		error_invalid_uuid: 'That doesn’t look like a plugin UUID.',
 		setup_hint: 'First time?',
 		setup_link: 'See the TRMNL setup guide'
+	},
+	reminders: {
+		menu_item: 'Remind me on this device…',
+		dialog_heading: 'Step reminders on this device',
+		dialog_intro:
+			'A notification for every hands-on step, at its time, with the app closed. On an iPhone this needs the app on the Home Screen.',
+		privacy:
+			'The titles and times of your steps go to kneadtime.k8s.wlkr.ch, the one server Knead Time runs, and are deleted a day after the bake or when you turn reminders off.',
+		needs_install:
+			'Add Knead Time to the Home Screen from Safari’s share sheet and open it from there — a Safari tab cannot receive notifications.',
+		unsupported: 'This browser cannot receive push notifications.',
+		denied: 'Notifications are blocked for Knead Time in this browser’s settings.',
+		none_ahead: 'Every step of this plan is already behind you — nothing left to remind you of.',
+		count_one: 'One reminder: {title}, {when}.',
+		count_many: '{n} reminders, the first for {title}, {when}.',
+		set: 'Set reminders',
+		update: 'Update reminders',
+		working: 'Setting up…',
+		done: 'Reminders set. A test notification is on its way.',
+		done_no_receipt: 'Reminders set.',
+		off: 'Turn off',
+		off_done: 'Reminders turned off.',
+		lost: 'This browser has dropped its subscription — that happens when the icon is removed from the Home Screen — so no reminders are set.',
+		close: 'Close',
+		error: 'Could not set reminders',
+		error_reason: '{error}: {reason}',
+		error_permission: 'permission was not granted',
+		stale: 'The reminders on this device are for an earlier version of this plan.',
+		receipt_title: 'Reminders set',
+		guide: 'How reminders work'
 	},
 	warnings: {
 		severity_danger: 'Warning',
@@ -1343,6 +1400,38 @@ const de: Messages = {
 		error_invalid_uuid: 'Das sieht nicht wie eine Plugin-UUID aus.',
 		setup_hint: 'Zum ersten Mal?',
 		setup_link: 'Zur TRMNL-Einrichtungsanleitung'
+	},
+	reminders: {
+		menu_item: 'Auf diesem Gerät erinnern…',
+		dialog_heading: 'Schritt-Erinnerungen auf diesem Gerät',
+		dialog_intro:
+			'Eine Benachrichtigung für jeden aktiven Schritt, zu seiner Zeit, auch bei geschlossener App. Auf dem iPhone muss die App dafür auf dem Home-Bildschirm liegen.',
+		privacy:
+			'Die Titel und Zeiten deiner Schritte gehen an kneadtime.k8s.wlkr.ch, den einen Server, den Knead Time betreibt, und werden einen Tag nach dem Backen oder beim Abschalten der Erinnerungen gelöscht.',
+		needs_install:
+			'Lege Knead Time über das Teilen-Menü von Safari auf den Home-Bildschirm und öffne es von dort — ein Safari-Tab kann keine Benachrichtigungen empfangen.',
+		unsupported: 'Dieser Browser kann keine Push-Benachrichtigungen empfangen.',
+		denied:
+			'Benachrichtigungen für Knead Time sind in den Einstellungen dieses Browsers blockiert.',
+		none_ahead:
+			'Jeder Schritt dieses Plans liegt schon hinter dir — nichts mehr, woran zu erinnern wäre.',
+		count_one: 'Eine Erinnerung: {title}, {when}.',
+		count_many: '{n} Erinnerungen, die erste für {title}, {when}.',
+		set: 'Erinnerungen einrichten',
+		update: 'Erinnerungen aktualisieren',
+		working: 'Wird eingerichtet…',
+		done: 'Erinnerungen eingerichtet. Eine Test-Benachrichtigung ist unterwegs.',
+		done_no_receipt: 'Erinnerungen eingerichtet.',
+		off: 'Abschalten',
+		off_done: 'Erinnerungen abgeschaltet.',
+		lost: 'Dieser Browser hat sein Abonnement verloren — das passiert, wenn das Symbol vom Home-Bildschirm entfernt wird. Es sind also keine Erinnerungen eingerichtet.',
+		close: 'Schließen',
+		error: 'Erinnerungen konnten nicht eingerichtet werden',
+		error_reason: '{error}: {reason}',
+		error_permission: 'die Berechtigung wurde nicht erteilt',
+		stale: 'Die Erinnerungen auf diesem Gerät gehören zu einer früheren Version dieses Plans.',
+		receipt_title: 'Erinnerungen eingerichtet',
+		guide: 'So funktionieren Erinnerungen'
 	},
 	warnings: {
 		severity_danger: 'Warnung',
@@ -1867,6 +1956,38 @@ const it: Messages = {
 		error_invalid_uuid: 'Questo non sembra un UUID di plugin.',
 		setup_hint: 'Prima volta?',
 		setup_link: 'Guida alla configurazione TRMNL'
+	},
+	reminders: {
+		menu_item: 'Ricordamelo su questo dispositivo…',
+		dialog_heading: 'Promemoria dei passaggi su questo dispositivo',
+		dialog_intro:
+			'Una notifica per ogni passaggio manuale, alla sua ora, anche con l’app chiusa. Su iPhone serve l’app nella schermata Home.',
+		privacy:
+			'I titoli e gli orari dei tuoi passaggi vanno a kneadtime.k8s.wlkr.ch, l’unico server di Knead Time, e vengono cancellati un giorno dopo la cottura o quando disattivi i promemoria.',
+		needs_install:
+			'Aggiungi Knead Time alla schermata Home dal foglio di condivisione di Safari e aprila da lì — una scheda di Safari non può ricevere notifiche.',
+		unsupported: 'Questo browser non può ricevere notifiche push.',
+		denied: 'Le notifiche di Knead Time sono bloccate nelle impostazioni di questo browser.',
+		none_ahead:
+			'Ogni passaggio di questo programma è già alle tue spalle — non c’è più nulla da ricordare.',
+		count_one: 'Un promemoria: {title}, {when}.',
+		count_many: '{n} promemoria, il primo per {title}, {when}.',
+		set: 'Imposta promemoria',
+		update: 'Aggiorna promemoria',
+		working: 'Configurazione in corso…',
+		done: 'Promemoria impostati. Una notifica di prova è in arrivo.',
+		done_no_receipt: 'Promemoria impostati.',
+		off: 'Disattiva',
+		off_done: 'Promemoria disattivati.',
+		lost: 'Questo browser ha perso la sua iscrizione — succede quando l’icona viene rimossa dalla schermata Home — quindi nessun promemoria è impostato.',
+		close: 'Chiudi',
+		error: 'Impossibile impostare i promemoria',
+		error_reason: '{error}: {reason}',
+		error_permission: 'il permesso non è stato concesso',
+		stale:
+			'I promemoria su questo dispositivo si riferiscono a una versione precedente di questo programma.',
+		receipt_title: 'Promemoria impostati',
+		guide: 'Come funzionano i promemoria'
 	},
 	warnings: {
 		severity_danger: 'Attenzione',
@@ -2396,6 +2517,37 @@ const fr: Messages = {
 		setup_hint: 'Première fois ?',
 		setup_link: 'Guide de configuration TRMNL'
 	},
+	reminders: {
+		menu_item: 'Me rappeler sur cet appareil…',
+		dialog_heading: 'Rappels des étapes sur cet appareil',
+		dialog_intro:
+			'Une notification pour chaque étape active, à son heure, même l’app fermée. Sur un iPhone, l’app doit être sur l’écran d’accueil.',
+		privacy:
+			'Les titres et les heures de vos étapes sont envoyés à kneadtime.k8s.wlkr.ch, le seul serveur que fait tourner Knead Time, et sont supprimés un jour après la cuisson ou dès que vous désactivez les rappels.',
+		needs_install:
+			'Ajoutez Knead Time à l’écran d’accueil depuis la feuille de partage de Safari et ouvrez-le depuis là — un onglet Safari ne peut pas recevoir de notifications.',
+		unsupported: 'Ce navigateur ne peut pas recevoir de notifications push.',
+		denied: 'Les notifications sont bloquées pour Knead Time dans les réglages de ce navigateur.',
+		none_ahead:
+			'Toutes les étapes de ce programme sont déjà derrière vous — il n’y a plus rien à rappeler.',
+		count_one: 'Un rappel : {title}, {when}.',
+		count_many: '{n} rappels, le premier pour {title}, {when}.',
+		set: 'Activer les rappels',
+		update: 'Mettre à jour les rappels',
+		working: 'Configuration en cours…',
+		done: 'Rappels activés. Une notification de test est en route.',
+		done_no_receipt: 'Rappels activés.',
+		off: 'Désactiver',
+		off_done: 'Rappels désactivés.',
+		lost: 'Ce navigateur a perdu son abonnement — cela arrive quand l’icône est retirée de l’écran d’accueil — donc aucun rappel n’est activé.',
+		close: 'Fermer',
+		error: 'Impossible d’activer les rappels',
+		error_reason: '{error} : {reason}',
+		error_permission: 'l’autorisation n’a pas été accordée',
+		stale: 'Les rappels sur cet appareil correspondent à une version antérieure de ce programme.',
+		receipt_title: 'Rappels activés',
+		guide: 'Comment fonctionnent les rappels'
+	},
 	warnings: {
 		severity_danger: 'Avertissement',
 		severity_info: 'Remarque',
@@ -2920,6 +3072,36 @@ const nl: Messages = {
 		error_invalid_uuid: 'Dat lijkt niet op een plugin-UUID.',
 		setup_hint: 'Eerste keer?',
 		setup_link: 'Bekijk de TRMNL-installatiegids'
+	},
+	reminders: {
+		menu_item: 'Herinner me op dit apparaat…',
+		dialog_heading: 'Stapherinneringen op dit apparaat',
+		dialog_intro:
+			'Een melding voor elke actieve stap, op het moment zelf, ook als de app dicht is. Op een iPhone moet de app daarvoor op het beginscherm staan.',
+		privacy:
+			'De titels en tijden van je stappen gaan naar kneadtime.k8s.wlkr.ch, de enige server die Knead Time draait, en worden een dag na het bakken verwijderd, of zodra je de herinneringen uitzet.',
+		needs_install:
+			'Zet Knead Time via het deelvenster van Safari op het beginscherm en open de app van daaruit — een Safari-tabblad kan geen meldingen ontvangen.',
+		unsupported: 'Deze browser kan geen pushmeldingen ontvangen.',
+		denied: 'Meldingen voor Knead Time zijn geblokkeerd in de instellingen van deze browser.',
+		none_ahead: 'Elke stap van dit plan ligt al achter je — er valt niets meer aan te herinneren.',
+		count_one: 'Eén herinnering: {title}, {when}.',
+		count_many: '{n} herinneringen, de eerste voor {title}, {when}.',
+		set: 'Herinneringen instellen',
+		update: 'Herinneringen bijwerken',
+		working: 'Bezig met instellen…',
+		done: 'Herinneringen ingesteld. Er is een testmelding onderweg.',
+		done_no_receipt: 'Herinneringen ingesteld.',
+		off: 'Uitzetten',
+		off_done: 'Herinneringen uitgezet.',
+		lost: 'Deze browser is zijn abonnement kwijtgeraakt — dat gebeurt als het icoon van het beginscherm wordt verwijderd — dus er zijn geen herinneringen ingesteld.',
+		close: 'Sluiten',
+		error: 'Herinneringen instellen mislukt',
+		error_reason: '{error}: {reason}',
+		error_permission: 'toestemming is niet gegeven',
+		stale: 'De herinneringen op dit apparaat horen bij een eerdere versie van dit plan.',
+		receipt_title: 'Herinneringen ingesteld',
+		guide: 'Hoe herinneringen werken'
 	},
 	warnings: {
 		severity_danger: 'Waarschuwing',

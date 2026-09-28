@@ -10,9 +10,11 @@ const RECIPE =
 // a stylesheet fetched from another host tells that host who is baking, and
 // it is also a single point of failure in front of first paint.
 //
-// The only outbound call in the whole app is the TRMNL webhook, which happens
-// on an explicit click, to a URL the user typed themselves — it is the feature,
-// not a subresource, and it is not reachable without that click.
+// The only outbound calls in the whole app happen on an explicit click and are
+// the feature, not a subresource: the TRMNL webhook, to a URL the user typed
+// themselves, and the reminder service at kneadtime.k8s.wlkr.ch, on "Remind me"
+// (e2e/reminders.spec.ts pins that nothing else reaches it). Neither is
+// reachable without that click, which is why this spec still expects zero.
 //
 // This lives in the browser suite because it is a fact about what the page
 // *fetches*, which no amount of grepping the source can settle: a font CDN can
