@@ -369,6 +369,8 @@ export interface Messages {
 	};
 	reminders: {
 		menu_item: string;
+		button: string;
+		button_help: string;
 		dialog_heading: string;
 		dialog_intro: string;
 		privacy: string;
@@ -851,6 +853,8 @@ const en: Messages = {
 	},
 	reminders: {
 		menu_item: 'Remind me on this device…',
+		button: 'Remind me',
+		button_help: 'Get a notification on this device for every hands-on step, at its time.',
 		dialog_heading: 'Step reminders on this device',
 		dialog_intro:
 			'A notification for every hands-on step, at its time, with the app closed. On an iPhone this needs the app on the Home Screen.',
@@ -1403,6 +1407,9 @@ const de: Messages = {
 	},
 	reminders: {
 		menu_item: 'Auf diesem Gerät erinnern…',
+		button: 'Erinnere mich',
+		button_help:
+			'Auf diesem Gerät für jeden Handgriff eine Benachrichtigung zu seiner Zeit bekommen.',
 		dialog_heading: 'Schritt-Erinnerungen auf diesem Gerät',
 		dialog_intro:
 			'Eine Benachrichtigung für jeden aktiven Schritt, zu seiner Zeit, auch bei geschlossener App. Auf dem iPhone muss die App dafür auf dem Home-Bildschirm liegen.',
@@ -1959,6 +1966,9 @@ const it: Messages = {
 	},
 	reminders: {
 		menu_item: 'Ricordamelo su questo dispositivo…',
+		button: 'Ricordamelo',
+		button_help:
+			'Ricevi su questo dispositivo una notifica per ogni passaggio manuale, alla sua ora.',
 		dialog_heading: 'Promemoria dei passaggi su questo dispositivo',
 		dialog_intro:
 			'Una notifica per ogni passaggio manuale, alla sua ora, anche con l’app chiusa. Su iPhone serve l’app nella schermata Home.',
@@ -2519,6 +2529,9 @@ const fr: Messages = {
 	},
 	reminders: {
 		menu_item: 'Me rappeler sur cet appareil…',
+		button: 'Me rappeler',
+		button_help:
+			'Recevoir sur cet appareil une notification pour chaque étape manuelle, à son heure.',
 		dialog_heading: 'Rappels des étapes sur cet appareil',
 		dialog_intro:
 			'Une notification pour chaque étape active, à son heure, même l’app fermée. Sur un iPhone, l’app doit être sur l’écran d’accueil.',
@@ -3075,6 +3088,8 @@ const nl: Messages = {
 	},
 	reminders: {
 		menu_item: 'Herinner me op dit apparaat…',
+		button: 'Herinner me',
+		button_help: 'Krijg op dit apparaat een melding voor elke handmatige stap, op zijn tijd.',
 		dialog_heading: 'Stapherinneringen op dit apparaat',
 		dialog_intro:
 			'Een melding voor elke actieve stap, op het moment zelf, ook als de app dicht is. Op een iPhone moet de app daarvoor op het beginscherm staan.',

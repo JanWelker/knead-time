@@ -5,7 +5,7 @@ A notification for every hands-on step of a plan, at its time, with the app clos
 ## Turning them on
 
 1. **iPhone or iPad:** add Knead Time to the Home Screen from Safari's share sheet and open it from there. A Safari tab cannot receive notifications; the app has to run standalone (iOS 16.4 or newer). Android Chrome and desktop browsers need no install.
-2. Open your plan, open the actions menu and choose **Remind me on this device…**. The dialog says how many reminders the plan has left and when the first is due.
+2. Open your plan and press **Remind me** on the schedule’s header band (the actions menu carries the same entry as **Remind me on this device…**). The dialog says how many reminders the plan has left and when the first is due.
 3. Tap **Set reminders**. The browser asks for notification permission, subscribes, and the schedule goes to the service. A test notification arrives at once so you know the path works.
 
 Change the plan afterwards and it says so: the reminders belong to the plan they were set for, and an info line above the schedule offers to update them. Nothing is sent until you tap. **Turn off** in the same dialog forgets the device on the service and in the browser.

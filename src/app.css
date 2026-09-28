@@ -678,17 +678,17 @@ html.dark {
 	   rather than under one. The offset block is ink on ink there and simply does
 	   not show, which is correct — the fill is what marks it as the action. */
 	.btn-edit-sm {
-		@apply font-display border-rule text-on-accent inline-flex items-center gap-1.5 rounded-[2px] border-2 px-2.5 py-1 text-xs leading-tight uppercase;
+		@apply font-display border-rule text-on-accent inline-flex items-center gap-1.5 rounded-[2px] border-2 px-2.5 py-1 text-xs leading-tight uppercase disabled:opacity-45;
 		background: var(--kt-accent);
 		letter-spacing: 0.06em;
 		box-shadow: 2px 2px 0 0 var(--kt-rule);
 	}
 
-	.btn-edit-sm:hover {
+	.btn-edit-sm:hover:not(:disabled) {
 		background: var(--kt-accent-ink);
 	}
 
-	.btn-edit-sm:active {
+	.btn-edit-sm:active:not(:disabled) {
 		transform: translate(2px, 2px);
 		box-shadow: none;
 	}
