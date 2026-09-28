@@ -43,7 +43,19 @@
 		     label is set in, so no third family is needed. Both are served from
 		     this origin (@font-face in app.css) and both fall back to a narrow
 		     system face; there is no link to a font CDN here, and nothing in this
-		     document may reintroduce one — the app makes no third-party request. -->
+		     document may reintroduce one — the app makes no third-party request.
+		     The one host it does reach for on its own is not a third party: the
+		     visit counter below is Umami on the same homelab as the reminder
+		     service, and it sets no cookie and keeps no address. data-domains
+		     silences it anywhere but the live site, previews under it included
+		     as pages of it. e2e/self-hosted.spec.ts pins that this is the only
+		     tag of its kind. -->
+		<script
+			defer
+			src="https://analytics.k8s.wlkr.ch/script.js"
+			data-website-id="5b740652-404a-4d0f-a29d-6a1c206aaeda"
+			data-domains="kneadtime.pizza"
+		></script>
 		<script>
 			// Theme boot: apply dark before first paint. The legacy bare 'theme'
 			// slot is read as a fallback until loadStoredTheme migrates it to
@@ -69,7 +81,7 @@
 				}
 			})();
 		</script>
-		<link href="/_app/immutable/bundle.DMYVPgPn.js" rel="modulepreload">
+		<link href="/_app/immutable/bundle.BG6OWlW6.js" rel="modulepreload">
 		
 		<link href="/_app/immutable/assets/bundle.Da-ONccV.css" rel="stylesheet">
 	</head>
@@ -80,13 +92,13 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_3g7dzx = {
+					__sveltekit_1cyizni = {
 						base: ""
 					};
 
 					const element = document.currentScript.parentElement;
 
-					import("/_app/immutable/bundle.DMYVPgPn.js").then((app) => {
+					import("/_app/immutable/bundle.BG6OWlW6.js").then((app) => {
 						app.start(element)
 					});
 
