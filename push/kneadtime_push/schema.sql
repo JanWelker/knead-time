@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id BIGSERIAL PRIMARY KEY,
+  endpoint TEXT NOT NULL UNIQUE,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL,
+  last_seen_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS reminders (
+  id BIGSERIAL PRIMARY KEY,
+  subscription_id BIGINT NOT NULL REFERENCES subscriptions (id) ON DELETE CASCADE,
+  uid TEXT NOT NULL,
+  send_at TIMESTAMPTZ NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  sent_at TIMESTAMPTZ,
+  attempts INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS reminders_due ON reminders (send_at) WHERE sent_at IS NULL;

@@ -62,6 +62,12 @@
 			"description": "TS 7 (native compiler) is out of peer range for typescript-eslint (>=4.8.4 <6.1.0, crashes at runtime) and @sveltejs/kit (^5.3.3 || ^6.0.0). Drop this rule once both support it.",
 			"matchPackageNames": ["typescript"],
 			"allowedVersions": "^6.0.0"
+		},
+		{
+			"description": "The reminder service under push/ runs on the cluster against a pinned Postgres 18 and a pinned Python; a runtime bump there is a deploy decision, not a dependency chore.",
+			"matchPackageNames": ["python", "postgres", "ghcr.io/astral-sh/uv"],
+			"matchUpdateTypes": ["major", "minor"],
+			"automerge": false
 		}
 	]
 }

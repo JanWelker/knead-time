@@ -75,6 +75,40 @@ jobs:
 
       - run: npm run build
 
+  # The reminder service under push/ is Python, so it gets its own toolchain and
+  # its own job. deploy.yml gates on this whole workflow, so a red run here holds
+  # the site deploy too — accepted: the client that ships talks to this service.
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: push
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: push/uv.lock
+
+      - run: uv sync --locked
+
+      - run: uv run ruff check . && uv run ruff format --check .
+
+      - run: uv run pytest -q
+
   # Separate job so a browser failure reads as a browser failure, and so it runs
   # alongside the unit gate rather than after it. Covers what vitest cannot: the
   # controls live in .svelte / .svelte.ts, which have no Svelte plugin in the
