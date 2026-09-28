@@ -25,11 +25,12 @@
 		     is what Safari's share sheet puts on the home screen, so the PNG has to
 		     be here as well as in the manifest, and it is opaque because iOS
 		     composites a transparent one onto black.
-		     There are no notification meta tags and there is no push code: iOS
+		     Step reminders are server-sent push, never a timer in the page: iOS
 		     suspends a backgrounded web app's JavaScript and only ever wakes its
-		     service worker for an incoming push message, so a step reminder at
-		     03:00 needs a server to send it — which this app does not have and is
-		     not going to grow. See issue #306. -->
+		     service worker for an incoming push message, so a reminder at 03:00
+		     needs a server to send it. That server is push/ in this repo, and it
+		     hears from the app only when the user taps "Remind me"; the handler
+		     is in service-worker.ts. See issue #306 and docs/reminders.md. -->
 		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 		<link rel="manifest" href="/manifest.webmanifest" />
 		<meta name="mobile-web-app-capable" content="yes" />
@@ -68,7 +69,7 @@
 				}
 			})();
 		</script>
-		<link href="/_app/immutable/bundle.C-hxyxsK.js" rel="modulepreload">
+		<link href="/_app/immutable/bundle.BNp4oo0d.js" rel="modulepreload">
 		
 		<link href="/_app/immutable/assets/bundle.Da-ONccV.css" rel="stylesheet">
 	</head>
@@ -79,13 +80,13 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_7qr915 = {
+					__sveltekit_tq5d3t = {
 						base: ""
 					};
 
 					const element = document.currentScript.parentElement;
 
-					import("/_app/immutable/bundle.C-hxyxsK.js").then((app) => {
+					import("/_app/immutable/bundle.BNp4oo0d.js").then((app) => {
 						app.start(element)
 					});
 
