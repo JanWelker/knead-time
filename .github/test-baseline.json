@@ -1,7 +1,7 @@
 {
 	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
 	"unit": {
-		"total": 1110,
+		"total": 1116,
 		"files": {
 			"scripts/lib/fontLicences.test.mjs": 7,
 			"scripts/lib/testBaseline.test.mjs": 16,
@@ -40,6 +40,7 @@
 			"src/lib/storedRecipes.test.ts": 9,
 			"src/lib/storedTheme.test.ts": 17,
 			"src/lib/storedVerbosity.test.ts": 14,
+			"src/lib/templateComments.test.ts": 6,
 			"src/lib/trmnl/uuid.test.ts": 22,
 			"src/lib/trmnl/webhook.test.ts": 18,
 			"src/lib/view.test.ts": 9,
@@ -47,7 +48,7 @@
 		}
 	},
 	"e2e": {
-		"total": 179,
+		"total": 180,
 		"files": {
 			"announcements.spec.ts": 6,
 			"ask-flow.spec.ts": 5,
@@ -64,7 +65,7 @@
 			"persistence.spec.ts": 7,
 			"pwa.spec.ts": 10,
 			"recipe-collections.spec.ts": 8,
-			"recipe-output.spec.ts": 19,
+			"recipe-output.spec.ts": 20,
 			"reminders.spec.ts": 6,
 			"save-recipe.spec.ts": 2,
 			"self-hosted.spec.ts": 5,

@@ -1,4 +1,5 @@
 import { isLocale } from '$lib/i18n/messages';
+import { stripTemplateComments } from '$lib/templateComments';
 import type { Handle } from '@sveltejs/kit';
 
 // `app.html` is one file for every page, so its `lang` attribute is one value —
@@ -19,10 +20,15 @@ import type { Handle } from '@sveltejs/kit';
 // `%storage-scope%` rides the same mechanism: the theme boot script in app.html
 // reads localStorage before any module runs, so the deployment's storage scope
 // (see storageScope.ts) has to be written into the markup rather than imported.
+//
+// The prose comments in `app.html` are stripped here too: it is the one file
+// Svelte does not compile, so its notes reached every shipped page.
 export const handle: Handle = async ({ event, resolve }) => {
 	const locale = isLocale(event.params.locale) ? event.params.locale : 'en';
 	return resolve(event, {
 		transformPageChunk: ({ html }) =>
-			html.replace('%lang%', locale).replaceAll('%storage-scope%', __STORAGE_SCOPE__)
+			stripTemplateComments(
+				html.replace('%lang%', locale).replaceAll('%storage-scope%', __STORAGE_SCOPE__)
+			)
 	});
 };
