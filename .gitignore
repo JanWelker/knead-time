@@ -25,3 +25,10 @@ blob-report/
 
 # Claude Code: per-machine settings, worktrees and locks — nothing in it is tracked
 .claude/
+
+# Python (push/)
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
