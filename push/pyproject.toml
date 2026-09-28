@@ -1,6 +1,6 @@
 [project]
 name = "kneadtime-push"
-version = "0.1.0"
+version = "0.2.0"
 description = "Web Push step reminders for Knead Time"
 readme = "README.md"
 requires-python = ">=3.13"

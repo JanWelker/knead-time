@@ -41,7 +41,7 @@ The service is small enough to read; `push/README.md` lists the routes. The cont
 - `PUT /v1/schedules` takes `{subscription, receipt, reminders[]}` and **replaces** everything queued for that subscription, so an update is one call and an abandoned plan never buzzes. Reminders already in the past are dropped and counted in the reply; one more than fourteen days out is refused.
 - `DELETE /v1/schedules?endpoint=…` forgets the subscription.
 
-The service accepts subscriptions only on the push-service hosts its network policy lets it reach, refuses more than sixteen reminders per schedule, and treats a `401`, `403`, `404` or `410` from a push service as the end of that subscription.
+The service accepts subscriptions only on the push-service hosts its network policy lets it reach, refuses more than sixteen reminders per schedule, allows thirty requests a minute per client address (a `429` with `Retry-After` beyond that), and treats a `401`, `403`, `404` or `410` from a push service as the end of that subscription.
 
 ## Running it locally
 

@@ -34,6 +34,7 @@ and point the app at it with `PUSH_ORIGIN=http://localhost:8080 npm run dev`.
 | `VAPID_PRIVATE_KEY` | P-256 private key, PEM. The public key is derived from it and served on `GET /v1/vapid`       |
 | `VAPID_SUBJECT`     | The `sub` claim push services may contact; defaults to `https://kneadtime.pizza`              |
 | `ALLOWED_ORIGINS`   | Comma-separated CORS origins; the site, and a dev server when running locally                 |
+| `FORWARDED_ALLOW_IPS` | Proxies whose `X-Forwarded-For` uvicorn trusts for the client address (a CIDR is fine); unset, the peer address is the client |
 
 ## API
 
@@ -46,7 +47,11 @@ and point the app at it with `PUSH_ORIGIN=http://localhost:8080 npm run dev`.
 | `GET /metrics`                       | Prometheus text: sent, failed, gone, subscriptions                                            |
 
 Limits are pinned in `tests/`: 16 reminders per schedule, 14 days ahead, 120-character
-titles, 500-character bodies, 16 KB bodies, endpoints on a known push service only.
+titles, 500-character bodies, 16 KB bodies, endpoints on a known push service only, and
+30 requests a minute per client address on `/v1/` (429 with `Retry-After`; the probes are
+exempt). The address is what uvicorn reads out of `X-Forwarded-For` from a proxy listed in
+`FORWARDED_ALLOW_IPS` — on the cluster the pod CIDR, since only the Gateway's Envoy reaches
+the pod — and the peer address otherwise.
 
 ## Tooling
 

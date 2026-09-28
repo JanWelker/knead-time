@@ -12,6 +12,7 @@ from .dispatcher import Clock, run_forever, run_once, utcnow
 from .metrics import Metrics
 from .models import SchedulePut
 from .push import Gone, Sender, SendFailed, Target, make_sender
+from .ratelimit import RateLimiter
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ def create_app(
 ) -> FastAPI:
     send = sender or make_sender(settings)
     metrics = Metrics()
+    limiter = RateLimiter(lambda: clock().timestamp())
     pool = db.make_pool(settings.database_url)
 
     @asynccontextmanager
@@ -59,6 +61,23 @@ def create_app(
         length = request.headers.get("content-length")
         if length and length.isdigit() and int(length) > MAX_BODY_BYTES:
             return Response(status_code=413)
+        return await call_next(request)
+
+    # Per client, keyed on the address uvicorn reads out of X-Forwarded-For
+    # from the trusted proxy (FORWARDED_ALLOW_IPS); the probes are exempt.
+    @app.middleware("http")
+    async def rate_limit(request: Request, call_next):
+        if request.url.path.startswith("/v1/") and request.method != "OPTIONS":
+            client = request.client.host if request.client else "unknown"
+            ok, retry_after = limiter.allow(client)
+            if not ok:
+                metrics.limited += 1
+                return Response(
+                    '{"detail":"too many requests from this address"}',
+                    status_code=429,
+                    media_type="application/json",
+                    headers={"Retry-After": str(retry_after)},
+                )
         return await call_next(request)
 
     @app.get("/v1/vapid")
