@@ -264,3 +264,27 @@ test('the menu item waits for a plan that is feasible', async ({ page }) => {
 	await openMenu(page);
 	await expect(page.getByRole('menuitem', { name: 'Remind me on this device…' })).toBeDisabled();
 });
+
+test('the schedule wears a "Remind me" plaque that opens the same dialog', async ({ page }) => {
+	// The menu item was the only way in, one press behind a summary on the far
+	// side of the page from the steps it acts on. The plaque sits on the
+	// schedule's own band, the way "Round numbers" sits on the ticket's.
+	await openRecipe(page, RECIPE);
+	const schedule = page.locator('section.card-loud').filter({ hasText: 'Schedule' });
+	const plaque = schedule.locator('.card-header').getByRole('button', { name: 'Remind me' });
+	await expect(plaque).toBeEnabled();
+	await plaque.click();
+	const dialog = page.locator('dialog[open]', {
+		has: page.getByRole('heading', { name: 'Step reminders on this device' })
+	});
+	await expect(dialog).toBeVisible();
+	await expect(dialog.getByTestId('reminders-summary')).toContainText('6 reminders, the first for');
+});
+
+test('the schedule plaque waits for a feasible plan like the menu item', async ({ page }) => {
+	await openRecipe(
+		page,
+		'v=7&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-05T17%3A00%3A00.000Z'
+	);
+	await expect(page.getByRole('button', { name: 'Remind me', exact: true })).toBeDisabled();
+});

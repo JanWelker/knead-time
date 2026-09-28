@@ -468,7 +468,24 @@
 			<section class="card card-loud min-w-0">
 				<!-- Both marks are facts about this schedule, so they are pressed onto
 				     its own band rather than floating in a status row above it. -->
-				<h2 class="card-header card-header-title">{t.schedule.heading}</h2>
+				<div class="card-header justify-between">
+					<h2 class="card-header-title">{t.schedule.heading}</h2>
+					<!-- The same plaque "Round numbers" wears on the ticket: the one
+					     action the schedule itself invites is being told when each step
+					     comes due. The menu item stays for anyone who looks there first;
+					     both open the same dialog, and the tap remains the only trigger. -->
+					<button
+						type="button"
+						class="btn-edit-sm"
+						aria-haspopup="dialog"
+						disabled={!form.schedule.feasible}
+						onclick={() => remindersDialog?.open()}
+						title={t.reminders.button_help}
+					>
+						<span aria-hidden="true">◷</span>
+						{t.reminders.button}
+					</button>
+				</div>
 				<div class="card-body">
 					<!-- The lede: what the maths chose and why, directly under the stamp
 					     that names it. It had been left behind in a strip above the card

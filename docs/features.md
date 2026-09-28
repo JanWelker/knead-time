@@ -22,7 +22,7 @@ The page itself never schedules a notification, and cannot: iOS only ever wakes 
 
 ## Step reminders (v7.2)
 
-**Remind me on this device** in the plan's actions menu asks for notification permission and hands the plan's hands-on steps to the reminder service — a small server in this repository under `push/`, run on a homelab — which pushes a notification for each at its time, with the app closed. A test notification confirms the path at once; editing the plan afterwards shows an info line offering to update the reminders, and **Turn off** forgets the device again. On an iPhone the app has to be on the Home Screen first. What leaves the device, and for how long it is kept, is in [reminders.md](reminders.md).
+**Remind me**, the plaque on the schedule’s header band (also **Remind me on this device…** in the plan's actions menu), asks for notification permission and hands the plan's hands-on steps to the reminder service — a small server in this repository under `push/`, run on a homelab — which pushes a notification for each at its time, with the app closed. A test notification confirms the path at once; editing the plan afterwards shows an info line offering to update the reminders, and **Turn off** forgets the device again. On an iPhone the app has to be on the Home Screen first. What leaves the device, and for how long it is kept, is in [reminders.md](reminders.md).
 
 ## Flour strength and the fermentation window (v6)
 
