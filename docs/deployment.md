@@ -4,12 +4,13 @@ The app is a static site on GitHub Pages, live at [kneadtime.pizza](https://knea
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs on every PR and on pushes to `main`. It has two jobs:
+`.github/workflows/ci.yml` runs on every PR and on pushes to `main`. It has three jobs:
 
 - **`verify`**: lint, type-check, the coverage-gated suite, build.
 - **`e2e`**: the test-count ratchet, then Playwright against a real build.
+- **`push`**: the reminder service's lint and tests, against a PostgreSQL service container.
 
-Both are **required status checks** on `main`. Note that `main` is guarded by a repository _ruleset_, so the classic branch-protection API reports it as unprotected; see `gh api repos/JanWelker/knead-time/rulesets`. Adding a CI job does not make it required; that is a separate change to the ruleset.
+`verify` and `e2e` are **required status checks** on `main`; `push` is not yet, but the deploy waits for the whole workflow, so a red `push` holds the site too. Note that `main` is guarded by a repository _ruleset_, so the classic branch-protection API reports it as unprotected; see `gh api repos/JanWelker/knead-time/rulesets`. Adding a CI job does not make it required; that is a separate change to the ruleset.
 
 The `main` runs exist so Codecov gets a main-branch baseline (the README badge points at `branch/main`) and so the deploy has something to wait for. They are deliberately **not** cancelled when a newer commit lands, since cancelling one would leave that commit undeployed, untagged and out of the baseline; PR runs still supersede each other. The CI badge covers the whole workflow, so a failing `e2e` turns it red too.
 
@@ -26,6 +27,10 @@ The `main` runs exist so Codecov gets a main-branch baseline (the README badge p
 The workflow can also be run by hand (`workflow_dispatch`, from `main` only). That path has no CI run attached to it, so the gate asks the GitHub API for a successful CI run on the exact commit and fails with a message if there is none. Nothing reaches production or mints a tag from one click.
 
 Every job that pushes to `gh-pages`, the deploy and the PR preview alike, shares one concurrency group with `cancel-in-progress: false`, because a merge fires both at once and the deploy force-pushes while the preview rebases. That serialises them, but it is not a queue: GitHub keeps at most one running and one pending job per group, and a third job arriving cancels the one that was pending. A preview build landing while a closed PR's cleanup waits behind a deploy therefore still cancels the cleanup, and that PR's directory stays under `pr-preview/` on `gh-pages` until someone deletes it by hand. Every job in all three workflows carries a `timeout-minutes` so a hung push cannot hold the group for GitHub's six-hour default.
+
+## The reminder service's image
+
+`.github/workflows/push-image.yml` runs on pushes to `main` that touch `push/`. It runs the service's tests itself (it is not gated on `ci.yml`), reads the version from `push/pyproject.toml`, and builds and publishes `ghcr.io/janwelker/knead-time-push:<version>` for amd64 and arm64 with an SBOM and a provenance attestation — unless that tag already exists, so a change that does not bump the version publishes nothing. The homelab pins the tag and its digest; Renovate there moves it. The GHCR package has to be public (a one-time setting) for the cluster to pull it.
 
 ### Base path
 

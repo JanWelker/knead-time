@@ -18,7 +18,11 @@ Two faces off one press, Anton for the signs and Archivo for the work, on warm s
 
 It installs from Safari's share sheet or Chrome's install prompt and opens standalone, with its own icon and no browser chrome. A service worker precaches the whole app, so the plan and the print sheet open with no signal at all.
 
-It does **not** send notifications, and cannot: iOS only ever wakes a web app's service worker for an incoming push message, so a reminder at 03:00 needs a server to send it, and this app has none. Use the `.ics` export for alerts that fire while the app is closed. The reasoning is in [issue #306](https://github.com/JanWelker/knead-time/issues/306).
+The page itself never schedules a notification, and cannot: iOS only ever wakes a web app's service worker for an incoming push message, so a reminder at 03:00 needs a server to send it ([issue #306](https://github.com/JanWelker/knead-time/issues/306)). The `.ics` export remains the path that involves no server at all.
+
+## Step reminders (v7.2)
+
+**Remind me on this device** in the plan's actions menu asks for notification permission and hands the plan's hands-on steps to the reminder service — a small server in this repository under `push/`, run on a homelab — which pushes a notification for each at its time, with the app closed. A test notification confirms the path at once; editing the plan afterwards shows an info line offering to update the reminders, and **Turn off** forgets the device again. On an iPhone the app has to be on the Home Screen first. What leaves the device, and for how long it is kept, is in [reminders.md](reminders.md).
 
 ## Flour strength and the fermentation window (v6)
 
@@ -49,9 +53,10 @@ When you are not using a pre-ferment, the app rests flour and water for 30 min b
 - **Print / Save as PDF**: a dedicated sheet that fits one page on A4 or Letter, reads on a black-and-white printer, and carries a QR code back to the recipe.
 - **Share link**: the whole recipe in a compact query string. Every version only ever adds keys, so old links keep resolving.
 - **TRMNL**: pushed to an e-ink display from your browser. Setup in [trmnl-setup.md](trmnl-setup.md).
+- **Reminders**: a push notification for every hands-on step, sent by the reminder service on an explicit tap. How and what in [reminders.md](reminders.md).
 
 ## Privacy and performance
 
-Everything is served from one origin: no backend, no analytics, no CDN, no font server. The two typefaces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app. The single outbound request is the TRMNL webhook, on an explicit click. A browser test (`e2e/self-hosted.spec.ts`) fails if anything else ever reaches for another host.
+Everything is served from one origin: no analytics, no CDN, no font server. The two typefaces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app. Exactly two outbound requests exist, and both happen only on an explicit click: the TRMNL webhook, and the reminder service at `kneadtime.k8s.wlkr.ch` when you set step reminders. A browser test (`e2e/self-hosted.spec.ts`) fails if anything else ever reaches for another host.
 
 The app ships as one bundle and one stylesheet: a visit is five requests, the page, the bundle, the stylesheet and the two font subsets it needs.

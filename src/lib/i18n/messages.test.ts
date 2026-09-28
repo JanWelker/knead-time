@@ -39,8 +39,10 @@ describe('messages parity', () => {
 	// place the five actually differ, so folding them back into a literal fails.
 	it('the send error separator is French in French and a plain colon elsewhere', () => {
 		expect(MESSAGES.fr.trmnl_push.error_reason).toBe('{error} : {reason}');
+		expect(MESSAGES.fr.reminders.error_reason).toBe('{error} : {reason}');
 		for (const loc of LOCALES.filter((l) => l !== 'fr')) {
 			expect(MESSAGES[loc].trmnl_push.error_reason, loc).toBe('{error}: {reason}');
+			expect(MESSAGES[loc].reminders.error_reason, loc).toBe('{error}: {reason}');
 		}
 		for (const loc of LOCALES) {
 			expect(MESSAGES[loc].pizzerias.place, loc).toBe('{city}, {country}');

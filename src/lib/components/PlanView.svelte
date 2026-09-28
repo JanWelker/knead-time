@@ -22,6 +22,7 @@
 	import Masthead from './Masthead.svelte';
 	import MastheadMenu from './MastheadMenu.svelte';
 	import ModeBadge from './ModeBadge.svelte';
+	import RemindersDialog, { type RemindersState } from './RemindersDialog.svelte';
 	import SaveRecipeDialog from './SaveRecipeDialog.svelte';
 	import ScheduleTable from './ScheduleTable.svelte';
 	import TrmnlPush from './TrmnlPush.svelte';
@@ -62,6 +63,15 @@
 	onMount(() => () => clearTimeout(copiedTimer));
 	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
 	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
+	let remindersDialog = $state<ReturnType<typeof RemindersDialog>>();
+
+	// The recipe as the share link writes it: what the reminders are set for,
+	// and what they are compared against once the plan moves on.
+	const fingerprint = $derived(encodeInputs(form.serializable()));
+	let reminders = $state<RemindersState>({ subscribed: false, fingerprint: null });
+	const remindersStale = $derived(
+		reminders.subscribed && reminders.fingerprint !== null && reminders.fingerprint !== fingerprint
+	);
 
 	// Ordered least-to-most detail, which is also the order the strip reads in.
 	const VERBOSITIES = ['short', 'descriptive'] as const;
@@ -261,6 +271,19 @@
 		>
 			{t.trmnl_push.menu_item}
 		</button>
+		<button
+			type="button"
+			role="menuitem"
+			aria-haspopup="dialog"
+			class="menu-item"
+			disabled={!form.schedule.feasible}
+			onclick={() => {
+				close();
+				remindersDialog?.open();
+			}}
+		>
+			{t.reminders.menu_item}
+		</button>
 	</div>
 {/snippet}
 
@@ -271,6 +294,13 @@
 	     ARIA-menu content, and the menu closes before it opens. -->
 	<TrmnlPush bind:this={trmnlPush} inputs={form.serializable()} schedule={form.schedule} {locale} />
 	<SaveRecipeDialog bind:this={saveDialog} onsave={onsaverecipe} />
+	<RemindersDialog
+		bind:this={remindersDialog}
+		schedule={form.schedule}
+		{fingerprint}
+		{locale}
+		onstate={(state) => (reminders = state)}
+	/>
 
 	<main class="view-pad flex-1 pt-6 pb-6 sm:pt-8">
 		<div class="grid gap-6 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-10">
@@ -369,6 +399,23 @@
 			{#if copied === 'share'}{t.actions.copied}{:else if copied === 'failed'}{t.actions
 					.copy_failed}{/if}
 		</p>
+
+		<!-- The reminders on this device were set for a plan that has since
+		     changed. Info, not danger: nothing is wrong yet, but a buzz for a
+		     step that moved is worth a line, and the fix is one tap away. -->
+		{#if remindersStale}
+			<p class="notice notice-info mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+				<span>{t.reminders.stale}</span>
+				<button
+					type="button"
+					class="link-action"
+					aria-haspopup="dialog"
+					onclick={() => remindersDialog?.open()}
+				>
+					{t.reminders.update}
+				</button>
+			</p>
+		{/if}
 
 		<!-- Warnings still read next to what causes them: the window and
 		     temperature families sit under the values that set them, which on this

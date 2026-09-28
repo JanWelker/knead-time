@@ -11,6 +11,8 @@ declare global {
 	const __APP_VERSION__: string;
 	// Inlined at build time from BASE_PATH (see vite.config.ts and storageScope.ts).
 	const __STORAGE_SCOPE__: string;
+	// Inlined at build time from PUSH_ORIGIN (see vite.config.ts and push/README.md).
+	const __PUSH_ORIGIN__: string;
 }
 
 export {};
