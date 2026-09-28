@@ -49,6 +49,9 @@ test('every request and every in-app link stays under the base', async ({ page }
 	page.on('request', (request) => {
 		const url = request.url();
 		if (!/^https?:/.test(url)) return;
+		// Only this origin has a base to stay under. The one request that leaves
+		// it, the visit counter's script, is self-hosted.spec.ts's business.
+		if (!url.startsWith('http://localhost:')) return;
 		if (!new URL(url).pathname.startsWith(`${BASE}/`)) offBase.push(url);
 	});
 
