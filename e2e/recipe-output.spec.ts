@@ -245,6 +245,30 @@ test('each prerendered print sheet declares the language it is written in', asyn
 	expect(await (await page.request.get('/')).text()).toContain('<html lang="en"');
 });
 
+// `app.html` is the one file Svelte does not compile, so the notes in it — on
+// the manifest, the icon, the fonts and the theme boot script — were copied
+// into every prerendered page: 2.5 kB of prose in `index.html`, `404.html` and
+// all six print sheets, while the `.svelte` templates and `<script>` blocks
+// had theirs stripped by the compiler and the minifier. The handle hook now
+// removes them; this reads the raw bytes, because a hydrated DOM has no way of
+// showing what the server actually sent. Svelte's own `<!--[-->` markers must
+// survive — the page cannot hydrate without them — so the check is for a
+// comment that opens with whitespace, which is what prose does and a marker
+// never does.
+test('no prose comment ships in a prerendered page', async ({ page }) => {
+	for (const path of ['/', '/404.html', '/print', '/print/de']) {
+		const html = await (await page.request.get(path)).text();
+		expect(html, path).not.toMatch(/<!--\s/);
+		// The boot script is in the raw bytes and still does its job, so the
+		// stripping did not take the script with the note that used to sit in it.
+		expect(html, path).toContain("classList.add('dark')");
+	}
+	// The two icons are static files no hook ever sees: they ship as written.
+	for (const path of ['/icon.svg', '/icon-maskable.svg']) {
+		expect(await (await page.request.get(path)).text(), path).not.toContain('<!--');
+	}
+});
+
 // The print sheet forces `background: #fff !important` and prints black on
 // white, but the layout used to call `theme.init()` on every route — so on a
 // dark system the pre-paint boot script's `dark` class stayed on the element
