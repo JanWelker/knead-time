@@ -26,7 +26,7 @@ Read more in [the feature tour](docs/features.md).
 
 ## Privacy
 
-Everything is served from one origin. There is no analytics, no CDN and no font server; the two typefaces ship with the app. Opening Knead Time tells nobody but your own browser that you are baking. Two outbound requests exist in the whole app, and each happens only when you click for it: the TRMNL webhook on **Send to TRMNL**, and the reminder service on **Remind me on this device**, which receives the titles and times of your steps and deletes them a day after the bake ([what leaves the device](docs/reminders.md#what-leaves-the-device)). A browser test fails if anything else ever reaches for another host. Third-party notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+Everything is served from one origin. There is no CDN and no font server; the two typefaces ship with the app. Opening Knead Time tells nobody but your own browser and this site's own visit counter that you are baking: [Umami](https://umami.is/), self-hosted on the same homelab as the reminder service, which sets no cookie and stores no address, only that a page was seen. Two other outbound requests exist in the whole app, and each happens only when you click for it: the TRMNL webhook on **Send to TRMNL**, and the reminder service on **Remind me on this device**, which receives the titles and times of your steps and deletes them a day after the bake ([what leaves the device](docs/reminders.md#what-leaves-the-device)). A browser test fails if anything else ever reaches for another host. Third-party notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
 ## Run it locally
 

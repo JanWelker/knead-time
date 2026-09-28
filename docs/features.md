@@ -57,6 +57,6 @@ When you are not using a pre-ferment, the app rests flour and water for 30 min b
 
 ## Privacy and performance
 
-Everything is served from one origin: no analytics, no CDN, no font server. The two typefaces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app. Exactly two outbound requests exist, and both happen only on an explicit click: the TRMNL webhook, and the reminder service at `kneadtime.k8s.wlkr.ch` when you set step reminders. A browser test (`e2e/self-hosted.spec.ts`) fails if anything else ever reaches for another host.
+Everything is served from one origin: no CDN, no font server, no third-party analytics. The two typefaces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app. The one request made without a click goes to the site's own visit counter, [Umami](https://umami.is/) at `analytics.k8s.wlkr.ch`, self-hosted on the same homelab as the reminder service: cookieless, and it stores no address. Two other outbound requests exist, and both happen only on an explicit click: the TRMNL webhook, and the reminder service at `kneadtime.k8s.wlkr.ch` when you set step reminders. A browser test (`e2e/self-hosted.spec.ts`) fails if anything else ever reaches for another host.
 
 The app ships as one bundle and one stylesheet: a visit is five requests, the page, the bundle, the stylesheet and the two font subsets it needs.
