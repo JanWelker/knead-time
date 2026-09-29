@@ -60,3 +60,9 @@ hook does not touch it; the `push` job in `ci.yml` runs the three commands above
 The image is built by `push-image.yml` on every push to `main` that touches
 `push/`, tagged with the version in `pyproject.toml`, and published to
 `ghcr.io/janwelker/knead-time-push`.
+
+The runtime stage is `gcr.io/distroless/python3-debian13`: no shell and no package
+manager, so there is nothing in it to patch but Python and libc. Its interpreter is
+Debian's, so the build stage must resolve wheels for the same minor version; the
+`COPY` names that version's `site-packages` and the import check after it fails the
+build when the two drift. Debug with `python3 -c`, the only thing there is to exec.
