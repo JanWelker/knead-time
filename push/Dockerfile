@@ -2,7 +2,7 @@
 # The runtime is distroless: Debian 13's Python and libc, no shell, no package
 # manager. Its interpreter is Debian's 3.13 at /usr/bin/python3, so the build
 # stage has to resolve wheels for the same minor. See README.md, Tooling.
-FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim@sha256:520ead6668d302a3d307d63e3b2b02a3205e69f503dfc1af836d609d3ff591e0 AS build
+FROM ghcr.io/astral-sh/uv:python3.13-trixie-slim@sha256:ca9f1a036df3ab14905132452f7c01ec17119fe8c75af450e5daa5acc35a30ec AS build
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
 COPY pyproject.toml uv.lock README.md ./
