@@ -1,10 +1,14 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
-	import { INFO_SECTIONS } from '$lib/infoSections';
-	import { INPUT_BOUNDS, PREFERMENT_SHARE_MAX, PREFERMENT_SHARE_MIN } from '$lib/dough/inputBounds';
-	import { uiMode } from '$lib/mode.svelte';
-	import type { FormState } from '$lib/state.svelte';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { combineDateTimeInputs, toDatePart, toTimePart } from '#lib/format.js';
+	import { INFO_SECTIONS } from '#lib/infoSections.js';
+	import {
+		INPUT_BOUNDS,
+		PREFERMENT_SHARE_MAX,
+		PREFERMENT_SHARE_MIN
+	} from '#lib/dough/inputBounds.js';
+	import { uiMode } from '#lib/mode.svelte.js';
+	import type { FormState } from '#lib/state.svelte.js';
 	import FieldHelp from './FieldHelp.svelte';
 	import FlourSelect from './FlourSelect.svelte';
 	import FormField from './FormField.svelte';

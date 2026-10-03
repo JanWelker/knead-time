@@ -104,7 +104,7 @@ test('both faces are served from this origin, and both actually load', async ({ 
 });
 
 // The other half of "what does this page fetch": how many times. `bundleStrategy:
-// 'single'` in svelte.config.js collapses the eleven split chunks into one, and it
+// 'single'` in vite.config.ts collapses the eleven split chunks into one, and it
 // is a single config line with nothing else pointing at it — the kind of thing a
 // SvelteKit upgrade or a well-meaning tidy removes without anyone noticing, since
 // the app works exactly the same either way and only the waterfall gets longer.

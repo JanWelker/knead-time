@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { SerializableInputs } from '$lib/dough/urlState';
+	import type { SerializableInputs } from '#lib/dough/urlState.js';
 	import { numLabel, preFermentLabel, yeastLabel, type RecipeSpecLabels } from './recipeLabels';
-	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
 
 	// The recipe's numbers, as a definition list. Shown inside each card's
 	// "Details" disclosure — the phone layout's answer to the desktop table's

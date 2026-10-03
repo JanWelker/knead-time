@@ -1,4 +1,4 @@
-// The service worker's push logic, kept out of service-worker.ts so it can be
+// The service worker's push logic, kept out of service-worker/index.ts so it can be
 // unit-tested: that file imports `$service-worker`, which vitest cannot resolve.
 // Typed against the shapes it needs rather than lib.webworker, which svelte-check
 // does not have for src/lib.
@@ -59,7 +59,7 @@ export interface WindowLike {
 export async function openOrFocus(
 	url: string,
 	scope: string,
-	windows: WindowLike[],
+	windows: readonly WindowLike[],
 	openWindow: (url: string) => Promise<unknown>
 ): Promise<void> {
 	const open = windows.find((w) => w.url.startsWith(scope));

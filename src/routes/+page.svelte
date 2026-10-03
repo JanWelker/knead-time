@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { onMount } from 'svelte';
 
 	import {
@@ -8,13 +8,13 @@
 		decodeUiMode,
 		encodeInputs,
 		hasRecipeParams
-	} from '$lib/dough/urlState';
-	import { defaultInputs } from '$lib/dough/defaults';
-	import { safeLocalStorage } from '$lib/safeStorage';
-	import { uiMode } from '$lib/mode.svelte';
-	import { loadStoredMode } from '$lib/storedMode';
-	import { scheduleVerbosity } from '$lib/verbosity.svelte';
-	import { loadStoredVerbosity } from '$lib/storedVerbosity';
+	} from '#lib/dough/urlState.js';
+	import { defaultInputs } from '#lib/dough/defaults.js';
+	import { safeLocalStorage } from '#lib/safeStorage.js';
+	import { uiMode } from '#lib/mode.svelte.js';
+	import { loadStoredMode } from '#lib/storedMode.js';
+	import { scheduleVerbosity } from '#lib/verbosity.svelte.js';
+	import { loadStoredVerbosity } from '#lib/storedVerbosity.js';
 	import {
 		deleteRecipe,
 		loadLastRecipe,
@@ -22,16 +22,16 @@
 		saveLastRecipe,
 		saveRecipe,
 		type SavedRecipe
-	} from '$lib/storedRecipes';
-	import AdjustPanel from '$lib/components/AdjustPanel.svelte';
-	import AskFlow from '$lib/components/AskFlow.svelte';
-	import LibraryView from '$lib/components/LibraryView.svelte';
-	import PlanView from '$lib/components/PlanView.svelte';
-	import SiteFooter from '$lib/components/SiteFooter.svelte';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { findMatchingPizzeria } from '$lib/pizzerias/pizzerias';
-	import { FormState } from '$lib/state.svelte';
-	import { initialLocation, viewHash, type AskStep, type ViewLocation } from '$lib/view';
+	} from '#lib/storedRecipes.js';
+	import AdjustPanel from '#lib/components/AdjustPanel.svelte';
+	import AskFlow from '#lib/components/AskFlow.svelte';
+	import LibraryView from '#lib/components/LibraryView.svelte';
+	import PlanView from '#lib/components/PlanView.svelte';
+	import SiteFooter from '#lib/components/SiteFooter.svelte';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { findMatchingPizzeria } from '#lib/pizzerias/pizzerias.js';
+	import { FormState } from '#lib/state.svelte.js';
+	import { initialLocation, viewHash, type AskStep, type ViewLocation } from '#lib/view.js';
 
 	// The app is three places now — the questions, the plan, the recipe
 	// collections — and this file is the only thing that knows which one is on

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { communityEntries } from '$lib/community/community';
-	import type { CommunityEntry } from '$lib/community/community';
-	import { formatIsoDate } from '$lib/format';
-	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { communityEntries } from '#lib/community/community.js';
+	import type { CommunityEntry } from '#lib/community/community.js';
+	import { formatIsoDate } from '#lib/format.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
 	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 	import RecipeSection from './RecipeSection.svelte';
 	import RecipeSpecList from './RecipeSpecList.svelte';

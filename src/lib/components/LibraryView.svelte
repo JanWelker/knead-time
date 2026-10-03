@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import type { SavedRecipe } from '$lib/storedRecipes';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import type { SavedRecipe } from '#lib/storedRecipes.js';
 	import Community from './Community.svelte';
 	import Masthead from './Masthead.svelte';
 	import MastheadMenu from './MastheadMenu.svelte';

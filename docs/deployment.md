@@ -38,7 +38,7 @@ The workflow resolves the **base path** automatically through `.github/actions/b
 
 `static/CNAME` is committed so it survives the `clean: true` gh-pages deploy, which would otherwise delete the file GitHub writes when you set the domain in the Pages UI and un-set the domain on the next push.
 
-`svelte.config.js` reads `BASE_PATH` from the env. SvelteKit also serves a `404.html` fallback so deep links and refreshes resolve to the SPA shell, and `static/.nojekyll` disables GitHub Pages' Jekyll processing.
+`vite.config.ts` reads `BASE_PATH` from the env into the `sveltekit()` plugin's `paths.base`. SvelteKit also serves a `404.html` fallback so deep links and refreshes resolve to the SPA shell, and `static/.nojekyll` disables GitHub Pages' Jekyll processing.
 
 ### First-time setup on GitHub
 

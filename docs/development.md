@@ -4,7 +4,7 @@ Everything a contributor hits in the first hour. The deeper rationale behind eac
 
 ## Requirements
 
-**Node.js 22+** and **npm** (enforced via `engines`). CI and deploys run the version in `.nvmrc`, currently 24; `nvm use` gives you the same one. That is it: CI and deployment run on GitHub Actions, locally you just need Node.
+**Node.js 22.17+** and **npm** (enforced via `engines`). CI and deploys run the version in `.nvmrc`, currently 24; `nvm use` gives you the same one. That is it: CI and deployment run on GitHub Actions, locally you just need Node.
 
 ## Quickstart
 
@@ -81,7 +81,7 @@ src/
 │                           one authored set per theme) and the component layer every
 │                           surface, band, stamp and control is built from
 ├── app.html              ← shell (theme boot, manifest + Home Screen meta; no third-party links)
-└── service-worker.ts     ← precaches the whole app so it opens offline (SvelteKit registers it); shows the pushes
+└── service-worker/        ← precaches the whole app so it opens offline (SvelteKit registers it); shows the pushes
 
 push/                     ← the reminder service (Python, FastAPI, PostgreSQL): its own uv project, tests,
                             Dockerfile and README; the one server the app talks to, on an explicit tap
@@ -160,7 +160,7 @@ If you touch the printed layout, check it in your browser's print preview; `svel
 
 ## Home Screen and offline
 
-`static/manifest.webmanifest` plus the icons and meta tags in `src/app.html` make the app installable; `src/service-worker.ts` makes it work offline. SvelteKit registers the worker itself; there is no `register()` call anywhere in the app.
+`static/manifest.webmanifest` plus the icons and meta tags in `src/app.html` make the app installable; `src/service-worker/index.ts` makes it work offline. SvelteKit registers the worker itself; there is no `register()` call anywhere in the app.
 
 Two things here are easy to break without noticing, so both are pinned in `e2e/pwa.spec.ts`:
 
@@ -183,7 +183,7 @@ Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the
 
 - All calculation logic stays in `src/lib/dough/` and is **framework-free**. Components only render results.
 - All user-facing copy lives in `src/lib/i18n/messages.ts`, in all five locales. No hardcoded strings in components.
-- All in-app links and assets go through `$app/paths` (`base` / `resolve()`); never hard-code `/`. The app is served from a sub-path on PR previews.
+- All in-app links and assets go through `$app/paths` (`resolve()` / `asset()`); never hard-code `/`. The app is served from a sub-path on PR previews.
 - All `localStorage` access goes through `src/lib/safeStorage.ts`; Chrome's "Block all cookies" makes even the getter throw.
 - The app fetches nothing from another origin. No `<link>` to a CDN, no `@import` of a remote stylesheet, no dependency that pulls its own. `e2e/self-hosted.spec.ts` watches the network to enforce it.
 - Comments explain **why**, not what. A named function or variable is the documentation for what.

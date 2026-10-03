@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
 	// The colophon at the foot of every sheet: who printed it, under what
 	// licence, from which plate. Language and theme used to live here too; they
 	// are in the masthead now, where a reader reaches for them before reading

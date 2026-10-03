@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
 
 	// The one piece of chrome every view shares: the shop's painted sign on the
 	// left, the view's own controls on the right, and the tricolore hairline

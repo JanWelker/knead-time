@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import type { Snippet } from 'svelte';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { LOCALES, type Locale } from '$lib/i18n/messages';
-	import { theme, type ThemeChoice } from '$lib/theme.svelte';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { LOCALES, type Locale } from '#lib/i18n/messages.js';
+	import { theme, type ThemeChoice } from '#lib/theme.svelte.js';
 	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
 
 	// The masthead's one dropdown. Everything that is not the view's primary

@@ -1,27 +1,27 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { base } from '$app/paths';
+	import { browser } from '$app/env';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 
-	import { defaultInputs } from '$lib/dough/defaults';
-	import { computeSchedule } from '$lib/dough/schedule';
-	import type { DoughInputs } from '$lib/dough/types';
-	import { decodeInputs, encodeInputs } from '$lib/dough/urlState';
+	import { defaultInputs } from '#lib/dough/defaults.js';
+	import { computeSchedule } from '#lib/dough/schedule.js';
+	import type { DoughInputs } from '#lib/dough/types.js';
+	import { decodeInputs, encodeInputs } from '#lib/dough/urlState.js';
 	import {
 		formatBallWeightGrams,
 		formatDateTime,
 		formatDuration,
 		formatPercent,
 		formatTemperature
-	} from '$lib/format';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
-	import { isLocale, type Locale } from '$lib/i18n/messages';
-	import { ingredientSections } from '$lib/ingredientRows';
-	import { qrCode } from '$lib/qr';
-	import { stepDescription, stepIngredients, stepTitle } from '$lib/stepCopy';
-	import { yeastLabel as yeastTypeLabelFor } from '$lib/components/recipeLabels';
+	} from '#lib/format.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
+	import { isLocale, type Locale } from '#lib/i18n/messages.js';
+	import { ingredientSections } from '#lib/ingredientRows.js';
+	import { qrCode } from '#lib/qr.js';
+	import { stepDescription, stepIngredients, stepTitle } from '#lib/stepCopy.js';
+	import { yeastLabel as yeastTypeLabelFor } from '#lib/components/recipeLabels.js';
 
 	// Locale lives in the URL path so each language can ship its own prerendered
 	// HTML; the root layout skips its navigator-based detection on this route.
@@ -45,7 +45,7 @@
 	const currentYear = new Date().getFullYear();
 
 	const shareUrl = $derived(
-		browser ? `${window.location.origin}${base}/?${encodeInputs(inputs)}` : ''
+		browser ? `${window.location.origin}${resolve(`?${encodeInputs(inputs)}`)}` : ''
 	);
 	const qr = $derived(shareUrl ? qrCode(shareUrl) : null);
 	const sections = $derived(

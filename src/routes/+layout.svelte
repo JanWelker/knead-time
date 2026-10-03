@@ -1,11 +1,11 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/state';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { detectLocale } from '$lib/i18n/messages';
-	import { loadStoredLocale } from '$lib/i18n/storedLocale';
-	import { safeLocalStorage } from '$lib/safeStorage';
-	import { theme } from '$lib/theme.svelte';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { detectLocale } from '#lib/i18n/messages.js';
+	import { loadStoredLocale } from '#lib/i18n/storedLocale.js';
+	import { safeLocalStorage } from '#lib/safeStorage.js';
+	import { theme } from '#lib/theme.svelte.js';
 	import { onMount } from 'svelte';
 
 	let { children } = $props();

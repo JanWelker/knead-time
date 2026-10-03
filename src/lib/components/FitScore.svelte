@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { browser } from '$app/env';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
 	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
 	import GuildSeal from './GuildSeal.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
-	import { formatNumber } from '$lib/format';
+	import { interpolate } from '#lib/i18n/interpolate.js';
+	import { formatNumber } from '#lib/format.js';
 	import {
 		fitStars,
 		recipeFitScore,
 		type FitFactor,
 		type FitFactorDetail
-	} from '$lib/dough/quality';
-	import type { ComputedSchedule, DoughInputs } from '$lib/dough/types';
+	} from '#lib/dough/quality.js';
+	import type { ComputedSchedule, DoughInputs } from '#lib/dough/types.js';
 
 	let { schedule, inputs }: { schedule: ComputedSchedule; inputs: DoughInputs } = $props();
 	const t = $derived(i18n.t);

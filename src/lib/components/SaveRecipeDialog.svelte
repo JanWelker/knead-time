@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n/i18n.svelte';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
 
 	// Same shape as TrmnlPush: a native <dialog> opened imperatively, so the
 	// page holds it with bind:this and calls open() from the actions menu.

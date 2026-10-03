@@ -1,6 +1,6 @@
-import { isLocale } from '$lib/i18n/messages';
-import { stripTemplateComments } from '$lib/templateComments';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle } from '@sveltejs/kit/hooks';
+import { isLocale } from '#lib/i18n/messages.js';
+import { stripTemplateComments } from '#lib/templateComments.js';
 
 // `app.html` is one file for every page, so its `lang` attribute is one value —
 // and it was `en` for all five prerendered print sheets. `/print/de` shipped
