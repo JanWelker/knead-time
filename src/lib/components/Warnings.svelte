@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import type { ScheduleWarning } from '$lib/dough/types';
-	import { warningsFor, type WarningSlot } from '$lib/warningSlots';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import type { ScheduleWarning } from '#lib/dough/types.js';
+	import { warningsFor, type WarningSlot } from '#lib/warningSlots.js';
 
 	// Each mount point renders only its own warnings — see warningSlots.ts.
 	let { warnings, place }: { warnings: ScheduleWarning[]; place: WarningSlot } = $props();

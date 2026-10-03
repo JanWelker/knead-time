@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { onMount } from 'svelte';
 
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
-	import { safeLocalStorage } from '$lib/safeStorage';
-	import { clearTrmnlUuid, isTrmnlUuid, loadTrmnlUuid, saveTrmnlUuid } from '$lib/trmnl/uuid';
-	import { buildMergeVariables, sendToTrmnl } from '$lib/trmnl/webhook';
-	import type { ComputedSchedule, DoughInputs } from '$lib/dough/types';
-	import type { Locale } from '$lib/i18n/messages';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
+	import { safeLocalStorage } from '#lib/safeStorage.js';
+	import { clearTrmnlUuid, isTrmnlUuid, loadTrmnlUuid, saveTrmnlUuid } from '#lib/trmnl/uuid.js';
+	import { buildMergeVariables, sendToTrmnl } from '#lib/trmnl/webhook.js';
+	import type { ComputedSchedule, DoughInputs } from '#lib/dough/types.js';
+	import type { Locale } from '#lib/i18n/messages.js';
 
 	let {
 		inputs,

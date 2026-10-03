@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { minuteClock } from '$lib/now.svelte';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { formatDuration, formatShortDate, formatTime } from '$lib/format';
-	import { stepDescription, stepDetail, stepIngredients, stepTitle } from '$lib/stepCopy';
-	import { isActiveStep } from '$lib/dough/scheduleStatus';
-	import { stepQualityFlags, type StepQualityFlag } from '$lib/dough/quality';
-	import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from '$lib/dough/types';
-	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
-	import type { ScheduleVerbosity } from '$lib/storedVerbosity';
-	import { interpolate } from '$lib/i18n/interpolate';
+	import { minuteClock } from '#lib/now.svelte.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { formatDuration, formatShortDate, formatTime } from '#lib/format.js';
+	import { stepDescription, stepDetail, stepIngredients, stepTitle } from '#lib/stepCopy.js';
+	import { isActiveStep } from '#lib/dough/scheduleStatus.js';
+	import { stepQualityFlags, type StepQualityFlag } from '#lib/dough/quality.js';
+	import type { ComputedSchedule, ScheduleStep, ScheduleStepKind } from '#lib/dough/types.js';
+	import type { SourceTiming } from '#lib/pizzerias/pizzerias.js';
+	import type { ScheduleVerbosity } from '#lib/storedVerbosity.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
 
 	let {
 		schedule,

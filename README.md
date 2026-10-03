@@ -30,7 +30,7 @@ Everything is served from one origin. There is no CDN and no font server; the tw
 
 ## Run it locally
 
-You need [Node.js](https://nodejs.org/) 22 or newer; CI and the deploy run the version in `.nvmrc` (currently 24), and `nvm use` gives you the same one.
+You need [Node.js](https://nodejs.org/) 22.17 or newer; CI and the deploy run the version in `.nvmrc` (currently 24), and `nvm use` gives you the same one.
 
 ```sh
 npm install

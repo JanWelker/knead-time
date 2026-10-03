@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { uiMode } from '$lib/mode.svelte';
+	import { uiMode } from '#lib/mode.svelte.js';
 
 	// One rule for every field's help text, in one place. Beginner reads it
 	// standing; expert reads it while editing. Help under every field was 32 %

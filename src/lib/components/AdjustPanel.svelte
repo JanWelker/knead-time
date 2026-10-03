@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { formatDateTime, formatDuration, formatGrams } from '$lib/format';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import type { FormState } from '$lib/state.svelte';
+	import { formatDateTime, formatDuration, formatGrams } from '#lib/format.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import type { FormState } from '#lib/state.svelte.js';
 	import InputForm from './InputForm.svelte';
 	import ModeBadge from './ModeBadge.svelte';
 

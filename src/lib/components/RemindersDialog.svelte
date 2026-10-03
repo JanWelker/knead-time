@@ -1,26 +1,26 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { onMount } from 'svelte';
 
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
-	import { safeLocalStorage } from '$lib/safeStorage';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
+	import { safeLocalStorage } from '#lib/safeStorage.js';
 	import {
 		deleteSchedule,
 		fetchVapidKey,
 		putSchedule,
 		type PushSubscriptionInfo
-	} from '$lib/push/api';
-	import { applicationServerKey } from '$lib/push/key';
-	import { buildSchedulePayload } from '$lib/push/reminders';
+	} from '#lib/push/api.js';
+	import { applicationServerKey } from '#lib/push/key.js';
+	import { buildSchedulePayload } from '#lib/push/reminders.js';
 	import {
 		clearRemindersFingerprint,
 		loadRemindersFingerprint,
 		saveRemindersFingerprint
-	} from '$lib/push/stored';
-	import { pushSupport, type PushSupport } from '$lib/push/support';
-	import type { ComputedSchedule } from '$lib/dough/types';
-	import type { Locale } from '$lib/i18n/messages';
+	} from '#lib/push/stored.js';
+	import { pushSupport, type PushSupport } from '#lib/push/support.js';
+	import type { ComputedSchedule } from '#lib/dough/types.js';
+	import type { Locale } from '#lib/i18n/messages.js';
 
 	// Same shape as TrmnlPush: a native <dialog> opened from the actions menu.
 	// What the plan needs to know — is this device subscribed, and for which

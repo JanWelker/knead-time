@@ -1,4 +1,4 @@
-import { LOCALES } from '$lib/i18n/messages';
+import { LOCALES } from '#lib/i18n/messages.js';
 
 // Override the layout's `ssr = false` so the prerendered HTML for this
 // route ships a meaningful skeleton before hydration. The print dialog

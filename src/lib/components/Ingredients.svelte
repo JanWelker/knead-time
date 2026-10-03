@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { ingredientSections, needsFineScale } from '$lib/ingredientRows';
-	import type { Ingredients, YeastType } from '$lib/dough/types';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { ingredientSections, needsFineScale } from '#lib/ingredientRows.js';
+	import type { Ingredients, YeastType } from '#lib/dough/types.js';
 
 	let {
 		ingredients,

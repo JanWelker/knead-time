@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { flourZones } from '$lib/dough/flour';
-	import { COLD_MODE_THRESHOLD_MIN } from '$lib/dough/schedule';
+	import { flourZones } from '#lib/dough/flour.js';
+	import { COLD_MODE_THRESHOLD_MIN } from '#lib/dough/schedule.js';
 	import {
 		fermentationBenefitTier,
 		idealWindowHours,
@@ -8,14 +8,14 @@
 		reachableStopIndex,
 		stopsWithIdeal,
 		windowAxisPercent
-	} from '$lib/dough/windowPresets';
-	import { formatDateTime, formatDuration } from '$lib/format';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
+	} from '#lib/dough/windowPresets.js';
+	import { formatDateTime, formatDuration } from '#lib/format.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
 	import { onMount } from 'svelte';
-	import { minuteClock } from '$lib/now.svelte';
+	import { minuteClock } from '#lib/now.svelte.js';
 	import Warnings from './Warnings.svelte';
-	import type { FormState } from '$lib/state.svelte';
+	import type { FormState } from '#lib/state.svelte.js';
 
 	// Named `form`, not `state`: a local binding called `state` makes Svelte
 	// read the `$state` rune below as a store subscription.

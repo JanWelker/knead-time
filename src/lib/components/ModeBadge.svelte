@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import type { FermentMode } from '$lib/dough/types';
+	import { browser } from '$app/env';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import type { FermentMode } from '#lib/dough/types.js';
 	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
 	import GuildSeal from './GuildSeal.svelte';
 

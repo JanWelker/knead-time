@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { formatDate } from '$lib/format';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import type { SavedRecipe } from '$lib/storedRecipes';
+	import { formatDate } from '#lib/format.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import type { SavedRecipe } from '#lib/storedRecipes.js';
 	import RecipeSection from './RecipeSection.svelte';
 
 	let { recipes, onDelete }: { recipes: SavedRecipe[]; onDelete: (name: string) => void } =

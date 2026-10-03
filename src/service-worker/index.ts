@@ -1,21 +1,20 @@
-/// <reference types="@sveltejs/kit" />
-/// <reference no-default-lib="true"/>
-/// <reference lib="esnext" />
-/// <reference lib="webworker" />
-
-import { build, files, prerendered, version } from '$service-worker';
-import { notificationFromPush, openOrFocus, parsePushPayload } from '$lib/push/swHandlers';
-
-const sw = self as unknown as ServiceWorkerGlobalScope;
+import { version } from '$app/env';
+import { assets, immutable, prerendered } from '$app/manifest';
+import { asset, resolve } from '$app/paths';
+import { self as sw } from '$app/service-worker';
+import type { AssetPath } from '$app/types';
+import { notificationFromPush, openOrFocus, parsePushPayload } from '#lib/push/swHandlers.js';
 
 const CACHE = `kneadtime-${version}`;
 
-const DEPLOY_ARTEFACTS = ['/.nojekyll', '/CNAME'];
+const DEPLOY_ARTEFACTS = ['.nojekyll', 'CNAME'];
 
-const PRECACHE = [
-	...build,
-	...files.filter((file) => !DEPLOY_ARTEFACTS.some((name) => file.endsWith(name))),
-	...prerendered
+// The manifest's paths are relative to the base path; the cache and the fetch
+// handler both key on the pathname the browser actually asks for.
+const PRECACHE: string[] = [
+	...immutable.map(({ path }) => asset(path as AssetPath)),
+	...assets.filter(({ path }) => !DEPLOY_ARTEFACTS.includes(path)).map(({ path }) => asset(path)),
+	...prerendered.map(({ path }) => resolve(path))
 ];
 
 const PRECACHED = new Set(PRECACHE);

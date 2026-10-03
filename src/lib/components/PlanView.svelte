@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { base } from '$app/paths';
-	import { buildIcs } from '$lib/dough/ics';
-	import { encodeInputs } from '$lib/dough/urlState';
+	import { resolve } from '$app/paths';
+	import { buildIcs } from '#lib/dough/ics.js';
+	import { encodeInputs } from '#lib/dough/urlState.js';
 	import {
 		formatBallWeight,
 		formatDateTime,
 		formatDuration,
 		formatPercent,
 		formatTemperature
-	} from '$lib/format';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
-	import { uiMode } from '$lib/mode.svelte';
-	import type { SourceTiming } from '$lib/pizzerias/pizzerias';
-	import type { FormState } from '$lib/state.svelte';
-	import { flourIngredientName, stepDetailText, stepTitle } from '$lib/stepCopy';
-	import { scheduleVerbosity } from '$lib/verbosity.svelte';
+	} from '#lib/format.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
+	import { uiMode } from '#lib/mode.svelte.js';
+	import type { SourceTiming } from '#lib/pizzerias/pizzerias.js';
+	import type { FormState } from '#lib/state.svelte.js';
+	import { flourIngredientName, stepDetailText, stepTitle } from '#lib/stepCopy.js';
+	import { scheduleVerbosity } from '#lib/verbosity.svelte.js';
 	import FitScore from './FitScore.svelte';
 	import Ingredients from './Ingredients.svelte';
 	import Masthead from './Masthead.svelte';
@@ -78,7 +78,7 @@
 
 	function printPage() {
 		// Dedicated print route owns its stylesheet and auto-triggers print().
-		window.open(`${base}/print/${locale}?${encodeInputs(form.serializable())}`, '_blank');
+		window.open(resolve(`print/${locale}?${encodeInputs(form.serializable())}`), '_blank');
 	}
 
 	function downloadIcs() {

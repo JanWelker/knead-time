@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { pizzeriaEntries, type PizzeriaEntry, type Ranking } from '$lib/pizzerias/pizzerias';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
+	import { pizzeriaEntries, type PizzeriaEntry, type Ranking } from '#lib/pizzerias/pizzerias.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
 	import { numLabel, preFermentLabel, yeastLabel } from './recipeLabels';
 	import RecipeSection from './RecipeSection.svelte';
 	import RecipeSpecList from './RecipeSpecList.svelte';

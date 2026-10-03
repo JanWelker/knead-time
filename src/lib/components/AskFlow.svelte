@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { combineDateTimeInputs, toDatePart, toTimePart } from '$lib/format';
-	import { clampInput, INPUT_BOUNDS } from '$lib/dough/inputBounds';
-	import { i18n } from '$lib/i18n/i18n.svelte';
-	import { interpolate } from '$lib/i18n/interpolate';
-	import type { FormState } from '$lib/state.svelte';
-	import { ASK_STEPS, nextStep, prevStep, stepIndex, type AskStep } from '$lib/view';
+	import { combineDateTimeInputs, toDatePart, toTimePart } from '#lib/format.js';
+	import { clampInput, INPUT_BOUNDS } from '#lib/dough/inputBounds.js';
+	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { interpolate } from '#lib/i18n/interpolate.js';
+	import type { FormState } from '#lib/state.svelte.js';
+	import { ASK_STEPS, nextStep, prevStep, stepIndex, type AskStep } from '#lib/view.js';
 	import FermentWindowSlider from './FermentWindowSlider.svelte';
 	import FlourSelect from './FlourSelect.svelte';
 	import Masthead from './Masthead.svelte';

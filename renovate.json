@@ -9,7 +9,7 @@
 	"timezone": "Europe/Zurich",
 	"labels": ["dependencies"],
 	"description": [
-		"Constraints are deliberately absent: Renovate reads them from package.json engines (node >=22), which is the floor the code has to run on. A literal here was a second source of truth that nothing verified — it said node 24 while engines said 22, so Renovate was free to pick a dependency the declared floor cannot run.",
+		"Constraints are deliberately absent: Renovate reads them from package.json engines (node >=22.17), which is the floor the code has to run on. A literal here was a second source of truth that nothing verified — it said node 24 while engines said 22, so Renovate was free to pick a dependency the declared floor cannot run.",
 		"The Node version CI and the deploys run lives in .nvmrc, read by every workflow through .github/actions/node-setup. Renovate's nvm manager updates that file; a `node-version:` literal in a workflow is invisible to every manager it has."
 	],
 	"automerge": true,
@@ -54,7 +54,7 @@
 			"groupName": "lint"
 		},
 		{
-			"description": "Types track the engines floor (Node >=22), not CI's Node 24 runtime — keeps Node-23+/24-only APIs out of code that must still run on 22.",
+			"description": "Types track the engines floor (Node >=22.17), not CI's Node 24 runtime — keeps Node-23+/24-only APIs out of code that must still run on 22.",
 			"matchPackageNames": ["@types/node"],
 			"allowedVersions": "<23"
 		},
