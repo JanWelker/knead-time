@@ -55,3 +55,5 @@ With a custom domain the previews share the **production origin**, so `localStor
 ## Versions
 
 One version literal per thing, where Renovate can see it. The Node version lives in `.nvmrc` and every job reads it through `.github/actions/node-setup`; `engines.node` in `package.json` is the floor the code must run on. The app version in `package.json` is inlined at build time and shown in the footer, linked to the matching GitHub release tag.
+
+Renovate runs at any time, lock file maintenance included, and follows the same policy as `homelab-apps`: patch and minor updates automerge once CI is green, majors wait for a review, and a release is held back three days before it gets a PR. Security updates skip that wait. Renovate reads them from the repository's Dependabot alerts, which must stay enabled; Dependabot's own security-update PRs stay off so the two do not open duplicates.
