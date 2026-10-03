@@ -1,6 +1,6 @@
 {
 	"name": "knead-time",
-	"version": "7.3.1",
+	"version": "7.3.2",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
@@ -21,7 +21,7 @@
 		"test:baseline": "svelte-kit sync && node scripts/check-test-baseline.mjs",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"prepare": "husky || true"
+		"prepare": "svelte-kit sync || true; husky || true"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",

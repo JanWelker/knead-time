@@ -1,9 +1,10 @@
 {
 	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
 	"unit": {
-		"total": 1116,
+		"total": 1117,
 		"files": {
 			"scripts/lib/fontLicences.test.mjs": 7,
+			"scripts/lib/installScripts.test.mjs": 1,
 			"scripts/lib/testBaseline.test.mjs": 16,
 			"src/lib/community/community.test.ts": 14,
 			"src/lib/components/recipeLabels.test.ts": 15,
