@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const { scripts } = JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+const { scripts } = JSON.parse(
+	readFileSync(new URL('../../package.json', import.meta.url), 'utf8')
+);
 
 describe('a fresh install', () => {
 	// tsconfig.json extends $app/tsconfig, which only exists once `svelte-kit sync` has
