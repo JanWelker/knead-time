@@ -35,7 +35,7 @@
 				}
 			})();
 		</script>
-		<link href="./_app/immutable/bundle.D_Qhn2ap.js" rel="modulepreload">
+		<link href="./_app/immutable/bundle.Qu6Ew2rS.js" rel="modulepreload">
 		
 		<link href="./_app/immutable/assets/bundle.LhVv7oi6.css" rel="stylesheet">
 	</head>
@@ -46,13 +46,14 @@
 		<div style="display: contents">
 			<script>
 				{
-					__sveltekit_r20bp7 = {
-						base: new URL(".", location).pathname.slice(0, -1)
+					__sveltekit_4l0bkn = {
+						base: new URL(".", location).pathname.slice(0, -1),
+						version: "1791042830346"
 					};
 
 					const element = document.currentScript.parentElement;
 
-					import("./_app/immutable/bundle.D_Qhn2ap.js").then((app) => {
+					import("./_app/immutable/bundle.Qu6Ew2rS.js").then((app) => {
 						app.start(element)
 					});
 
@@ -64,7 +65,7 @@
 						);
 						const sanitised = policy?.createScriptURL(script_url) ?? script_url;
 						addEventListener('load', function () {
-							navigator.serviceWorker.register(sanitised);
+							navigator.serviceWorker.register(sanitised, { type: 'module' });
 						});
 					}
 				}
