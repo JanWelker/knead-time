@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { browser } from '$app/env';
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
 	import type { FermentMode } from '#lib/dough/types.js';
-	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
+	import { dismissable } from './dismiss.svelte';
 	import GuildSeal from './GuildSeal.svelte';
 
 	// Which leg the maths picked is a fact about this plan, so it is certified on
@@ -16,27 +15,6 @@
 	let { mode, explain = false }: { mode: FermentMode; explain?: boolean } = $props();
 	const t = $derived(i18n.t);
 	const blurb = $derived(mode === 'cold' ? t.mode.cold_blurb : t.mode.room_blurb);
-
-	// Same dismissal contract as the fit seal and the menu. The element's own
-	// `open` is the source of truth rather than a bound piece of state, because
-	// <details> flips that attribute itself on click and Svelte syncs a binding
-	// a tick later.
-	let detailsRef: HTMLDetailsElement | null = $state(null);
-
-	// Only when there is a panel to dismiss. Without `explain` there is no
-	// <details>, and the two callers that render the seal that way — the ask
-	// flow's stub and the adjust sheet's header — each left a permanent pair of
-	// document listeners behind, guarding a ref that was always null.
-	$effect(() => {
-		if (!browser || !explain) return;
-		return dismissOnOutsideClickOrEscape({
-			container: () => detailsRef,
-			isOpen: () => detailsRef?.open === true,
-			close: () => {
-				if (detailsRef) detailsRef.open = false;
-			}
-		});
-	});
 </script>
 
 {#snippet mark()}
@@ -60,7 +38,10 @@
 
 <span class={mode === 'cold' ? 'text-herb-ink' : 'text-accent-ink'}>
 	{#if explain}
-		<details bind:this={detailsRef} class="relative inline-block">
+		<!-- Same dismissal contract as the fit seal and the menu. It lives on the
+		     <details> itself, so the seal without a panel — the ask flow's stub and
+		     the adjust sheet's header — attaches nothing at all. -->
+		<details {@attach dismissable()} class="relative inline-block">
 			<summary class="cursor-pointer list-none select-none" title={blurb}>
 				<GuildSeal label={mode === 'cold' ? t.mode.cold : t.mode.room}>
 					{@render mark()}

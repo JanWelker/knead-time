@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { browser } from '$app/env';
 	import type { Snippet } from 'svelte';
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
 	import { LOCALES, type Locale } from '#lib/i18n/messages.js';
 	import { theme, type ThemeChoice } from '#lib/theme.svelte.js';
-	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
+	import { dismissable } from './dismiss.svelte';
 
 	// The masthead's one dropdown. Everything that is not the view's primary
 	// control lives in here: the view's own items on top, then the two device
@@ -35,26 +34,25 @@
 		c === 'system' ? t.app.theme_auto : c === 'light' ? t.app.theme_light : t.app.theme_dark
 	);
 
-	let ref: HTMLDetailsElement | null = $state(null);
 	let open = $state(false);
 	const close = () => (open = false);
 
 	// The role="menu" contract: enabled items in DOM order. Radios count — the
 	// language and theme rows are menuitemradio, which is what a menu uses for a
 	// set of mutually exclusive choices, and focus has to rove across them too.
-	function menuItems(): HTMLElement[] {
+	function menuItems(menu: HTMLElement): HTMLElement[] {
 		return Array.from(
-			ref?.querySelectorAll<HTMLElement>(
+			menu.querySelectorAll<HTMLElement>(
 				'[role="menuitem"]:not(:disabled), [role="menuitemradio"]:not(:disabled)'
-			) ?? []
+			)
 		);
 	}
 
 	// ArrowDown/ArrowUp cycle, Home/End jump. The menu container itself must not
 	// be focusable — focus roves across the items — so it carries no handler of
 	// its own and this runs off the document listener instead.
-	function roveFocus(event: KeyboardEvent) {
-		const list = menuItems();
+	function roveFocus(event: KeyboardEvent, menu: HTMLElement) {
+		const list = menuItems(menu);
 		if (list.length === 0) return;
 		const index = list.indexOf(document.activeElement as HTMLElement);
 		let next: number;
@@ -67,23 +65,17 @@
 		list[next].focus();
 	}
 
-	$effect(() => {
-		if (!browser || !open) return;
+	const dismiss = dismissable({
 		// On open, focus moves to the first item — the ARIA menu contract.
-		menuItems()[0]?.focus();
-		return dismissOnOutsideClickOrEscape({
-			container: () => ref,
-			isOpen: () => open,
-			close,
-			onKeydown: roveFocus
-		});
+		onOpen: (menu) => menuItems(menu)[0]?.focus(),
+		onKeydown: roveFocus
 	});
 </script>
 
 <!-- `relative` is load-bearing: the panel below is absolutely positioned and
      would otherwise hang off the nearest positioned ancestor, which in the
      masthead is the viewport. -->
-<details bind:this={ref} bind:open class="relative">
+<details {@attach dismiss} bind:open class="relative">
 	<summary
 		class="btn-edit cursor-pointer list-none select-none"
 		aria-haspopup="menu"
