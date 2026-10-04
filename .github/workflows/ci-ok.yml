@@ -5,7 +5,7 @@
 # by name. A check that is re-run after a failure needs this job re-run too.
 name: CI OK
 
-"on":
+'on':
   pull_request:
 
 permissions:
