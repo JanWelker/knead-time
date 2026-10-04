@@ -1,15 +1,16 @@
 import prettier from 'eslint-config-prettier';
 import js from '@eslint/js';
+import { defineConfig } from 'eslint/config';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
 
-export default ts.config(
+export default defineConfig(
 	js.configs.recommended,
-	...ts.configs.recommended,
-	...svelte.configs['flat/recommended'],
+	ts.configs.recommended,
+	svelte.configs.recommended,
 	prettier,
-	...svelte.configs['flat/prettier'],
+	svelte.configs.prettier,
 	{
 		languageOptions: {
 			globals: {
@@ -23,10 +24,16 @@ export default ts.config(
 		}
 	},
 	{
-		files: ['**/*.svelte'],
+		// Rune modules (`*.svelte.ts`) go through svelte-eslint-parser like
+		// components do, so the Svelte rules see `$state`/`$effect` as runes.
+		// TypeScript is the parser *it* delegates the script to; setting
+		// `languageOptions.parser` to ts.parser instead replaced the Svelte
+		// parser for those files outright.
+		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {
 			parserOptions: {
-				parser: ts.parser
+				parser: ts.parser,
+				extraFileExtensions: ['.svelte']
 			}
 		}
 	},
@@ -36,12 +43,6 @@ export default ts.config(
 		files: ['src/lib/components/Pizzerias.svelte'],
 		rules: {
 			'svelte/no-navigation-without-resolve': 'off'
-		}
-	},
-	{
-		files: ['**/*.svelte.ts', '**/*.svelte.js'],
-		languageOptions: {
-			parser: ts.parser
 		}
 	},
 	{
