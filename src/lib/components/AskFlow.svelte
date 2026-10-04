@@ -37,7 +37,6 @@
 	// browser's own back button keeps whatever the last move was.
 	let dir = $state(1);
 
-	let heading = $state<HTMLHeadingElement | null>(null);
 	// Only after a move: focusing the heading on first paint would scroll a
 	// freshly opened page and read the question before the visitor asked for it.
 	let moved = false;
@@ -49,11 +48,11 @@
 	}
 
 	// The new question is what changed, so that is where the reader — keyboard
-	// or screen reader — is put down.
-	$effect(() => {
-		void step;
-		if (moved) heading?.focus();
-	});
+	// or screen reader — is put down. The heading sits inside `{#key step}`, so
+	// it is a new element on every move and this runs once for each.
+	const focusAfterMove = (heading: HTMLHeadingElement) => {
+		if (moved) heading.focus();
+	};
 
 	const MIXING: { value: 'spiral' | 'stand' | 'hand'; label: () => string }[] = [
 		{ value: 'spiral', label: () => t.form.mixing_spiral },
@@ -151,7 +150,7 @@
 				     the continuity, and re-animating it would contradict that. -->
 					{#key step}
 						<div class="kt-enter mt-7" style="--kt-dir:{dir}">
-							<h1 class="question max-w-[14ch]" tabindex="-1" bind:this={heading}>
+							<h1 class="question max-w-[14ch]" tabindex="-1" {@attach focusAfterMove}>
 								{COPY[step].question()}
 							</h1>
 							<p class="lede mt-5">{COPY[step].lede()}</p>

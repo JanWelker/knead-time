@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { browser } from '$app/env';
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
-	import { dismissOnOutsideClickOrEscape } from './dismiss.svelte';
+	import { dismissable } from './dismiss.svelte';
 	import GuildSeal from './GuildSeal.svelte';
 	import { interpolate } from '#lib/i18n/interpolate.js';
 	import { formatNumber } from '#lib/format.js';
@@ -49,32 +48,15 @@
 		});
 	}
 
-	// Same dismissal contract as the actions menu beside it, minus the roving
-	// focus: this is a disclosure, not a menu, so its content is read in place.
-	//
-	// The element's own `open` is the source of truth, rather than a bound piece
-	// of state — <details> flips that attribute itself on click and Svelte syncs
-	// a binding a tick later.
-	let detailsRef: HTMLDetailsElement | null = $state(null);
-
-	$effect(() => {
-		if (!browser) return;
-		return dismissOnOutsideClickOrEscape({
-			container: () => detailsRef,
-			isOpen: () => detailsRef?.open === true,
-			close: () => {
-				if (detailsRef) detailsRef.open = false;
-			}
-		});
-	});
-
 	const summaryTooltip = $derived.by(() => {
 		const lines = fit.factors.length === 0 ? [t.quality.fit_perfect] : fit.factors.map(factorLabel);
 		return `${t.quality.fit_heading} ${starRow}: ${lines.join(' · ')}`;
 	});
 </script>
 
-<details bind:this={detailsRef} class="group relative inline-block">
+<!-- Same dismissal contract as the actions menu beside it, minus the roving
+     focus: this is a disclosure, not a menu, so its content is read in place. -->
+<details {@attach dismissable()} class="group relative inline-block">
 	<summary
 		class="text-accent-ink cursor-pointer list-none select-none"
 		title={summaryTooltip}
