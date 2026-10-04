@@ -1,47 +1,15 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": [
-		"config:recommended",
-		":dependencyDashboard",
-		":semanticCommits",
-		"helpers:pinGitHubActionDigestsToSemver"
-	],
-	"timezone": "Europe/Zurich",
-	"labels": ["dependencies"],
+	"extends": ["github>JanWelker/renovate-config", "helpers:pinGitHubActionDigestsToSemver"],
 	"description": [
 		"Constraints are deliberately absent: Renovate reads them from package.json engines (node >=22.17), which is the floor the code has to run on. A literal here was a second source of truth that nothing verified — it said node 24 while engines said 22, so Renovate was free to pick a dependency the declared floor cannot run.",
 		"The Node version CI and the deploys run lives in .nvmrc, read by every workflow through .github/actions/node-setup. Renovate's nvm manager updates that file; a `node-version:` literal in a workflow is invisible to every manager it has.",
-		"The schedule follows homelab-apps: at any time, including lock file maintenance. Its default window (Monday before 04:00) was narrower than Renovate's own visits, so the lock file went untouched from 13 September while a fixed brace-expansion sat on npm and eslint held the vulnerable one; nothing else refreshes a transitive dependency.",
-		"minimumReleaseAge holds a release back three days, long enough for npm to pull a broken or compromised version. Renovate lifts it for its own vulnerability-alert PRs, which read the repository's Dependabot alerts."
+		"Lock file maintenance runs at any time: the preset's default window (Monday before 04:00) was narrower than Renovate's own visits, so the lock file went untouched from 13 September while a fixed brace-expansion sat on npm; nothing else refreshes a transitive dependency."
 	],
-	"platformAutomerge": true,
-	"prHourlyLimit": 0,
-	"schedule": "at any time",
-	"minimumReleaseAge": "3 days",
-	"vulnerabilityAlerts": {
-		"enabled": true,
-		"labels": ["security"]
-	},
 	"lockFileMaintenance": {
-		"enabled": true,
 		"schedule": ["at any time"]
 	},
 	"packageRules": [
-		{
-			"description": "Patch and minor automerge once CI is green; majors wait for a human, as in homelab-apps. A major is where a migration hides: the SvelteKit 3 bump (#378) needed one, and the top-level automerge merged it the moment the migration commit went green, before anyone reviewed it.",
-			"matchUpdateTypes": ["patch", "minor", "digest", "pin", "pinDigest", "lockFileMaintenance"],
-			"automerge": true
-		},
-		{
-			"description": "Major updates always require review.",
-			"matchUpdateTypes": ["major"],
-			"automerge": false
-		},
-		{
-			"matchManagers": ["github-actions"],
-			"groupName": "github-actions",
-			"matchUpdateTypes": ["minor", "patch", "digest"]
-		},
 		{
 			"description": "Two versions of github-pages-deploy-action write gh-pages: the one deploy.yml pins, and the one rossjrw/pr-preview-action pins inside itself, which no manager can see. Keeping the two actions in one PR is the nearest thing to a reminder: when either bumps, check the nested pin in the preview action's action.yml against deploy.yml's.",
 			"matchManagers": ["github-actions"],

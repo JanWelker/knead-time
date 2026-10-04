@@ -1,0 +1,49 @@
+---
+# The one check the ruleset on main requires. It waits for every other check
+# on the pull request's head commit and fails if any of them failed, so the
+# other workflows keep their path filters and none of them has to be required
+# by name. A check that is re-run after a failure needs this job re-run too.
+name: CI OK
+
+'on':
+  pull_request:
+
+permissions:
+  checks: read
+
+concurrency:
+  group: ci-ok-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  ci-ok:
+    name: ci-ok
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Wait for every other check on the head commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # Give the workflows started by the same event time to register.
+          sleep 30
+          settled=0
+          while :; do
+            runs=$(gh api --paginate "repos/$REPO/commits/$SHA/check-runs?per_page=100" \
+              --jq '.check_runs[] | select(.name != "ci-ok") | "\(.status) \(.conclusion // "-") \(.name)"')
+            printf '%s\n' "$runs"
+            if printf '%s\n' "$runs" | grep -Eq '^completed (failure|cancelled|timed_out|action_required|startup_failure) '; then
+              echo "::error::A check on $SHA did not pass"
+              exit 1
+            fi
+            if printf '%s\n' "$runs" | grep -Ev '^$' | grep -Evq '^completed '; then
+              settled=0
+            else
+              settled=$((settled + 1))
+            fi
+            # Two quiet polls in a row: nothing is pending and nothing new appeared.
+            [ "$settled" -ge 2 ] && exit 0
+            sleep 20
+          done
