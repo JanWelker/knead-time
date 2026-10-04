@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
 # The runtime is distroless: Debian 13's Python and libc, no shell, no package
 # manager. Its interpreter is Debian's 3.13 at /usr/bin/python3, so the build
 # stage has to resolve wheels for the same minor. See README.md, Tooling.
