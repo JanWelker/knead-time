@@ -12,7 +12,6 @@
 	import { formatDateTime, formatDuration } from '#lib/format.js';
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
 	import { interpolate } from '#lib/i18n/interpolate.js';
-	import { onMount } from 'svelte';
 	import { minuteClock } from '#lib/now.svelte.js';
 	import Warnings from './Warnings.svelte';
 	import type { FormState } from '#lib/state.svelte.js';
@@ -42,7 +41,6 @@
 	// seeded when the sheet opens — so an open tab notices when the window slips
 	// into the past, and the card and the table never disagree about whether
 	// the first step is still running.
-	onMount(() => minuteClock.subscribe());
 	const now = $derived(minuteClock.now);
 
 	// Fires once the opening step is wholly behind us — the same test the table
@@ -122,12 +120,12 @@
 	// A drag into the greyed stretch is refused, not obeyed — but a control
 	// that silently springs back reads as broken, so remember the attempt and
 	// say why. Cleared by the next drag that lands legally, and by a new bake
-	// time, since the refusal was about that particular deadline.
-	let overrun = $state(false);
-
-	$effect(() => {
+	// time, since the refusal was about that particular deadline: a writable
+	// derived, so the input handler can set it and a new `readyBy` resets it,
+	// without an effect writing state after the render that already showed it.
+	let overrun = $derived.by(() => {
 		void form.readyBy;
-		overrun = false;
+		return false;
 	});
 
 	const windowHours = $derived(form.fermentWindowHours);

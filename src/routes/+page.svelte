@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/env';
 	import { onMount } from 'svelte';
 
 	import {
@@ -141,7 +140,7 @@
 	});
 
 	$effect(() => {
-		if (!browser || !hydrated) return;
+		if (!hydrated) return;
 		const next = currentUrl(where);
 		if (next !== window.location.pathname + window.location.search + window.location.hash) {
 			history.replaceState({}, '', next);

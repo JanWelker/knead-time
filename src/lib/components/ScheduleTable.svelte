@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { minuteClock } from '#lib/now.svelte.js';
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
 	import { formatDuration, formatShortDate, formatTime } from '#lib/format.js';
@@ -26,7 +25,6 @@
 	// "Now" advances every minute so a long-open tab keeps surfacing past and
 	// current steps as time progresses, instead of holding the mount value. The
 	// minute is the page's, shared with the window card (see now.svelte.ts).
-	onMount(() => minuteClock.subscribe());
 	const now = $derived(minuteClock.now);
 
 	// Fermentation phases — the rail leaving these nodes is the long wait, drawn
