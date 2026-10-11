@@ -4,7 +4,7 @@ import { roundBallWeight } from './dough/bakers';
 import { flourZonesInWindow } from './dough/flour';
 import { RECIPE_DEFAULTS, toDefaultReadyBy } from './dough/defaults';
 import { clampInput, clampPreFermentShares, clampShareInput } from './dough/inputBounds';
-import { computeSchedule, COLD_MODE_THRESHOLD_MIN } from './dough/schedule';
+import { coldSwitchHours, computeSchedule } from './dough/schedule';
 import type {
 	BallProof,
 	ComputedSchedule,
@@ -30,6 +30,7 @@ export class FormState {
 	fridgeTempC: number = $state(RECIPE_DEFAULTS.fridgeTempC);
 	mixingMethod: MixingMethod = $state(RECIPE_DEFAULTS.mixingMethod);
 	ballProof: BallProof = $state(RECIPE_DEFAULTS.ballProof);
+	noFridge: boolean = $state(RECIPE_DEFAULTS.noFridge);
 	autolyse: boolean = $state(RECIPE_DEFAULTS.autolyse);
 	// Backed by a private field because a number input bound to an empty box
 	// writes null, and null means something here: "no flour stated". Letting a
@@ -104,6 +105,7 @@ export class FormState {
 		fridgeTempC: clampInput('fridgeTempC', this.fridgeTempC),
 		mixingMethod: this.mixingMethod,
 		ballProof: this.ballProof,
+		noFridge: this.noFridge,
 		autolyse: this.autolyse,
 		flourW: this.flourW === null ? null : clampInput('flourW', this.flourW),
 		preFermentTempC: this.preFermentTempEnabled
@@ -194,7 +196,7 @@ export class FormState {
 				? null
 				: flourZonesInWindow(
 						this.flourW,
-						COLD_MODE_THRESHOLD_MIN / 60,
+						coldSwitchHours(this.noFridge),
 						this.schedule.prefermentReserveMin / 60
 					);
 		// Aim at the same stop list the slider offers, ideal included — otherwise
@@ -271,6 +273,7 @@ export class FormState {
 		if (partial.fridgeTempC !== undefined) this.fridgeTempC = partial.fridgeTempC;
 		if (partial.mixingMethod !== undefined) this.mixingMethod = partial.mixingMethod;
 		if (partial.ballProof !== undefined) this.ballProof = partial.ballProof;
+		if (partial.noFridge !== undefined) this.noFridge = partial.noFridge;
 		if (partial.autolyse !== undefined) this.autolyse = partial.autolyse;
 		// null is a real value here ("no flour stated", what every pre-v6 link
 		// decodes to), so this checks undefined rather than truthiness.

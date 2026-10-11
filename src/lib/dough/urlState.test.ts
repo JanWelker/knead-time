@@ -24,6 +24,7 @@ const base: SerializableInputs = {
 	fridgeTempC: 4,
 	preFermentTempC: null,
 	ballProof: 'room',
+	noFridge: false,
 	mixingMethod: 'spiral',
 	flourW: null,
 	autolyse: true,
@@ -309,9 +310,62 @@ describe('legacy encoder-produced links keep their exact meaning', () => {
 	});
 });
 
+// The literal key set v=6 and v=7 wrote, for a recipe with every optional
+// field forced onto the wire.
+const V7_KEYS = [
+	'al',
+	'b',
+	'bp',
+	'ft',
+	'fw',
+	'h',
+	'mm',
+	'n',
+	'o',
+	'p',
+	'pt',
+	'r',
+	's',
+	'sa',
+	'sg',
+	'sh',
+	't',
+	'v',
+	'y'
+];
+
+describe('urlState — no fridge (nf, v=8)', () => {
+	it('stamps nf=1 only when the fridge is off the table', () => {
+		expect(new URLSearchParams(encodeInputs({ ...base, noFridge: true })).get('nf')).toBe('1');
+		expect(new URLSearchParams(encodeInputs(base)).has('nf')).toBe(false);
+	});
+
+	it('round-trips both values', () => {
+		expect(decodeInputs(encodeInputs({ ...base, noFridge: true })).noFridge).toBe(true);
+		expect(decodeInputs('?v=8&nf=0').noFridge).toBe(false);
+	});
+
+	it('leaves a missing nf to the default at every version — older links all had the fridge', () => {
+		// Ungated, unlike al and fw: off is what every pre-v8 link was computed
+		// with, so the default already reproduces them.
+		for (const v of ['', 'v=1&', 'v=7&', 'v=8&']) {
+			expect(decodeInputs(`?${v}n=4`).noFridge, v).toBeUndefined();
+		}
+	});
+
+	it('ignores spellings the encoder never writes', () => {
+		expect(decodeInputs('?v=8&nf=yes').noFridge).toBeUndefined();
+		expect(decodeInputs('?v=8&nf=').noFridge).toBeUndefined();
+	});
+
+	it('counts as a recipe key', () => {
+		expect(hasRecipeParams('?nf=1')).toBe(true);
+	});
+});
+
 describe('urlState versioning', () => {
 	it('stamps the current schema version onto encoded URLs', () => {
-		expect(encodeInputs(base)).toContain('v=7');
+		expect(encodeInputs(base)).toContain('v=8');
 	});
 
 	// v=7 was taken for a redesign, not for a schema change: the major version is
@@ -334,27 +388,25 @@ describe('urlState versioning', () => {
 			flourW: 310,
 			preFerments: [{ type: 'biga', flourPercent: 30 }]
 		});
-		expect([...new URLSearchParams(full).keys()].sort()).toEqual([
-			'al',
-			'b',
-			'bp',
-			'ft',
-			'fw',
-			'h',
-			'mm',
-			'n',
-			'o',
-			'p',
-			'pt',
-			'r',
-			's',
-			'sa',
-			'sg',
-			'sh',
-			't',
-			'v',
-			'y'
-		]);
+		expect([...new URLSearchParams(full).keys()].sort()).toEqual(V7_KEYS);
+	});
+
+	it('v=8 adds exactly one key, nf', () => {
+		const full = encodeInputs({
+			...base,
+			oilPercent: 2,
+			sugarPercent: 1,
+			yeastType: 'sourdough',
+			preFermentTempC: 16,
+			ballProof: 'cold',
+			noFridge: true,
+			mixingMethod: 'hand',
+			autolyse: false,
+			flourW: 310,
+			preFerments: [{ type: 'biga', flourPercent: 30 }]
+		});
+		const keys = [...new URLSearchParams(full).keys()];
+		expect(keys.filter((k) => !V7_KEYS.includes(k))).toEqual(['nf']);
 	});
 
 	it('a v=7 link decodes exactly like the same link stamped v=6', () => {

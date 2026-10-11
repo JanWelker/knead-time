@@ -1,24 +1,24 @@
 {
 	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
 	"unit": {
-		"total": 1119,
+		"total": 1133,
 		"files": {
 			"scripts/lib/fontLicences.test.mjs": 7,
 			"scripts/lib/installScripts.test.mjs": 1,
 			"scripts/lib/testBaseline.test.mjs": 16,
 			"src/lib/community/community.test.ts": 18,
 			"src/lib/components/recipeLabels.test.ts": 15,
-			"src/lib/dough/avpn.test.ts": 16,
+			"src/lib/dough/avpn.test.ts": 17,
 			"src/lib/dough/bakers.test.ts": 58,
 			"src/lib/dough/defaults.test.ts": 8,
 			"src/lib/dough/fermentation.test.ts": 34,
-			"src/lib/dough/flour.test.ts": 31,
+			"src/lib/dough/flour.test.ts": 32,
 			"src/lib/dough/ics.test.ts": 19,
 			"src/lib/dough/inputBounds.test.ts": 14,
-			"src/lib/dough/quality.test.ts": 72,
-			"src/lib/dough/schedule.test.ts": 305,
+			"src/lib/dough/quality.test.ts": 73,
+			"src/lib/dough/schedule.test.ts": 310,
 			"src/lib/dough/scheduleStatus.test.ts": 10,
-			"src/lib/dough/urlState.test.ts": 85,
+			"src/lib/dough/urlState.test.ts": 91,
 			"src/lib/dough/windowPresets.test.ts": 51,
 			"src/lib/format.test.ts": 43,
 			"src/lib/i18n/interpolate.test.ts": 3,
@@ -49,7 +49,7 @@
 		}
 	},
 	"e2e": {
-		"total": 196,
+		"total": 199,
 		"files": {
 			"announcements.spec.ts": 5,
 			"ask-flow.spec.ts": 5,
@@ -63,6 +63,7 @@
 			"info-panel.spec.ts": 1,
 			"landmarks.spec.ts": 6,
 			"layout.spec.ts": 9,
+			"no-fridge.spec.ts": 3,
 			"persistence.spec.ts": 7,
 			"print-sheet.spec.ts": 11,
 			"pwa.spec.ts": 10,

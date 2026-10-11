@@ -10,7 +10,7 @@ import {
 	flourZones,
 	flourZonesInWindow
 } from './flour';
-import { COLD_MODE_THRESHOLD_MIN } from './schedule';
+import { coldSwitchHours, COLD_MODE_THRESHOLD_MIN } from './schedule';
 
 const COLD_THRESHOLD_H = COLD_MODE_THRESHOLD_MIN / 60;
 
@@ -305,5 +305,15 @@ describe('flourZonesInWindow', () => {
 
 	it('keeps a missing zone missing', () => {
 		expect(flourZonesInWindow(180, COLD_THRESHOLD_H, 14).cold).toBeNull();
+	});
+
+	it('offers no cold zone and the whole room band without a fridge', () => {
+		// W 310's room band runs to 18 h, past the 16 h switch: with a fridge the
+		// rail clips it there, without one the counter keeps the last two hours.
+		expect(flourZonesInWindow(310, coldSwitchHours(true), 0)).toEqual({
+			room: { min: 6, max: 18 },
+			cold: null
+		});
+		expect(flourZonesInWindow(310, coldSwitchHours(false), 0).room).toEqual({ min: 6, max: 16 });
 	});
 });

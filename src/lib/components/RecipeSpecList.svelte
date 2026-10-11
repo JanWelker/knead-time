@@ -37,7 +37,9 @@
 	<dt class="label-caps self-center">{labels.col_temp}</dt>
 	<dd class="tabular-nums">{numLabel(inputs.roomTempC, locale, '°C')}</dd>
 	<dt class="label-caps self-center">{labels.col_fridge}</dt>
-	<dd class="tabular-nums">{numLabel(inputs.fridgeTempC, locale, '°C')}</dd>
+	<dd class="tabular-nums">
+		{inputs.noFridge ? t.form.noFridge_none : numLabel(inputs.fridgeTempC, locale, '°C')}
+	</dd>
 	<dt class="label-caps self-center">{labels.col_preFerment}</dt>
 	<dd>{preFermentLabel(inputs, t)}</dd>
 </dl>

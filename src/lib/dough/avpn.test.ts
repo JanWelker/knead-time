@@ -197,12 +197,12 @@ describe('a 12 h AVPN dough solves through room mode', () => {
 	});
 });
 
-describe('a 24 h AVPN dough cannot stay on the counter', () => {
+describe('a 24 h AVPN dough, with the fridge allowed', () => {
 	it('from 16 h on the schedule switches to the fridge — the disciplinare never mentions one', () => {
 		// The disciplinare allows 12–24 h at room temperature or in an 18–20 °C
 		// cabinet. Knead Time's cold switch is a 16 h window (after any
-		// pre-ferment), so the last eight of those hours can only be planned as
-		// a cold bulk at fridgeTempC. Nothing in the inputs turns that off.
+		// pre-ferment), so by default the last eight of those hours are planned
+		// as a cold bulk at fridgeTempC. noFridge turns that off (below).
 		expect(COLD_MODE_THRESHOLD_MIN).toBe(16 * 60);
 		const s = computeSchedule(avpnInputs(DRIEST, WINDOW_24H, { roomTempC: 18 }));
 		expect(s.mode).toBe('cold');
@@ -236,21 +236,54 @@ describe('a 24 h AVPN dough cannot stay on the counter', () => {
 		expect(r20[0].gPerLitre).toBeCloseTo(3.002, 3);
 		expect(r20[1].gPerLitre).toBeCloseTo(2.6684, 3);
 	});
+});
 
-	it('the same model, left on the counter for 24 h, would sit well inside 0.1–3 g', () => {
-		// What the disciplinare's 24 h room/cabinet dough would solve to if room
-		// mode ran past 16 h: the 23.25 fermenting hours (24 h minus prep, mix
-		// and divide) at 18 or 20 °C. 1.26–1.63 g per litre — the model itself
-		// agrees with the spec; only the cold switch takes it elsewhere.
+// The disciplinare's own shape: the whole 24 h on the counter (issue #422).
+function noFridgePerLitre(corner: Corner, roomTempC: number) {
+	const schedule = computeSchedule(avpnInputs(corner, WINDOW_24H, { roomTempC, noFridge: true }));
+	return {
+		schedule,
+		gPerLitre: (schedule.ingredients.yeast / schedule.ingredients.water) * AVPN.waterG
+	};
+}
+
+describe('a 24 h AVPN dough with no fridge', () => {
+	it('stays on the counter for all 24 h', () => {
+		const { schedule: s } = noFridgePerLitre(DRIEST, 18);
+		expect(s.mode).toBe('room');
+		expect(s.warnings).toEqual([]);
+		expect(s.steps.map((x) => [x.kind, x.durationMinutes])).toEqual([
+			['prep', 15],
+			['mix', 15],
+			['bulk-room', 1305],
+			['divide', 15],
+			['final-proof', 90],
+			['ready', 0]
+		]);
+	});
+
+	it('solves to 1.26–1.63 g of fresh yeast per litre at 18–20 °C, well inside 0.1–3 g', () => {
+		// The 23.25 fermenting hours (24 h minus prep, mix and divide) at 18 or
+		// 20 °C, exactly the room solve: the model agrees with the spec once the
+		// cold switch is out of the way.
 		const fermentingHours = 24 - (15 + mixMin('spiral') + 15) / 60;
 		expect(fermentingHours).toBe(23.25);
-		const pct18 = yeastPercentForPhases('fresh', [{ hours: fermentingHours, tempC: 18 }]);
-		const pct20 = yeastPercentForPhases('fresh', [{ hours: fermentingHours, tempC: 20 }]);
-		expect(pct18).toBeCloseTo(0.090805, 6);
-		expect(pct20).toBeCloseTo(0.07905, 5);
-		const perLitre = (pct: number, c: Corner) => (pct / hydrationOf(c)) * AVPN.waterG;
-		expect(perLitre(pct18, DRIEST)).toBeCloseTo(1.6345, 3);
-		expect(perLitre(pct20, WETTEST)).toBeCloseTo(1.2648, 3);
+		const at18 = noFridgePerLitre(DRIEST, 18);
+		const at20 = noFridgePerLitre(WETTEST, 20);
+		expect(at18.schedule.yeastPercent).toBe(
+			yeastPercentForPhases('fresh', [{ hours: fermentingHours, tempC: 18 }])
+		);
+		expect(at18.schedule.yeastPercent).toBeCloseTo(0.090805, 6);
+		expect(at20.schedule.yeastPercent).toBeCloseTo(0.07905, 5);
+		expect(at18.gPerLitre).toBeCloseTo(1.6345, 3);
+		expect(at20.gPerLitre).toBeCloseTo(1.2648, 3);
+		for (const corner of CORNERS) {
+			for (const t of [AVPN.cabinetC.min, AVPN.cabinetC.max]) {
+				const g = noFridgePerLitre(corner, t).gPerLitre;
+				expect(g).toBeGreaterThan(AVPN.freshYeastG.min);
+				expect(g).toBeLessThan(AVPN.freshYeastG.max);
+			}
+		}
 	});
 });
 
@@ -395,6 +428,13 @@ describe('the Get nerdy panel states these results in every locale', () => {
 		const sdHi = Math.ceil(Math.max(...starter));
 		expect([sdLo, sdHi]).toEqual([16, 19]);
 
+		const counter = [18, 20].flatMap((t) =>
+			[DRIEST, WETTEST].map((c) => noFridgePerLitre(c, t).gPerLitre)
+		);
+		const nfLo = Math.floor(Math.min(...counter) * 10) / 10;
+		const nfHi = Math.ceil(Math.max(...counter) * 10) / 10;
+		expect([nfLo, nfHi]).toEqual([1.2, 1.7]);
+
 		const patterns = [
 			new RegExp(`${dec(55.6)}–${dec(62.5)} %`),
 			new RegExp(`${dec(2.2)}–${dec(3.75)} %`),
@@ -403,6 +443,7 @@ describe('the Get nerdy panel states these results in every locale', () => {
 			new RegExp(`${AVPN.cabinetC.min}–${AVPN.cabinetC.max} °C`),
 			new RegExp(`${COLD_MODE_THRESHOLD_MIN / 60} h`),
 			new RegExp(`${dec(lo)}–${dec(hi)} g`),
+			new RegExp(`${dec(nfLo)}–${dec(nfHi)} g`),
 			new RegExp(`${sdLo}–${sdHi} %`),
 			new RegExp(`${dec(YEAST_PCT_LOW)}–${dec(YEAST_PCT_HIGH)} %`),
 			/1:3/,

@@ -41,7 +41,7 @@ test('the app hydrates under the base path and stays there', async ({ page }) =>
 	await openAtBase(page);
 	const url = new URL(page.url());
 	expect(url.pathname).toBe(`${BASE}/`);
-	expect(url.searchParams.get('v')).toBe('7');
+	expect(url.searchParams.get('v')).toBe('8');
 });
 
 test('every request and every in-app link stays under the base', async ({ page }) => {

@@ -19,6 +19,7 @@ export function defaultInputs(overrides: Partial<DoughInputs> = {}): DoughInputs
 		fridgeTempC: 4,
 		preFermentTempC: null,
 		ballProof: 'room',
+		noFridge: false,
 		mixingMethod: 'spiral',
 		// Like autolyse below: the fixture states no flour so the existing
 		// schedule/warning matrix keeps pinning the pre-flour shape. The

@@ -16,6 +16,8 @@ describe('RECIPE_DEFAULTS', () => {
 			fridgeTempC: 4,
 			preFermentTempC: null,
 			ballProof: 'room',
+			// Off: the 16 h cold switch decides, as for every link before v=8.
+			noFridge: false,
 			mixingMethod: 'spiral',
 			autolyse: true,
 			// Caputo Pizzeria — W 260-270.

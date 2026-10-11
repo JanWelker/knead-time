@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { flourZonesInWindow } from '#lib/dough/flour.js';
-	import { COLD_MODE_THRESHOLD_MIN } from '#lib/dough/schedule.js';
+	import { coldSwitchHours } from '#lib/dough/schedule.js';
 	import {
 		fermentationBenefitTier,
 		idealWindowHours,
@@ -42,7 +42,7 @@
 	const zones = $derived(
 		form.flourW === null
 			? null
-			: flourZonesInWindow(form.flourW, COLD_MODE_THRESHOLD_MIN / 60, reserveHours)
+			: flourZonesInWindow(form.flourW, coldSwitchHours(form.noFridge), reserveHours)
 	);
 
 	// The same minute as the schedule table — one clock, not a second one
