@@ -49,7 +49,7 @@
 		}
 	},
 	"e2e": {
-		"total": 203,
+		"total": 205,
 		"files": {
 			"announcements.spec.ts": 5,
 			"ask-flow.spec.ts": 5,
@@ -73,7 +73,7 @@
 			"save-recipe.spec.ts": 2,
 			"self-hosted.spec.ts": 5,
 			"time-fields.spec.ts": 4,
-			"view-modes.spec.ts": 8,
+			"view-modes.spec.ts": 10,
 			"views.spec.ts": 14,
 			"warnings.spec.ts": 8,
 			"window-slider.spec.ts": 20

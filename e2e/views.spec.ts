@@ -238,16 +238,14 @@ test('each control sits with what it acts on', async ({ page }) => {
 	await card.locator('summary').first().click();
 	await expect(card.getByText('Long fridge phase', { exact: false })).toBeVisible();
 
-	// How much the steps explain is a reading preference, like the language and
-	// the theme, so it is a choice in the menu rather than a switch on the band.
-	// Counted with hidden nodes included: getByRole skips what is not visible,
-	// so the closed menu made an "is not on the page" assertion pass whether the
-	// choice was in the menu, on the band, or nowhere at all. Last in the test
-	// because opening the menu is an outside click, which shuts the seal panel.
+	// How much the steps explain is a reading preference of this card and of
+	// nothing else, so its switch is on the card's band, not in the menu
+	// (issue #436). Counted with hidden nodes included: getByRole skips what is
+	// not visible, so a closed menu would pass an "is not there" check whether
+	// the choice was in it or not.
 	await expect(page.getByText('Detailed', { exact: true })).toHaveCount(1);
-	await expect(page.locator('[role="menu"]').getByText('Detailed', { exact: true })).toHaveCount(1);
-	const menu = await openMenu(page);
-	await expect(menu.getByRole('menuitemradio', { name: 'Detailed', exact: true })).toBeVisible();
+	await expect(card.locator('.card-header').getByText('Detailed', { exact: true })).toHaveCount(1);
+	await expect(page.locator('[role="menu"]').getByText('Detailed', { exact: true })).toHaveCount(0);
 });
 
 test('the sign on the questions is the way to the plan', async ({ page }) => {

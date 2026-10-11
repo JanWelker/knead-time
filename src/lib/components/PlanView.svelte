@@ -71,9 +71,6 @@
 		reminders.subscribed && reminders.fingerprint !== null && reminders.fingerprint !== fingerprint
 	);
 
-	// Ordered least-to-most detail, which is also the order the strip reads in.
-	const VERBOSITIES = ['short', 'descriptive'] as const;
-
 	function printPage() {
 		// Dedicated print route owns its stylesheet and auto-triggers print().
 		window.open(resolve(`print/${locale}?${encodeInputs(form.serializable())}`), '_blank');
@@ -186,25 +183,6 @@
 		>
 			{t.nav.library}
 		</button>
-	</div>
-
-	<div role="group" aria-label={t.schedule.verbosity_label} class="menu-group">
-		<p class="menu-heading" aria-hidden="true">{t.schedule.verbosity_label}</p>
-		{#each VERBOSITIES as level (level)}
-			<button
-				type="button"
-				role="menuitemradio"
-				aria-checked={scheduleVerbosity.current === level}
-				class="menu-item menu-item-choice"
-				onclick={() => {
-					scheduleVerbosity.set(level);
-					close();
-				}}
-			>
-				<span class="menu-mark" aria-hidden="true"></span>
-				{level === 'short' ? t.schedule.verbosity_short : t.schedule.verbosity_descriptive}
-			</button>
-		{/each}
 	</div>
 
 	<div role="group" aria-label={t.actions.menu} class="menu-group">
@@ -452,23 +430,47 @@
 			<section class="card card-loud min-w-0">
 				<!-- Both marks are facts about this schedule, so they are pressed onto
 				     its own band rather than floating in a status row above it. -->
-				<div class="card-header justify-between">
+				<div class="card-header">
 					<h2 class="card-header-title">{t.schedule.heading}</h2>
-					<!-- The same plaque "Round numbers" wears on the ticket: the one
-					     action the schedule itself invites is being told when each step
-					     comes due. The menu item stays for anyone who looks there first;
-					     both open the same dialog, and the tap remains the only trigger. -->
-					<button
-						type="button"
-						class="btn-edit-sm"
-						aria-haspopup="dialog"
-						disabled={!form.schedule.feasible}
-						onclick={() => remindersDialog?.open()}
-						title={t.reminders.button_help}
-					>
-						<span aria-hidden="true">◷</span>
-						{t.reminders.button}
-					</button>
+					<!-- The two band controls wrap as a pair and stay right-aligned: on a
+					     phone in German or French they do not fit beside the heading, and
+					     letting them break one at a time left Remind me alone on the left. -->
+					<div class="ml-auto flex flex-wrap items-center justify-end gap-2">
+						<!-- How much each step explains is a reading preference of this card
+						     and nothing else, so it sits on the card it changes: one press,
+						     with the effect right underneath. It used to be a radio pair in the
+						     plan's menu — three taps away and found by nobody. One button with
+						     aria-pressed rather than a two-segment switch, which this design
+						     retired; set() remembers it on the device, never in the link. -->
+						<button
+							type="button"
+							class="btn-band-toggle"
+							aria-pressed={scheduleVerbosity.current === 'descriptive'}
+							title={t.schedule.verbosity_label}
+							onclick={() =>
+								scheduleVerbosity.set(
+									scheduleVerbosity.current === 'descriptive' ? 'short' : 'descriptive'
+								)}
+						>
+							<span class="toggle-mark" aria-hidden="true"></span>
+							{t.schedule.verbosity_descriptive}
+						</button>
+						<!-- The same plaque "Round numbers" wears on the ticket: the one
+						     action the schedule itself invites is being told when each step
+						     comes due. The menu item stays for anyone who looks there first;
+						     both open the same dialog, and the tap remains the only trigger. -->
+						<button
+							type="button"
+							class="btn-edit-sm"
+							aria-haspopup="dialog"
+							disabled={!form.schedule.feasible}
+							onclick={() => remindersDialog?.open()}
+							title={t.reminders.button_help}
+						>
+							<span aria-hidden="true">◷</span>
+							{t.reminders.button}
+						</button>
+					</div>
 				</div>
 				<div class="card-body">
 					<!-- The lede: what the maths chose and why, directly under the stamp
