@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { computeSchedule } from './dough/schedule';
 import { defaultInputs, findStep } from './dough/testFixtures';
-import type { DoughInputs, PreFermentType } from './dough/types';
+import type { DoughInputs, PreFermentType, YeastType } from './dough/types';
 import { formatGrams } from './format';
 import { LOCALES, MESSAGES } from './i18n/messages';
 import {
@@ -526,6 +526,50 @@ describe('autolyse', () => {
 		expect(desc).toContain(MESSAGES.en.steps.mix_technique_spiral);
 	});
 
+	// Issue #407: a baker asked whether the held-back salt and yeast go in dry or
+	// dissolved. The copy said only "add the salt and yeast" — the same words
+	// for all four carriers, and "yeast" even for a sourdough starter.
+	it('each yeast type is told how it goes onto the rested dough', () => {
+		const expected = {
+			fresh: 'mix_add_fresh',
+			instant: 'mix_add_instant',
+			'active-dry': 'mix_add_active_dry',
+			sourdough: 'mix_add_sourdough'
+		} as const;
+		for (const [yeastType, key] of Object.entries(expected)) {
+			const r = computeSchedule(inputs({ autolyse: true, yeastType: yeastType as YeastType }));
+			for (const locale of LOCALES) {
+				const steps = MESSAGES[locale].steps;
+				expect(stepDescription(findStep(r, 'mix'), MESSAGES[locale], r)).toBe(
+					`${steps[key]} ${steps.mix_desc_autolyse} ${steps.mix_technique_spiral}`
+				);
+			}
+		}
+	});
+
+	it('a sourdough mix after the autolyse never tells you to add yeast', () => {
+		const r = computeSchedule(inputs({ autolyse: true, yeastType: 'sourdough' }));
+		expect(stepDescription(findStep(r, 'mix'), MESSAGES.en, r)).not.toMatch(/yeast/i);
+		expect(stepDescription(findStep(r, 'prep'), MESSAGES.en, r)).not.toMatch(/yeast/i);
+	});
+
+	// Fresh and active dry yeast go in dissolved, and an autolyse puts every gram
+	// of water into the dough half an hour before the yeast arrives — so the only
+	// water left to dissolve them in is water the prep step kept back. Instant
+	// goes in dry and a starter as it is; neither needs any.
+	it('fresh and active dry yeast keep water back at prep, since the autolyse leaves none to dissolve them in', () => {
+		for (const yeastType of ['fresh', 'instant', 'active-dry', 'sourdough'] as const) {
+			const r = computeSchedule(inputs({ autolyse: true, yeastType }));
+			const prep = stepDescription(findStep(r, 'prep'), MESSAGES.en, r);
+			if (yeastType === 'fresh' || yeastType === 'active-dry') {
+				expect(prep).toContain(MESSAGES.en.steps.prep_reserve_water);
+				expect(prep).toContain('30 g');
+			} else {
+				expect(prep).not.toContain(MESSAGES.en.steps.prep_reserve_water);
+			}
+		}
+	});
+
 	it('titles and detail resolve for the autolyse step', () => {
 		const r = auto();
 		const step = findStep(r, 'autolyse');
@@ -642,4 +686,33 @@ describe('rendered copy never leaks a {placeholder}', () => {
 			'ready'
 		]);
 	});
+});
+
+// Issue #407 asked how the salt goes in. Every mix template now says it —
+// dissolved in the water, or scattered dry and worked in — where before the
+// no-pre-ferment mix only said "combine the weighed ingredients".
+describe('every mix step says how the salt goes in', () => {
+	const shapes: Array<{ label: string; overrides: Partial<DoughInputs> }> = [
+		{ label: 'direct', overrides: { autolyse: false } },
+		{ label: 'autolyse', overrides: { autolyse: true } },
+		{ label: 'biga', overrides: { preFerments: [{ type: 'biga', flourPercent: 30 }] } },
+		{ label: 'poolish', overrides: { preFerments: [{ type: 'poolish', flourPercent: 30 }] } },
+		{
+			label: 'both',
+			overrides: {
+				preFerments: [
+					{ type: 'biga', flourPercent: 30 },
+					{ type: 'poolish', flourPercent: 20 }
+				]
+			}
+		}
+	];
+	for (const { label, overrides } of shapes) {
+		it(label, () => {
+			const r = computeSchedule(inputs(overrides));
+			expect(stepDescription(findStep(r, 'mix'), MESSAGES.en, r)).toMatch(
+				/salt dissolved in it|Dissolve the salt|scatter (in )?the salt/
+			);
+		});
+	}
 });

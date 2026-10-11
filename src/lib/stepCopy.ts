@@ -47,6 +47,18 @@ const DETAIL: Record<ScheduleStepKind, keyof Messages['steps']> = {
 	ready: 'ready_detail'
 };
 
+// The carriers that go onto the rested dough dissolved in water kept back at
+// prep. Instant yeast goes in dry and a starter is spread over as it is.
+const DISSOLVED_CARRIERS: ReadonlySet<YeastType> = new Set(['fresh', 'active-dry']);
+
+// How the held-back leavening goes onto the rested dough after an autolyse.
+const ADD_TO_RESTED_DOUGH: Record<YeastType, keyof Messages['steps']> = {
+	fresh: 'mix_add_fresh',
+	instant: 'mix_add_instant',
+	'active-dry': 'mix_add_active_dry',
+	sourdough: 'mix_add_sourdough'
+};
+
 export function stepDetail(step: ScheduleStep, msgs: Messages): string {
 	return msgs.steps[DETAIL[step.kind]];
 }
@@ -211,13 +223,21 @@ export function stepDescription(
 				n: schedule.pizzaCount,
 				weight: formatBallWeight(schedule.ballWeight, locale)
 			});
-		case 'prep':
+		case 'prep': {
 			if (prefermentTypes.length > 0) return msgs.steps.prep_desc_with_preferment;
 			// Autolyse: prep combines flour and water (where the water temperature is
 			// set, so it carries the {water_temp} note) into a shaggy mass.
-			return hasAutolyse(schedule)
-				? interpolate(msgs.steps.prep_desc_autolyse, { water_temp: schedule.idealWaterTempC })
-				: template;
+			if (!hasAutolyse(schedule)) return template;
+			// Fresh and active dry yeast go in dissolved, and by the mix every gram
+			// of water is already in the dough — so prep keeps some back for them
+			// (issue #407). The amount stays in the weighed water.
+			const prep = interpolate(msgs.steps.prep_desc_autolyse, {
+				water_temp: schedule.idealWaterTempC
+			});
+			return DISSOLVED_CARRIERS.has(schedule.yeastType)
+				? `${prep} ${msgs.steps.prep_reserve_water}`
+				: prep;
+		}
 		case 'mix': {
 			const waterTemp = { water_temp: schedule.idealWaterTempC };
 			// The base descriptions are method-neutral; the how-to-knead sentence
@@ -232,9 +252,11 @@ export function stepDescription(
 			if (prefermentTypes.length > 1) base = msgs.steps.mix_desc_with_both;
 			else if (prefermentTypes[0] === 'biga') base = msgs.steps.mix_desc_with_biga;
 			else if (prefermentTypes[0] === 'poolish') base = msgs.steps.mix_desc_with_poolish;
-			// No pre-ferment but an autolyse rest: the mix now folds in the
-			// held-back salt and yeast before kneading.
-			else if (hasAutolyse(schedule)) base = msgs.steps.mix_desc_autolyse;
+			// No pre-ferment but an autolyse rest: the mix folds in the held-back
+			// leavening — each carrier its own way (issue #407: "do you put it in
+			// dry?") — and then the salt.
+			else if (hasAutolyse(schedule))
+				base = `${msgs.steps[ADD_TO_RESTED_DOUGH[schedule.yeastType]]} ${msgs.steps.mix_desc_autolyse}`;
 			return `${interpolate(base, waterTemp)} ${technique}`;
 		}
 		default:
