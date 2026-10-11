@@ -371,6 +371,29 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 		expect(factorKinds(recipeFitScore(computeSchedule(i), i).factors)).toContain(expected);
 	});
 
+	// The salt and ball-weight bands are the AVPN disciplinare's (issue #422):
+	// 40–60 g of salt per litre against 1.6–1.8 kg of flour, 200–280 g balls.
+	// They were 2–3.5 % and 200–320 g, so the disciplinare's saltiest dough lost
+	// a point and a 300 g ball none; the edges are pinned on both sides so the
+	// band cannot drift back without a failure.
+	it.each([
+		{ field: 'saltPercent', inside: 2.2, outside: 2.1 },
+		{ field: 'saltPercent', inside: 3.75, outside: 3.8 },
+		{ field: 'ballWeight', inside: 200, outside: 199 },
+		{ field: 'ballWeight', inside: 280, outside: 281 }
+	] as const)(
+		'the AVPN $field edge: $inside is in, $outside is out',
+		({ field, inside, outside }) => {
+			const factor = field === 'saltPercent' ? 'salt-off' : 'ball-weight-off';
+			const at = (value: number) => {
+				const i = inputs({ [field]: value } as Partial<DoughInputs>);
+				return factorKinds(recipeFitScore(computeSchedule(i), i).factors);
+			};
+			expect(at(inside)).not.toContain(factor);
+			expect(at(outside)).toContain(factor);
+		}
+	);
+
 	it('does not judge the fridge temperature of a recipe that never uses the fridge', () => {
 		// The field is hidden in the sheet once "no fridge" is on, so a value
 		// left at 12 °C would cost points the baker cannot see the reason for.
@@ -548,15 +571,16 @@ describe('recipeFitScore — the deduction table', () => {
 			factor: 'hydration-off',
 			score: 90
 		},
-		// salt: 4 points per percentage point outside 2–3.5, capped at 10.
-		{ label: 'salt 5 %', overrides: { saltPercent: 5 }, factor: 'salt-off', score: 94 },
+		// salt: 4 points per percentage point outside 2.2–3.75, capped at 10.
+		{ label: 'salt 5 %', overrides: { saltPercent: 5 }, factor: 'salt-off', score: 95 },
+		{ label: 'salt 1.7 %', overrides: { saltPercent: 1.7 }, factor: 'salt-off', score: 98 },
 		{ label: 'salt 7 % (capped)', overrides: { saltPercent: 7 }, factor: 'salt-off', score: 90 },
-		// ball weight: 0.1 points per gram outside 200–320, capped at 8.
+		// ball weight: 0.1 points per gram outside 200–280, capped at 8.
 		{
 			label: 'ball weight 350 g',
 			overrides: { ballWeight: 350 },
 			factor: 'ball-weight-off',
-			score: 97
+			score: 93
 		},
 		// fridge temperature: 1.5 points per degree outside 2–8, capped at 8.
 		// Inert in the room-mode solve, so it isolates cleanly.

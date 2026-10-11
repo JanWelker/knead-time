@@ -22,6 +22,10 @@ export const TARGET_UNITS_SOURDOUGH = 160;
 // the end: instant dry (IDY) is the classic 3:1, active dry (ADY) 2.5:1, and
 // sourdough starter ~100× (which is exactly TARGET_UNITS_SOURDOUGH ÷ FRESH —
 // one factor expresses both dry-yeast conversion and the starter's activity).
+// The AVPN disciplinare names one dry yeast at 1:3 and does not tell the two
+// apart; instant matches it, active dry stays at 2.5:1 on purpose because it
+// carries more dead cells per gram and needs more mass for the same rise
+// (issue #422).
 export function yeastMassFactor(type: YeastType): number {
 	switch (type) {
 		case 'fresh':

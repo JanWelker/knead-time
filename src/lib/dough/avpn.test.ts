@@ -22,8 +22,8 @@ import type { DoughInputs, YeastType } from './types';
 //   balls        200–280 g
 //   fermentation 12–24 h in all, direct dough, no fat, no sugar, cabinets at 18–20 °C
 //
-// The app's fit-score bands are documented as "contemporary Neapolitan", not
-// AVPN, and moving them is a product decision nobody has made. So this suite
+// The fit score takes its salt and ball-weight bands from the disciplinare;
+// the rest are documented as "contemporary Neapolitan", not AVPN. This suite
 // does not judge; it PINS what the model does to a disciplinare recipe today,
 // with the disciplinare figure named beside each number, so the day a band or
 // a constant moves the difference to the spec shows up here instead of in a
@@ -288,17 +288,17 @@ describe('a 24 h AVPN dough with no fridge', () => {
 });
 
 describe('the fit score on an AVPN-compliant recipe', () => {
-	it('the 1.8 kg corners lose 4 points to hydration-off, the 60 g / 1.6 kg corner 1 to salt-off', () => {
+	it('the 1.8 kg corners lose 4 points to hydration-off, and nothing else costs a point', () => {
 		// hydration-off: the band is 60–80 %, the disciplinare's driest dough is
-		// 55.6 % — 4.44 points outside at 1 point each. salt-off: the band is
-		// 2–3.5 %, the saltiest corner is 3.75 % — 0.25 outside at 4 points each.
-		// 200–280 g balls sit inside the 200–320 g band, 18–20 °C inside the
-		// 14–30 °C room band. None of it costs a star.
+		// 55.6 % — 4.44 points outside at 1 point each. Salt and ball weight are
+		// the disciplinare's own bands (2.2–3.75 %, 200–280 g) since issue #422,
+		// so the saltiest corner no longer loses a point; 18–20 °C sits inside
+		// the 14–30 °C room band. None of it costs a star.
 		const expected = [
 			{ score: 96, factors: [{ factor: 'hydration-off', delta: 60 - 100000 / 1800 }] },
 			{ score: 96, factors: [{ factor: 'hydration-off', delta: 60 - 100000 / 1800 }] },
 			{ score: 100, factors: [] },
-			{ score: 99, factors: [{ factor: 'salt-off', delta: 0.25 }] }
+			{ score: 100, factors: [] }
 		];
 		CORNERS.forEach((corner, i) => {
 			for (const window of [WINDOW_12H, WINDOW_24H]) {

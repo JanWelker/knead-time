@@ -1,7 +1,7 @@
 {
 	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
 	"unit": {
-		"total": 1133,
+		"total": 1138,
 		"files": {
 			"scripts/lib/fontLicences.test.mjs": 7,
 			"scripts/lib/installScripts.test.mjs": 1,
@@ -15,7 +15,7 @@
 			"src/lib/dough/flour.test.ts": 32,
 			"src/lib/dough/ics.test.ts": 19,
 			"src/lib/dough/inputBounds.test.ts": 14,
-			"src/lib/dough/quality.test.ts": 73,
+			"src/lib/dough/quality.test.ts": 78,
 			"src/lib/dough/schedule.test.ts": 310,
 			"src/lib/dough/scheduleStatus.test.ts": 10,
 			"src/lib/dough/urlState.test.ts": 91,
