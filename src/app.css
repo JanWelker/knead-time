@@ -705,6 +705,39 @@ html.dark {
 		color: var(--kt-ink);
 	}
 
+	/* A two-state switch that sits on a header band, beside a .btn-edit-sm
+	   plaque: the same Anton size and padding, so the two read as one family,
+	   but reversed out of the ink like .btn-band, because a second red plaque
+	   would make a setting look like an action. The state is printed twice —
+	   a box that is hollow or filled, and the plaque taking the paper fill
+	   while on — so it never rests on colour alone. Hover thickens the rule
+	   rather than filling, since a fill is what "on" looks like. */
+	.btn-band-toggle {
+		@apply font-display border-paper text-paper inline-flex items-center gap-1.5 rounded-[2px] border-2 px-2.5 py-1 text-xs leading-tight uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.btn-band-toggle[aria-pressed='true'] {
+		background: var(--kt-paper);
+		color: var(--kt-ink);
+	}
+
+	.btn-band-toggle:hover {
+		box-shadow: 0 0 0 1px var(--kt-paper);
+	}
+
+	.btn-band-toggle:active {
+		transform: translate(1px, 1px);
+	}
+
+	.toggle-mark {
+		@apply inline-block size-2.5 shrink-0 border-2 border-current;
+	}
+
+	.btn-band-toggle[aria-pressed='true'] .toggle-mark {
+		background: currentColor;
+	}
+
 	/* An outlined control: the same hard rule as everything else, no fill. For
 	   actions that are not the page's business end — Back, Recipes, switching
 	   view mode. */

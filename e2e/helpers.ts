@@ -62,10 +62,18 @@ export async function openMenu(page: Page) {
 	return page.getByRole('menu');
 }
 
-/** Pick one of the menu's radio choices — a language, a theme, a detail level. */
+/** Pick one of the menu's radio choices — a language or a theme. */
 export async function chooseInMenu(page: Page, name: string) {
 	await openMenu(page);
 	await page.getByRole('menuitemradio', { name, exact: true }).click();
+}
+
+/** The short/detailed switch on the schedule's header band: one button, pressed = detailed. */
+export function detailToggle(page: Page) {
+	return page.locator('section.card-loud .card-header').getByRole('button', {
+		name: 'Detailed',
+		exact: true
+	});
 }
 
 /** Go to the recipe library, the way a user does: through the menu. */

@@ -62,7 +62,7 @@ The mix step says how each held-back ingredient goes onto the rested dough: fres
 
 ## Views, kneading, pre-ferments, yeast and memory (v4)
 
-- **Beginner view**: just how many, when, how you knead and which flour, with every step explained through the schedule's short/detailed switch. Experts get the full sheet.
+- **Beginner view**: just how many, when, how you knead and which flour, with every step explained through the `Detailed` switch on the schedule's header band. Experts get the full sheet.
 - **Spiral, stand-mixer or hand kneading**, each adapting the mix step and the water temperature to how efficiently it works the dough.
 - **Combined pre-ferments**: biga and poolish maturing in parallel, each with its own flour share and an optional cellar temperature.
 - **Dry yeast**: instant and active dry alongside fresh and sourdough.

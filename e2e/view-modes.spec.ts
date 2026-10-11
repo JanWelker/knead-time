@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test';
-import { chooseInMenu, currentView, openAdjust, openRecipe, sheet } from './helpers';
+import {
+	currentView,
+	detailToggle,
+	openAdjust,
+	openMenu,
+	openRecipe,
+	sheet,
+	waitForHydration
+} from './helpers';
 
 // Beginner/expert and short/detailed are resolved from three sources in a fixed
 // order (URL → recipe params → localStorage → default) and persisted only on an
@@ -94,19 +102,23 @@ test('the schedule verbosity toggle shows and hides the step explanations', asyn
 	// one explanation of eight dropped, and would hold with the method copy
 	// hidden too.
 	const detail = page.locator('ol li p');
+	const toggle = detailToggle(page);
 	await expect(detail).toHaveCount(16);
+	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 
-	await chooseInMenu(page, 'Short');
+	await toggle.click();
+	await expect(toggle).toHaveAttribute('aria-pressed', 'false');
 	await expect(detail).toHaveCount(8);
 
-	await chooseInMenu(page, 'Detailed');
+	await toggle.click();
+	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
 	await expect(detail).toHaveCount(16);
 });
 
 test('verbosity is a device preference, not part of the share URL', async ({ page }) => {
 	await open(page, RECIPE);
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
-	await chooseInMenu(page, 'Short');
+	await detailToggle(page).click();
 
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:scheduleVerbosity'))).toBe(
 		'short'
@@ -114,4 +126,58 @@ test('verbosity is a device preference, not part of the share URL', async ({ pag
 	// nothing about reading preference belongs in a recipe someone else opens
 	expect(page.url()).not.toContain('verbos');
 	expect(new URL(page.url()).searchParams.has('sv')).toBe(false);
+});
+
+// Short/detailed used to be a radio pair in the plan's menu: three taps away
+// from the card it changes, and found by nobody (issue #436). It is one
+// pressed/unpressed button on the schedule's own header band now, left of
+// `Remind me`, and the menu no longer carries it — two doors to one reading
+// preference is how the old one went unseen. The reload half is what proves
+// the band's button goes through the singleton's set() rather than flipping a
+// local copy: a toggle that only re-rendered would come back detailed.
+test('the detail toggle sits on the schedule band and survives a reload', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+	const band = page.locator('section.card-loud .card-header');
+	const toggle = detailToggle(page);
+	const remind = band.getByRole('button', { name: /Remind me/ });
+	await expect(toggle).toBeVisible();
+	await expect(remind).toBeVisible();
+	const t = (await toggle.boundingBox())!;
+	const r = (await remind.boundingBox())!;
+	// left of the plaque, on the same line
+	expect(t.x + t.width).toBeLessThanOrEqual(r.x);
+	expect(Math.abs(t.y - r.y)).toBeLessThan(2);
+
+	await toggle.click();
+	await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+	await page.reload();
+	await waitForHydration(page);
+	await expect(detailToggle(page)).toHaveAttribute('aria-pressed', 'false');
+	await expect(page.locator('ol li p')).toHaveCount(8);
+
+	const menu = await openMenu(page);
+	await expect(menu.getByText('Detailed', { exact: true })).toHaveCount(0);
+	await expect(menu.getByText('Short', { exact: true })).toHaveCount(0);
+});
+
+// The band carries a heading and two plaques, which do not all fit on one line
+// at 390 px in German or French. Wrapping item by item put `Erinnere mich`
+// alone at the left edge under the heading, the toggle still up beside it; the
+// two plaques wrap as one group, right-aligned, and nothing leaves the page.
+test('the schedule band wraps its two plaques together on a phone', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.addInitScript(() => localStorage.setItem('kneadtime:locale', 'de'));
+	await openRecipe(page, RECIPE);
+	const band = page.locator('section.card-loud .card-header');
+	const [toggle, remind] = [band.getByRole('button').nth(0), band.getByRole('button').nth(1)];
+	await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+	const t = (await toggle.boundingBox())!;
+	const r = (await remind.boundingBox())!;
+	const b = (await band.boundingBox())!;
+	expect(Math.abs(t.y - r.y)).toBeLessThan(2);
+	expect(t.x + t.width).toBeLessThanOrEqual(r.x);
+	// right-aligned: the plaque ends where the band's padding begins
+	expect(b.x + b.width - (r.x + r.width)).toBeLessThan(28);
+	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
 });
