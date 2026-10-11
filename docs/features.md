@@ -20,6 +20,10 @@ It installs from Safari's share sheet or Chrome's install prompt and opens stand
 
 The page itself never schedules a notification, and cannot: iOS only ever wakes a web app's service worker for an incoming push message, so a reminder at 03:00 needs a server to send it ([issue #306](https://github.com/JanWelker/knead-time/issues/306)). The `.ics` export remains the path that involves no server at all.
 
+## The biga and the dough, quoted separately (v7.4)
+
+With a biga or poolish, the window card now writes the window the way Italian pizzaioli do — **Biga 14 h, then 40 h of dough** — under the wall-clock total. The flour's tolerance band is judged on the second figure: the hours after the final mix. The mills publish their windows for a direct dough, which starts fermenting at the mix, and the flour that sits through the biga's hours is the biga's own portion, not the bag the rest of the dough is made from. So the warning, the fit score, the painted band and the **Use best** re-pick all moved: Caputo Pizzeria with a 14 h biga now aims at 54 h, not 40 h. Schedules, ingredients and share links are untouched ([issue #397](https://github.com/JanWelker/knead-time/issues/397)).
+
 ## Step reminders (v7.2)
 
 **Remind me**, the plaque on the schedule’s header band (also **Remind me on this device…** in the plan's actions menu), asks for notification permission and hands the plan's hands-on steps to the reminder service — a small server in this repository under `push/`, run on a homelab — which pushes a notification for each at its time, with the app closed. A test notification confirms the path at once; editing the plan afterwards shows an info line offering to update the reminders, and **Turn off** forgets the device again. On an iPhone the app has to be on the Home Screen first. What leaves the device, and for how long it is kept, is in [reminders.md](reminders.md).

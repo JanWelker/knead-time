@@ -386,9 +386,17 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	// window the user already chose and never feeds back into the solve, so
 	// the schedule (and every gram of every ingredient) is identical whether a
 	// flour is stated or not. null = no flour stated, no opinion.
+	//
+	// Judged on the hours AFTER the final mix, not the whole window (issue
+	// #397). The bands are calibrated on the mills' published windows, which are
+	// direct-dough figures and so run from the mix; and the flour that sees a
+	// biga's hours is the biga's own portion, not the bag the rest of the dough
+	// is made from. Italian practice quotes the two separately for that reason
+	// ("biga 16 h, poi 6 h"). The pre-ferment flour is not judged at all: the
+	// app does not ask which flour goes into it.
 	if (inputs.flourW !== null) {
 		const band = flourWindowHours(inputs.flourW, mode);
-		const windowHours = totalAvailableMin / 60;
+		const windowHours = Math.max(0, availableMin) / 60;
 		if (windowHours > band.max) warnings.push('flour-window-long');
 		else if (windowHours < band.min) warnings.push('flour-window-short');
 	}
@@ -455,7 +463,8 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 		idealWaterTempC: idealMixWaterTempC(inputs.roomTempC, inputs.mixingMethod),
 		naturalColdBulkMin: plan.naturalColdBulkMin,
 		desiredColdBulkMin: plan.desiredColdBulkMin,
-		naturalPreferments
+		naturalPreferments,
+		prefermentReserveMin: naturalPrefermentMin
 	};
 }
 

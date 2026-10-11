@@ -269,10 +269,12 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 
 	// Band is picked for the mode the schedule actually resolved to, so the
 	// same flour is judged against its cold tolerance on a 24 h plan and its
-	// room tolerance on a same-day one.
+	// room tolerance on a same-day one. Measured from the final mix, like the
+	// warning: the pre-ferment's reserve is not the bag's to tolerate (#397).
 	if (inputs.flourW !== null) {
 		const band = flourWindowHours(inputs.flourW, schedule.mode);
-		const windowHours = (inputs.readyBy.getTime() - inputs.startAt.getTime()) / 3_600_000;
+		const windowMin = (inputs.readyBy.getTime() - inputs.startAt.getTime()) / 60_000;
+		const windowHours = Math.max(0, windowMin - schedule.prefermentReserveMin) / 60;
 		const flourOff = outsideBand(windowHours, band.min, band.max);
 		if (flourOff > 0) factors.push({ factor: 'flour-window-off', delta: flourOff });
 	}

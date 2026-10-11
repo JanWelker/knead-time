@@ -7,7 +7,8 @@ import {
 	flourPresetGroups,
 	flourPresetForW,
 	flourWindowHours,
-	flourZones
+	flourZones,
+	flourZonesInWindow
 } from './flour';
 import { COLD_MODE_THRESHOLD_MIN } from './schedule';
 
@@ -262,5 +263,24 @@ describe('flourPresetGroups', () => {
 			'caputo-nuvola-super'
 		]);
 		expect(byBand.veryStrong).toEqual(['dallagiovanna-uniqua-blu']);
+	});
+});
+
+describe('flourZonesInWindow', () => {
+	// The bands are hours after the final mix; the slider's axis is the whole
+	// window. Painting the unshifted bands put the green on the wrong stretch of
+	// the rail whenever a pre-ferment was on (#397).
+	it('moves every edge out by the pre-ferment reserve', () => {
+		const zones = flourZonesInWindow(265, COLD_THRESHOLD_H, 14);
+		expect(zones.room).toEqual({ min: 18, max: 24 });
+		expect(zones.cold).toEqual({ min: 30, max: 54 });
+	});
+
+	it('is the plain zones without a pre-ferment', () => {
+		expect(flourZonesInWindow(265, COLD_THRESHOLD_H, 0)).toEqual(flourZones(265, COLD_THRESHOLD_H));
+	});
+
+	it('keeps a missing zone missing', () => {
+		expect(flourZonesInWindow(180, COLD_THRESHOLD_H, 14).cold).toBeNull();
 	});
 });

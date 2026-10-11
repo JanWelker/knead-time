@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { flourZones } from '#lib/dough/flour.js';
+	import { flourZonesInWindow } from '#lib/dough/flour.js';
 	import { COLD_MODE_THRESHOLD_MIN } from '#lib/dough/schedule.js';
 	import {
 		fermentationBenefitTier,
@@ -33,8 +33,16 @@
 	// land on a real plan, and every stop gets the same target size on a phone.
 	// windowAxisPercent maps hours onto that same index rail, which is what
 	// keeps the tolerance zones and tick labels aligned with the thumb.
+	//
+	// The flour's bands are hours after the final mix; a pre-ferment is mixed
+	// before that, so on this rail — the whole window — they sit its reserve
+	// further out (#397). The reserve does not depend on the window, so
+	// dragging never moves them.
+	const reserveHours = $derived(form.schedule.prefermentReserveMin / 60);
 	const zones = $derived(
-		form.flourW === null ? null : flourZones(form.flourW, COLD_MODE_THRESHOLD_MIN / 60)
+		form.flourW === null
+			? null
+			: flourZonesInWindow(form.flourW, COLD_MODE_THRESHOLD_MIN / 60, reserveHours)
 	);
 
 	// The same minute as the schedule table — one clock, not a second one
@@ -148,6 +156,22 @@
 	// one is a time the user actually picked.
 	const formatBandEdge = (hours: number) => formatWindow(Math.round(hours));
 
+	// With a pre-ferment the window is quoted the way Italian practice writes
+	// it — "biga 14 h, then 58 h" — because "72 h" alone reads as 72 h of
+	// dough, and the flour band below is judged on the second figure (#397).
+	// Named after the pre-ferment the schedule reserves for: a biga always
+	// runs at least as long as a poolish at the same temperature, so with
+	// both it is the biga. Hidden when the window cannot even hold the
+	// reserve; the schedule then shortens the pre-ferment and says so.
+	const split = $derived.by(() => {
+		if (reserveHours === 0 || windowHours <= reserveHours) return null;
+		const biga = form.schedule.preFerments.some((pf) => pf.type === 'biga');
+		return interpolate(biga ? t.schedule.window_split_biga : t.schedule.window_split_poolish, {
+			preferment: formatWindow(reserveHours),
+			dough: formatWindow(windowHours - reserveHours)
+		});
+	});
+
 	// Labelled stops. Every stop gets a notch; only these carry text, so the
 	// rail stays readable at phone widths. The extremes are left unlabelled —
 	// a centred label at 0 % or 100 % would hang off the rail.
@@ -194,6 +218,9 @@
 			{formatWindow(windowHours)}
 		</span>
 	</div>
+	{#if split}
+		<p class="text-ink-soft mt-1 text-right text-xs" data-testid="window-split">{split}</p>
+	{/if}
 
 	<!-- The bake time anchors everything here: the window is measured back from
 	     it, and it is where the rail's greyed-out stretch begins. Reuses the

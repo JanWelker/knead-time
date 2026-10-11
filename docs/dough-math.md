@@ -54,7 +54,7 @@ No baker-action step may start in `[22:00, 08:00)` local time. In cold mode the 
 
 ## Flour strength
 
-Flour strength W is **advisory only**. It is deformation energy, not absorption, so it never enters the ingredient masses or the yeast solve. It paints the fermentation window the flour tolerates, raises a warning when the chosen window falls outside it, and feeds the fit score. The tolerance bands interpolate in log-hours between three anchors and clamp rather than extrapolate.
+Flour strength W is **advisory only**. It is deformation energy, not absorption, so it never enters the ingredient masses or the yeast solve. It paints the fermentation window the flour tolerates, raises a warning when the chosen window falls outside it, and feeds the fit score. The tolerance bands interpolate in log-hours between three anchors and clamp rather than extrapolate. They are **hours after the final mix**, because the mills calibrate them on a direct dough: with a biga or poolish the longest pre-ferment's reserve is subtracted before the band is consulted, the same subtraction that decides cold vs room, and the slider paints the bands that many hours further out (issue #397). The pre-ferment's own flour is not judged.
 
 ## Recipe fit score
 
