@@ -88,6 +88,13 @@
 			color: #000000 !important;
 			margin: 0;
 		}
+		/* app.html gives the body `min-h-screen` for the app's views. A sheet
+		   about to be paginated has no use for a viewport-tall body, and how a
+		   print engine resolves 100vh is its own business — whatever it picks, a
+		   body taller than its content is a candidate for a trailing blank page. */
+		body {
+			min-height: 0 !important;
+		}
 		/* This sheet has no dark half — it is black on white and it is about to
 		   be printed. The boot script in app.html stamps `dark` on the element
 		   before first paint on a dark system, which would otherwise bring
@@ -112,15 +119,29 @@
 			background: #fff;
 			max-width: 190mm;
 			margin: 0 auto;
-			padding: 6mm 4mm;
+			/* No padding of its own: the @page margin is already the sheet's edge,
+			   and 6 mm top and bottom on top of it is what pushed the footer of a
+			   pre-ferment recipe onto a second page that carried nothing else
+			   (issue #424). Two mm at the sides only, so the screen preview of the
+			   tab does not sit flush against the window. */
+			padding: 0 2mm;
 			font-size: 9pt;
-			line-height: 1.4;
+			line-height: 1.35;
 		}
+		/* app.css sets h1-h3 in Anton from its base layer. Anton ships one weight,
+		   so the 700 below was synthesised on top of an already heavy face and
+		   the titles printed fat (issue #424). The sheet takes no web face at
+		   all: its headings inherit the system stack, which has a real bold, and
+		   because nothing on the page then asks for Anton or Archivo neither
+		   .woff2 is ever fetched for printing. font-synthesis: none keeps a
+		   missing bold from being faked again should the stack ever change. */
 		.printpage h1,
 		.printpage h2,
 		.printpage h3 {
 			margin: 0;
+			font-family: inherit;
 			font-weight: 700;
+			font-synthesis: none;
 			letter-spacing: -0.01em;
 		}
 		.printpage h1 {
@@ -137,9 +158,9 @@
 		.printpage-header {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			gap: 8mm;
-			margin-bottom: 4mm;
-			padding-bottom: 3mm;
+			gap: 6mm;
+			margin-bottom: 3mm;
+			padding-bottom: 2mm;
 			border-bottom: 1px solid #000;
 		}
 		.printpage-summary,
@@ -148,10 +169,14 @@
 			border-collapse: collapse;
 			font-variant-numeric: tabular-nums;
 		}
+		/* A label that wraps costs a whole row on a sheet with none to spare:
+		   "Room temperature (°C)" broke over three lines beside a value that
+		   needed a third of the width. The value side wraps instead. */
 		.printpage-summary th {
 			text-align: left;
+			white-space: nowrap;
 			font-weight: 400;
-			padding: 0.8mm 0;
+			padding: 0.8mm 3mm 0.8mm 0;
 			color: #333;
 		}
 		.printpage-summary td {
@@ -164,9 +189,12 @@
 			padding: 0.8mm 0;
 			font-weight: 500;
 		}
+		/* A weight never breaks: in the narrow columns a pre-ferment recipe gets
+		   (.printpage-split) "1680 g" otherwise put its unit on a line alone. */
 		.printpage-ingredients td {
 			text-align: right;
-			padding: 0.8mm 0;
+			white-space: nowrap;
+			padding: 0.8mm 0 0.8mm 2mm;
 		}
 		.printpage-ingredients tr.printpage-total th,
 		.printpage-ingredients tr.printpage-total td {
@@ -176,6 +204,16 @@
 		}
 		.printpage-ingredients-section {
 			margin-bottom: 3mm;
+			break-inside: avoid;
+		}
+		/* A pre-ferment recipe weighs in up to four sections (each pre-dough, the
+		   main dough, the totals), and stacked in one column they made the header
+		   the tallest thing on the sheet: biga + poolish ran to a second page on
+		   A4 and Letter alike (issue #424). Side by side they take half the
+		   height. A flat recipe is one table and keeps the full width. */
+		.printpage-split {
+			columns: 2;
+			column-gap: 5mm;
 		}
 		.printpage-schedule {
 			width: 100%;
@@ -192,7 +230,7 @@
 			padding: 1mm 3mm 1mm 0;
 		}
 		.printpage-schedule tbody td {
-			padding: 1.2mm 3mm 1.2mm 0;
+			padding: 0.8mm 3mm 0.8mm 0;
 			vertical-align: top;
 			border-bottom: 1px solid #ccc;
 		}
@@ -227,7 +265,7 @@
 			font-weight: 700;
 		}
 		.printpage-footer {
-			margin-top: 4mm;
+			margin-top: 3mm;
 			padding-top: 2mm;
 			border-top: 1px solid #000;
 			display: flex;
@@ -240,19 +278,22 @@
 		.printpage-footer p {
 			margin: 0 0 0.5mm 0;
 		}
+		/* Caption beside the code rather than under it: the footer is the last
+		   thing on the sheet, so every millimetre it stands taller is the one
+		   that tips a long schedule onto a second page. */
 		.printpage-qr {
 			display: flex;
-			flex-direction: column;
-			align-items: center;
-			gap: 1mm;
+			align-items: flex-end;
+			gap: 2mm;
 			flex-shrink: 0;
 		}
 		.printpage-qr svg {
-			width: 22mm;
-			height: 22mm;
+			width: 20mm;
+			height: 20mm;
 		}
 		.printpage-qr-caption {
 			font-size: 7pt;
+			max-width: 24mm;
 		}
 	</style>
 </svelte:head>
@@ -306,29 +347,31 @@
 			     printout cannot quietly disagree with what the app showed. The
 			     section help lines are dropped — no room, and the reader has
 			     already seen them. -->
-			{#each sections as section (section.key)}
-				<section class="printpage-ingredients-section">
-					{#if section.heading}<h3>{section.heading}</h3>{/if}
-					<table class="printpage-ingredients">
-						<tbody>
-							{#each section.rows as row (row.label)}
-								<tr>
-									<th scope="row"
-										>{row.label}{#if row.hint}&nbsp;({row.hint}){/if}</th
-									>
-									<td>{row.amount}</td>
-								</tr>
-							{/each}
-							{#if section.total}
-								<tr class="printpage-total">
-									<th scope="row">{section.total.label}</th>
-									<td>{section.total.amount}</td>
-								</tr>
-							{/if}
-						</tbody>
-					</table>
-				</section>
-			{/each}
+			<div class="printpage-ingredients-sections" class:printpage-split={sections.length > 1}>
+				{#each sections as section (section.key)}
+					<section class="printpage-ingredients-section">
+						{#if section.heading}<h3>{section.heading}</h3>{/if}
+						<table class="printpage-ingredients">
+							<tbody>
+								{#each section.rows as row (row.label)}
+									<tr>
+										<th scope="row"
+											>{row.label}{#if row.hint}&nbsp;({row.hint}){/if}</th
+										>
+										<td>{row.amount}</td>
+									</tr>
+								{/each}
+								{#if section.total}
+									<tr class="printpage-total">
+										<th scope="row">{section.total.label}</th>
+										<td>{section.total.amount}</td>
+									</tr>
+								{/if}
+							</tbody>
+						</table>
+					</section>
+				{/each}
+			</div>
 		</div>
 	</header>
 

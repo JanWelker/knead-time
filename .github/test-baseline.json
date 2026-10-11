@@ -49,7 +49,7 @@
 		}
 	},
 	"e2e": {
-		"total": 185,
+		"total": 196,
 		"files": {
 			"announcements.spec.ts": 6,
 			"ask-flow.spec.ts": 5,
@@ -64,6 +64,7 @@
 			"landmarks.spec.ts": 6,
 			"layout.spec.ts": 9,
 			"persistence.spec.ts": 7,
+			"print-sheet.spec.ts": 11,
 			"pwa.spec.ts": 10,
 			"recipe-collections.spec.ts": 8,
 			"recipe-output.spec.ts": 20,
