@@ -204,6 +204,7 @@ export interface Messages {
 		prep_desc: string;
 		prep_desc_with_preferment: string;
 		prep_desc_autolyse: string;
+		prep_reserve_water: string;
 		autolyse: string;
 		autolyse_desc: string;
 		mix: string;
@@ -212,6 +213,10 @@ export interface Messages {
 		mix_desc_with_poolish: string;
 		mix_desc_with_both: string;
 		mix_desc_autolyse: string;
+		mix_add_fresh: string;
+		mix_add_instant: string;
+		mix_add_active_dry: string;
+		mix_add_sourdough: string;
 		mix_technique_spiral: string;
 		mix_technique_stand: string;
 		mix_technique_hand: string;
@@ -653,21 +658,29 @@ const en: Messages = {
 		prep_desc_with_preferment:
 			'Weigh out the remaining flour, water and salt — the pre-ferment already carries all the yeast.',
 		prep_desc_autolyse:
-			'Weigh the flour and water (about {water_temp} °C — chill it with ice cubes if your kitchen is warm) and mix them into a shaggy, lumpy mass with no dry flour left. No kneading yet, and keep the salt and yeast aside.',
+			'Weigh the flour and water (about {water_temp} °C — chill it with ice cubes if your kitchen is warm) and mix them into a shaggy, lumpy mass with no dry flour left. No kneading yet; everything else waits for the mix.',
+		prep_reserve_water:
+			'Before you mix, set aside two tablespoons (about 30 g) of the weighed water — the yeast is dissolved in it later.',
 		autolyse: 'Autolyse rest',
 		autolyse_desc:
 			'Cover the bowl and let the flour and water rest. The flour hydrates fully and gluten begins to form on its own, so the dough needs less kneading and stretches more easily later.',
 		mix: 'Mix dough',
 		mix_desc:
-			'Combine the weighed ingredients with the water at about {water_temp} °C — chill it with ice cubes if your kitchen is warm.',
+			'Dissolve the salt in the water (about {water_temp} °C — chill it with ice cubes if your kitchen is warm), stir in about a tenth of the flour, then add the yeast and the rest of the flour.',
 		mix_desc_with_biga:
-			'Tear the ripe biga into small pieces, add the flour and water (about {water_temp} °C — chill with ice cubes if needed) and bring everything together until cohesive, then work in the salt.',
+			'Tear the ripe biga into small pieces, add the flour and water (about {water_temp} °C — chill with ice cubes if needed) and bring everything together until cohesive, then scatter in the salt and work it in until no grains remain.',
 		mix_desc_with_poolish:
-			'Pour the ripe poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
+			'Pour the ripe poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) with the salt dissolved in it, and bring everything together.',
 		mix_desc_with_both:
-			'Tear the ripe biga into small pieces and pour the poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) and the salt, and bring everything together.',
+			'Tear the ripe biga into small pieces and pour the poolish over the flour, add the water (about {water_temp} °C — chill with ice cubes if needed) with the salt dissolved in it, and bring everything together.',
 		mix_desc_autolyse:
-			'Add the salt and yeast to the rested dough and bring everything together into a cohesive dough.',
+			'Work it in until it disappears, then scatter the salt evenly over the top — dry is fine, the moisture in the dough dissolves it — and work it in until you feel no more grains.',
+		mix_add_fresh:
+			'Crumble the fresh yeast into the water you set aside and stir until it dissolves, then pour it over the rested dough.',
+		mix_add_instant: 'Sprinkle the instant yeast evenly over the rested dough — it goes in dry.',
+		mix_add_active_dry:
+			'Stir the active dry yeast into the water you set aside until it dissolves, then pour it over the rested dough.',
+		mix_add_sourdough: 'Spread the starter over the rested dough.',
 		mix_technique_spiral:
 			'Knead in the spiral mixer about 10 minutes until smooth and elastic, keeping the dough below 24 °C.',
 		mix_technique_stand:
@@ -691,7 +704,7 @@ const en: Messages = {
 		autolyse_detail:
 			'This hands-off rest lets the flour drink up the water and start building gluten with no work from you. It makes the dough smoother, more stretchy and quicker to knead — all you do is wait.',
 		mix_detail:
-			'You are aiming for a smooth, elastic dough with no dry spots. If it feels sticky at first, resist adding extra flour — it comes together as the gluten develops. The water temperature matters: it sets the dough temperature for the whole fermentation.',
+			'You are aiming for a smooth, elastic dough with no dry spots. If it feels sticky at first, resist adding extra flour — it comes together as the gluten develops. The water temperature matters: it sets the dough temperature for the whole fermentation. It is ready when a small piece stretches thin enough to let light through without tearing.',
 		bulk_room_detail:
 			'This is the main fermentation: the yeast produces gas and the dough grows and builds flavour. Keep it covered so the surface does not dry out. Warmer kitchens speed it up — the schedule already accounts for your room temperature.',
 		bulk_cold_detail:
@@ -1199,21 +1212,30 @@ const de: Messages = {
 		prep_desc_with_preferment:
 			'Das restliche Mehl, Wasser und Salz abwiegen — die gesamte Hefe steckt bereits im Vorteig.',
 		prep_desc_autolyse:
-			'Mehl und Wasser (etwa {water_temp} °C — bei warmer Küche mit Eiswürfeln kühlen) abwiegen und zu einer groben, klumpigen Masse ohne trockenes Mehl vermengen. Noch nicht kneten, Salz und Hefe beiseitelassen.',
+			'Mehl und Wasser (etwa {water_temp} °C — bei warmer Küche mit Eiswürfeln kühlen) abwiegen und zu einer groben, klumpigen Masse ohne trockenes Mehl vermengen. Noch nicht kneten; alles Übrige kommt erst beim Mischen dazu.',
+		prep_reserve_water:
+			'Vorher zwei Esslöffel (etwa 30 g) des abgewogenen Wassers beiseitestellen — darin wird später die Hefe aufgelöst.',
 		autolyse: 'Autolyse-Ruhe',
 		autolyse_desc:
 			'Die Schüssel abdecken und Mehl und Wasser ruhen lassen. Das Mehl quillt vollständig aus und das Gluten beginnt sich von selbst zu bilden, sodass der Teig weniger Kneten braucht und sich später leichter dehnen lässt.',
 		mix: 'Teig mischen',
 		mix_desc:
-			'Die abgewogenen Zutaten mit dem Wasser bei etwa {water_temp} °C vermengen — bei warmer Küche mit Eiswürfeln kühlen.',
+			'Das Salz im Wasser (etwa {water_temp} °C — bei warmer Küche mit Eiswürfeln kühlen) auflösen, etwa ein Zehntel des Mehls einrühren, dann die Hefe und das restliche Mehl dazugeben.',
 		mix_desc_with_biga:
-			'Die reife Biga in kleine Stücke zupfen, Mehl und Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) dazugeben und alles zu einem zusammenhängenden Teig vermengen, dann das Salz einarbeiten.',
+			'Die reife Biga in kleine Stücke zupfen, Mehl und Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) dazugeben und alles zu einem zusammenhängenden Teig vermengen, dann das Salz darüberstreuen und einarbeiten, bis keine Körner mehr zu spüren sind.',
 		mix_desc_with_poolish:
-			'Den reifen Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
+			'Den reifen Poolish über das Mehl gießen, das Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) mit dem darin aufgelösten Salz dazugeben und alles vermengen.',
 		mix_desc_with_both:
-			'Die reife Biga in kleine Stücke zupfen und den Poolish über das Mehl gießen, Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) und Salz dazugeben und alles vermengen.',
+			'Die reife Biga in kleine Stücke zupfen und den Poolish über das Mehl gießen, das Wasser (etwa {water_temp} °C — bei Bedarf mit Eiswürfeln kühlen) mit dem darin aufgelösten Salz dazugeben und alles vermengen.',
 		mix_desc_autolyse:
-			'Salz und Hefe zum geruhten Teig geben und alles zu einem zusammenhängenden Teig vermengen.',
+			'Einarbeiten, bis nichts mehr davon zu sehen ist, dann das Salz gleichmäßig darüberstreuen — trocken genügt, die Feuchtigkeit im Teig löst es — und einarbeiten, bis keine Körner mehr zu spüren sind.',
+		mix_add_fresh:
+			'Die Frischhefe in das beiseitegestellte Wasser bröseln, darin auflösen und über den geruhten Teig gießen.',
+		mix_add_instant:
+			'Die Trockenhefe gleichmäßig über den geruhten Teig streuen — sie kommt trocken hinein.',
+		mix_add_active_dry:
+			'Die aktive Trockenhefe im beiseitegestellten Wasser auflösen und über den geruhten Teig gießen.',
+		mix_add_sourdough: 'Den Sauerteig auf dem geruhten Teig verteilen.',
 		mix_technique_spiral:
 			'Im Spiralkneter etwa 10 Minuten glatt und elastisch kneten; die Teigtemperatur dabei unter 24 °C halten.',
 		mix_technique_stand:
@@ -1239,7 +1261,7 @@ const de: Messages = {
 		autolyse_detail:
 			'Diese Ruhephase ohne Handarbeit lässt das Mehl das Wasser aufnehmen und Gluten aufbauen, ganz ohne Zutun. Der Teig wird glatter, dehnbarer und schneller zu kneten — man muss nur warten.',
 		mix_detail:
-			'Das Ziel ist ein glatter, elastischer Teig ohne trockene Stellen. Wirkt er anfangs klebrig, kein zusätzliches Mehl untermischen — er kommt zusammen, sobald sich das Gluten entwickelt. Die Wassertemperatur zählt: Sie bestimmt die Teigtemperatur für die gesamte Gare.',
+			'Das Ziel ist ein glatter, elastischer Teig ohne trockene Stellen. Wirkt er anfangs klebrig, kein zusätzliches Mehl untermischen — er kommt zusammen, sobald sich das Gluten entwickelt. Die Wassertemperatur zählt: Sie bestimmt die Teigtemperatur für die gesamte Gare. Fertig ist er, wenn sich ein kleines Stück so dünn ausziehen lässt, dass Licht durchscheint, ohne dass es reißt.',
 		bulk_room_detail:
 			'Das ist die Hauptgare: Die Hefe produziert Gas, der Teig wächst und entwickelt Aroma. Abgedeckt lassen, damit die Oberfläche nicht austrocknet. Wärmere Küchen beschleunigen die Gare — der Zeitplan berücksichtigt die Raumtemperatur bereits.',
 		bulk_cold_detail:
@@ -1758,21 +1780,30 @@ const it: Messages = {
 		prep_desc_with_preferment:
 			'Pesare la farina, l’acqua e il sale rimanenti — tutto il lievito è già nel preimpasto.',
 		prep_desc_autolyse:
-			'Pesare la farina e l’acqua (circa {water_temp} °C — raffreddarla con cubetti di ghiaccio se la cucina è calda) e mescolarle in una massa grezza e grumosa senza farina asciutta. Ancora niente impasto: tenere da parte sale e lievito.',
+			'Pesare la farina e l’acqua (circa {water_temp} °C — raffreddarla con cubetti di ghiaccio se la cucina è calda) e mescolarle in una massa grezza e grumosa senza farina asciutta. Ancora niente impasto: tutto il resto si aggiunge al momento di impastare.',
+		prep_reserve_water:
+			'Prima di mescolare, mettere da parte due cucchiai (circa 30 g) dell’acqua pesata — servirà più tardi per sciogliere il lievito.',
 		autolyse: 'Autolisi (riposo)',
 		autolyse_desc:
 			'Coprire la ciotola e lasciar riposare farina e acqua. La farina si idrata completamente e il glutine inizia a formarsi da solo, così l’impasto richiede meno lavoro e si stende più facilmente in seguito.',
 		mix: 'Impastare',
 		mix_desc:
-			"Unire gli ingredienti pesati con l'acqua a circa {water_temp} °C — raffreddarla con cubetti di ghiaccio se la cucina è calda.",
+			'Sciogliere il sale nell’acqua (circa {water_temp} °C — raffreddarla con cubetti di ghiaccio se la cucina è calda), incorporare circa un decimo della farina, poi aggiungere il lievito e il resto della farina.',
 		mix_desc_with_biga:
-			"Spezzettare la biga matura in piccoli pezzi, aggiungere la farina e l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e amalgamare fino a ottenere un impasto coeso, poi incorporare il sale.",
+			'Spezzettare la biga matura in piccoli pezzi, aggiungere la farina e l’acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e amalgamare fino a ottenere un impasto coeso, poi spargere il sale e lavorarlo finché non si sentono più granelli.',
 		mix_desc_with_poolish:
-			"Versare il poolish maturo sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
+			'Versare il poolish maturo sulla farina, aggiungere l’acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) con il sale già sciolto dentro, e amalgamare il tutto.',
 		mix_desc_with_both:
-			"Spezzettare la biga matura in piccoli pezzi e versare il poolish sulla farina, aggiungere l'acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) e il sale, e amalgamare il tutto.",
+			'Spezzettare la biga matura in piccoli pezzi e versare il poolish sulla farina, aggiungere l’acqua (circa {water_temp} °C — raffreddare con cubetti di ghiaccio se serve) con il sale già sciolto dentro, e amalgamare il tutto.',
 		mix_desc_autolyse:
-			'Aggiungere il sale e il lievito all’impasto riposato e amalgamare il tutto in un impasto coeso.',
+			'Lavorarlo finché non scompare, poi spargere il sale in modo uniforme — va bene secco, l’umidità dell’impasto lo scioglie — e lavorarlo finché non si sentono più granelli.',
+		mix_add_fresh:
+			'Sbriciolare il lievito fresco nell’acqua messa da parte, scioglierlo mescolando, poi versarlo sull’impasto riposato.',
+		mix_add_instant:
+			'Cospargere uniformemente il lievito secco istantaneo sull’impasto riposato — va aggiunto secco.',
+		mix_add_active_dry:
+			'Sciogliere il lievito secco attivo nell’acqua messa da parte, poi versarlo sull’impasto riposato.',
+		mix_add_sourdough: 'Distribuire il lievito madre sull’impasto riposato.',
 		mix_technique_spiral:
 			"Impastare nella spirale per circa 10 minuti finché liscio ed elastico, tenendo l'impasto sotto i 24 °C.",
 		mix_technique_stand:
@@ -1797,7 +1828,7 @@ const it: Messages = {
 		autolyse_detail:
 			'Questo riposo senza lavoro lascia che la farina assorba l’acqua e inizi a formare glutine da sola. Rende l’impasto più liscio, più estensibile e più veloce da lavorare — basta aspettare.',
 		mix_detail:
-			"L'obiettivo è un impasto liscio ed elastico, senza zone asciutte. Se all'inizio sembra appiccicoso, resistere alla tentazione di aggiungere farina — si compatta man mano che il glutine si sviluppa. La temperatura dell'acqua conta: determina la temperatura dell'impasto per tutta la fermentazione.",
+			"L'obiettivo è un impasto liscio ed elastico, senza zone asciutte. Se all'inizio sembra appiccicoso, resistere alla tentazione di aggiungere farina — si compatta man mano che il glutine si sviluppa. La temperatura dell'acqua conta: determina la temperatura dell'impasto per tutta la fermentazione. È pronto quando un pezzetto si stende tanto sottile da lasciar passare la luce senza strapparsi.",
 		bulk_room_detail:
 			"Questa è la fermentazione principale: il lievito produce gas e l'impasto cresce e sviluppa sapore. Tenerlo coperto perché la superficie non si secchi. Le cucine più calde la accelerano — il programma tiene già conto della temperatura ambiente.",
 		bulk_cold_detail:
@@ -2321,21 +2352,30 @@ const fr: Messages = {
 		prep_desc_with_preferment:
 			"Pesez la farine, l'eau et le sel restants — toute la levure est déjà dans le pré-ferment.",
 		prep_desc_autolyse:
-			"Pesez la farine et l'eau (environ {water_temp} °C — rafraîchissez-la avec des glaçons si votre cuisine est chaude) et mélangez-les en une masse grossière et grumeleuse, sans farine sèche. Ne pétrissez pas encore, et réservez le sel et la levure.",
+			"Pesez la farine et l'eau (environ {water_temp} °C — rafraîchissez-la avec des glaçons si votre cuisine est chaude) et mélangez-les en une masse grossière et grumeleuse, sans farine sèche. Ne pétrissez pas encore ; tout le reste attend le pétrissage.",
+		prep_reserve_water:
+			"Avant de mélanger, réservez deux cuillères à soupe (environ 30 g) de l'eau pesée — la levure s'y dissoudra plus tard.",
 		autolyse: 'Autolyse (repos)',
 		autolyse_desc:
 			"Couvrez le bol et laissez reposer la farine et l'eau. La farine s'hydrate complètement et le gluten commence à se former tout seul, si bien que la pâte demande moins de pétrissage et s'étire plus facilement ensuite.",
 		mix: 'Pétrir la pâte',
 		mix_desc:
-			"Mélangez les ingrédients pesés avec l'eau à environ {water_temp} °C — rafraîchissez-la avec des glaçons si votre cuisine est chaude.",
+			"Dissolvez le sel dans l'eau (environ {water_temp} °C — rafraîchissez-la avec des glaçons si votre cuisine est chaude), incorporez environ un dixième de la farine, puis ajoutez la levure et le reste de la farine.",
 		mix_desc_with_biga:
-			"Émiettez la biga mûre en petits morceaux, ajoutez la farine et l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et amalgamez le tout jusqu'à obtenir une pâte cohérente, puis incorporez le sel.",
+			"Émiettez la biga mûre en petits morceaux, ajoutez la farine et l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et amalgamez le tout jusqu'à obtenir une pâte cohérente, puis parsemez le sel et travaillez-le jusqu'à ne plus sentir de grains.",
 		mix_desc_with_poolish:
-			"Versez le poolish mûr sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
+			"Versez le poolish mûr sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) avec le sel dissous dedans, et amalgamez le tout.",
 		mix_desc_with_both:
-			"Émiettez la biga mûre en petits morceaux et versez le poolish sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) et le sel, et amalgamez le tout.",
+			"Émiettez la biga mûre en petits morceaux et versez le poolish sur la farine, ajoutez l'eau (environ {water_temp} °C — à rafraîchir avec des glaçons si besoin) avec le sel dissous dedans, et amalgamez le tout.",
 		mix_desc_autolyse:
-			'Ajoutez le sel et la levure à la pâte reposée et amalgamez le tout en une pâte cohérente.',
+			"Travaillez-la jusqu'à ce qu'elle disparaisse, puis parsemez le sel uniformément — sec, c'est très bien, l'humidité de la pâte le dissout — et travaillez-le jusqu'à ne plus sentir de grains.",
+		mix_add_fresh:
+			"Émiettez la levure fraîche dans l'eau réservée, délayez-la, puis versez-la sur la pâte reposée.",
+		mix_add_instant:
+			"Saupoudrez la levure sèche instantanée uniformément sur la pâte reposée — elle s'ajoute sèche.",
+		mix_add_active_dry:
+			"Délayez la levure sèche active dans l'eau réservée, puis versez-la sur la pâte reposée.",
+		mix_add_sourdough: 'Étalez le levain sur la pâte reposée.',
 		mix_technique_spiral:
 			"Pétrissez au pétrin à spirale environ 10 minutes jusqu'à une pâte lisse et élastique, en gardant la pâte sous 24 °C.",
 		mix_technique_stand:
@@ -2360,7 +2400,7 @@ const fr: Messages = {
 		autolyse_detail:
 			"Ce repos sans effort laisse la farine absorber l'eau et commencer à former du gluten toute seule. La pâte devient plus lisse, plus extensible et plus rapide à pétrir — il suffit d'attendre.",
 		mix_detail:
-			"L'objectif est une pâte lisse et élastique, sans zones sèches. Si elle colle au début, résistez à l'envie d'ajouter de la farine — elle se rassemble à mesure que le gluten se développe. La température de l'eau compte : elle fixe la température de la pâte pour toute la fermentation.",
+			"L'objectif est une pâte lisse et élastique, sans zones sèches. Si elle colle au début, résistez à l'envie d'ajouter de la farine — elle se rassemble à mesure que le gluten se développe. La température de l'eau compte : elle fixe la température de la pâte pour toute la fermentation. Elle est prête quand un petit morceau s'étire assez finement pour laisser passer la lumière sans se déchirer.",
 		bulk_room_detail:
 			"C'est la fermentation principale : la levure produit du gaz, la pâte gonfle et développe son arôme. Gardez-la couverte pour que la surface ne sèche pas. Une cuisine plus chaude accélère la levée — le programme tient déjà compte de votre température ambiante.",
 		bulk_cold_detail:
@@ -2882,21 +2922,30 @@ const nl: Messages = {
 		prep_desc_with_preferment:
 			'Weeg de resterende bloem, water en zout af — de gist zit volledig in het voordeeg.',
 		prep_desc_autolyse:
-			'Weeg de bloem en het water af (ongeveer {water_temp} °C — koel het met ijsblokjes als je keuken warm is) en meng ze tot een ruwe, klonterige massa zonder droge bloem. Nog niet kneden, en houd het zout en de gist apart.',
+			'Weeg de bloem en het water af (ongeveer {water_temp} °C — koel het met ijsblokjes als je keuken warm is) en meng ze tot een ruwe, klonterige massa zonder droge bloem. Nog niet kneden; al het andere wacht tot het mengen.',
+		prep_reserve_water:
+			'Zet vóór het mengen twee eetlepels (ongeveer 30 g) van het afgewogen water apart — daarin los je straks de gist op.',
 		autolyse: 'Autolyse (rust)',
 		autolyse_desc:
 			'Dek de kom af en laat de bloem en het water rusten. De bloem neemt het water volledig op en de gluten beginnen zich vanzelf te vormen, zodat het deeg minder kneden nodig heeft en later makkelijker uitrekt.',
 		mix: 'Deeg kneden',
 		mix_desc:
-			'Meng de afgewogen ingrediënten met het water van ongeveer {water_temp} °C — koel het met ijsblokjes als je keuken warm is.',
+			'Los het zout op in het water (ongeveer {water_temp} °C — koel het met ijsblokjes als je keuken warm is), roer er ongeveer een tiende van de bloem door en voeg dan de gist en de rest van de bloem toe.',
 		mix_desc_with_biga:
-			'Scheur de rijpe biga in kleine stukjes, voeg de bloem en het water toe (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en meng alles tot een samenhangend deeg, werk daarna het zout erdoor.',
+			'Scheur de rijpe biga in kleine stukjes, voeg de bloem en het water toe (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en meng alles tot een samenhangend deeg, strooi daarna het zout erover en werk het erdoor tot je geen korrels meer voelt.',
 		mix_desc_with_poolish:
-			'Giet de rijpe poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
+			'Giet de rijpe poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) toe met het zout erin opgelost en meng alles.',
 		mix_desc_with_both:
-			'Scheur de rijpe biga in kleine stukjes en giet de poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) en het zout toe en meng alles.',
+			'Scheur de rijpe biga in kleine stukjes en giet de poolish over de bloem, voeg het water (ongeveer {water_temp} °C — eventueel met ijsblokjes koelen) toe met het zout erin opgelost en meng alles.',
 		mix_desc_autolyse:
-			'Voeg het zout en de gist toe aan het geruste deeg en meng alles tot een samenhangend deeg.',
+			'Werk het erdoor tot je het niet meer ziet, strooi dan het zout gelijkmatig erover — droog is prima, het vocht in het deeg lost het op — en werk het erdoor tot je geen korrels meer voelt.',
+		mix_add_fresh:
+			'Verkruimel de verse gist in het apart gezette water, roer tot hij is opgelost en giet het over het geruste deeg.',
+		mix_add_instant:
+			'Strooi de instant gedroogde gist gelijkmatig over het geruste deeg — die gaat er droog in.',
+		mix_add_active_dry:
+			'Los de actieve gedroogde gist op in het apart gezette water en giet het over het geruste deeg.',
+		mix_add_sourdough: 'Verdeel de zuurdesem over het geruste deeg.',
 		mix_technique_spiral:
 			'Kneed in de spiraalkneder ongeveer 10 minuten tot een glad en elastisch deeg en houd de deegtemperatuur onder 24 °C.',
 		mix_technique_stand:
@@ -2921,7 +2970,7 @@ const nl: Messages = {
 		autolyse_detail:
 			'Deze rust zonder werk laat de bloem het water opnemen en zelf gluten opbouwen. Het maakt het deeg gladder, rekbaarder en sneller te kneden — je hoeft alleen te wachten.',
 		mix_detail:
-			'Je mikt op een glad, elastisch deeg zonder droge plekken. Voelt het eerst plakkerig aan, voeg dan geen extra bloem toe — het komt samen naarmate de gluten zich ontwikkelen. De watertemperatuur doet ertoe: die bepaalt de deegtemperatuur voor de hele rijs.',
+			'Je mikt op een glad, elastisch deeg zonder droge plekken. Voelt het eerst plakkerig aan, voeg dan geen extra bloem toe — het komt samen naarmate de gluten zich ontwikkelen. De watertemperatuur doet ertoe: die bepaalt de deegtemperatuur voor de hele rijs. Het is klaar als een klein stukje zo dun uitrekt dat er licht doorheen schijnt zonder dat het scheurt.',
 		bulk_room_detail:
 			'Dit is de hoofdrijs: de gist produceert gas en het deeg groeit en bouwt smaak op. Houd het afgedekt zodat het oppervlak niet uitdroogt. In een warmere keuken gaat het sneller — het schema houdt al rekening met je kamertemperatuur.',
 		bulk_cold_detail:

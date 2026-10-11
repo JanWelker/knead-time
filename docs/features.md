@@ -36,6 +36,8 @@ W is advisory only. It predicts how long the gluten survives fermenting, **not**
 
 When you are not using a pre-ferment, the app rests flour and water for 30 min before the salt and yeast go in: less kneading and a more extensible dough. It is on by default, including in the beginner view; experts can switch it off. Old share links predate it and reproduce their original schedule unchanged.
 
+The mix step says how each held-back ingredient goes onto the rested dough: fresh and active dry yeast dissolved in two tablespoons of the weighed water that the prep step keeps back, instant yeast sprinkled in dry, starter spread over, and the salt scattered dry and worked in after it ([issue #407](https://github.com/JanWelker/knead-time/issues/407)).
+
 ## Views, kneading, pre-ferments, yeast and memory (v4)
 
 - **Beginner view**: just how many, when, how you knead and which flour, with every step explained through the schedule's short/detailed switch. Experts get the full sheet.
