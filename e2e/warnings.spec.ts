@@ -80,8 +80,10 @@ test('no warning is rendered twice, and none is dropped', async ({ page }) => {
 
 	// The exact three, one per family — "at least two" let two of the three
 	// mount points stop rendering on the one spec whose job is that all exist.
-	// The severity word is the sr-only prefix each notice carries.
-	const all = await page.locator('ul[aria-live="polite"] li').allInnerTexts();
+	// The severity word is the sr-only prefix each notice carries. Read the
+	// message itself (the span holding that prefix): on the bake box a strip
+	// also carries a stamp and a fix link around it.
+	const all = await page.locator('ul[aria-live="polite"] li span:has(> .sr-only)').allInnerTexts();
 	const trimmed = all.map((t) => t.replace(/\s+/g, ' ').trim());
 	expect(new Set(trimmed).size).toBe(trimmed.length);
 	expect(trimmed.map((t) => t.replace(/^(Warning|Note): /, '')).sort()).toEqual(
@@ -142,4 +144,41 @@ test('the live region is present before any warning is', async ({ page }) => {
 	const regions = page.locator('main ul[aria-live="polite"]');
 	await expect(regions).toHaveCount(3);
 	await expect(page.locator('main ul[aria-live="polite"] li')).toHaveCount(0);
+});
+
+// The window and kitchen warnings were a full-width banner between the plan's
+// header and its cards, attached to nothing. They now hang off the foot of the
+// bake box, the moment they are about, each with a link to the field that
+// answers it.
+const OVERRUN =
+	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=180&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-02T17%3A00%3A00.000Z';
+
+test('a window warning hangs off the bake box and its link opens the window', async ({ page }) => {
+	await openRecipe(page, OVERRUN);
+
+	const box = page.locator('.card').filter({ has: page.getByRole('heading', { level: 1 }) });
+	const warning = box.getByRole('listitem').filter({ hasText: 'tolerates' });
+	await expect(warning).toBeVisible();
+	await expect(warning).toContainText('Flour overrun');
+
+	await warning.getByRole('button', { name: 'Change the window' }).click();
+	await expect(page.locator('#field-window')).toBeFocused();
+});
+
+// The strip sits inside a box that is only as wide as its date. Without
+// `w-0 min-w-full` on the strip's wrapper a warning sentence is the widest
+// thing in the box and stretches it across the header, squeezing the controls
+// and the blanks beside it into a sliver — invisible on a recipe with no
+// warning, which is most of them.
+test('a warning wraps to the bake box instead of widening it', async ({ page }) => {
+	const box = page.locator('.card').filter({ has: page.getByRole('heading', { level: 1 }) });
+
+	// Same bake moment, no flour stated: nothing to warn about.
+	await openRecipe(page, OVERRUN.replace('fw=180', 'fw=0'));
+	await expect(box.getByRole('listitem')).toHaveCount(0);
+	const bare = (await box.boundingBox())!.width;
+
+	await openRecipe(page, OVERRUN);
+	await expect(box.getByRole('listitem').first()).toBeVisible();
+	expect((await box.boundingBox())!.width).toBeCloseTo(bare, 0);
 });

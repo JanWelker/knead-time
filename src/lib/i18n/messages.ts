@@ -390,6 +390,17 @@ export interface Messages {
 		// Spoken prefix so severity is not carried by colour alone.
 		severity_danger: string;
 		severity_info: string;
+		// The stamp a warning wears on the plan's bake box, and the field its link
+		// opens. Short: they are pressed onto a strip, not read as sentences.
+		stamp_too_short: string;
+		stamp_night_step: string;
+		stamp_flour_window_long: string;
+		stamp_flour_window_short: string;
+		stamp_too_cold: string;
+		stamp_too_warm: string;
+		fix_ready_by: string;
+		fix_window: string;
+		fix_room_temp: string;
 		too_short: string;
 		too_cold: string;
 		too_warm: string;
@@ -867,6 +878,15 @@ const en: Messages = {
 	warnings: {
 		severity_danger: 'Warning',
 		severity_info: 'Note',
+		stamp_too_short: 'Too short',
+		stamp_night_step: 'Night step',
+		stamp_flour_window_long: 'Flour overrun',
+		stamp_flour_window_short: 'Flour underused',
+		stamp_too_cold: 'Cold kitchen',
+		stamp_too_warm: 'Warm kitchen',
+		fix_ready_by: 'Change bake time',
+		fix_window: 'Change the window',
+		fix_room_temp: 'Change room temperature',
 		too_short:
 			'Not enough time. Pick a later moment or accept that the dough will be underproofed.',
 		too_cold: 'Kitchen looks chilly — fermentation will be sluggish at this temperature.',
@@ -1420,6 +1440,15 @@ const de: Messages = {
 	warnings: {
 		severity_danger: 'Warnung',
 		severity_info: 'Hinweis',
+		stamp_too_short: 'Zu kurz',
+		stamp_night_step: 'Nachtschritt',
+		stamp_flour_window_long: 'Mehl überfordert',
+		stamp_flour_window_short: 'Mehl unterfordert',
+		stamp_too_cold: 'Kühle Küche',
+		stamp_too_warm: 'Warme Küche',
+		fix_ready_by: 'Backzeit ändern',
+		fix_window: 'Gärfenster ändern',
+		fix_room_temp: 'Raumtemperatur ändern',
 		too_short:
 			'Zu wenig Zeit. Wähle einen späteren Zeitpunkt oder akzeptiere, dass der Teig unfertig sein wird.',
 		too_cold: 'Die Küche sieht kühl aus — die Gare wird zäh.',
@@ -1974,6 +2003,15 @@ const it: Messages = {
 	warnings: {
 		severity_danger: 'Attenzione',
 		severity_info: 'Nota',
+		stamp_too_short: 'Troppo breve',
+		stamp_night_step: 'Passo notturno',
+		stamp_flour_window_long: 'Farina oltre il limite',
+		stamp_flour_window_short: 'Farina sottoutilizzata',
+		stamp_too_cold: 'Cucina fresca',
+		stamp_too_warm: 'Cucina calda',
+		fix_ready_by: 'Cambia l’orario di cottura',
+		fix_window: 'Cambia la finestra',
+		fix_room_temp: 'Cambia la temperatura ambiente',
 		too_short:
 			'Tempo insufficiente. Scegli un orario più tardi o accetta un impasto poco lievitato.',
 		too_cold: 'La cucina è fresca — la lievitazione sarà pigra.',
@@ -2532,6 +2570,15 @@ const fr: Messages = {
 	warnings: {
 		severity_danger: 'Avertissement',
 		severity_info: 'Remarque',
+		stamp_too_short: 'Trop court',
+		stamp_night_step: 'Étape de nuit',
+		stamp_flour_window_long: 'Farine dépassée',
+		stamp_flour_window_short: 'Farine sous-exploitée',
+		stamp_too_cold: 'Cuisine fraîche',
+		stamp_too_warm: 'Cuisine chaude',
+		fix_ready_by: 'Changer l’heure de cuisson',
+		fix_window: 'Changer la fenêtre',
+		fix_room_temp: 'Changer la température ambiante',
 		too_short:
 			'Pas assez de temps. Choisissez un moment plus tardif ou acceptez une pâte sous-fermentée.',
 		too_cold: 'Cuisine fraîche — la fermentation sera lente à cette température.',
@@ -3084,6 +3131,15 @@ const nl: Messages = {
 	warnings: {
 		severity_danger: 'Waarschuwing',
 		severity_info: 'Let op',
+		stamp_too_short: 'Te kort',
+		stamp_night_step: 'Nachtstap',
+		stamp_flour_window_long: 'Meel overvraagd',
+		stamp_flour_window_short: 'Meel onderbenut',
+		stamp_too_cold: 'Frisse keuken',
+		stamp_too_warm: 'Warme keuken',
+		fix_ready_by: 'Baktijd wijzigen',
+		fix_window: 'Rijsvenster wijzigen',
+		fix_room_temp: 'Kamertemperatuur wijzigen',
 		too_short: 'Niet genoeg tijd. Kies een later moment of accepteer dat het deeg ondergerezen is.',
 		too_cold: 'Keuken oogt fris — fermentatie zal traag zijn bij deze temperatuur.',
 		too_warm: 'Keuken oogt warm — deeg kan overgaar worden. Houd het in de gaten.',

@@ -7,7 +7,6 @@
 		formatBallWeight,
 		formatDateTime,
 		formatDuration,
-		formatPercent,
 		formatTemperature
 	} from '#lib/format.js';
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
@@ -15,7 +14,7 @@
 	import { uiMode } from '#lib/mode.svelte.js';
 	import type { SourceTiming } from '#lib/pizzerias/pizzerias.js';
 	import type { FormState } from '#lib/state.svelte.js';
-	import { flourIngredientName, stepDetailText, stepTitle } from '#lib/stepCopy.js';
+	import { stepDetailText, stepTitle } from '#lib/stepCopy.js';
 	import { scheduleVerbosity } from '#lib/verbosity.svelte.js';
 	import FitScore from './FitScore.svelte';
 	import Ingredients from './Ingredients.svelte';
@@ -127,53 +126,34 @@
 		onadjust('field-ballWeight');
 	}
 
+	// The blanks are the values a bake succeeds or fails on that nothing else on
+	// the plan shows: how many balls, how long the dough ferments (which sets the
+	// yeast and whether it goes in the fridge), and the kitchen the yeast amount
+	// was solved for — a 26 °C room overproofs a dough timed for 22 °C. Flour,
+	// hydration and salt are already on the ticket (the flour by name, the other
+	// two in grams), so a blank for them repeated it. One row whatever the view
+	// mode: two people opening one link see the same ticket (issue #315).
 	type Chip = { label: string; value: string; field: string };
-	const chips = $derived.by(() => {
-		const out: Chip[] = [
-			{
-				label: t.form.pizzaCount,
-				value: interpolate(t.plan.batch, {
-					n: form.inputs.pizzaCount,
-					weight: formatBallWeight(form.inputs.ballWeight, locale)
-				}),
-				field: 'field-pizzaCount'
-			},
-			{
-				label: t.schedule.window_label,
-				value: formatDuration(form.fermentWindowHours * 60, locale),
-				field: 'field-window'
-			}
-		];
-		if (form.flourW !== null) {
-			out.push({
-				label: t.form.flour,
-				value: flourIngredientName(form.flourW, t),
-				field: 'field-flour'
-			});
+	const chips = $derived<Chip[]>([
+		{
+			label: t.form.pizzaCount,
+			value: interpolate(t.plan.batch, {
+				n: form.inputs.pizzaCount,
+				weight: formatBallWeight(form.inputs.ballWeight, locale)
+			}),
+			field: 'field-pizzaCount'
+		},
+		{
+			label: t.schedule.window_label,
+			value: formatDuration(form.fermentWindowHours * 60, locale),
+			field: 'field-window'
+		},
+		{
+			label: t.form.roomTemp,
+			value: formatTemperature(form.inputs.roomTempC, locale),
+			field: 'field-roomTemp'
 		}
-		// Expert reveals the numbers expert set. In the simple view they are all
-		// at their defaults, and a row of untouched defaults is noise.
-		if (uiMode.current === 'expert') {
-			out.push(
-				{
-					label: t.form.hydration,
-					value: formatPercent(form.inputs.hydration, locale),
-					field: 'field-hydration'
-				},
-				{
-					label: t.form.salt,
-					value: formatPercent(form.inputs.saltPercent, locale),
-					field: 'field-salt'
-				},
-				{
-					label: t.form.roomTemp,
-					value: formatTemperature(form.inputs.roomTempC, locale),
-					field: 'field-roomTemp'
-				}
-			);
-		}
-		return out;
-	});
+	]);
 </script>
 
 <!-- Everything that is not "edit the recipe": where to go, and what to do with
@@ -281,21 +261,43 @@
 			     on the ticket: its name reversed out of an ink band, the moment
 			     itself in the sign painter's face underneath. It is also the control
 			     that changes it. -->
-			<h1 class="card block-shadow inline-block">
-				<span class="card-header card-header-title text-sm sm:text-base">
-					{t.plan.ready_label}
-				</span>
-				<button
-					type="button"
-					class="hover:text-accent-ink block w-full px-5 py-3 text-left sm:px-6"
-					onclick={() => onadjust('field-readyBy')}
-					aria-haspopup="dialog"
-				>
-					<span class="data block text-[clamp(1.9rem,5.5vw,3.25rem)] leading-none">
-						{formatDateTime(form.readyBy, locale)}
+			<div class="card block-shadow inline-block self-start">
+				<h1>
+					<span class="card-header card-header-title text-sm sm:text-base">
+						{t.plan.ready_label}
 					</span>
-				</button>
-			</h1>
+					<button
+						type="button"
+						class="hover:text-accent-ink block w-full px-5 py-3 text-left sm:px-6"
+						onclick={() => onadjust('field-readyBy')}
+						aria-haspopup="dialog"
+					>
+						<span class="data block text-[clamp(1.9rem,5.5vw,3.25rem)] leading-none">
+							{formatDateTime(form.readyBy, locale)}
+						</span>
+					</button>
+				</h1>
+				<!-- The timing and the kitchen warnings hang off the foot of the bake
+				     box: every one of them is about this moment (move it, or the window
+				     that leads to it, or the room it was timed for). They used to be a
+				     full-width banner between the header and the cards, belonging to
+				     nothing. `w-0 min-w-full` keeps a long sentence from widening the
+				     box past its date — the strip wraps to the box instead. -->
+				<div class="w-0 min-w-full">
+					<Warnings
+						warnings={form.schedule.warnings}
+						place="window"
+						variant="strip"
+						onfix={(field) => onadjust(field)}
+					/>
+					<Warnings
+						warnings={form.schedule.warnings}
+						place="temperature"
+						variant="strip"
+						onfix={(field) => onadjust(field)}
+					/>
+				</div>
+			</div>
 
 			<div class="min-w-0 lg:pt-2">
 				<!-- The ways into the app, in one aligned row at the top of the
@@ -415,14 +417,6 @@
 				</button>
 			</p>
 		{/if}
-
-		<!-- Warnings still read next to what causes them: the window and
-		     temperature families sit under the values that set them, which on this
-		     view are the blanks above rather than the fields inside the sheet. -->
-		<div class="mt-6 space-y-2">
-			<Warnings warnings={form.schedule.warnings} place="window" />
-			<Warnings warnings={form.schedule.warnings} place="temperature" />
-		</div>
 
 		<!-- The ticket is the narrow column and the schedule the wide one, and
 		     the ticket comes first: on a phone this is one column, and what you
