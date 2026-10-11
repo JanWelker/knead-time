@@ -64,6 +64,44 @@ test('the view survives a reload and the back button walks it', async ({ page })
 	await expect.poll(() => currentView(page)).toBe('library');
 });
 
+// Issue #437: the library was reachable only as the first item of the menu, so
+// "one press from the first question and one from the plan" had become two
+// presses and invisible until the menu opened. The menuitem stays (`openLibrary`
+// still goes through it); these pin the visible plaque beside it on both views.
+test('the plan opens the library from a visible Recipes plaque', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+
+	const recipes = page
+		.locator('[data-view="plan"]')
+		.getByRole('button', { name: 'Recipes', exact: true });
+	await expect(recipes).toHaveClass(/btn-guide/);
+	// Quiet to loud: the two that leave the plan, then the one that edits it.
+	const row = recipes.locator('xpath=..');
+	await expect(row.locator(':scope > button')).toHaveText(['Guide me', 'Recipes', 'Edit recipe']);
+
+	await recipes.click();
+	await expect(page.locator('[data-view="library"]')).toBeVisible();
+	expect(new URL(page.url()).hash).toBe('#library');
+});
+
+test('the questions open the library from the masthead, beside Skip to the plan', async ({
+	page
+}) => {
+	await openRecipe(page);
+	expect(await currentView(page)).toBe('ask');
+
+	const masthead = page.locator('[data-view="ask"] header');
+	const recipes = masthead.getByRole('button', { name: 'Recipes', exact: true });
+	await expect(recipes).toHaveClass(/btn-ghost/);
+	await expect(
+		masthead.getByRole('button', { name: 'Skip to the plan', exact: true })
+	).toBeVisible();
+
+	await recipes.click();
+	await expect(page.locator('[data-view="library"]')).toBeVisible();
+	expect(new URL(page.url()).hash).toBe('#library');
+});
+
 test('the back button brings the earlier recipe back, and forward the edit', async ({ page }) => {
 	// A history entry is the whole URL, recipe included. The popstate handler
 	// used to re-read only the fragment, so Back moved the view but left the
