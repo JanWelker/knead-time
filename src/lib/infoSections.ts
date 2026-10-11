@@ -31,7 +31,8 @@ const formula = (f: string): InfoPart => ({ kind: 'formula', formula: f });
 
 // Order is the reading order on screen: the temperature model first, then what
 // it is applied to, then the schedule that spends the result, then the recipe
-// the schedule weighs out, and finally the bands and defaults that bound it.
+// the schedule weighs out, and finally the bands and defaults that bound it
+// and how those bands relate to the AVPN rules.
 export const INFO_SECTIONS: readonly InfoSection[] = [
 	{
 		title: 'info_q10_title',
@@ -90,6 +91,9 @@ export const INFO_SECTIONS: readonly InfoSection[] = [
 		]
 	},
 	{ title: 'info_defaults_title', parts: [text('info_defaults_body')] },
+	// Where those bands stand against the AVPN disciplinare (issue #422): the
+	// fit score is contemporary Neapolitan on purpose, and this says so.
+	{ title: 'info_avpn_title', parts: [text('info_avpn_body')] },
 	{ title: 'info_night_title', parts: [text('info_night_body')] }
 ];
 

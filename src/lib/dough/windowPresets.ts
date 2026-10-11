@@ -8,7 +8,9 @@ import type { FermentWindowBand } from './flour';
 // the slider is the quick way to say "make it a 24-hour dough".
 //
 //    6 h — fast same-day
-//    8 h — the AVPN direct dough: ~2 h bulk + ~6 h appretto at room temperature
+//    8 h — the classic short direct dough: ~2 h bulk + ~6 h appretto at room
+//          temperature (shorter than the AVPN disciplinare's 2024 minimum of
+//          12 h in all — see avpn.test.ts)
 //   12 h — overnight at room temperature
 //   16 h — where this app switches from room to cold fermentation
 //   18 h — contemporary overnight-plus
