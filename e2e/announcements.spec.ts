@@ -13,14 +13,14 @@ const RECIPE =
 test('the status regions exist before they have anything to say', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 
-	// #share-status, not any p[role=status] in the card — the TRMNL dialog is
-	// mounted inside this card too and has a status region of its own.
+	// #share-status, not any p[role=status] in the card — the reminders dialog
+	// is mounted inside this card too and has a status region of its own.
 	const copyStatus = page.locator('#share-status');
 	await expect(copyStatus).toHaveCount(1);
 	await expect(copyStatus).toHaveText('');
 
 	await openMenu(page);
-	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
+	await page.getByRole('menuitem', { name: 'Remind me on this device…' }).click();
 	// By the open dialog, not "any dialog": the adjust sheet is in the page too
 	// and now carries a status region of its own (the window slider's), which
 	// is the whole point of the test below.
@@ -78,14 +78,12 @@ test('a refused clipboard says so instead of doing nothing', async ({ page }) =>
 });
 
 // A dialog with no accessible name is announced as just "dialog".
-test('the TRMNL dialog is named by its own heading', async ({ page }) => {
+test('the reminders dialog is named by its own heading', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 	await openMenu(page);
-	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
+	await page.getByRole('menuitem', { name: 'Remind me on this device…' }).click();
 
-	await expect(
-		page.getByRole('dialog', { name: 'Send recipe to your TRMNL device' })
-	).toBeVisible();
+	await expect(page.getByRole('dialog', { name: 'Step reminders on this device' })).toBeVisible();
 });
 
 // Everything on the rail that says whether a window is a GOOD one is
@@ -99,34 +97,4 @@ test('the slider is described by the words that judge the window', async ({ page
 	// Both targets exist and carry the judgement, not just decoration.
 	await expect(windowCard(page).locator('#window-band')).toContainText('tolerates');
 	await expect(windowCard(page).locator('#window-benefit')).not.toHaveText('');
-});
-
-// The send error joined its two halves with a colon typed into the component,
-// so French — which puts a space before a colon — could never get it right. The
-// separator is the `error_reason` message now; this pins the English shape and
-// that the device's own reason still reaches the reader. The webhook is
-// answered locally: nothing leaves the page.
-test('a failed TRMNL send names the reason through the locale', async ({ page }) => {
-	await page.route('https://trmnl.com/api/custom_plugins/**', (route) => {
-		const preflight = route.request().method() === 'OPTIONS';
-		return route.fulfill({
-			status: preflight ? 204 : 404,
-			headers: {
-				'Access-Control-Allow-Origin': '*',
-				'Access-Control-Allow-Headers': 'Content-Type',
-				'Content-Type': 'application/json'
-			},
-			body: preflight ? '' : JSON.stringify({ message: 'Plugin not found' })
-		});
-	});
-	await openRecipe(page, RECIPE);
-	await openMenu(page);
-	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
-	await page
-		.getByRole('textbox', { name: 'Plugin UUID' })
-		.fill('12345678-1234-1234-1234-123456789abc');
-	await page.getByRole('button', { name: 'Send to TRMNL', exact: true }).click();
-	await expect(page.locator('dialog[open] p[role="status"]')).toHaveText(
-		'Could not send: Plugin not found'
-	);
 });

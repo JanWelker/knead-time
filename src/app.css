@@ -912,7 +912,7 @@ html.dark {
 		box-shadow: 3px 3px 0 0 var(--kt-rule);
 	}
 
-	/* A link in running text — the colophon, the setup hint in the TRMNL dialog. */
+	/* A link in running text — the colophon, the guide link in the reminders dialog. */
 	.link-quiet {
 		@apply underline-offset-2 hover:underline;
 	}

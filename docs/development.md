@@ -61,7 +61,6 @@ src/
 │   ├── i18n/             ← messages (en/de/it/fr/nl), locale detection, runtime interpolation
 │   ├── community/        ← community.md (data) + parser, rendered as a table in the Recipes view
 │   ├── pizzerias/        ← pizzerias.md (50 Top Pizza recipes) + parser, rendered below the community table
-│   ├── trmnl/            ← TRMNL Private-Plugin webhook payload + client
 │   ├── push/             ← step reminders: which steps, the payload, the service client, the worker's push handlers
 │   ├── state.svelte.ts   ← form state as a $state class (window re-pick, startAt/readyBy floors)
 │   ├── view.ts           ← the three views (ask / plan / library) and where a visitor lands
@@ -130,9 +129,8 @@ playwright.config.ts      ← Playwright (builds and serves the real static outp
 1. Add the code to `LOCALES` and a complete `Messages` object for it in `messages.ts`. `messages.test.ts` fails until every key is present.
 2. Add its **endonym** to the list in `src/lib/components/MastheadMenu.svelte` — the language is named in itself, not translated.
 3. Pin its number and date punctuation in `src/lib/format.test.ts`: `formatDateTime` has one literal per locale, and the weights have per-locale expectations. Read what `Intl` produces and decide whether the repunctuation rules in `format.ts` need a case.
-4. Run `src/lib/trmnl/webhook.test.ts`: it measures the TRMNL payload in every locale against the 2 KB cap, and a wordier language can push the worst case over it.
-5. If the script needs glyphs outside Latin and Latin Extended, add the Fontsource subset to the `@font-face` rules in `src/app.css`; the two shipped subsets are all the current five need.
-6. Update the language count in `README.md` and the locale list in `CLAUDE.md`.
+4. If the script needs glyphs outside Latin and Latin Extended, add the Fontsource subset to the `@font-face` rules in `src/app.css`; the two shipped subsets are all the current five need.
+5. Update the language count in `README.md` and the locale list in `CLAUDE.md`.
 
 ### Adding a schedule warning
 
@@ -171,13 +169,7 @@ The mark is the job ticket itself: a sheet standing on an offset block of ink, d
 
 Icons are rendered from `static/icon.svg` and `static/icon-maskable.svg` by `node scripts/render-icons.mjs` (it borrows Playwright's Chromium, already a devDependency) and the PNGs are committed, so no build or CI job depends on it. Re-run it after editing either SVG, and keep the ground a full-bleed rect: iOS composites a transparent icon onto black.
 
-There are **no notifications**, and adding them client-side is not possible; see [#306](https://github.com/JanWelker/knead-time/issues/306). iOS suspends a backgrounded web app's JavaScript, so timers do not run, and it wakes a service worker for exactly one thing: an incoming push message, which requires a server to send. The `.ics` export is the path to an alert that fires with the app closed.
-
-## TRMNL e-ink view
-
-The recipe is **pushed** to a [TRMNL](https://trmnl.com/) device via a **Private Plugin webhook**, straight from the user's browser: the **Send to TRMNL** action in the plan's actions menu POSTs pre-formatted `merge_variables` to `https://trmnl.com/api/custom_plugins/<uuid>`, and the device renders them through a Liquid template at its own refresh cadence. The template picks the current step at render time with Liquid date math, so one POST per recipe change keeps the Now/Next/Done highlight moving all day.
-
-Implementation lives in `src/lib/trmnl/` (payload builder + webhook client); the setup walkthrough and the Liquid template are in [trmnl-setup.md](trmnl-setup.md). The payload uses 1–2 character keys to stay under the free tier's 2 KB cap in every locale. A regression test measures the wire size, so adding fields without measuring fails CI. There is **no `/trmnl` route**: the earlier screenshot-plugin approach failed because TRMNL's renderer does not reliably execute JS, so every capture showed build-time defaults.
+The page itself schedules **no notifications**, and cannot; see [#306](https://github.com/JanWelker/knead-time/issues/306). iOS suspends a backgrounded web app's JavaScript, so timers do not run, and it wakes a service worker for exactly one thing: an incoming push message, which requires a server to send. Step reminders therefore come from the reminder service under `push/` (see [reminders.md](reminders.md)), set up only on an explicit tap; the `.ics` export remains the path to an alert that involves no server at all.
 
 ## Conventions
 

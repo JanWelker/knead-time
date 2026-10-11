@@ -24,6 +24,10 @@ The page itself never schedules a notification, and cannot: iOS only ever wakes 
 
 With a biga or poolish, the window card now writes the window the way Italian pizzaioli do — **Biga 14 h, then 40 h of dough** — under the wall-clock total. The flour's tolerance band is judged on the second figure: the hours after the final mix. The mills publish their windows for a direct dough, which starts fermenting at the mix, and the flour that sits through the biga's hours is the biga's own portion, not the bag the rest of the dough is made from. So the warning, the fit score, the painted band and the **Use best** re-pick all moved: Caputo Pizzeria with a 14 h biga now aims at 54 h, not 40 h. Schedules, ingredients and share links are untouched ([issue #397](https://github.com/JanWelker/knead-time/issues/397)).
 
+## TRMNL push removed (v7.5)
+
+**Send to TRMNL…** is gone from the plan's actions menu, and with it the webhook, the setup guide and the Liquid template ([issue #423](https://github.com/JanWelker/knead-time/issues/423)). It proved unreliable in use, and every fix cost a round-trip with a physical device: the free tier's 2 KB payload cap, the framework's class names overriding the template's, the Full Markup slot, date math in Liquid. Share links are untouched. A plugin you set up keeps showing the last recipe you pushed until you remove it on trmnl.com; the device id the app remembered is cleared from your browser on the next visit.
+
 ## Step reminders (v7.2)
 
 **Remind me**, the plaque on the schedule’s header band (also **Remind me on this device…** in the plan's actions menu), asks for notification permission and hands the plan's hands-on steps to the reminder service — a small server in this repository under `push/`, run on a homelab — which pushes a notification for each at its time, with the app closed. A test notification confirms the path at once; editing the plan afterwards shows an info line offering to update the reminders, and **Turn off** forgets the device again. On an iPhone the app has to be on the Home Screen first. What leaves the device, and for how long it is kept, is in [reminders.md](reminders.md).
@@ -58,11 +62,10 @@ The mix step says how each held-back ingredient goes onto the rested dough: fres
 - **Calendar**: one `.ics` event per step, with the same ingredient list and method as the screen, so a re-export of the same bake updates rather than duplicates.
 - **Print / Save as PDF**: a dedicated sheet that fits one page on A4 or Letter, reads on a black-and-white printer, and carries a QR code back to the recipe.
 - **Share link**: the whole recipe in a compact query string. Every version only ever adds keys, so old links keep resolving.
-- **TRMNL**: pushed to an e-ink display from your browser. Setup in [trmnl-setup.md](trmnl-setup.md).
 - **Reminders**: a push notification for every hands-on step, sent by the reminder service on an explicit tap. How and what in [reminders.md](reminders.md).
 
 ## Privacy and performance
 
-Everything is served from one origin: no CDN, no font server, no third-party analytics. The two typefaces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app. The one request made without a click goes to the site's own visit counter, [Umami](https://umami.is/) at `analytics.k8s.wlkr.ch`, self-hosted on the same homelab as the reminder service: cookieless, and it stores no address. Two other outbound requests exist, and both happen only on an explicit click: the TRMNL webhook, and the reminder service at `kneadtime.k8s.wlkr.ch` when you set step reminders. A browser test (`e2e/self-hosted.spec.ts`) fails if anything else ever reaches for another host.
+Everything is served from one origin: no CDN, no font server, no third-party analytics. The two typefaces (Anton and Archivo, both SIL Open Font License 1.1, shipped via the Fontsource packages) are self-hosted alongside the app. The one request made without a click goes to the site's own visit counter, [Umami](https://umami.is/) at `analytics.k8s.wlkr.ch`, self-hosted on the same homelab as the reminder service: cookieless, and it stores no address. One other outbound request exists, and it happens only on an explicit click: the reminder service at `kneadtime.k8s.wlkr.ch` when you set step reminders. A browser test (`e2e/self-hosted.spec.ts`) fails if anything else ever reaches for another host.
 
 The app ships as one bundle and one stylesheet: a visit is five requests, the page, the bundle, the stylesheet and the two font subsets it needs.

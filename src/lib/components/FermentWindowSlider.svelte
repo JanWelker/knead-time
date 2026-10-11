@@ -434,8 +434,7 @@
 	     that arrives together with its first message is not announced by most
 	     screen readers — so the one consequence of a drag that is easy to miss
 	     while watching the hours count was announced to nobody. The same trap
-	     the schedule warnings, the share status and the TRMNL push status were
-	     each pulled out of. `role="status"` rather than the neighbouring
+	     the schedule warnings and the share status were each pulled out of. `role="status"` rather than the neighbouring
 	     `role="alert"`: the slider did its job, this is the receipt. -->
 	<p class={form.startDayMoved ? 'notice notice-info mt-2' : 'sr-only'} role="status">
 		{#if form.startDayMoved}

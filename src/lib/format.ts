@@ -76,8 +76,8 @@ export function formatDateTime(date: Date, locale: Locale): string {
 		.join('');
 }
 
-// Compact weekday + date, no time, no commas. Used in the TRMNL schedule
-// strip where the time has its own column and the comma-separated form
+// Compact weekday + date, no time, no commas. Used for the schedule's day
+// bands, where the time has its own column and the comma-separated form
 // ("Thu, May 14") reads cluttered next to it.
 export function formatShortDate(date: Date, locale: Locale): string {
 	return shortDateFormatter(locale).format(date).replace(/,/g, '');

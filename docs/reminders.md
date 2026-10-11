@@ -31,7 +31,7 @@ On the tap, and only then:
 
 Not sent: the recipe, the weights, the flour, your name, anything about the browser. Reminders are deleted a day after they are sent; a subscription with nothing pending is deleted after thirty days, or at once on **Turn off**. The service logs counts, never endpoints. It runs on a homelab at `kneadtime.k8s.wlkr.ch`; the whole thing, manifests included, is in this repository and the two homelab repositories linked from [`push/README.md`](../push/README.md).
 
-The one-origin promise in [features.md](features.md#privacy-and-performance) stands with one more exception of the same kind as the TRMNL webhook: an explicit tap, to one named host. `e2e/self-hosted.spec.ts` still expects zero requests to any other origin on a plain visit, and `e2e/reminders.spec.ts` pins that the tap makes exactly the requests above.
+The one-origin promise in [features.md](features.md#privacy-and-performance) stands with one exception: an explicit tap, to one named host. `e2e/self-hosted.spec.ts` still expects zero requests to any other origin on a plain visit, and `e2e/reminders.spec.ts` pins that the tap makes exactly the requests above.
 
 ## The API
 

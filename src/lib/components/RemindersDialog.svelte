@@ -22,7 +22,7 @@
 	import type { ComputedSchedule } from '#lib/dough/types.js';
 	import type { Locale } from '#lib/i18n/messages.js';
 
-	// Same shape as TrmnlPush: a native <dialog> opened from the actions menu.
+	// A native <dialog> opened from the actions menu, like SaveRecipeDialog.
 	// What the plan needs to know — is this device subscribed, and for which
 	// plan — comes back through `onstate`, so the stale notice can render.
 	export interface RemindersState {
