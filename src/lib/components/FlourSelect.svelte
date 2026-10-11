@@ -48,12 +48,13 @@
 	<!-- Grouped by what each strength is sold for rather than listed flat:
 	     twelve bag names in a row say nothing about which one suits the plan.
 	     Shelves are cut on W (see flourBand) because the tolerance model clamps
-	     above W 310 and could not separate the strong ones. -->
+	     above W 310 and could not separate the strong ones. A native option
+	     holds text only, so the AVPN register mark is a suffix in the label. -->
 	{#each flourPresetGroups() as group (group.band)}
 		<optgroup label={t.form[`flour_band_${group.band}`]}>
 			{#each group.presets as preset (preset.id)}
 				<option value={preset.id}
-					>{interpolate(t.form.flour_option, {
+					>{interpolate(preset.avpn ? t.form.flour_option_avpn : t.form.flour_option, {
 						name: t.form[`flour_${preset.id}`],
 						w: preset.w
 					})}</option

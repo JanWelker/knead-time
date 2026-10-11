@@ -83,7 +83,11 @@ export const INFO_SECTIONS: readonly InfoSection[] = [
 	{ title: 'info_fit_title', parts: [text('info_fit_body')] },
 	{
 		title: 'info_flour_title',
-		parts: [text('info_flour_body'), formula('hours(W) = lo · (hi/lo)^((W − Wlo) / (Whi − Wlo))')]
+		parts: [
+			text('info_flour_body'),
+			formula('hours(W) = lo · (hi/lo)^((W − Wlo) / (Whi − Wlo))'),
+			text('info_flour_avpn')
+		]
 	},
 	{ title: 'info_defaults_title', parts: [text('info_defaults_body')] },
 	{ title: 'info_night_title', parts: [text('info_night_body')] }

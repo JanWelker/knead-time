@@ -17,19 +17,42 @@ const COLD_THRESHOLD_H = COLD_MODE_THRESHOLD_MIN / 60;
 describe('FLOUR_PRESETS', () => {
 	it('pins every shipped flour to its published W', () => {
 		expect(FLOUR_PRESETS).toEqual([
-			{ id: 'supermarket-00', w: 180 },
-			{ id: 'caputo-doppio-zero', w: 230 },
-			{ id: '5stagioni-napoletana', w: 260 },
-			{ id: 'caputo-pizzeria', w: 265 },
-			{ id: 'polselli-classica', w: 270 },
-			{ id: 'caputo-nuvola', w: 280 },
-			{ id: 'caputo-saccorosso', w: 290 },
-			{ id: 'dallagiovanna-classica-oro', w: 305 },
-			{ id: 'dallagiovanna-napoletana', w: 310 },
-			{ id: 'caputo-cuoco', w: 315 },
-			{ id: 'caputo-nuvola-super', w: 330 },
-			{ id: 'dallagiovanna-uniqua-blu', w: 380 }
+			{ id: 'supermarket-00', w: 180, avpn: false },
+			{ id: 'caputo-doppio-zero', w: 230, avpn: true },
+			{ id: '5stagioni-napoletana', w: 260, avpn: true },
+			{ id: 'caputo-pizzeria', w: 265, avpn: true },
+			{ id: 'polselli-classica', w: 270, avpn: true },
+			{ id: 'caputo-nuvola', w: 280, avpn: true },
+			{ id: 'caputo-saccorosso', w: 290, avpn: true },
+			{ id: 'dallagiovanna-classica-oro', w: 305, avpn: true },
+			{ id: 'dallagiovanna-napoletana', w: 310, avpn: true },
+			{ id: 'caputo-cuoco', w: 315, avpn: true },
+			{ id: 'caputo-nuvola-super', w: 330, avpn: true },
+			{ id: 'dallagiovanna-uniqua-blu', w: 380, avpn: true }
 		]);
+	});
+
+	// Issue #420. The mark in the select says the mill is on the AVPN's own
+	// register of approved suppliers, so the set is a claim about a third
+	// party and has to be pinned whole: a sample would let a mill be marked (or
+	// lose its mark) with nobody re-checking the register. Sourced from
+	// https://www.pizzanapoletana.org/en/fornitori on 2026-10-11.
+	it('marks exactly the presets whose mill is on the AVPN supplier register', () => {
+		expect(FLOUR_PRESETS.filter((p) => p.avpn).map((p) => p.id)).toEqual([
+			'caputo-doppio-zero',
+			'5stagioni-napoletana',
+			'caputo-pizzeria',
+			'polselli-classica',
+			'caputo-nuvola',
+			'caputo-saccorosso',
+			'dallagiovanna-classica-oro',
+			'dallagiovanna-napoletana',
+			'caputo-cuoco',
+			'caputo-nuvola-super',
+			'dallagiovanna-uniqua-blu'
+		]);
+		// a supermarket own-brand has no mill to be on any register
+		expect(FLOUR_PRESETS.find((p) => p.id === 'supermarket-00')?.avpn).toBe(false);
 	});
 
 	it('gives every preset a unique W, or one of them becomes unselectable', () => {

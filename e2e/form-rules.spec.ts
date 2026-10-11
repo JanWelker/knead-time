@@ -217,3 +217,20 @@ test('the flour options are labelled through the locale', async ({ page }) => {
 		1
 	);
 });
+
+// Issue #420: a bag whose mill is on the AVPN's own register of approved
+// suppliers carries a short "· AVPN" after its name. The set is pinned in
+// flour.test.ts; this holds that the mark actually reaches the native select,
+// which is the only place a reader sees it, and that the supermarket generic —
+// which has no mill — never wears it.
+test('the flour select marks the bags whose mill the AVPN lists', async ({ page }) => {
+	await openForm(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+	const options = sheet(page).locator('select').first().locator('optgroup option');
+	await expect(options.filter({ hasText: /· AVPN$/ })).toHaveCount(11);
+	await expect(sheet(page).locator('option[value="caputo-pizzeria"]')).toHaveText(
+		'Caputo Pizzeria (W 265) · AVPN'
+	);
+	await expect(sheet(page).locator('option[value="supermarket-00"]')).toHaveText(
+		'Supermarket tipo 00 (W 180)'
+	);
+});

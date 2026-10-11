@@ -118,6 +118,7 @@ export interface Messages {
 		info_night_body: string;
 		info_flour_title: string;
 		info_flour_body: string;
+		info_flour_avpn: string;
 		pizzaCount: string;
 		ballWeight: string;
 		ballWeight_round: string;
@@ -164,6 +165,7 @@ export interface Messages {
 		flour_custom: string;
 		flour_none: string;
 		flour_option: string;
+		flour_option_avpn: string;
 		flourW: string;
 		flourW_help: string;
 		mixingMethod: string;
@@ -538,6 +540,8 @@ const en: Messages = {
 		info_flour_title: 'Flour strength (W)',
 		info_flour_body:
 			'W is the Chopin alveograph deformation energy — how much work the gluten takes before it tears. It does NOT tell you how much water the flour absorbs: that is a separate farinograph measurement driven by protein, damaged starch and pentosans. So W never touches hydration, the ingredient masses or the yeast solve here. What it does predict is fermentation tolerance. Knead Time interpolates a good window between three anchors — W 180: 2–4 h at room temperature / 6–12 h cold; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in log-hours, because tolerance grows geometrically with W, and clamps rather than extrapolates past the edges. The upper edges are calibrated against the preset flours’ published fermentation ranges; the lower edge is deliberately generous, since using a strong flour for a short bake wastes the flour rather than spoiling the dough. Each band is clipped to its own regime (the app switches to cold above a 16 h window), so a weak flour offers no cold zone at all. These are hours after the final mix — the mills publish their ranges for a direct dough, which starts fermenting at the mix. With a biga or poolish, the hours it spends maturing are not counted against the band: the flour in it is the pre-ferment’s own portion, and Italian practice quotes the two separately (“biga 16 h, then 6 h”). So on the slider the band moves out by the pre-ferment’s length, the card shows both figures, and the pre-ferment’s flour is not judged at all, since the app does not ask which one goes in. A window outside the band raises a warning and costs the fit score 1.5 points per hour, capped at 12. A flour stronger than the top anchor shares its band: without a published fermentation range to anchor on, we clamp rather than invent a longer tolerance. Changing the bake time — or the flour — re-picks the window for you: the longest one that both fits before the bake and stays inside this band, floored to the hour. That figure gets a position of its own on the slider, marked from below, so you can always drag back to it. When a flour’s whole band closes before the slider’s shortest window, you get that shortest window instead. The slider itself moves between the windows Neapolitan practice actually uses — 6, 8, 12, 16, 18, 24, 36, 48 and 72 hours — plus an 80 h stop that is not a canonical time but this schedule’s own ceiling: the cold bulk caps out, so about 78 h is the longest window even a maximal pre-ferment can fill.',
+		info_flour_avpn:
+			'The · AVPN after a flour’s name means its mill is on the register of approved suppliers kept by the Associazione Verace Pizza Napoletana — the association behind the Vera Pizza Napoletana rules — as that register itself lists it (checked October 2026). It marks the mill, not a certificate for that particular bag, and it changes no calculation: not the band, not the window, not a gram.',
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Ball weight (g)',
 		ballWeight_round: 'Round numbers',
@@ -586,6 +590,7 @@ const en: Messages = {
 		flour_custom: 'Custom strength',
 		flour_none: 'Not specified',
 		flour_option: '{name} (W {w})',
+		flour_option_avpn: '{name} (W {w}) · AVPN',
 		flourW: 'Flour strength (W)',
 		flourW_help: 'Alveograph value from the bag. A higher W survives a longer ferment.',
 		mixingMethod: 'Mixing',
@@ -1067,6 +1072,8 @@ const de: Messages = {
 		info_flour_title: 'Mehlstärke (W-Wert)',
 		info_flour_body:
 			'Der W-Wert ist die Verformungsenergie aus dem Chopin-Alveographen — wie viel Arbeit das Klebergerüst aushält, bevor es reißt. Er sagt NICHT, wie viel Wasser das Mehl aufnimmt: das ist eine eigene Farinograph-Messung, bestimmt von Protein, beschädigter Stärke und Pentosanen. Deshalb berührt der W-Wert hier weder die Hydration noch die Zutatenmengen noch die Hefeberechnung. Er sagt die Garetoleranz voraus. Knead Time interpoliert ein gutes Zeitfenster zwischen drei Stützpunkten — W 180: 2–4 Std bei Raumtemperatur / 6–12 Std kalt; W 265: 4–10 Std / 16–40 Std; W 310: 6–18 Std / 24–72 Std — in logarithmischen Stunden, weil die Toleranz geometrisch mit dem W-Wert wächst, und begrenzt an den Rändern statt zu extrapolieren. Die Obergrenzen sind an den veröffentlichten Garezeiten der voreingestellten Mehle kalibriert; die Untergrenze ist bewusst großzügig, denn ein starkes Mehl für eine kurze Gare verschenkt das Mehl, verdirbt aber den Teig nicht. Jedes Band wird auf seinen eigenen Bereich beschnitten (ab 16 Std Fenster schaltet die App auf kalt), ein schwaches Mehl bietet also gar keine Kühlgare an. Gemeint sind Stunden nach dem Hauptteig — die Mühlen geben ihre Zeiten für einen direkten Teig an, und der beginnt beim Kneten zu gären. Mit Biga oder Poolish zählen dessen Reifestunden nicht gegen das Band: das Mehl darin ist der eigene Anteil des Vorteigs, und in Italien werden beide Zeiten getrennt angegeben („Biga 16 Std, dann 6 Std“). Auf dem Regler rückt das Band deshalb um die Vorteigdauer nach hinten, die Karte zeigt beide Werte, und das Mehl im Vorteig wird gar nicht beurteilt, denn die App fragt nicht, welches hineinkommt. Ein Fenster außerhalb des Bandes löst eine Warnung aus und kostet 1,5 Punkte pro Stunde, gedeckelt bei 12. Ein Mehl, das stärker ist als der oberste Stützpunkt, teilt sich dessen Band: ohne veröffentlichte Garezeit als Anhaltspunkt begrenzen wir lieber, als eine längere Toleranz zu erfinden. Wenn du die Backzeit oder das Mehl änderst, wählt der Zeitplan das Fenster neu: das längste, das vor dem Backen noch Platz hat und im Band bleibt, auf volle Stunden abgerundet. Dieser Wert bekommt eine eigene Rastposition auf dem Regler, von unten markiert, sodass du jederzeit dorthin zurückziehen kannst. Schließt das Band eines Mehls schon vor dem kürzesten Fenster des Reglers, bekommst du eben dieses kürzeste. Der Regler selbst bewegt sich zwischen den Fenstern, die in Neapel tatsächlich üblich sind — 6, 8, 12, 16, 18, 24, 36, 48 und 72 Stunden — plus einer 80-h-Stellung, die keine übliche Zeit ist, sondern die Obergrenze dieses Zeitplans: die Kühlgare ist gedeckelt, also sind rund 78 h das längste Fenster, das selbst ein maximaler Vorteig füllen kann.',
+		info_flour_avpn:
+			'Das · AVPN hinter einem Mehlnamen heißt: Die Mühle steht im Register der zugelassenen Lieferanten der Associazione Verace Pizza Napoletana — des Verbands hinter den Regeln der Vera Pizza Napoletana —, so wie das Register selbst sie führt (Stand Oktober 2026). Es kennzeichnet die Mühle, nicht die einzelne Sorte, und ändert keine Rechnung: weder das Band noch das Zeitfenster noch ein Gramm.',
 		pizzaCount: 'Pizzen',
 		ballWeight: 'Teigling (g)',
 		ballWeight_round: 'Runde Zahlen',
@@ -1116,6 +1123,7 @@ const de: Messages = {
 		flour_custom: 'Eigener W-Wert',
 		flour_none: 'Nicht angegeben',
 		flour_option: '{name} (W {w})',
+		flour_option_avpn: '{name} (W {w}) · AVPN',
 		flourW: 'Mehlstärke (W-Wert)',
 		flourW_help: 'Alveograph-Wert von der Packung. Ein höherer W-Wert übersteht eine längere Gare.',
 		mixingMethod: 'Kneten',
@@ -1610,6 +1618,8 @@ const it: Messages = {
 		info_flour_title: 'Forza della farina (W)',
 		info_flour_body:
 			'La W è l’energia di deformazione dell’alveografo Chopin — quanto lavoro regge il glutine prima di strapparsi. NON indica quanta acqua assorbe la farina: quella è una misura separata al farinografo, determinata da proteine, amido danneggiato e pentosani. Perciò qui la W non tocca né l’idratazione, né le masse degli ingredienti, né il calcolo del lievito. Quello che predice è la tolleranza alla lievitazione. Knead Time interpola una finestra ideale fra tre punti di riferimento — W 180: 2–4 h a temperatura ambiente / 6–12 h in frigo; W 265: 4–10 h / 16–40 h; W 310: 6–18 h / 24–72 h — in ore logaritmiche, perché la tolleranza cresce in modo geometrico con la W, e ai bordi limita invece di estrapolare. I limiti superiori sono calibrati sulle durate di lievitazione dichiarate dalle farine preimpostate; quello inferiore è volutamente generoso, perché usare una farina forte per una lievitazione breve spreca la farina ma non rovina l’impasto. Ogni banda è ritagliata sul proprio regime (sopra le 16 h l’app passa al freddo), quindi una farina debole non offre alcuna zona in frigo. Sono ore dopo l’impasto finale — i mulini indicano le loro finestre per un impasto diretto, che inizia a fermentare all’impasto. Con biga o poolish, le ore di maturazione del prefermento non contano contro la banda: la farina che contiene è la sua quota, e la pratica italiana indica le due fasi separatamente («biga 16 h, poi 6 h»). Perciò sul cursore la banda si sposta in avanti della durata del prefermento, la scheda mostra entrambe le cifre, e la farina del prefermento non viene giudicata, perché l’app non chiede quale si usa. Una finestra fuori banda genera un avviso e costa 1,5 punti all’ora, con un tetto di 12. Una farina più forte del punto di riferimento più alto ne condivide la banda: senza una durata di lievitazione pubblicata su cui ancorarsi, preferiamo limitare piuttosto che inventare una tolleranza più lunga. Quando cambi l’orario di cottura o la farina, la finestra viene riscelta: la più lunga che sta prima della cottura e resta dentro questa banda, arrotondata per difetto all’ora. Quel valore ottiene una posizione propria sul cursore, segnata dal basso, così puoi sempre tornarci. Se la banda di una farina si chiude prima della finestra più breve del cursore, ottieni quella più breve. Il cursore stesso si muove tra le finestre che la pratica napoletana usa davvero — 6, 8, 12, 16, 18, 24, 36, 48 e 72 ore — più una posizione a 80 h che non è un tempo canonico ma il tetto di questo calendario: la fase in frigo ha un limite, quindi circa 78 h è la finestra più lunga che perfino un prefermento massimo può riempire.',
+		info_flour_avpn:
+			'Il · AVPN dopo il nome di una farina indica che il suo molino è iscritto all’albo dei fornitori approvati dell’Associazione Verace Pizza Napoletana — l’associazione che custodisce il disciplinare della Vera Pizza Napoletana — così come lo riporta l’albo stesso (verificato a ottobre 2026). Contrassegna il molino, non certifica quella singola farina, e non cambia alcun calcolo: né la fascia, né la finestra, né un grammo.',
 		pizzaCount: 'Pizze',
 		ballWeight: 'Panetto (g)',
 		ballWeight_round: 'Arrotonda',
@@ -1658,6 +1668,7 @@ const it: Messages = {
 		flour_custom: 'Forza personalizzata',
 		flour_none: 'Non specificata',
 		flour_option: '{name} (W {w})',
+		flour_option_avpn: '{name} (W {w}) · AVPN',
 		flourW: 'Forza della farina (W)',
 		flourW_help:
 			'Valore alveografico riportato sulla confezione. Una W più alta regge una lievitazione più lunga.',
@@ -2154,6 +2165,8 @@ const fr: Messages = {
 		info_flour_title: 'Force de la farine (W)',
 		info_flour_body:
 			'Le W est l’énergie de déformation mesurée à l’alvéographe Chopin — le travail que le gluten encaisse avant de se déchirer. Il n’indique PAS la quantité d’eau que la farine absorbe : c’est une mesure distincte, au farinographe, qui dépend des protéines, de l’amidon endommagé et des pentosanes. Le W ne touche donc ici ni l’hydratation, ni les masses d’ingrédients, ni le calcul de la levure. Ce qu’il prédit, c’est la tolérance à la fermentation. Knead Time interpole une bonne fenêtre entre trois points de référence — W 180 : 2–4 h à température ambiante / 6–12 h au froid ; W 265 : 4–10 h / 16–40 h ; W 310 : 6–18 h / 24–72 h — en heures logarithmiques, car la tolérance croît géométriquement avec le W, et borne au lieu d’extrapoler aux extrémités. Les bornes hautes sont calibrées sur les durées de fermentation publiées des farines proposées ; la borne basse est volontairement généreuse, car utiliser une farine forte pour une fermentation courte gaspille la farine sans abîmer la pâte. Chaque bande est découpée sur son propre régime (au-delà de 16 h, l’app passe au froid), une farine faible n’offre donc aucune zone au froid. Ce sont des heures après le pétrissage final — les moulins publient leurs plages pour une pâte directe, qui commence à fermenter au pétrissage. Avec une biga ou un poolish, ses heures de maturation ne comptent pas contre la bande : la farine qu’il contient est sa propre part, et la pratique italienne cite les deux séparément (« biga 16 h, puis 6 h »). Sur le curseur, la bande est donc décalée de la durée du préferment, la carte affiche les deux chiffres, et la farine du préferment n’est pas jugée, puisque l’application ne demande pas laquelle on y met. Une fenêtre hors bande déclenche un avertissement et coûte 1,5 point par heure, plafonné à 12. Une farine plus forte que le point de référence le plus haut partage sa bande : faute d’une durée de fermentation publiée sur laquelle s’appuyer, nous bornons plutôt que d’inventer une tolérance plus longue. Quand vous changez l’heure de cuisson ou la farine, la fenêtre est resélectionnée : la plus longue qui tient avant la cuisson et reste dans cette bande, arrondie à l’heure inférieure. Cette valeur reçoit son propre cran sur le curseur, marqué par le bas, pour que vous puissiez toujours y revenir. Si la bande d’une farine se referme avant la fenêtre la plus courte du curseur, vous obtenez cette plus courte. Le curseur lui-même se déplace entre les fenêtres réellement utilisées à Naples — 6, 8, 12, 16, 18, 24, 36, 48 et 72 heures — plus un cran à 80 h qui n’est pas une durée canonique mais le plafond de ce planning : la phase au froid est bornée, donc environ 78 h est la plus longue fenêtre que même un préferment maximal peut remplir.',
+		info_flour_avpn:
+			'Le · AVPN après le nom d’une farine signifie que son moulin figure au registre des fournisseurs agréés de l’Associazione Verace Pizza Napoletana — l’association qui tient les règles de la Vera Pizza Napoletana —, tel que ce registre le publie lui-même (vérifié en octobre 2026). Il marque le moulin, ce n’est pas un certificat pour ce sac précis, et il ne change aucun calcul : ni la plage, ni la fenêtre, ni un gramme.',
 		pizzaCount: 'Pizzas',
 		ballWeight: 'Pâton (g)',
 		ballWeight_round: 'Arrondir',
@@ -2205,6 +2218,7 @@ const fr: Messages = {
 		flour_custom: 'Force personnalisée',
 		flour_none: 'Non précisée',
 		flour_option: '{name} (W {w})',
+		flour_option_avpn: '{name} (W {w}) · AVPN',
 		flourW: 'Force de la farine (W)',
 		flourW_help:
 			'Valeur alvéographique indiquée sur le paquet. Un W plus élevé supporte une fermentation plus longue.',
@@ -2703,6 +2717,8 @@ const nl: Messages = {
 		info_flour_title: 'Sterkte van het meel (W-waarde)',
 		info_flour_body:
 			'De W-waarde is de vervormingsenergie uit de Chopin-alveograaf — hoeveel arbeid het gluten verdraagt voordat het scheurt. Hij zegt NIET hoeveel water het meel opneemt: dat is een aparte farinograafmeting, bepaald door eiwit, beschadigd zetmeel en pentosanen. Daarom raakt de W-waarde hier niet aan de hydratatie, de ingrediëntmassa’s of de gistberekening. Wat hij wel voorspelt is de rijstolerantie. Knead Time interpoleert een goed venster tussen drie ankerpunten — W 180: 2–4 u op kamertemperatuur / 6–12 u koud; W 265: 4–10 u / 16–40 u; W 310: 6–18 u / 24–72 u — in logaritmische uren, omdat de tolerantie geometrisch met de W-waarde groeit, en begrenst aan de randen in plaats van te extrapoleren. De bovengrenzen zijn geijkt op de gepubliceerde rijstijden van de voorgestelde melen; de ondergrens is bewust ruim, want sterk meel voor een korte rijs verspilt het meel maar bederft het deeg niet. Elke band wordt op zijn eigen regime bijgesneden (boven een venster van 16 u schakelt de app naar koud), dus zwak meel biedt helemaal geen koude zone. Het gaat om uren na het hoofddeeg — molens geven hun tijden op voor een direct deeg, en dat begint bij het kneden te rijzen. Met biga of poolish tellen de rijpingsuren daarvan niet mee tegen de band: het meel daarin is het eigen deel van het voordeeg, en in Italië worden beide tijden apart opgegeven („biga 16 u, dan 6 u”). Op de schuif schuift de band daarom op met de duur van het voordeeg, de kaart toont beide getallen, en het meel in het voordeeg wordt niet beoordeeld, want de app vraagt niet welk erin gaat. Een venster buiten de band geeft een waarschuwing en kost 1,5 punt per uur, met een maximum van 12. Een meel dat sterker is dan het hoogste ankerpunt deelt diens band: zonder een gepubliceerde rijstijd om op te ankeren begrenzen we liever dan een langere tolerantie te verzinnen. Als je de baktijd of het meel wijzigt, wordt het venster opnieuw gekozen: het langste dat nog vóór het bakken past en binnen deze band blijft, naar beneden afgerond op hele uren. Die waarde krijgt een eigen stand op de schuif, van onderaf gemarkeerd, zodat je er altijd naar terug kunt. Sluit de band van een meel al vóór het kortste venster van de schuif, dan krijg je dat kortste. De schuif zelf beweegt tussen de vensters die in Napels echt gebruikt worden — 6, 8, 12, 16, 18, 24, 36, 48 en 72 uur — plus een stand op 80 h die geen gangbare tijd is maar het plafond van dit schema: de koude rijs is begrensd, dus ongeveer 78 h is het langste venster dat zelfs een maximaal voordeeg kan vullen.',
+		info_flour_avpn:
+			'De · AVPN achter een meelnaam betekent dat de molen in het register van goedgekeurde leveranciers van de Associazione Verace Pizza Napoletana staat — de vereniging achter de regels van de Vera Pizza Napoletana —, zoals dat register hem zelf vermeldt (gecontroleerd in oktober 2026). Het kenmerkt de molen, het is geen certificaat voor die ene zak, en het verandert geen enkele berekening: niet de band, niet het venster, geen gram.',
 		pizzaCount: "Pizza's",
 		ballWeight: 'Bolletje (g)',
 		ballWeight_round: 'Ronde getallen',
@@ -2752,6 +2768,7 @@ const nl: Messages = {
 		flour_custom: 'Eigen W-waarde',
 		flour_none: 'Niet opgegeven',
 		flour_option: '{name} (W {w})',
+		flour_option_avpn: '{name} (W {w}) · AVPN',
 		flourW: 'Sterkte van het meel (W-waarde)',
 		flourW_help:
 			'Alveograafwaarde van de verpakking. Een hogere W-waarde houdt een langere rijs vol.',

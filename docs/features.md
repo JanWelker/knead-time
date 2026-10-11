@@ -24,6 +24,10 @@ The page itself never schedules a notification, and cannot: iOS only ever wakes 
 
 With a biga or poolish, the window card now writes the window the way Italian pizzaioli do — **Biga 14 h, then 40 h of dough** — under the wall-clock total. The flour's tolerance band is judged on the second figure: the hours after the final mix. The mills publish their windows for a direct dough, which starts fermenting at the mix, and the flour that sits through the biga's hours is the biga's own portion, not the bag the rest of the dough is made from. So the warning, the fit score, the painted band and the **Use best** re-pick all moved: Caputo Pizzeria with a 14 h biga now aims at 54 h, not 40 h. Schedules, ingredients and share links are untouched ([issue #397](https://github.com/JanWelker/knead-time/issues/397)).
 
+## AVPN suppliers in the flour list (v7.6)
+
+Flours whose mill appears in the AVPN's own [register of approved suppliers](https://www.pizzanapoletana.org/en/fornitori) carry **· AVPN** in the flour select ([issue #420](https://github.com/JanWelker/knead-time/issues/420)). The mark is about the mill, not a certificate for that particular bag, and it changes no calculation.
+
 ## TRMNL push removed (v7.5)
 
 **Send to TRMNL…** is gone from the plan's actions menu, and with it the webhook, the setup guide and the Liquid template ([issue #423](https://github.com/JanWelker/knead-time/issues/423)). It proved unreliable in use, and every fix cost a round-trip with a physical device: the free tier's 2 KB payload cap, the framework's class names overriding the template's, the Full Markup slot, date math in Liquid. Share links are untouched. A plugin you set up keeps showing the last recipe you pushed until you remove it on trmnl.com; the device id the app remembered is cleared from your browser on the next visit.
