@@ -111,7 +111,9 @@
 							{numLabel(entry.inputs.roomTempC, locale, '°C')}
 						</td>
 						<td class="figure-cell">
-							{numLabel(entry.inputs.fridgeTempC, locale, '°C')}
+							{entry.inputs.noFridge
+								? t.form.noFridge_none
+								: numLabel(entry.inputs.fridgeTempC, locale, '°C')}
 						</td>
 						<td class="px-3 py-3">{preFermentLabel(entry.inputs, t)}</td>
 						<td class="px-3 py-3">

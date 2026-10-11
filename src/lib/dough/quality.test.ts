@@ -371,6 +371,15 @@ describe('recipeFitScore — recipe-input KPI deviations', () => {
 		expect(factorKinds(recipeFitScore(computeSchedule(i), i).factors)).toContain(expected);
 	});
 
+	it('does not judge the fridge temperature of a recipe that never uses the fridge', () => {
+		// The field is hidden in the sheet once "no fridge" is on, so a value
+		// left at 12 °C would cost points the baker cannot see the reason for.
+		const i = inputs({ fridgeTempC: 12, noFridge: true });
+		expect(factorKinds(recipeFitScore(computeSchedule(i), i).factors)).not.toContain(
+			'fridge-temp-off'
+		);
+	});
+
 	it('returns the band-distance as the delta for hydration', () => {
 		const i = inputs({ hydration: 85 });
 		const fit = recipeFitScore(computeSchedule(i), i);

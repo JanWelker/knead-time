@@ -294,6 +294,7 @@ describe('findMatchingPizzeria', () => {
 			fridgeTempC: 4,
 			preFermentTempC: null,
 			ballProof: 'room',
+			noFridge: false,
 			mixingMethod: 'spiral',
 			autolyse: true,
 			preFerments: [],
@@ -454,6 +455,7 @@ describe('findMatchingPizzeria', () => {
 			mixingMethod: shipped.inputs.mixingMethod ?? 'spiral',
 			preFermentTempC: shipped.inputs.preFermentTempC ?? null,
 			ballProof: shipped.inputs.ballProof ?? 'room',
+			noFridge: shipped.inputs.noFridge ?? false,
 			autolyse: shipped.inputs.autolyse ?? true,
 			preFerments: shipped.inputs.preFerments ?? []
 		};

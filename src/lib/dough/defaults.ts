@@ -18,6 +18,8 @@ export const RECIPE_DEFAULTS: Omit<DoughInputs, 'readyBy' | 'startAt' | 'preFerm
 	fridgeTempC: 4,
 	preFermentTempC: null,
 	ballProof: 'room',
+	// Off: windows of 16 h or more go to the fridge, as every link before v=8.
+	noFridge: false,
 	mixingMethod: 'spiral',
 	// Caputo Pizzeria (W 260-270) — the workhorse Neapolitan tipo 00. Pre-v6
 	// share-links decode to null instead: they were made before the app knew

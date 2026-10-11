@@ -234,14 +234,17 @@ describe('the AVPN row reproduces the disciplinare dough', () => {
 		expect(inputs.mixingMethod).toBe('spiral');
 	});
 
-	it('ferments 12 h at room temperature, never in the fridge', () => {
-		// 12–24 h total, at room temperature or 18–20 °C — the app runs a window
-		// of 16 h or more as a cold bulk, so the row sits on the spec's minimum.
+	it('ferments 18 h at room temperature, never in the fridge', () => {
+		// 12–24 h total, at room temperature or 18–20 °C. 18 h is past the app's
+		// 16 h cold switch, so the row has to say no fridge (nf=1) or it would
+		// quietly turn into a cold bulk.
 		const windowMin = (inputs.readyBy.getTime() - inputs.startAt.getTime()) / 60_000;
-		expect(windowMin).toBe(12 * 60);
+		expect(windowMin).toBe(18 * 60);
+		expect(inputs.noFridge).toBe(true);
 		const schedule = computeSchedule(inputs);
 		expect(schedule.mode).toBe('room');
 		expect(schedule.feasible).toBe(true);
+		expect(schedule.warnings).toEqual([]);
 		expect(schedule.steps.map((s) => s.kind)).toEqual([
 			'prep',
 			'mix',
@@ -257,10 +260,11 @@ describe('the AVPN row reproduces the disciplinare dough', () => {
 		const perLitre = 1000 / ingredients.water;
 		expect(ingredients.flour * perLitre).toBeCloseTo(1700.7, 1);
 		expect(ingredients.salt * perLitre).toBeCloseTo(50, 5);
-		// Fresh yeast 0.1–3 g per litre; the app's solve lands at 2.78 g.
+		// Fresh yeast 0.1–3 g per litre; 18 h on the counter solves to 1.81 g, near
+		// the middle — the 12 h the row used before no-fridge existed sat at 2.78.
 		const yeast = ingredients.yeast * perLitre;
 		expect(yeast).toBeGreaterThanOrEqual(0.1);
 		expect(yeast).toBeLessThanOrEqual(3);
-		expect(yeast).toBeCloseTo(2.78, 2);
+		expect(yeast).toBeCloseTo(1.812, 3);
 	});
 });

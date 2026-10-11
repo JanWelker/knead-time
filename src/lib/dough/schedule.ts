@@ -60,6 +60,15 @@ export const COLD_BULK_FLOOR_MIN = 12 * 60;
 export const COLD_BULK_CEIL_MIN = 48 * 60;
 
 export const COLD_MODE_THRESHOLD_MIN = 16 * 60;
+
+// Where the cold switch sits for a recipe, in hours of window after the
+// pre-ferment reserve. With no fridge there is no switch at all: Infinity
+// keeps every caller (the schedule here, the flour zones on the slider and the
+// re-pick) on the room side of the same comparison, so none of them needs a
+// branch of its own.
+export function coldSwitchHours(noFridge: boolean): number {
+	return noFridge ? Infinity : COLD_MODE_THRESHOLD_MIN / 60;
+}
 export const ROOM_MIN_TOTAL_MIN = 3 * 60;
 
 // No baker-action steps may start during [NIGHT_START_HOUR, NIGHT_END_HOUR) of
@@ -375,9 +384,11 @@ export function computeSchedule(inputs: DoughInputs): ComputedSchedule {
 	// Cold mode is gated on the time available AFTER the natural pre-ferment
 	// fits — a 17 h window with a 12 h poolish leaves 5 h, well in room-mode
 	// territory. Below the threshold the math also doesn't try to schedule a
-	// cold ferment that wouldn't develop properly.
+	// cold ferment that wouldn't develop properly. With no fridge the whole
+	// window stays on the counter however long it is — the AVPN disciplinare's
+	// 24 h dough — and the yeast solve simply runs room legs for all of it.
 	const availableMin = totalAvailableMin - naturalPrefermentMin;
-	const useCold = availableMin >= COLD_MODE_THRESHOLD_MIN;
+	const useCold = availableMin / 60 >= coldSwitchHours(inputs.noFridge);
 	const mode: FermentMode = useCold ? 'cold' : 'room';
 	const feasible = totalAvailableMin >= ROOM_MIN_TOTAL_MIN;
 	if (!feasible) warnings.push('too-short');

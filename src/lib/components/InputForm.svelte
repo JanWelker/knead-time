@@ -311,17 +311,29 @@
 		<fieldset class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 			<legend class="banner col-span-full mb-1">{t.adjust.group_proof}</legend>
 			<label class="check-row group col-span-full">
-				<input
-					type="checkbox"
-					class="check-box"
-					checked={form.ballProof === 'cold'}
-					onchange={(e) => (form.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
-				/>
+				<input id="field-noFridge" type="checkbox" class="check-box" bind:checked={form.noFridge} />
 				<span>
-					{t.form.ballProof_toggle}
-					<FieldHelp text={t.form.ballProof_help} extra="font-normal" />
+					{t.form.noFridge_toggle}
+					<FieldHelp text={t.form.noFridge_help} extra="font-normal" />
 				</span>
 			</label>
+			<!-- With no fridge the schedule never has a cold leg, so the two
+			     fridge inputs are inert; their values are kept for when it is
+			     switched back off. -->
+			{#if !form.noFridge}
+				<label class="check-row group col-span-full">
+					<input
+						type="checkbox"
+						class="check-box"
+						checked={form.ballProof === 'cold'}
+						onchange={(e) => (form.ballProof = e.currentTarget.checked ? 'cold' : 'room')}
+					/>
+					<span>
+						{t.form.ballProof_toggle}
+						<FieldHelp text={t.form.ballProof_help} extra="font-normal" />
+					</span>
+				</label>
+			{/if}
 
 			<FormField
 				id="field-roomTemp"
@@ -333,14 +345,16 @@
 				bind:value={form.roomTempC}
 			/>
 
-			<FormField
-				label={t.form.fridgeTemp}
-				min={INPUT_BOUNDS.fridgeTempC.min}
-				max={INPUT_BOUNDS.fridgeTempC.max}
-				step={0.5}
-				help={t.form.fridgeTemp_help}
-				bind:value={form.fridgeTempC}
-			/>
+			{#if !form.noFridge}
+				<FormField
+					label={t.form.fridgeTemp}
+					min={INPUT_BOUNDS.fridgeTempC.min}
+					max={INPUT_BOUNDS.fridgeTempC.max}
+					step={0.5}
+					help={t.form.fridgeTemp_help}
+					bind:value={form.fridgeTempC}
+				/>
+			{/if}
 		</fieldset>
 	{/if}
 

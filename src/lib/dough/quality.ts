@@ -264,7 +264,10 @@ export function recipeFitScore(schedule: ComputedSchedule, inputs: DoughInputs):
 	const roomT = outsideBand(inputs.roomTempC, ROOM_TEMP_LOW_C, ROOM_TEMP_HIGH_C);
 	if (roomT > 0) factors.push({ factor: 'room-temp-off', delta: roomT });
 
-	const fridgeT = outsideBand(inputs.fridgeTempC, FRIDGE_TEMP_LOW, FRIDGE_TEMP_HIGH);
+	// A recipe that never uses the fridge is not judged on its temperature.
+	const fridgeT = inputs.noFridge
+		? 0
+		: outsideBand(inputs.fridgeTempC, FRIDGE_TEMP_LOW, FRIDGE_TEMP_HIGH);
 	if (fridgeT > 0) factors.push({ factor: 'fridge-temp-off', delta: fridgeT });
 
 	// Band is picked for the mode the schedule actually resolved to, so the

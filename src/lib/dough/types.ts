@@ -43,6 +43,11 @@ export interface DoughInputs {
 	// use it for the pre-ferment legs only.
 	preFermentTempC: number | null;
 	ballProof: BallProof;
+	// Keep the whole ferment on the counter, whatever the window (the AVPN
+	// disciplinare's 12–24 h at room temperature or in an 18–20 °C cabinet).
+	// Off = the 16 h cold switch decides; on = the schedule never enters cold
+	// mode, so fridgeTempC and ballProof are inert.
+	noFridge: boolean;
 	mixingMethod: MixingMethod;
 	// Chopin alveograph strength of the flour. null = not stated (every
 	// pre-v6 share-link), which switches the tolerance check off entirely.

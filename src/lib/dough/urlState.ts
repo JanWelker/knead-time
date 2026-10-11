@@ -18,9 +18,15 @@ export type SerializableInputs = DoughInputs;
 // (rename/remove a field, change a unit, change defaults that links should
 // preserve). Keep decode() understanding every published key shape so links
 // shared before the change still resolve to a working recipe.
-const CURRENT_VERSION = 7;
+const CURRENT_VERSION = 8;
 const VERSION_KEY = 'v';
 
+// v=8 adds 'nf' (no fridge): 'nf=1' keeps the whole ferment on the counter,
+// whatever the window. Add-only and ungated — it is omitted when off, and off
+// is what every older link was computed with, so a missing 'nf' means the same
+// thing at every version. It still takes a version of its own: a 7.x app
+// reading 'nf=1' would ignore it and send a 24 h dough to the fridge, so which
+// app wrote a link has to stay answerable from its stamp.
 // v=7 adds NO key and NO gate. It exists because the app took a major bump for
 // a redesign that moved every control on the page, and the major version is
 // pinned to this constant so "which Knead Time wrote this link" stays
@@ -68,6 +74,7 @@ const KEYS_V4 = {
 	fridgeTempC: 'ft',
 	preFermentTempC: 'pt',
 	ballProof: 'bp',
+	noFridge: 'nf',
 	mixingMethod: 'mm',
 	autolyse: 'al',
 	flourW: 'fw',
@@ -109,6 +116,8 @@ export function encodeInputs(inputs: SerializableInputs, ui?: { mode: UiMode }):
 	if (inputs.mixingMethod === 'stand') params.set(KEYS_V4.mixingMethod, 'st');
 	// Omitted for the classic room-temperature ball proof.
 	if (inputs.ballProof === 'cold') params.set(KEYS_V4.ballProof, 'c');
+	// Omitted while the cold switch is allowed to decide.
+	if (inputs.noFridge) params.set(KEYS_V4.noFridge, '1');
 	// Autolyse defaults on for no-pre-ferment recipes — stamp only the opt-out.
 	if (!inputs.autolyse) params.set(KEYS_V4.autolyse, '0');
 	// '0' is the explicit "no flour stated"; the default flour is simply omitted.
@@ -266,6 +275,11 @@ function decode(params: URLSearchParams): Partial<SerializableInputs> {
 	const bp = params.get(KEYS_V4.ballProof);
 	if (bp === 'c') out.ballProof = 'cold';
 	if (bp === 'r') out.ballProof = 'room';
+
+	// '1' is the only spelling the encoder writes; '0' says the default out loud.
+	const nf = params.get(KEYS_V4.noFridge);
+	if (nf === '1') out.noFridge = true;
+	if (nf === '0') out.noFridge = false;
 
 	// The schema version drives exactly two defaults (the `al` and `fw` gates
 	// below). A MISSING v is a legacy link and reads as v1, the off/absent side

@@ -7,6 +7,7 @@ import {
 	COLD_BULK_FLOOR_MIN,
 	COLD_FINAL_PROOF_MIN,
 	COLD_INITIAL_BULK_MIN,
+	coldSwitchHours,
 	computeSchedule,
 	COLD_MODE_THRESHOLD_MIN,
 	DIVIDE_MIN,
@@ -19,7 +20,12 @@ import {
 	PREP_MIN,
 	ROOM_MIN_TOTAL_MIN
 } from './schedule';
-import { freshEquivalentPercent, YEAST_PCT_HIGH, YEAST_PCT_LOW } from './fermentation';
+import {
+	freshEquivalentPercent,
+	YEAST_PCT_HIGH,
+	YEAST_PCT_LOW,
+	yeastPercentForPhases
+} from './fermentation';
 import { defaultInputs, findStep } from './testFixtures';
 import type { DoughInputs } from './types';
 
@@ -60,6 +66,66 @@ describe('computeSchedule — mode selection', () => {
 		const now = new Date('2026-05-12T03:00:00Z');
 		const readyBy = new Date(now.getTime() + COLD_MODE_THRESHOLD_MIN * 60_000);
 		expect(computeSchedule(baseInputs({ startAt: now, readyBy })).mode).toBe('cold');
+	});
+});
+
+describe('computeSchedule — no fridge', () => {
+	// The AVPN disciplinare ferments 12–24 h at room temperature or in an
+	// 18–20 °C cabinet and never mentions a fridge. Before v8 the 16 h switch
+	// sent the last eight of those hours to the fridge with no way to say no.
+	const DAY = {
+		startAt: new Date('2026-05-11T19:00:00Z'),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	};
+
+	it('places the cold switch at 16 h, and nowhere without a fridge', () => {
+		expect(coldSwitchHours(false)).toBe(16);
+		expect(coldSwitchHours(true)).toBe(Infinity);
+	});
+
+	it('keeps a 24 h window on the counter: no cold leg, the whole budget at room temperature', () => {
+		const s = computeSchedule(baseInputs({ ...DAY, autolyse: false, noFridge: true }));
+		expect(s.mode).toBe('room');
+		expect(s.naturalColdBulkMin).toBeNull();
+		expect(s.steps.map((x) => [x.kind, x.durationMinutes])).toEqual([
+			['prep', 15],
+			['mix', 15],
+			['bulk-room', 1305],
+			['divide', 15],
+			['final-proof', 90],
+			['ready', 0]
+		]);
+		// 24 h minus prep, mix and divide = 23.25 fermenting hours at 22 °C.
+		expect(s.yeastPercent).toBe(yeastPercentForPhases('fresh', [{ hours: 23.25, tempC: 22 }]));
+		expect(s.yeastPercent).toBeCloseTo(0.068817, 6);
+	});
+
+	it('ignores the fridge temperature and the cold ball proof, which only a cold leg reads', () => {
+		const plain = computeSchedule(baseInputs({ ...DAY, noFridge: true }));
+		const fridgey = computeSchedule(
+			baseInputs({ ...DAY, noFridge: true, fridgeTempC: 1, ballProof: 'cold' })
+		);
+		expect(fridgey.steps).toEqual(plain.steps);
+		expect(fridgey.yeastPercent).toBe(plain.yeastPercent);
+	});
+
+	it('changes nothing below the switch, so a same-day recipe is identical either way', () => {
+		const sameDay = {
+			startAt: new Date('2026-05-12T09:00:00Z'),
+			readyBy: new Date('2026-05-12T21:00:00Z')
+		};
+		expect(computeSchedule(baseInputs({ ...sameDay, noFridge: true }))).toEqual(
+			computeSchedule(baseInputs({ ...sameDay, noFridge: false }))
+		);
+	});
+
+	it('judges the flour on its room band, since that is where the dough is', () => {
+		// Caputo Pizzeria tolerates 4–10 h at room temperature: a 24 h counter
+		// dough is past it, where the same window in the fridge was inside 16–40 h.
+		const off = computeSchedule(baseInputs({ ...DAY, flourW: 265, noFridge: true }));
+		const on = computeSchedule(baseInputs({ ...DAY, flourW: 265, noFridge: false }));
+		expect(off.warnings).toContain('flour-window-long');
+		expect(on.warnings).not.toContain('flour-window-long');
 	});
 });
 

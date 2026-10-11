@@ -13,7 +13,7 @@ Nothing to install and nothing to sign up for. Add it to your Home Screen and it
 
 ## What you get
 
-- **A schedule that fits your day.** Every step is timed backwards from the bake. With 16 h or more left after any pre-ferment the dough goes into the fridge; with less it ferments on the counter. The schedule shortens the fridge leg to keep every hands-on step out of the night (22:00–08:00), and when it cannot, it says so with a warning rather than moving the step quietly.
+- **A schedule that fits your day.** Every step is timed backwards from the bake. With 16 h or more left after any pre-ferment the dough goes into the fridge; with less it ferments on the counter — or always on the counter, the AVPN way, if you say you have no fridge. The schedule shortens the fridge leg to keep every hands-on step out of the night (22:00–08:00), and when it cannot, it says so with a warning rather than moving the step quietly.
 - **A recipe you can trust.** Baker's percentages with a mass balance that always adds up, a Q10 fermentation model that solves the yeast for your window and temperatures, and a fit score that tells you when the inputs stray from Neapolitan practice.
 - **Your flour, your window.** Twelve flour presets, shelved by strength (W), paint the fermentation window each flour tolerates. A slider snaps to the windows Neapolitan practice uses and re-picks the best one when you change the bake time or the flour.
 - **Real pre-ferments.** Biga and poolish, alone or together, each with its own flour share and cellar temperature. Fresh, instant, active-dry or sourdough. Optional autolyse, oil and sugar. Cold or room ball proof. Spiral, stand-mixer or hand kneading, each with its own water temperature.
