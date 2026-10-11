@@ -16,6 +16,8 @@ To add yours: dial in the recipe in the app, click **Share** to copy the URL, th
 
 For the **Name** column use either your full name (renders as plain text) or a GitHub handle prefixed with `@` (renders as a link to your profile, e.g. `@JanWelker` → <https://github.com/JanWelker>).
 
+The table has no Source column, so a row that reproduces a published recipe rather than a baker's own says where it comes from in a note above the table. The `AVPN disciplinare (2024)` row is the one so far: the association's own dough from §2.1.2 of the [disciplinare](https://www.pizzanapoletana.org/public/pdf/Disciplinare-2024-ITA.pdf), pinned by a test in `community.test.ts`.
+
 ## A 50 Top Pizza recipe
 
 The page lists pizzerias from the 50 Top Pizza guide (2018–2025) whose dough recipes are publicly documented. The data lives in [`src/lib/pizzerias/pizzerias.md`](../src/lib/pizzerias/pizzerias.md). Each row has seven columns:
