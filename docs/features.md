@@ -2,6 +2,10 @@
 
 What Knead Time does, by feature and by the version that brought it. The major version tracks the share-link schema, so a link stamped `v=8` was written by an 8.x app; every older link still reproduces its recipe, gram for gram.
 
+## All the options, where you look for them (v8.4)
+
+The expert view is no longer hidden at the bottom of the recipe sheet ([issue #434](https://github.com/JanWelker/knead-time/issues/434)). A **Simple / All options** switch now heads the sheet, the first thing you see on opening it, and in the simple view the plan's row of values ends with a **More options…** blank that switches to all options and opens the sheet on ball weight. The view is still a device preference: nothing about it enters the recipe or the share link beyond the `md=b` a simple-view link has always carried.
+
 ## Recipes, one press away (v8.3)
 
 **Recipes** now sits in plain sight instead of only inside the menu ([issue #437](https://github.com/JanWelker/knead-time/issues/437)): beside **Guide me** on the plan, and beside **Skip to the plan** on the questions, so someone about to answer five questions can go straight to a recipe they already know. It is still in the menu as well.
