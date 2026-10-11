@@ -1,5 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { defaultInputs } from '../dough/defaults';
+import { computeSchedule } from '../dough/schedule';
+import type { DoughInputs } from '../dough/types';
 import { communityEntries, parseCommunity } from './community';
 
 describe('parseCommunity', () => {
@@ -197,5 +200,67 @@ describe('communityEntries (real data)', () => {
 			expect(e.inputs.hydration, `${e.name} hydration`).toBeGreaterThan(0);
 			expect(e.inputs.readyBy, `${e.name} readyBy`).toBeInstanceOf(Date);
 		}
+	});
+});
+
+// The AVPN row stands in for the association's own published dough, so it must
+// keep reproducing what §2.1.2 of the 2024 disciplinare says. Nothing else
+// would notice it drifting: the row is a share link like any other, and a
+// re-encode, a decode default or a schedule change could quietly give it an
+// autolyse rest, a fridge or a yeast dose the spec does not allow.
+describe('the AVPN row reproduces the disciplinare dough', () => {
+	const avpn = communityEntries.find((e) => e.name === 'AVPN disciplinare (2024)');
+	const inputs: DoughInputs = { ...defaultInputs(), ...avpn?.inputs };
+
+	it('is in the shipped rack', () => {
+		expect(avpn).toBeDefined();
+	});
+
+	it('decodes to the middle of every range §2.1.2 gives per litre of water', () => {
+		// 1 l water : 1.7 kg flour and 50 g salt, as baker's percentages.
+		expect(inputs.hydration).toBe(58.8);
+		expect(inputs.saltPercent).toBe(2.94);
+		expect(inputs.ballWeight).toBe(280);
+		expect(inputs.pizzaCount).toBe(6);
+		expect(inputs.yeastType).toBe('fresh');
+		expect(inputs.roomTempC).toBe(20);
+		// A direct dough, water first, with no fat and no sugar.
+		expect(inputs.preFerments).toEqual([]);
+		expect(inputs.autolyse).toBe(false);
+		expect(inputs.oilPercent).toBe(0);
+		expect(inputs.sugarPercent).toBe(0);
+		// The spec names a strength range, not a bag.
+		expect(inputs.flourW).toBeNull();
+		expect(inputs.mixingMethod).toBe('spiral');
+	});
+
+	it('ferments 12 h at room temperature, never in the fridge', () => {
+		// 12–24 h total, at room temperature or 18–20 °C — the app runs a window
+		// of 16 h or more as a cold bulk, so the row sits on the spec's minimum.
+		const windowMin = (inputs.readyBy.getTime() - inputs.startAt.getTime()) / 60_000;
+		expect(windowMin).toBe(12 * 60);
+		const schedule = computeSchedule(inputs);
+		expect(schedule.mode).toBe('room');
+		expect(schedule.feasible).toBe(true);
+		expect(schedule.steps.map((s) => s.kind)).toEqual([
+			'prep',
+			'mix',
+			'bulk-room',
+			'divide',
+			'final-proof',
+			'ready'
+		]);
+	});
+
+	it('weighs what the disciplinare weighs per litre of water', () => {
+		const { ingredients } = computeSchedule(inputs);
+		const perLitre = 1000 / ingredients.water;
+		expect(ingredients.flour * perLitre).toBeCloseTo(1700.7, 1);
+		expect(ingredients.salt * perLitre).toBeCloseTo(50, 5);
+		// Fresh yeast 0.1–3 g per litre; the app's solve lands at 2.78 g.
+		const yeast = ingredients.yeast * perLitre;
+		expect(yeast).toBeGreaterThanOrEqual(0.1);
+		expect(yeast).toBeLessThanOrEqual(3);
+		expect(yeast).toBeCloseTo(2.78, 2);
 	});
 });
