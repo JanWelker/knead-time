@@ -1,7 +1,7 @@
 {
 	"_comment": "Floor for how much testing this repo has, per test file. Regenerate with `npm run test:baseline -- --write` after adding tests; lowering a count or excluding a file from coverage is a deliberate, reviewable edit of this file.",
 	"unit": {
-		"total": 1125,
+		"total": 1135,
 		"files": {
 			"scripts/lib/fontLicences.test.mjs": 7,
 			"scripts/lib/installScripts.test.mjs": 1,
@@ -11,14 +11,14 @@
 			"src/lib/dough/bakers.test.ts": 58,
 			"src/lib/dough/defaults.test.ts": 8,
 			"src/lib/dough/fermentation.test.ts": 34,
-			"src/lib/dough/flour.test.ts": 27,
+			"src/lib/dough/flour.test.ts": 30,
 			"src/lib/dough/ics.test.ts": 19,
 			"src/lib/dough/inputBounds.test.ts": 14,
-			"src/lib/dough/quality.test.ts": 71,
-			"src/lib/dough/schedule.test.ts": 301,
+			"src/lib/dough/quality.test.ts": 72,
+			"src/lib/dough/schedule.test.ts": 305,
 			"src/lib/dough/scheduleStatus.test.ts": 10,
 			"src/lib/dough/urlState.test.ts": 85,
-			"src/lib/dough/windowPresets.test.ts": 49,
+			"src/lib/dough/windowPresets.test.ts": 51,
 			"src/lib/format.test.ts": 43,
 			"src/lib/i18n/interpolate.test.ts": 3,
 			"src/lib/i18n/messages.test.ts": 6,
@@ -49,7 +49,7 @@
 		}
 	},
 	"e2e": {
-		"total": 182,
+		"total": 185,
 		"files": {
 			"announcements.spec.ts": 6,
 			"ask-flow.spec.ts": 5,
@@ -73,7 +73,7 @@
 			"view-modes.spec.ts": 8,
 			"views.spec.ts": 14,
 			"warnings.spec.ts": 8,
-			"window-slider.spec.ts": 17
+			"window-slider.spec.ts": 20
 		}
 	},
 	"coverage": {

@@ -346,3 +346,37 @@ test('the schedule and the window card read one clock', async ({ page }) => {
 	await expect(missed).toHaveCount(1);
 	await expect(nowStamp.locator('xpath=..')).not.toContainText(stepTitle(first));
 });
+
+// Issue #397. Italian practice quotes a biga and the dough separately ("biga
+// 16 h, poi 6 h"), and the flour bands are calibrated from the final mix — but
+// the card showed one total and judged it against the band, so Caputo
+// Pizzeria with a 14 h biga at 54 h (40 h of dough, the top of its band) read
+// as out of band, and the re-pick aimed 14 h short.
+test.describe('a biga is not counted against the flour', () => {
+	const BIGA = `${CAPUTO}&p=b30&${FAR_BAKE}`;
+
+	test('the card quotes the biga and the dough separately', async ({ page }) => {
+		await openForm(page, `${BIGA}&sa=2026-09-04T11%3A00%3A00.000Z`);
+
+		expect(await chosenWindow(page)).toBe('54 h');
+		await expect(windowCard(page).getByTestId('window-split')).toHaveText(
+			'Biga 14 h, then 40 h of dough'
+		);
+		await expect(windowCard(page).locator('#window-band')).toContainText(
+			'Within what this flour tolerates'
+		);
+		await expect(windowCard(page).locator('#window-band')).toContainText('30 h – 54 h');
+	});
+
+	test('the re-pick aims at the dough hours plus the biga', async ({ page }) => {
+		await openForm(page, BIGA);
+		await sheet(page).locator('input[type="date"]').nth(1).fill('2026-09-06');
+
+		await expect.poll(() => chosenWindow(page)).toBe('54 h');
+	});
+
+	test('a direct dough shows no split', async ({ page }) => {
+		await openForm(page, `${CAPUTO}&${FAR_BAKE}&sa=2026-09-05T09%3A00%3A00.000Z`);
+		await expect(windowCard(page).getByTestId('window-split')).toHaveCount(0);
+	});
+});

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { COLD_MODE_THRESHOLD_MIN, ROOM_MIN_TOTAL_MIN } from './schedule';
-import { flourWindowHours, flourZones } from './flour';
+import { flourWindowHours, flourZones, flourZonesInWindow } from './flour';
 import {
 	BENEFIT_LONG_FROM_H,
 	bestWindowStopIndex,
@@ -415,5 +415,21 @@ describe('the ideal is reachable by hand once spliced in', () => {
 		const pct = windowAxisPercent(40, stops);
 		expect(pct).toBeGreaterThan(windowAxisPercent(36, stops));
 		expect(pct).toBeLessThan(windowAxisPercent(48, stops));
+	});
+});
+
+describe('the ideal window with a pre-ferment (#397)', () => {
+	// Shifted by a 24 h pre-ferment, the strongest flour's 72 h cold band ends at
+	// 96 h of window — past the rail's 80 h ceiling. Uncapped, the ideal would
+	// be spliced in as a stop beyond the end of the schedule's own range.
+	it('never lands past the last stop', () => {
+		const zones = flourZonesInWindow(310, COLD_MODE_THRESHOLD_MIN / 60, 24);
+		expect(idealWindowHours(zones, 1000)).toBe(80);
+	});
+
+	it('aims at the dough hours plus the biga', () => {
+		// Caputo Pizzeria + a 14 h biga: 40 h of dough is a 54 h window.
+		const zones = flourZonesInWindow(265, COLD_MODE_THRESHOLD_MIN / 60, 14);
+		expect(idealWindowHours(zones, 1000)).toBe(54);
 	});
 });

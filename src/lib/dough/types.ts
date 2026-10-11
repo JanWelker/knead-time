@@ -137,6 +137,11 @@ export interface ComputedSchedule {
 	naturalColdBulkMin: number | null;
 	desiredColdBulkMin: number | null;
 	naturalPreferments: Array<{ type: Exclude<PreFermentType, 'none'>; naturalHours: number }>;
+	// Minutes of the window reserved for the longest pre-ferment at its clamped
+	// natural length (0 without one). The window minus this is the time the
+	// final dough ferments after its own mix — what the cold/room switch and the
+	// flour-tolerance check are judged on (issue #397).
+	prefermentReserveMin: number;
 }
 
 export type ScheduleWarning =

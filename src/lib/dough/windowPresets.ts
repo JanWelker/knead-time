@@ -168,7 +168,7 @@ export function idealWindowHours(
 	if (zones === null) return null;
 	for (const band of [zones.cold, zones.room]) {
 		if (band === null || band.min > hoursUntilBake) continue;
-		const ideal = Math.floor(Math.min(band.max, hoursUntilBake));
+		const ideal = Math.floor(Math.min(band.max, hoursUntilBake, WINDOW_STOPS.at(-1)!));
 		if (ideal >= WINDOW_STOPS[0] && ideal >= band.min) return ideal;
 	}
 	return null;
@@ -177,8 +177,8 @@ export function idealWindowHours(
 // The rail's stops with the ideal spliced in, or the canonical list unchanged
 // when there is no ideal or it already coincides with a stop. The ideal is
 // always on the rail: idealWindowHours refuses anything below the shortest
-// stop, and the tolerance model's longest band ends at the 72 h anchor, under
-// the 80 h last stop — pinned in the test, so no range guard is needed here.
+// stop and caps at the last one — the 72 h top band plus a 24 h pre-ferment
+// reserve would otherwise reach 96 h, past the schedule's own ceiling.
 // The rail is linear in stop *index*, so this list is what positions every
 // notch, zone edge and tick label — the tick labels shift slightly when the
 // ideal appears or moves, which only happens on a flour or bake-time change,

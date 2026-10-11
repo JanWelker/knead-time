@@ -1599,3 +1599,40 @@ describe('the cold-bulk signals say which leg ran', () => {
 		expect(r.naturalColdBulkMin).toBe(Math.min(COLD_BULK_CEIL_MIN, r.desiredColdBulkMin as number));
 	});
 });
+
+describe('computeSchedule — a pre-ferment is not the bag of flour (#397)', () => {
+	// The flour bands are calibrated on the mills' direct-dough windows, which
+	// run from the mix. They used to be compared against the whole window, biga
+	// included, so a W 265 flour with a 14 h biga at a 54 h window — 40 h of
+	// dough, the top of Caputo Pizzeria's band — was flagged as too long. Nothing
+	// pinned it: every flour test ran without a pre-ferment.
+	const biga = { roomTempC: 22, preFerments: [{ type: 'biga' as const, flourPercent: 30 }] };
+	const endingAt = (hours: number) => ({
+		startAt: new Date(Date.parse('2026-05-12T19:00:00Z') - hours * 3_600_000),
+		readyBy: new Date('2026-05-12T19:00:00Z')
+	});
+
+	it('reserves the biga at 14 h at 22 °C', () => {
+		expect(computeSchedule(baseInputs({ ...endingAt(54), ...biga })).prefermentReserveMin).toBe(
+			840
+		);
+		expect(computeSchedule(baseInputs(endingAt(54))).prefermentReserveMin).toBe(0);
+	});
+
+	it('does not count the biga against the flour band', () => {
+		const r = computeSchedule(baseInputs({ ...endingAt(54), ...biga, flourW: 265 }));
+		expect(r.mode).toBe('cold');
+		expect(r.warnings).not.toContain('flour-window-long');
+	});
+
+	it('still warns once the dough itself outruns the flour', () => {
+		// 56 h − 14 h biga = 42 h of dough, past the 40 h edge.
+		const r = computeSchedule(baseInputs({ ...endingAt(56), ...biga, flourW: 265 }));
+		expect(r.warnings).toContain('flour-window-long');
+	});
+
+	it('judges a direct dough on the whole window, as before', () => {
+		const r = computeSchedule(baseInputs({ ...endingAt(41), flourW: 265 }));
+		expect(r.warnings).toContain('flour-window-long');
+	});
+});

@@ -1,7 +1,7 @@
 import { SvelteDate } from 'svelte/reactivity';
 import { toDatePart } from './format';
 import { roundBallWeight } from './dough/bakers';
-import { flourZones } from './dough/flour';
+import { flourZonesInWindow } from './dough/flour';
 import { RECIPE_DEFAULTS, toDefaultReadyBy } from './dough/defaults';
 import { clampInput, clampPreFermentShares, clampShareInput } from './dough/inputBounds';
 import { computeSchedule, COLD_MODE_THRESHOLD_MIN } from './dough/schedule';
@@ -187,8 +187,16 @@ export class FormState {
 	// window verbatim. Returns whether it found anything to pick.
 	repickWindow(): boolean {
 		const hoursUntilBake = (this.readyBy.getTime() - Date.now()) / 3_600_000;
+		// The rail is the whole window, the bands are hours after the final mix:
+		// shift them by the pre-ferment's reserve (#397).
 		const zones =
-			this.flourW === null ? null : flourZones(this.flourW, COLD_MODE_THRESHOLD_MIN / 60);
+			this.flourW === null
+				? null
+				: flourZonesInWindow(
+						this.flourW,
+						COLD_MODE_THRESHOLD_MIN / 60,
+						this.schedule.prefermentReserveMin / 60
+					);
 		// Aim at the same stop list the slider offers, ideal included — otherwise
 		// the app picks a window the user can never drag back to.
 		const stops = stopsWithIdeal(idealWindowHours(zones, hoursUntilBake));

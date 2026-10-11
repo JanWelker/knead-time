@@ -167,6 +167,23 @@ export function flourZones(
 	};
 }
 
+// The same zones on the slider's axis, which is the whole window. The bands
+// are hours after the final mix (issue #397), and a pre-ferment is mixed that
+// many hours earlier, so on the wall clock every edge moves out by the reserve
+// — the cold switch included, since the schedule decides cold vs room on the
+// window left after the pre-ferment too. A 14 h biga turns Caputo Pizzeria's
+// 16–40 h cold zone into 30–54 h of window: 40 h of dough, plus the biga.
+export function flourZonesInWindow(
+	w: number,
+	coldThresholdHours: number,
+	reserveHours: number
+): { room: FermentWindowBand | null; cold: FermentWindowBand | null } {
+	const zones = flourZones(w, coldThresholdHours);
+	const shift = (band: FermentWindowBand | null) =>
+		band === null ? null : { min: band.min + reserveHours, max: band.max + reserveHours };
+	return { room: shift(zones.room), cold: shift(zones.cold) };
+}
+
 // Which shelf a flour sits on in the form's grouped select.
 //
 // These are W thresholds, NOT the tolerance bands above. The tolerance model

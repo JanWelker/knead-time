@@ -734,4 +734,23 @@ describe('recipeFitScore — flour-window-off', () => {
 	it('keeps a default Caputo recipe at a full five stars', () => {
 		expect(fitStars(score({ flourW: 265 }).score)).toBe(5);
 	});
+
+	// The factor used to measure the whole window, biga included, against a
+	// band calibrated from the mix (#397): a W 265 flour with a 14 h biga at
+	// 54 h — 40 h of dough — lost points for a ferment the flour never saw.
+	it('measures from the final mix, not from the biga', () => {
+		const biga = { roomTempC: 22, preFerments: [{ type: 'biga' as const, flourPercent: 30 }] };
+		const endingAt = (hours: number) => ({
+			startAt: new Date(Date.parse('2026-05-12T19:00:00Z') - hours * 3_600_000),
+			readyBy: new Date('2026-05-12T19:00:00Z')
+		});
+		expect(factorKinds(score({ ...endingAt(54), ...biga, flourW: 265 }).factors)).not.toContain(
+			'flour-window-off'
+		);
+		const over = score({ ...endingAt(57), ...biga, flourW: 265 }).factors.find(
+			(f) => f.factor === 'flour-window-off'
+		);
+		// 57 h − 14 h = 43 h of dough against the 40 h edge.
+		expect(over?.delta).toBeCloseTo(3, 6);
+	});
 });
