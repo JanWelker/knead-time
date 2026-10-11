@@ -148,17 +148,18 @@ test("the plan's More options blank switches to expert and opens the sheet on wh
 	await expect(page.locator('#field-ballWeight')).toBeFocused();
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:mode'))).toBe('expert');
 
-	// Back on the plan, the blank has done its job and the expert chips stand
-	// where it was.
+	// Back on the plan, the blank has done its job and is gone; the three value
+	// blanks before it are the same in either view (issue #315).
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
 	await expect(moreOptions(page)).toHaveCount(0);
-	await expect(page.getByRole('button', { name: /Hydration/ })).toBeVisible();
+	await expect(page.locator('.chip-field')).toHaveCount(3);
 });
 
 test('the More options blank is not offered in the expert view', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 	expect(await currentView(page)).toBe('plan');
-	await expect(page.getByRole('button', { name: /Hydration/ })).toBeVisible();
+	// The plan has rendered its three value blanks (issue #315) and no fourth.
+	await expect(page.locator('.chip-field')).toHaveCount(3);
 	await expect(moreOptions(page)).toHaveCount(0);
 });
 
@@ -251,4 +252,24 @@ test('the schedule band wraps its two plaques together on a phone', async ({ pag
 	// right-aligned: the plaque ends where the band's padding begins
 	expect(b.x + b.width - (r.x + r.width)).toBeLessThan(28);
 	expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(390);
+});
+
+// The plan's blanks used to depend on the view mode: expert appended hydration,
+// salt and the room temperature, so one share link rendered a three-blank or a
+// six-blank ticket depending on a device preference that is not in the URL
+// (issue #315). The row is now the values a bake succeeds or fails on that the
+// ticket does not already show. Named rather than compared across modes — two
+// empty rows would match each other too. Nothing read `.chip-field`'s
+// membership before, which is how the expert branch sat there unremarked.
+test('the plan shows the same three blanks in either view mode', async ({ page }) => {
+	const labels = () => page.locator('.chip-field .label-caps').allInnerTexts();
+	const want = ['PIZZAS', 'FERMENTATION WINDOW', 'ROOM TEMPERATURE (°C)'];
+
+	// The simple view ends the row with its way out, `More options…` (issue
+	// #434): a switch, not a value, so the three blanks before it still match.
+	await openRecipe(page, `${RECIPE}&md=b`);
+	expect(await labels()).toEqual([...want, 'DOUGH, YEAST, TEMPERATURES']);
+
+	await openRecipe(page, RECIPE);
+	expect(await labels()).toEqual(want);
 });

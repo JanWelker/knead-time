@@ -381,14 +381,13 @@ test.describe('a flour name too long for one line', () => {
 // prerendered page cannot satisfy them before the recipe is decoded.
 const DECIMALS = 'v=7&n=6&b=280&h=70&s=2.5&y=f&t=22.5&ft=4&r=2026-09-06T17%3A00%3A00.000Z';
 
-test('the German plan punctuates a decimal salt and a half-degree room the German way', async ({
-	page
-}) => {
+// The salt left the plan's blanks with the issue #315 cut (it is in grams on
+// the ticket), so the plan's half of this is the room temperature alone.
+test('the German plan punctuates a half-degree room the German way', async ({ page }) => {
 	await openRecipe(page, `${DECIMALS}&sa=2026-09-05T09%3A00%3A00.000Z`);
 	await chooseInMenu(page, 'Deutsch');
 
 	const chips = page.locator('.chip-field');
-	await expect(chips.filter({ hasText: /2,5\s%/ })).toHaveCount(1);
 	await expect(chips.filter({ hasText: /22,5\s°C/ })).toHaveCount(1);
 	await expect(chips.filter({ hasText: /\d\.\d/ })).toHaveCount(0);
 });

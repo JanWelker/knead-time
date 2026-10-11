@@ -2,6 +2,12 @@
 
 What Knead Time does, by feature and by the version that brought it. The major version tracks the share-link schema, so a link stamped `v=8` was written by an 8.x app; every older link still reproduces its recipe, gram for gram.
 
+## Three blanks, and warnings on the bake box (v8.5)
+
+The plan's header now shows the three values a bake succeeds or fails on that the ticket does not already carry: **pizzas**, the **fermentation window** and the **room temperature**, the kitchen the yeast amount was solved for ([issue #315](https://github.com/JanWelker/knead-time/issues/315)). Flour, hydration and salt left the row, because the ingredient ticket already names the flour and weighs the other two, and the row no longer changes with the view mode, so two people opening one link see the same ticket.
+
+The timing and kitchen warnings are no longer a banner across the page. They hang off the foot of the **Ready to bake** box, the moment they are about, each with a stamp naming it (`Night step`, `Flour overrun`, `Cold kitchen`, …) and a link that opens the sheet on the field that fixes it.
+
 ## All the options, where you look for them (v8.4)
 
 The expert view is no longer hidden at the bottom of the recipe sheet ([issue #434](https://github.com/JanWelker/knead-time/issues/434)). A **Simple / All options** switch now heads the sheet, the first thing you see on opening it, and in the simple view the plan's row of values ends with a **More options…** blank that switches to all options and opens the sheet on ball weight. The view is still a device preference: nothing about it enters the recipe or the share link beyond the `md=b` a simple-view link has always carried.
