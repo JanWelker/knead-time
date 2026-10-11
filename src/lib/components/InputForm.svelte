@@ -358,18 +358,13 @@
 		</fieldset>
 	{/if}
 
-	<div class="rule pt-6">
-		<button
-			type="button"
-			class="btn-ghost cursor-pointer"
-			onclick={() => uiMode.set(uiMode.current === 'beginner' ? 'expert' : 'beginner')}
-		>
-			{uiMode.current === 'beginner' ? t.form.mode_expert : t.form.mode_beginner}
-		</button>
-		{#if uiMode.current === 'beginner'}
-			<span class="text-ink-soft mt-1 block text-xs">{t.form.mode_help}</span>
-		{/if}
-	</div>
+	<!-- The switch between the two views is at the top of the sheet now, in its
+	     header, where it is seen on opening. What stays down here is the note
+	     on what the simple view quietly decides for you, read by someone who has
+	     just reached the end of the short list and wonders where the rest went. -->
+	{#if uiMode.current === 'beginner'}
+		<p class="rule text-ink-soft pt-6 text-xs">{t.form.mode_help}</p>
+	{/if}
 
 	{#if uiMode.current === 'expert'}
 		<details

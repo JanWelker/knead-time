@@ -110,7 +110,7 @@ test.describe('tap targets', () => {
 		);
 		await openAdjust(page);
 
-		for (const name of ['Now', 'Use best', 'Back to the simple view']) {
+		for (const name of ['Now', 'Use best', 'All options']) {
 			const box = await page.getByRole('button', { name, exact: true }).first().boundingBox();
 			expect(box, `${name} is not on the page`).not.toBeNull();
 			expect(box!.height, `${name} height`).toBeGreaterThanOrEqual(24);

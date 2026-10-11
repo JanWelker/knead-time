@@ -69,7 +69,9 @@ test('a view-mode key alone still restores the remembered recipe', async ({ page
 	await openAdjust(page);
 	// ...carrying the remembered recipe, in the mode the link asked for.
 	await expect(pizzas(page)).toHaveValue('9');
-	await expect(page.getByRole('button', { name: 'Show all options (expert)' })).toBeVisible();
+	await expect(
+		sheet(page).getByRole('button', { name: 'All options', exact: true })
+	).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('the app still works with localStorage blocked entirely', async ({ page, context }) => {

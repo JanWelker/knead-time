@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { formatDateTime, formatDuration, formatGrams } from '#lib/format.js';
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
+	import { uiMode } from '#lib/mode.svelte.js';
 	import type { FormState } from '#lib/state.svelte.js';
 	import InputForm from './InputForm.svelte';
 	import ModeBadge from './ModeBadge.svelte';
@@ -18,6 +19,7 @@
 
 	const t = $derived(i18n.t);
 	const locale = $derived(i18n.locale);
+	const expert = $derived(uiMode.current === 'expert');
 
 	let dialog = $state<HTMLDialogElement | null>(null);
 
@@ -54,6 +56,43 @@
 				<h2 id="adjust-heading" class="card-header-title">{t.adjust.heading}</h2>
 				<button type="button" class="btn-band shrink-0" onclick={() => dialog?.close()}>
 					{t.adjust.done}
+				</button>
+			</div>
+			<!-- The one switch between the two views, on the surface it changes and
+			     the first thing seen on opening it. It used to be a quiet button at
+			     the foot of the sheet, past every field, so a beginner had to scroll
+			     the whole form to learn that the rest of it existed. One toggle with
+			     aria-pressed rather than a segmented pair: there are two states, and
+			     a pair of boxes is the debris the masthead got rid of. "Simple" is
+			     printed at the off end so both states are named on paper; the button
+			     itself is named for what pressing it turns on. A deliberate choice,
+			     so it goes through set() and is remembered. -->
+			<div class="border-rule border-b border-dotted px-5 py-2 sm:px-6">
+				<button
+					type="button"
+					aria-pressed={expert}
+					class="label-caps group inline-flex min-h-6 cursor-pointer items-center gap-2.5 py-1"
+					onclick={() => uiMode.set(expert ? 'beginner' : 'expert')}
+				>
+					<span aria-hidden="true" class={expert ? 'text-ink-soft' : 'text-ink'}>
+						{t.adjust.view_simple}
+					</span>
+					<span
+						aria-hidden="true"
+						class="border-rule relative inline-block h-4 w-8 shrink-0 rounded-[1px] border-2 {expert
+							? 'bg-accent'
+							: 'bg-paper'}"
+					>
+						<span class="bg-rule absolute top-0 left-0 size-3 {expert ? 'translate-x-4' : ''}"
+						></span>
+					</span>
+					<span
+						class="{expert
+							? 'text-accent-ink'
+							: 'text-ink-soft'} underline-offset-4 group-hover:underline"
+					>
+						{t.adjust.view_all}
+					</span>
 				</button>
 			</div>
 			<p class="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 py-2.5 sm:px-6">

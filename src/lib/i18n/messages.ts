@@ -48,10 +48,14 @@ export interface Messages {
 		ready_label: string;
 		batch: string;
 		edit_hint: string;
+		more_options: string;
+		more_options_label: string;
 	};
 	adjust: {
 		heading: string;
 		live: string;
+		view_simple: string;
+		view_all: string;
 		group_when: string;
 		group_batch: string;
 		group_dough: string;
@@ -191,8 +195,6 @@ export interface Messages {
 		noFridge_none: string;
 		autolyse_toggle: string;
 		autolyse_help: string;
-		mode_beginner: string;
-		mode_expert: string;
 		mode_help: string;
 	};
 	mode: {
@@ -626,8 +628,6 @@ const en: Messages = {
 		autolyse_toggle: 'Autolyse rest before mixing',
 		autolyse_help:
 			'Rest flour and water for 30 min before the salt and yeast go in — less kneading, a more extensible dough. Only when no pre-ferment is used.',
-		mode_beginner: 'Back to the simple view',
-		mode_expert: 'Show all options (expert)',
 		mode_help:
 			'The simple view makes 280 g dough balls and uses proven defaults for everything else: 70% hydration, 3% salt, fresh yeast.'
 	},
@@ -984,11 +984,15 @@ const en: Messages = {
 		heading: 'Your plan',
 		ready_label: 'Ready to bake',
 		batch: '{n} pizzas at {weight} g',
-		edit_hint: 'Every underlined value opens for editing.'
+		edit_hint: 'Every underlined value opens for editing.',
+		more_options: 'More options…',
+		more_options_label: 'Dough, yeast, temperatures'
 	},
 	adjust: {
 		heading: 'Adjust the recipe',
 		live: 'As it stands',
+		view_simple: 'Simple',
+		view_all: 'All options',
 		group_when: 'When',
 		group_batch: 'Batch',
 		group_dough: 'Dough',
@@ -1165,8 +1169,6 @@ const de: Messages = {
 		autolyse_toggle: 'Autolyse-Ruhe vor dem Mischen',
 		autolyse_help:
 			'Mehl und Wasser 30 min ruhen lassen, bevor Salz und Hefe dazukommen — weniger Kneten, dehnbarerer Teig. Nur ohne Vorteig.',
-		mode_beginner: 'Zurück zur einfachen Ansicht',
-		mode_expert: 'Alle Optionen anzeigen (Experten)',
 		mode_help:
 			'Die einfache Ansicht macht Teiglinge von 280 g und nutzt bewährte Standardwerte für alles Übrige: 70% Hydration, 3% Salz, Frischhefe.'
 	},
@@ -1535,11 +1537,15 @@ const de: Messages = {
 		heading: 'Dein Plan',
 		ready_label: 'Bereit zum Backen',
 		batch: '{n} Pizzen zu je {weight} g',
-		edit_hint: 'Jeder unterstrichene Wert lässt sich bearbeiten.'
+		edit_hint: 'Jeder unterstrichene Wert lässt sich bearbeiten.',
+		more_options: 'Weitere Optionen…',
+		more_options_label: 'Teig, Hefe, Temperaturen'
 	},
 	adjust: {
 		heading: 'Rezept anpassen',
 		live: 'Aktueller Stand',
+		view_simple: 'Einfach',
+		view_all: 'Alle Optionen',
 		group_when: 'Wann',
 		group_batch: 'Menge',
 		group_dough: 'Teig',
@@ -1718,8 +1724,6 @@ const it: Messages = {
 		autolyse_toggle: 'Riposo di autolisi prima dell’impasto',
 		autolyse_help:
 			'Far riposare farina e acqua per 30 min prima di aggiungere sale e lievito — meno lavoro, impasto più estensibile. Solo senza preimpasto.',
-		mode_beginner: 'Torna alla vista semplice',
-		mode_expert: 'Mostra tutte le opzioni (esperto)',
 		mode_help:
 			'La vista semplice prepara panetti da 280 g e usa valori predefiniti collaudati per tutto il resto: 70% di idratazione, 3% di sale, lievito di birra fresco.'
 	},
@@ -2087,11 +2091,15 @@ const it: Messages = {
 		heading: 'Il tuo programma',
 		ready_label: 'Pronto da infornare',
 		batch: '{n} pizze da {weight} g',
-		edit_hint: 'Ogni valore sottolineato si può modificare.'
+		edit_hint: 'Ogni valore sottolineato si può modificare.',
+		more_options: 'Altre opzioni…',
+		more_options_label: 'Impasto, lievito, temperature'
 	},
 	adjust: {
 		heading: 'Modifica la ricetta',
 		live: 'Come sta ora',
+		view_simple: 'Semplice',
+		view_all: 'Tutte le opzioni',
 		group_when: 'Quando',
 		group_batch: 'Quantità',
 		group_dough: 'Impasto',
@@ -2273,8 +2281,6 @@ const fr: Messages = {
 		autolyse_toggle: 'Repos d’autolyse avant le pétrissage',
 		autolyse_help:
 			"Laissez reposer la farine et l'eau 30 min avant d'ajouter le sel et la levure — moins de pétrissage, une pâte plus extensible. Uniquement sans pré-ferment.",
-		mode_beginner: 'Revenir à la vue simple',
-		mode_expert: 'Afficher toutes les options (expert)',
 		mode_help:
 			"La vue simple prépare des pâtons de 280 g et utilise des valeurs par défaut éprouvées pour tout le reste : 70% d'hydratation, 3% de sel, levure fraîche."
 	},
@@ -2644,11 +2650,15 @@ const fr: Messages = {
 		heading: 'Votre programme',
 		ready_label: 'Prêt à enfourner',
 		batch: '{n} pizzas de {weight} g',
-		edit_hint: 'Chaque valeur soulignée s’ouvre pour être modifiée.'
+		edit_hint: 'Chaque valeur soulignée s’ouvre pour être modifiée.',
+		more_options: 'Plus d’options…',
+		more_options_label: 'Pâte, levure, températures'
 	},
 	adjust: {
 		heading: 'Ajuster la recette',
 		live: 'En l’état',
+		view_simple: 'Simple',
+		view_all: 'Toutes les options',
 		group_when: 'Quand',
 		group_batch: 'Fournée',
 		group_dough: 'Pâte',
@@ -2828,8 +2838,6 @@ const nl: Messages = {
 		autolyse_toggle: 'Autolyse-rust voor het kneden',
 		autolyse_help:
 			'Laat bloem en water 30 min rusten voordat het zout en de gist erbij gaan — minder kneden, een rekbaarder deeg. Alleen zonder voordeeg.',
-		mode_beginner: 'Terug naar de eenvoudige weergave',
-		mode_expert: 'Alle opties tonen (expert)',
 		mode_help:
 			'De eenvoudige weergave maakt deegbollen van 280 g en gebruikt beproefde standaardwaarden voor al het andere: 70% hydratatie, 3% zout, verse gist.'
 	},
@@ -3193,11 +3201,15 @@ const nl: Messages = {
 		heading: 'Jouw plan',
 		ready_label: 'Klaar om te bakken',
 		batch: '{n} pizza’s van {weight} g',
-		edit_hint: 'Elke onderstreepte waarde opent om aan te passen.'
+		edit_hint: 'Elke onderstreepte waarde opent om aan te passen.',
+		more_options: 'Meer opties…',
+		more_options_label: 'Deeg, gist, temperaturen'
 	},
 	adjust: {
 		heading: 'Recept aanpassen',
 		live: 'Zoals het nu staat',
+		view_simple: 'Eenvoudig',
+		view_all: 'Alle opties',
 		group_when: 'Wanneer',
 		group_batch: 'Hoeveelheid',
 		group_dough: 'Deeg',

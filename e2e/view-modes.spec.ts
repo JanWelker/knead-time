@@ -27,17 +27,19 @@ async function open(page: import('@playwright/test').Page, query = '') {
 	await openAdjust(page);
 }
 
-const expertToggle = (page: import('@playwright/test').Page) =>
-	page.getByRole('button', { name: 'Show all options (expert)' });
-const beginnerToggle = (page: import('@playwright/test').Page) =>
-	page.getByRole('button', { name: 'Back to the simple view' });
+// The view switch sits in the sheet's header, one toggle named for what it
+// turns on. Its pressed state is the mode, so every assertion below reads it.
+const viewSwitch = (page: import('@playwright/test').Page) =>
+	sheet(page).getByRole('button', { name: 'All options', exact: true });
+const expectMode = (page: import('@playwright/test').Page, mode: 'beginner' | 'expert') =>
+	expect(viewSwitch(page)).toHaveAttribute('aria-pressed', mode === 'expert' ? 'true' : 'false');
 const field = (page: import('@playwright/test').Page, label: string | RegExp) =>
 	sheet(page).locator('label', { hasText: label });
 
 test('a bare visit lands in beginner, showing only the everyday inputs', async ({ page }) => {
 	await open(page);
 
-	await expect(expertToggle(page)).toBeVisible();
+	await expectMode(page, 'beginner');
 	await expect(field(page, 'Pizzas')).toBeVisible();
 	await expect(field(page, 'Flour').first()).toBeVisible();
 	// expert-only fields stay out of the way
@@ -49,14 +51,14 @@ test('a bare visit lands in beginner, showing only the everyday inputs', async (
 test('a link carrying recipe params opens in expert', async ({ page }) => {
 	await open(page, RECIPE);
 
-	await expect(beginnerToggle(page)).toBeVisible();
+	await expectMode(page, 'expert');
 	await expect(field(page, /Hydration \(%\)/)).toBeVisible();
 });
 
 test('md=b forces beginner even with a full recipe attached', async ({ page }) => {
 	await open(page, `md=b&${RECIPE}`);
 
-	await expect(expertToggle(page)).toBeVisible();
+	await expectMode(page, 'beginner');
 	await expect(field(page, /Hydration \(%\)/)).toHaveCount(0);
 });
 
@@ -64,31 +66,100 @@ test('utm-only junk behaves like a bare visit, not a recipe link', async ({ page
 	// issue #201: stray campaign params must not be mistaken for a recipe.
 	await open(page, 'utm_source=newsletter&utm_medium=email&fbclid=abc123');
 
-	await expect(expertToggle(page)).toBeVisible();
+	await expectMode(page, 'beginner');
 });
 
 test('only an explicit toggle is remembered', async ({ page }) => {
 	await open(page);
-	await expertToggle(page).click();
-	await expect(beginnerToggle(page)).toBeVisible();
+	await viewSwitch(page).click();
+	await expectMode(page, 'expert');
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:mode'))).toBe('expert');
 
 	// the choice survives a reload with no params
 	await open(page);
-	await expect(beginnerToggle(page)).toBeVisible();
+	await expectMode(page, 'expert');
 });
 
 test("opening someone's beginner link never overwrites your own preference", async ({ page }) => {
 	await open(page);
-	await expertToggle(page).click();
+	await viewSwitch(page).click();
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:mode'))).toBe('expert');
 
 	await open(page, `md=b&${RECIPE}`);
-	await expect(expertToggle(page)).toBeVisible(); // their link wins for this visit
+	await expectMode(page, 'beginner'); // their link wins for this visit
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:mode'))).toBe('expert');
 
 	await open(page); // ...and yours is still there afterwards
-	await expect(beginnerToggle(page)).toBeVisible();
+	await expectMode(page, 'expert');
+});
+
+test('the view switch is in the sheet header, seen on opening it on a phone', async ({ page }) => {
+	// issue #434: the only way to the expert view was a quiet button at the foot
+	// of the sheet, below every field, so a beginner had to scroll the whole form
+	// to find out the rest of it existed. The switch now sits in the header; this
+	// fails if it drifts back down out of the first screen.
+	await page.setViewportSize({ width: 390, height: 844 });
+	await open(page);
+
+	await expect(viewSwitch(page)).toBeInViewport();
+	await expectMode(page, 'beginner');
+	// ...and the old foot button is gone rather than kept as a second copy.
+	await expect(page.getByRole('button', { name: 'Show all options (expert)' })).toHaveCount(0);
+});
+
+test('the header switch reveals the expert fields, hides them again, and is remembered', async ({
+	page
+}) => {
+	await open(page);
+	await expect(field(page, /Hydration \(%\)/)).toHaveCount(0);
+
+	await viewSwitch(page).click();
+	await expectMode(page, 'expert');
+	await expect(field(page, /Hydration \(%\)/)).toBeVisible();
+	await expect(field(page, 'Ball weight')).toBeVisible();
+	expect(await page.evaluate(() => localStorage.getItem('kneadtime:mode'))).toBe('expert');
+
+	await viewSwitch(page).click();
+	await expectMode(page, 'beginner');
+	await expect(field(page, /Hydration \(%\)/)).toHaveCount(0);
+	expect(await page.evaluate(() => localStorage.getItem('kneadtime:mode'))).toBe('beginner');
+
+	// The view is interface state: switching it puts nothing in the recipe query
+	// beyond the md=b the beginner view has always stamped.
+	expect(new URL(page.url()).searchParams.get('md')).toBe('b');
+});
+
+const moreOptions = (page: import('@playwright/test').Page) =>
+	page.getByRole('button', { name: /More options/ });
+
+test("the plan's More options blank switches to expert and opens the sheet on what it revealed", async ({
+	page
+}) => {
+	// issue #434: nothing on the plan said the expert view existed. The blank
+	// after the chips is the answer, and it must land the reader on a field the
+	// simple view did not have — otherwise it reads as a second Edit recipe.
+	await openRecipe(page);
+	await page.getByRole('button', { name: 'Skip to the plan' }).click();
+	await expect(moreOptions(page)).toBeVisible();
+
+	await moreOptions(page).click();
+	await expect(sheet(page)).toBeVisible();
+	await expectMode(page, 'expert');
+	await expect(page.locator('#field-ballWeight')).toBeFocused();
+	expect(await page.evaluate(() => localStorage.getItem('kneadtime:mode'))).toBe('expert');
+
+	// Back on the plan, the blank has done its job and the expert chips stand
+	// where it was.
+	await page.getByRole('button', { name: 'Done', exact: true }).click();
+	await expect(moreOptions(page)).toHaveCount(0);
+	await expect(page.getByRole('button', { name: /Hydration/ })).toBeVisible();
+});
+
+test('the More options blank is not offered in the expert view', async ({ page }) => {
+	await openRecipe(page, RECIPE);
+	expect(await currentView(page)).toBe('plan');
+	await expect(page.getByRole('button', { name: /Hydration/ })).toBeVisible();
+	await expect(moreOptions(page)).toHaveCount(0);
 });
 
 test('the schedule verbosity toggle shows and hides the step explanations', async ({ page }) => {

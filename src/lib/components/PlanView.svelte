@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { resolve } from '$app/paths';
 	import { buildIcs } from '#lib/dough/ics.js';
 	import { encodeInputs } from '#lib/dough/urlState.js';
@@ -114,6 +114,17 @@
 			// Say so, and say where the link is. Stays until the next attempt.
 			copied = 'failed';
 		}
+	}
+
+	// The simple view's way out, written as one more blank on the ticket: the
+	// chips are where a reader looks for "what can I change", so the answer
+	// "more than this" belongs at the end of them. It switches the view first
+	// (a deliberate choice, remembered) and then opens the sheet on the first
+	// field that switch revealed, which waits a tick for it to exist.
+	async function moreOptions() {
+		uiMode.set('expert');
+		await tick();
+		onadjust('field-ballWeight');
 	}
 
 	type Chip = { label: string; value: string; field: string };
@@ -363,6 +374,12 @@
 							<span class="data text-lg leading-none">{chip.value}</span>
 						</button>
 					{/each}
+					{#if uiMode.current === 'beginner'}
+						<button type="button" class="chip-field" onclick={moreOptions} aria-haspopup="dialog">
+							<span class="label-caps text-ink-soft">{t.plan.more_options_label}</span>
+							<span class="data text-accent-ink text-lg leading-none">{t.plan.more_options}</span>
+						</button>
+					{/if}
 				</div>
 				<p class="text-ink-soft mt-4 text-xs">{t.plan.edit_hint}</p>
 			</div>
