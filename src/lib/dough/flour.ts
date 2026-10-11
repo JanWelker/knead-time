@@ -37,8 +37,7 @@ export type FlourPresetId =
 //                             own-brand, none of which publish a W at all.
 //   caputo-doppio-zero        Caputo's own page: W 220–240, "ideal for short
 //                             leavening". Sold by Coop.
-//   5stagioni-napoletana      W 250–270, 12 % protein, 24–48 h. Agugiaro &
-//                             Figna is an AVPN-listed supplier.
+//   5stagioni-napoletana      W 250–270, 12 % protein, 24–48 h.
 //   caputo-pizzeria           datasheet W 260–270 (the marketing page says
 //                             260–280), 12.5 % protein.
 //   polselli-classica         W 260–280, 12.5 % protein.
@@ -50,8 +49,8 @@ export type FlourPresetId =
 //                             the published figures, not a measured difference.
 //   caputo-saccorosso         W 280–300, 13 % protein — the professional sack.
 //   dallagiovanna-classica-oro W 300–320, 13 % protein.
-//   dallagiovanna-napoletana  stated as a single figure, W 310, AVPN certified
-//                             and sold for 24–72 h. The firmest anchor here.
+//   dallagiovanna-napoletana  stated as a single figure, W 310, sold for
+//                             24–72 h. The firmest anchor here.
 //   caputo-cuoco (Chef)       W 300–320, 13 % protein, 24–72 h at 65–75 %
 //                             hydration — the red bag most Neapolitan
 //                             pizzaioli reach for. Listed at 315 because
@@ -75,19 +74,38 @@ export type FlourPresetId =
 //
 // Names are brand names, so they are not translated; only the generic
 // supermarket entry gets a localised label.
-export const FLOUR_PRESETS: ReadonlyArray<{ id: FlourPresetId; w: number }> = [
-	{ id: 'supermarket-00', w: 180 },
-	{ id: 'caputo-doppio-zero', w: 230 },
-	{ id: '5stagioni-napoletana', w: 260 },
-	{ id: 'caputo-pizzeria', w: 265 },
-	{ id: 'polselli-classica', w: 270 },
-	{ id: 'caputo-nuvola', w: 280 },
-	{ id: 'caputo-saccorosso', w: 290 },
-	{ id: 'dallagiovanna-classica-oro', w: 305 },
-	{ id: 'dallagiovanna-napoletana', w: 310 },
-	{ id: 'caputo-cuoco', w: 315 },
-	{ id: 'caputo-nuvola-super', w: 330 },
-	{ id: 'dallagiovanna-uniqua-blu', w: 380 }
+//
+// `avpn` (issue #420): the MILL is on the AVPN's own Register of Approved
+// Suppliers ("Albo Fornitori"), https://www.pizzanapoletana.org/en/fornitori,
+// checked 2026-10-11. It is a property of the mill, not of the bag: the
+// register names one product per mill (Caputo "00" Pizzeria, Polselli
+// Classica, Le 5 Stagioni Farina Pizza Napoletana, Dallagiovanna's special
+// flour for Pizza Napoletana), so a mark on, say, Caputo Nuvola means "Caputo
+// is an approved supplier", never "this bag was certified". All four mills
+// here have an entry of their own on that register — 29-caputo, 23-polselli,
+// 28-agugiaro__5_stagioni, 6-dallagiovanna — and a mill's own marketing claim
+// counts for nothing: only the register does. The supermarket generic has no
+// mill, so it is never marked. Advisory like W itself: nothing reads it but
+// the label in the select.
+export interface FlourPreset {
+	id: FlourPresetId;
+	w: number;
+	avpn: boolean;
+}
+
+export const FLOUR_PRESETS: ReadonlyArray<FlourPreset> = [
+	{ id: 'supermarket-00', w: 180, avpn: false },
+	{ id: 'caputo-doppio-zero', w: 230, avpn: true },
+	{ id: '5stagioni-napoletana', w: 260, avpn: true },
+	{ id: 'caputo-pizzeria', w: 265, avpn: true },
+	{ id: 'polselli-classica', w: 270, avpn: true },
+	{ id: 'caputo-nuvola', w: 280, avpn: true },
+	{ id: 'caputo-saccorosso', w: 290, avpn: true },
+	{ id: 'dallagiovanna-classica-oro', w: 305, avpn: true },
+	{ id: 'dallagiovanna-napoletana', w: 310, avpn: true },
+	{ id: 'caputo-cuoco', w: 315, avpn: true },
+	{ id: 'caputo-nuvola-super', w: 330, avpn: true },
+	{ id: 'dallagiovanna-uniqua-blu', w: 380, avpn: true }
 ];
 
 // Caputo Pizzeria is the default flour for a fresh visit — the workhorse
@@ -223,7 +241,7 @@ export function flourBand(w: number): FlourBandId {
 // lands on — an empty group heading is a promise of options that aren't there.
 export function flourPresetGroups(): Array<{
 	band: FlourBandId;
-	presets: Array<{ id: FlourPresetId; w: number }>;
+	presets: FlourPreset[];
 }> {
 	return FLOUR_BANDS.map((band) => ({
 		band,
