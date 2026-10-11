@@ -2,6 +2,10 @@
 
 What Knead Time does, by feature and by the version that brought it. The major version tracks the share-link schema, so a link stamped `v=8` was written by an 8.x app; every older link still reproduces its recipe, gram for gram.
 
+## AVPN salt and ball-weight bands (v8.1)
+
+The star rating now judges salt and ball weight against the AVPN disciplinare instead of its own looser bands ([issue #422](https://github.com/JanWelker/knead-time/issues/422)): 2.2–3.75 % salt (40–60 g per litre of water against 1.6–1.8 kg of flour) and 200–280 g balls. They were 2–3.5 % and 200–320 g. The disciplinare's saltiest dough no longer loses a point, and a ball over 280 g now costs a little. No gram of any recipe changes; only the rating does. Dry yeast stays as it was: instant converts at the disciplinare's 1:3, active dry at 1:2.5, a distinction the disciplinare does not make.
+
 ## No fridge, for the AVPN dough (v8)
 
 **Keep it out of the fridge (AVPN)**, at the head of the proof group in the recipe sheet, keeps the whole ferment on the counter whatever the window ([issue #422](https://github.com/JanWelker/knead-time/issues/422)). Without it a window of 16 h or more still goes to the fridge. The AVPN disciplinare ferments its dough 12–24 h at room temperature or in an 18–20 °C cabinet and never mentions a fridge, so before this a 24 h AVPN dough could only be planned as a cold one. With it, that dough solves to 1.2–1.7 g of fresh yeast per litre at 18–20 °C, inside the disciplinare's 0.1–3 g. The fridge temperature and the cold ball proof leave the sheet while it is on, and the flour is judged on its room band.

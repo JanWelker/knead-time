@@ -31,24 +31,29 @@ const INFEASIBLE_PENALTY = 60;
 const MAX_SHIFT_DEDUCT = 20;
 const MAX_CLAMP_DEDUCT = 20;
 
-// Contemporary Neapolitan KPI bands. Inputs inside the band score 100; each
-// unit outside subtracts the per-unit rate, capped at the factor's max
-// deduction so one extreme input can't pin the score to 0 by itself. The
-// defaults from CLAUDE.md (280 g / 70 % / 3 % salt / 22 °C / 4 °C) all sit
-// inside their band — not centred, 3 % salt is near the top of 2–3.5 — so a
-// defaults-only recipe scores 100.
+// KPI bands. Inputs inside the band score 100; each unit outside subtracts the
+// per-unit rate, capped at the factor's max deduction so one extreme input
+// can't pin the score to 0 by itself. Salt and ball weight are the AVPN
+// disciplinare's (2024, issue #422); hydration and the temperatures describe
+// contemporary Neapolitan practice and differ from it on purpose. The defaults
+// from CLAUDE.md (280 g / 70 % / 3 % salt / 22 °C / 4 °C) all sit inside their
+// band — 280 g on the ball band's top edge — so a defaults-only recipe scores
+// 100.
 const HYDRATION_LOW = 60;
 const HYDRATION_HIGH = 80;
 const HYDRATION_PCT_PER_POINT = 1;
 const HYDRATION_MAX_DEDUCT = 10;
 
-const SALT_LOW = 2;
-const SALT_HIGH = 3.5;
+// 40–60 g of salt per litre of water against 1.6–1.8 kg of flour: 40/1800 is
+// 2.22 %, rounded to 2.2 as the disciplinare's readers quote it; 60/1600 is
+// exactly 3.75 %.
+const SALT_LOW = 2.2;
+const SALT_HIGH = 3.75;
 const SALT_PCT_PER_POINT = 4;
 const SALT_MAX_DEDUCT = 10;
 
 const BALL_LOW = 200;
-const BALL_HIGH = 320;
+const BALL_HIGH = 280;
 const BALL_PCT_PER_GRAM = 0.1;
 const BALL_MAX_DEDUCT = 8;
 
