@@ -31,7 +31,7 @@
 
 	// `.input` in app.css carries the box itself; only the sizing differs here.
 	const dateInputClass = 'input min-w-0 flex-1';
-	const timeInputClass = 'input w-28';
+	const timeInputClass = 'input input-time';
 	const selectClass = 'input w-full';
 
 	// True while the last start-time edit had to be pulled back to the bake

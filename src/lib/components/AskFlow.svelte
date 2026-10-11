@@ -170,7 +170,7 @@
 										/>
 										<input
 											type="time"
-											class="input-lg w-full sm:w-44"
+											class="input-lg input-time max-sm:w-full"
 											value={readyByTime}
 											aria-label="{t.form.readyBy} — {t.form.field_time}"
 											oninput={(e) => setReadyBy(readyByDate, e.currentTarget.value)}

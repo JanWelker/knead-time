@@ -788,6 +788,24 @@ html.dark {
 		border-color: var(--kt-accent);
 	}
 
+	/* A time box is as wide as the value the browser draws in it, and that is
+	   the locale's to decide: 19:00 in a 24-hour one, 07:00 PM in en-US, beside
+	   a native picker glyph either way. Both fixed widths it used to carry were
+	   measured against 19:00 and cut 07:00 PM to 07:00 PN (issue #435), so it
+	   sizes to its content. Where field-sizing is missing (Firefox) the
+	   fallback is in em, so it follows .input and .input-lg alike, with room
+	   for a 12-hour value. */
+	.input-time {
+		width: 9em;
+	}
+
+	@supports (field-sizing: content) {
+		.input-time {
+			field-sizing: content;
+			width: auto;
+		}
+	}
+
 	/* One of a small set of mutually exclusive answers, sized to be hit with a
 	   thumb: a ruled box on an order pad, ticked. The radio itself stays
 	   visible — a tile that hides its own control has to reinvent the selected
