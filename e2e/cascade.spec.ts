@@ -29,12 +29,13 @@ test('a later layer can retune a heading the base rule already styled', async ({
 	expect(type.tracking / type.size).toBeCloseTo(0.005, 3);
 });
 
-// The TRMNL uuid field carried `focus:outline-none`. It never took effect —
-// the unlayered focus rule outranked it — so the field has always shown the
-// ring. Layering would have handed that class its wish and left the input with
-// no focus indicator at all, so the dead class was removed with the change.
-// This is the check that the removal actually held.
-test('every control keeps the focus ring, including the TRMNL uuid field', async ({ page }) => {
+// A text field in a dialog (the TRMNL uuid field, since removed) carried
+// `focus:outline-none`. It never took effect — the unlayered focus rule
+// outranked it — so the field has always shown the ring. Layering would have
+// handed that class its wish and left the input with no focus indicator at
+// all, so the dead class was removed with the change. This is the check that
+// the removal actually held, on the text field a dialog still carries.
+test('every control keeps the focus ring, including a dialog text field', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 	await openAdjust(page);
 
@@ -51,12 +52,12 @@ test('every control keeps the focus ring, including the TRMNL uuid field', async
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
 
 	await openMenu(page);
-	await page.getByRole('menuitem', { name: 'Send to TRMNL…' }).click();
-	// By its accessible name: there is more than one dialog with a text field
-	// in the page now, and "the input inside a dialog" stopped being unique.
-	const uuid = page.getByRole('textbox', { name: 'Plugin UUID' });
-	await expect(uuid).toBeVisible();
-	expect(await ring(uuid)).toBe('rgb(200, 64, 26) solid 3px');
+	await page.getByRole('menuitem', { name: 'Save recipe' }).click();
+	// By its accessible name: "the input inside a dialog" is not unique — the
+	// adjust sheet is a dialog with text fields too.
+	const name = page.getByRole('textbox', { name: 'Name this recipe:' });
+	await expect(name).toBeVisible();
+	expect(await ring(name)).toBe('rgb(200, 64, 26) solid 3px');
 });
 
 // The two fermentation-band fills — the room band and the cold band on the

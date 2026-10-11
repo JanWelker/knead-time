@@ -349,31 +349,6 @@ export interface Messages {
 		recipe_heading: string;
 		scan_to_open: string;
 	};
-	trmnl: {
-		now: string;
-		next: string;
-		done: string;
-		since: string;
-		left: string;
-		unit_h: string;
-		unit_min: string;
-	};
-	trmnl_push: {
-		menu_item: string;
-		dialog_heading: string;
-		dialog_intro: string;
-		uuid_label: string;
-		send: string;
-		sending: string;
-		sent: string;
-		disconnect: string;
-		close: string;
-		error: string;
-		error_reason: string;
-		error_invalid_uuid: string;
-		setup_hint: string;
-		setup_link: string;
-	};
 	reminders: {
 		menu_item: string;
 		button: string;
@@ -841,32 +816,6 @@ const en: Messages = {
 	print: {
 		recipe_heading: 'Recipe',
 		scan_to_open: 'Scan to open this recipe'
-	},
-	trmnl: {
-		now: 'Now',
-		next: 'Next',
-		done: 'Pizza time!',
-		since: 'since',
-		left: 'left',
-		unit_h: 'h',
-		unit_min: 'min'
-	},
-	trmnl_push: {
-		menu_item: 'Send to TRMNL…',
-		dialog_heading: 'Send recipe to your TRMNL device',
-		dialog_intro:
-			'Push this recipe to a TRMNL Private Plugin. Set up the plugin once on trmnl.com, then paste its UUID here.',
-		uuid_label: 'Plugin UUID',
-		send: 'Send to TRMNL',
-		sending: 'Sending…',
-		sent: 'Recipe sent. Your device updates on its next refresh.',
-		disconnect: 'Forget',
-		close: 'Close',
-		error: 'Could not send',
-		error_reason: '{error}: {reason}',
-		error_invalid_uuid: 'That doesn’t look like a plugin UUID.',
-		setup_hint: 'First time?',
-		setup_link: 'See the TRMNL setup guide'
 	},
 	reminders: {
 		menu_item: 'Remind me on this device…',
@@ -1406,32 +1355,6 @@ const de: Messages = {
 	print: {
 		recipe_heading: 'Rezept',
 		scan_to_open: 'Scanne, um das Rezept zu öffnen'
-	},
-	trmnl: {
-		now: 'Jetzt',
-		next: 'Als Nächstes',
-		done: 'Pizzazeit!',
-		since: 'seit',
-		left: 'übrig',
-		unit_h: 'Std',
-		unit_min: 'Min'
-	},
-	trmnl_push: {
-		menu_item: 'An TRMNL senden…',
-		dialog_heading: 'Rezept an dein TRMNL-Gerät senden',
-		dialog_intro:
-			'Schiebe dieses Rezept zu einem privaten TRMNL-Plugin. Lege das Plugin einmal auf trmnl.com an und füge hier seine UUID ein.',
-		uuid_label: 'Plugin-UUID',
-		send: 'An TRMNL senden',
-		sending: 'Wird gesendet…',
-		sent: 'Rezept gesendet. Dein Gerät zeigt es beim nächsten Refresh.',
-		disconnect: 'Vergessen',
-		close: 'Schließen',
-		error: 'Senden fehlgeschlagen',
-		error_reason: '{error}: {reason}',
-		error_invalid_uuid: 'Das sieht nicht wie eine Plugin-UUID aus.',
-		setup_hint: 'Zum ersten Mal?',
-		setup_link: 'Zur TRMNL-Einrichtungsanleitung'
 	},
 	reminders: {
 		menu_item: 'Auf diesem Gerät erinnern…',
@@ -1976,32 +1899,6 @@ const it: Messages = {
 	print: {
 		recipe_heading: 'Ricetta',
 		scan_to_open: 'Scansiona per aprire la ricetta'
-	},
-	trmnl: {
-		now: 'Ora',
-		next: 'Prossimo',
-		done: 'È ora di cuocere!',
-		since: 'da',
-		left: 'rimaste',
-		unit_h: 'h',
-		unit_min: 'min'
-	},
-	trmnl_push: {
-		menu_item: 'Invia a TRMNL…',
-		dialog_heading: 'Invia la ricetta al tuo dispositivo TRMNL',
-		dialog_intro:
-			'Spedisci questa ricetta a un Plugin privato TRMNL. Configura il plugin una volta su trmnl.com e incolla qui il suo UUID.',
-		uuid_label: 'UUID del plugin',
-		send: 'Invia a TRMNL',
-		sending: 'Invio in corso…',
-		sent: 'Ricetta inviata. Il dispositivo la mostrerà al prossimo aggiornamento.',
-		disconnect: 'Dimentica',
-		close: 'Chiudi',
-		error: 'Invio non riuscito',
-		error_reason: '{error}: {reason}',
-		error_invalid_uuid: 'Questo non sembra un UUID di plugin.',
-		setup_hint: 'Prima volta?',
-		setup_link: 'Guida alla configurazione TRMNL'
 	},
 	reminders: {
 		menu_item: 'Ricordamelo su questo dispositivo…',
@@ -2551,32 +2448,6 @@ const fr: Messages = {
 		recipe_heading: 'Recette',
 		scan_to_open: 'Scannez pour ouvrir la recette'
 	},
-	trmnl: {
-		now: 'Maintenant',
-		next: 'À suivre',
-		done: 'Au four !',
-		since: 'depuis',
-		left: 'restant',
-		unit_h: 'h',
-		unit_min: 'min'
-	},
-	trmnl_push: {
-		menu_item: 'Envoyer à TRMNL…',
-		dialog_heading: 'Envoyer la recette à votre TRMNL',
-		dialog_intro:
-			'Pousse cette recette vers un Plugin privé TRMNL. Configure le plugin une fois sur trmnl.com puis colle son UUID ici.',
-		uuid_label: 'UUID du plugin',
-		send: 'Envoyer à TRMNL',
-		sending: 'Envoi en cours…',
-		sent: 'Recette envoyée. Le dispositif l’affichera au prochain rafraîchissement.',
-		disconnect: 'Oublier',
-		close: 'Fermer',
-		error: 'Échec de l’envoi',
-		error_reason: '{error} : {reason}',
-		error_invalid_uuid: 'Cela ne ressemble pas à un UUID de plugin.',
-		setup_hint: 'Première fois ?',
-		setup_link: 'Guide de configuration TRMNL'
-	},
 	reminders: {
 		menu_item: 'Me rappeler sur cet appareil…',
 		button: 'Me rappeler',
@@ -3120,32 +2991,6 @@ const nl: Messages = {
 	print: {
 		recipe_heading: 'Recept',
 		scan_to_open: 'Scan om het recept te openen'
-	},
-	trmnl: {
-		now: 'Nu',
-		next: 'Volgende',
-		done: 'Tijd om te bakken!',
-		since: 'sinds',
-		left: 'over',
-		unit_h: 'u',
-		unit_min: 'min'
-	},
-	trmnl_push: {
-		menu_item: 'Naar TRMNL sturen…',
-		dialog_heading: 'Recept naar je TRMNL-apparaat sturen',
-		dialog_intro:
-			'Push dit recept naar een privé TRMNL-plugin. Stel de plugin één keer in op trmnl.com en plak hier zijn UUID.',
-		uuid_label: 'Plugin-UUID',
-		send: 'Naar TRMNL sturen',
-		sending: 'Bezig met sturen…',
-		sent: 'Recept gestuurd. Je apparaat toont het bij de volgende refresh.',
-		disconnect: 'Vergeten',
-		close: 'Sluiten',
-		error: 'Sturen mislukt',
-		error_reason: '{error}: {reason}',
-		error_invalid_uuid: 'Dat lijkt niet op een plugin-UUID.',
-		setup_hint: 'Eerste keer?',
-		setup_link: 'Bekijk de TRMNL-installatiegids'
 	},
 	reminders: {
 		menu_item: 'Herinner me op dit apparaat…',

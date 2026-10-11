@@ -10,6 +10,7 @@
 	} from '#lib/dough/urlState.js';
 	import { defaultInputs } from '#lib/dough/defaults.js';
 	import { safeLocalStorage } from '#lib/safeStorage.js';
+	import { clearRetiredSlots } from '#lib/retiredSlots.js';
 	import { uiMode } from '#lib/mode.svelte.js';
 	import { loadStoredMode } from '#lib/storedMode.js';
 	import { scheduleVerbosity } from '#lib/verbosity.svelte.js';
@@ -75,6 +76,7 @@
 
 	onMount(() => {
 		const storage = safeLocalStorage();
+		clearRetiredSlots(storage);
 		// Only keys Knead Time has ever encoded make a URL a recipe link —
 		// foreign params alone (utm_source, fbclid, …) behave like a bare visit.
 		const carriesRecipe = hasRecipeParams(window.location.search);
@@ -161,8 +163,8 @@
 	});
 
 	// Was a window.prompt: native chrome in an app that is otherwise translated
-	// into five languages, unstyled in both themes, and blocking. The dialog
-	// beside it (TrmnlPush) already had the shape to copy.
+	// into five languages, unstyled in both themes, and blocking. Now a native
+	// <dialog>, the same shape as the reminders dialog beside it.
 	function saveCurrentRecipe(name: string) {
 		savedRecipes = saveRecipe(safeLocalStorage(), {
 			name,

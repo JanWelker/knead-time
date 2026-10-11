@@ -79,8 +79,7 @@
 	<title>{t.app.title} — {t.print.recipe_heading}</title>
 	<!-- Inline styles so the printed page is independent of the main app's
 	     gradient background and dark-mode rules. Class names are `.printpage-`
-	     prefixed to namespace against the unloaded Tailwind layout sheet
-	     (mirrors the TRMNL route's pattern). -->
+	     prefixed to namespace against the unloaded Tailwind layout sheet. -->
 	<style>
 		html,
 		body {

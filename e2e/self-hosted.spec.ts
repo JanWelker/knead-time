@@ -17,11 +17,10 @@ const RECIPE =
 // the script and the script sends nothing. That is what this spec pins: one
 // script from that host, never a page view from here, and nothing else.
 //
-// The other outbound calls in the whole app happen on an explicit click and are
-// the feature, not a subresource: the TRMNL webhook, to a URL the user typed
-// themselves, and the reminder service at kneadtime.k8s.wlkr.ch, on "Remind me"
-// (e2e/reminders.spec.ts pins that nothing else reaches it). Neither is
-// reachable without that click.
+// The only other outbound call in the whole app happens on an explicit click and is
+// the feature, not a subresource: the reminder service at
+// kneadtime.k8s.wlkr.ch, on "Remind me" (e2e/reminders.spec.ts pins that
+// nothing else reaches it). It is not reachable without that click.
 //
 // This lives in the browser suite because it is a fact about what the page
 // *fetches*, which no amount of grepping the source can settle: a font CDN can

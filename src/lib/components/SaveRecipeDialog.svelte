@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { i18n } from '#lib/i18n/i18n.svelte.js';
 
-	// Same shape as TrmnlPush: a native <dialog> opened imperatively, so the
+	// A native <dialog> opened imperatively, like RemindersDialog, so the
 	// page holds it with bind:this and calls open() from the actions menu.
 	let { onsave }: { onsave: (name: string) => void } = $props();
 
@@ -25,7 +25,7 @@
 		dialogEl?.close();
 	}
 
-	// preventDefault for the same reason TrmnlPush does it: the implicit
+	// preventDefault because the implicit
 	// <form method="dialog"> submission closes the dialog without ever calling
 	// the handler, so the recipe would silently not be saved.
 	function onSubmit(event: SubmitEvent): void {

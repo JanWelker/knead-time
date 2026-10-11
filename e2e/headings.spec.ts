@@ -9,7 +9,7 @@ const RECIPE =
 function outline(page: import('@playwright/test').Page) {
 	return page.evaluate(() =>
 		[...document.querySelectorAll('main h1, main h2, main h3, main h4')]
-			// The adjust sheet and the TRMNL dialog live in the page but belong to
+			// The adjust sheet and the action dialogs live in the page but belong to
 			// modals that are closed; they are not part of the document outline
 			// being read.
 			.filter((h) => !h.closest('dialog'))

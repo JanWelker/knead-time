@@ -1,6 +1,6 @@
 // The reminder service, and the three requests the app makes of it — each on
-// an explicit tap, never on load. Mirrors sendToTrmnl: an injectable fetch and
-// a result that never throws, so the dialog has one shape to render.
+// an explicit tap, never on load. An injectable fetch and a result that never
+// throws, so the dialog has one shape to render.
 
 import type { SchedulePayload } from './reminders';
 

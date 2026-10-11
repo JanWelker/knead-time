@@ -18,7 +18,7 @@ Nothing to install and nothing to sign up for. Add it to your Home Screen and it
 - **Your flour, your window.** Twelve flour presets, shelved by strength (W), paint the fermentation window each flour tolerates. A slider snaps to the windows Neapolitan practice uses and re-picks the best one when you change the bake time or the flour.
 - **Real pre-ferments.** Biga and poolish, alone or together, each with its own flour share and cellar temperature. Fresh, instant, active-dry or sourdough. Optional autolyse, oil and sugar. Cold or room ball proof. Spiral, stand-mixer or hand kneading, each with its own water temperature.
 - **Beginner and expert views.** Five questions answered in one gesture each, or one dense sheet with every number on it.
-- **Take it with you.** An `.ics` export for your calendar, a print sheet that fits one page with a QR code back to the recipe, a share link that encodes the whole recipe, a push to a [TRMNL](https://trmnl.com/) e-ink display, and step reminders as push notifications on a phone with the app on its Home Screen.
+- **Take it with you.** An `.ics` export for your calendar, a print sheet that fits one page with a QR code back to the recipe, a share link that encodes the whole recipe, and step reminders as push notifications on a phone with the app on its Home Screen.
 - **A recipe book.** Your own saved recipes, a community collection, and dough recipes from pizzerias in the [50 Top Pizza](https://www.50toppizza.it/) guide, each with a primary source.
 - **Five languages.** English, German, Italian, French and Dutch. Metric only.
 
@@ -26,7 +26,7 @@ Read more in [the feature tour](docs/features.md).
 
 ## Privacy
 
-Everything is served from one origin. There is no CDN and no font server; the two typefaces ship with the app. Opening Knead Time tells nobody but your own browser and this site's own visit counter that you are baking: [Umami](https://umami.is/), self-hosted on the same homelab as the reminder service, which sets no cookie and stores no address, only that a page was seen. Two other outbound requests exist in the whole app, and each happens only when you click for it: the TRMNL webhook on **Send to TRMNL**, and the reminder service on **Remind me on this device**, which receives the titles and times of your steps and deletes them a day after the bake ([what leaves the device](docs/reminders.md#what-leaves-the-device)). A browser test fails if anything else ever reaches for another host. Third-party notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+Everything is served from one origin. There is no CDN and no font server; the two typefaces ship with the app. Opening Knead Time tells nobody but your own browser and this site's own visit counter that you are baking: [Umami](https://umami.is/), self-hosted on the same homelab as the reminder service, which sets no cookie and stores no address, only that a page was seen. One other outbound request exists in the whole app, and it happens only when you click for it: the reminder service on **Remind me on this device**, which receives the titles and times of your steps and deletes them a day after the bake ([what leaves the device](docs/reminders.md#what-leaves-the-device)). A browser test fails if anything else ever reaches for another host. Third-party notices are in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
 ## Run it locally
 
@@ -48,7 +48,6 @@ Built with SvelteKit 2 on Svelte 5, TypeScript and Tailwind v4. Fully client-sid
 | [The dough math](docs/dough-math.md)                 | Baker's percentages, the fermentation model, the schedule, pre-ferments              |
 | [Deployment and CI](docs/deployment.md)              | How a commit reaches production, PR previews, the required checks                    |
 | [Contributing recipes](docs/contributing-recipes.md) | Adding a community recipe or a 50 Top Pizza row                                      |
-| [Sending recipes to TRMNL](docs/trmnl-setup.md)      | One-time plugin setup and the Liquid template                                        |
 
 The full design rationale, every constraint the code is built around and why, lives in [`CLAUDE.md`](CLAUDE.md).
 

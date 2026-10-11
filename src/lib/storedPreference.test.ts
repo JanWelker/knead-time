@@ -5,13 +5,12 @@ import { MODE_STORAGE_KEY } from './storedMode';
 import { VERBOSITY_STORAGE_KEY } from './storedVerbosity';
 import { THEME_STORAGE_KEY } from './storedTheme';
 import { LOCALE_STORAGE_KEY } from './i18n/storedLocale';
-import { TRMNL_UUID_STORAGE_KEY } from './trmnl/uuid';
 import { REMINDERS_STORAGE_KEY } from './push/stored';
 import { LAST_RECIPE_KEY, RECIPES_KEY } from './storedRecipes';
 import { scopedStorageKey, storageScopeFor } from './storageScope';
 
 // Every slot the app writes on a device. Listed here rather than sampled: the
-// factory made these five one call each, and a copy-pasted call carrying the
+// factory made these four one call each, and a copy-pasted call carrying the
 // wrong key would take over another preference's slot in silence — there is no
 // other place that would notice two of them colliding.
 const ALL_KEYS = [
@@ -19,7 +18,6 @@ const ALL_KEYS = [
 	VERBOSITY_STORAGE_KEY,
 	THEME_STORAGE_KEY,
 	LOCALE_STORAGE_KEY,
-	TRMNL_UUID_STORAGE_KEY,
 	REMINDERS_STORAGE_KEY,
 	LAST_RECIPE_KEY,
 	RECIPES_KEY
@@ -32,7 +30,6 @@ describe('the storage slots', () => {
 			'kneadtime:scheduleVerbosity',
 			'kneadtime:theme',
 			'kneadtime:locale',
-			'kneadtime:trmnlUuid',
 			'kneadtime:reminders',
 			'kneadtime:lastRecipe',
 			'kneadtime:recipes'
@@ -62,7 +59,6 @@ describe('the storage slots', () => {
 			'kneadtime:pr-preview-pr-12:scheduleVerbosity',
 			'kneadtime:pr-preview-pr-12:theme',
 			'kneadtime:pr-preview-pr-12:locale',
-			'kneadtime:pr-preview-pr-12:trmnlUuid',
 			'kneadtime:pr-preview-pr-12:reminders',
 			'kneadtime:pr-preview-pr-12:lastRecipe',
 			'kneadtime:pr-preview-pr-12:recipes'

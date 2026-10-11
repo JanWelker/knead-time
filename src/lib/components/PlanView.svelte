@@ -25,7 +25,6 @@
 	import RemindersDialog, { type RemindersState } from './RemindersDialog.svelte';
 	import SaveRecipeDialog from './SaveRecipeDialog.svelte';
 	import ScheduleTable from './ScheduleTable.svelte';
-	import TrmnlPush from './TrmnlPush.svelte';
 	import Warnings from './Warnings.svelte';
 
 	// The destination: the job ticket the kitchen works off. This is the screen
@@ -61,7 +60,6 @@
 	// plan left a callback writing to a destroyed component's state.
 	let copiedTimer: ReturnType<typeof setTimeout> | undefined;
 	onMount(() => () => clearTimeout(copiedTimer));
-	let trmnlPush = $state<ReturnType<typeof TrmnlPush>>();
 	let saveDialog = $state<ReturnType<typeof SaveRecipeDialog>>();
 	let remindersDialog = $state<ReturnType<typeof RemindersDialog>>();
 
@@ -171,9 +169,9 @@
 </script>
 
 <!-- Everything that is not "edit the recipe": where to go, and what to do with
-     the plan you are looking at. Four of the five actions need a feasible
-     schedule — there is nothing to export, print or push when the window is too
-     short to be a plan at all. Sharing a link to a broken recipe is still
+     the plan you are looking at. Three of the five actions need a feasible
+     schedule — there is nothing to export, print or remind about when the window
+     is too short to be a plan at all. Sharing a link to a broken recipe is still
      meaningful; that is how you ask someone what went wrong. -->
 {#snippet planMenu(close: () => void)}
 	<div role="group" class="menu-group">
@@ -266,19 +264,6 @@
 			disabled={!form.schedule.feasible}
 			onclick={() => {
 				close();
-				trmnlPush?.open();
-			}}
-		>
-			{t.trmnl_push.menu_item}
-		</button>
-		<button
-			type="button"
-			role="menuitem"
-			aria-haspopup="dialog"
-			class="menu-item"
-			disabled={!form.schedule.feasible}
-			onclick={() => {
-				close();
 				remindersDialog?.open();
 			}}
 		>
@@ -292,7 +277,6 @@
 
 	<!-- The modals live outside the role="menu" container: a dialog is invalid
 	     ARIA-menu content, and the menu closes before it opens. -->
-	<TrmnlPush bind:this={trmnlPush} inputs={form.serializable()} schedule={form.schedule} {locale} />
 	<SaveRecipeDialog bind:this={saveDialog} onsave={onsaverecipe} />
 	<RemindersDialog
 		bind:this={remindersDialog}
