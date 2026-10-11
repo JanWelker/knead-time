@@ -108,6 +108,9 @@
 		<MastheadMenu items={askMenu} />
 		<!-- The escape hatch stays in the row rather than going into the menu: a
 		     sequence of questions with no visible way out reads as a trap. -->
+		<!-- Someone about to answer five questions may really want a recipe they
+		     already know, so the library is one press from here as well. -->
+		<button type="button" class="btn-ghost" onclick={onlibrary}>{t.nav.library}</button>
 		<button type="button" class="btn-ghost" onclick={onplan}>{t.nav.skip}</button>
 	</Masthead>
 

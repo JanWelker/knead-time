@@ -2,6 +2,10 @@
 
 What Knead Time does, by feature and by the version that brought it. The major version tracks the share-link schema, so a link stamped `v=8` was written by an 8.x app; every older link still reproduces its recipe, gram for gram.
 
+## Recipes, one press away (v8.3)
+
+**Recipes** now sits in plain sight instead of only inside the menu ([issue #437](https://github.com/JanWelker/knead-time/issues/437)): beside **Guide me** on the plan, and beside **Skip to the plan** on the questions, so someone about to answer five questions can go straight to a recipe they already know. It is still in the menu as well.
+
 ## AVPN salt and ball-weight bands (v8.1)
 
 The star rating now judges salt and ball weight against the AVPN disciplinare instead of its own looser bands ([issue #422](https://github.com/JanWelker/knead-time/issues/422)): 2.2–3.75 % salt (40–60 g per litre of water against 1.6–1.8 kg of flour) and 200–280 g balls. They were 2–3.5 % and 200–320 g. The disciplinare's saltiest dough no longer loses a point, and a ball over 280 g now costs a little. No gram of any recipe changes; only the rating does. Dry yeast stays as it was: instant converts at the disciplinare's 1:3, active dry at 1:2.5, a distinction the disciplinare does not make.

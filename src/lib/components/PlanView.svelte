@@ -287,9 +287,9 @@
 			</h1>
 
 			<div class="min-w-0 lg:pt-2">
-				<!-- The three ways into the app, in one aligned row at the top of the
+				<!-- The ways into the app, in one aligned row at the top of the
 				     block, with the values they act on underneath. Right-aligned and
-				     ordered quiet to loud in reverse — Guide me leaves the plan, Edit
+				     ordered quiet to loud — Guide me and Recipes leave the plan, Edit
 				     recipe changes it, and the menu holds everything else. They were
 				     staggered at three heights for a while to echo the ragged rows
 				     below; at three buttons that reads as scattered rather than as
@@ -311,6 +311,26 @@
 							<circle cx="12" cy="12" r="4" />
 						</svg>
 						{t.nav.restart}
+					</button>
+					<!-- The library leaves the plan too, so it wears the same ruled
+					     plaque. It is in the menu as well; out here it is one press,
+					     which is what an entry point to a known recipe has to be. -->
+					<button type="button" class="btn-guide" onclick={onlibrary}>
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
+							<path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+						</svg>
+						{t.nav.library}
 					</button>
 					<button type="button" class="btn-edit" onclick={() => onadjust()} aria-haspopup="dialog">
 						<svg
