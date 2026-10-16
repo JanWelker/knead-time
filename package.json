@@ -1,6 +1,6 @@
 {
 	"name": "knead-time",
-	"version": "8.5.1",
+	"version": "8.5.2",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
@@ -21,7 +21,7 @@
 		"test:baseline": "svelte-kit sync && node scripts/check-test-baseline.mjs",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"prepare": "svelte-kit sync || true; husky || true"
+		"prepare": "svelte-kit sync || true; git config core.hooksPath .githooks || true"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "4.13.0",
@@ -37,7 +37,6 @@
 		"eslint-config-prettier": "10.1.8",
 		"eslint-plugin-svelte": "3.23.1",
 		"globals": "17.13.0",
-		"husky": "9.1.7",
 		"lint-staged": "17.6.0",
 		"prettier": "3.9.10",
 		"prettier-plugin-svelte": "4.1.1",
