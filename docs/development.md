@@ -154,7 +154,7 @@ Math and schedule bugs are silent until a dough overproofs, so coverage is a har
 
 The **Print / Save as PDF** action opens a dedicated `/print/[[locale]]?<recipe>` route in a new tab (`src/routes/print/[[locale]]/+page.svelte`). The route is fully self-contained, with inline styles in `<svelte:head>`, no Tailwind print variants and no shared chrome, and auto-triggers `window.print()` on mount. It renders a two-column header (recipe inputs on the left, ingredients on the right) above the full-width schedule, then a footer with a QR code of the share URL so scanning the printed sheet rehydrates the recipe in the app.
 
-If you touch the printed layout, check it in your browser's print preview; `svelte-check` cannot see it. Keep it readable on a black-and-white printer (borders and text colour, not background fills), and keep the common shapes on one page. QR generation lives in `src/lib/qr.ts`, a thin wrapper around `qrcode-generator`.
+If you touch the printed layout, check it in your browser's print preview; `svelte-check` cannot see it. Keep it readable on a black-and-white printer (borders and text colour, not background fills), and keep the common shapes on one page. QR generation lives in `src/lib/qr.ts`, a thin wrapper around `qr`.
 
 ## Home Screen and offline
 
