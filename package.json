@@ -1,6 +1,6 @@
 {
 	"name": "knead-time",
-	"version": "8.5.0",
+	"version": "8.5.1",
 	"private": true,
 	"type": "module",
 	"license": "Apache-2.0",
@@ -62,7 +62,7 @@
 	"dependencies": {
 		"@fontsource-variable/archivo": "^5.3.0",
 		"@fontsource/anton": "^5.3.0",
-		"qrcode-generator": "^2.0.4"
+		"qr": "^0.7.2"
 	},
 	"imports": {
 		"#lib/*": "./src/lib/*"

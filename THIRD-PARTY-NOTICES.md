@@ -31,35 +31,36 @@ and ship next to the `.woff2` files. `node scripts/sync-font-licences.mjs`
 refreshes the copies after a Fontsource bump; `scripts/lib/fontLicences.test.mjs`
 fails while they differ from the packages' own.
 
-## qrcode-generator
+## qr
 
-Copyright (c) 2009 Kazuhiko Arase (<https://github.com/kazuhikoarase/qrcode-generator>)
+Copyright (c) 2023 Paul Miller (<https://github.com/paulmillr/qr>)
 
-Licensed under the MIT License. The npm package ships no `LICENSE` file — the
-notice is a header comment in `node_modules/qrcode-generator/dist/qrcode.js`
-that minification strips from the bundle — so the full text is carried here:
+Dual-licensed under the MIT License or the Apache License 2.0; Knead Time uses
+it under the MIT License. The package's `LICENSE-MIT` sits in `node_modules/qr/`,
+and the bundle keeps none of it — minification strips the header comment — so
+the full text is carried here:
 
-> MIT License
+> The MIT License (MIT)
 >
-> Copyright (c) 2009 Kazuhiko Arase
+> Copyright (c) 2023 Paul Miller (https://paulmillr.com)
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
-> of this software and associated documentation files (the "Software"), to deal
+> of this software and associated documentation files (the “Software”), to deal
 > in the Software without restriction, including without limitation the rights
 > to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 > copies of the Software, and to permit persons to whom the Software is
 > furnished to do so, subject to the following conditions:
 >
-> The above copyright notice and this permission notice shall be included in all
-> copies or substantial portions of the Software.
+> The above copyright notice and this permission notice shall be included in
+> all copies or substantial portions of the Software.
 >
-> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 > IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 > FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 > AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 > LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-> SOFTWARE.
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+> THE SOFTWARE.
 
 It is the only runtime dependency besides the two font packages (`dependencies`
 in `package.json`); `src/lib/qr.ts` wraps it to draw the share-link QR on the

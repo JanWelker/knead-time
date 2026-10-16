@@ -1,13 +1,30 @@
+import decodeQR from 'qr/decode.js';
 import { describe, expect, it } from 'vitest';
 
-import { qrCode } from './qr';
+import { qrCode, type QrCode } from './qr';
+
+// Paints a code the way the print sheet does — black modules on white, with a
+// four-module quiet zone — into the RGBA bitmap a camera frame would be.
+function rasterise({ size, path }: QrCode, scale = 8, quiet = 4) {
+	const width = (size + 2 * quiet) * scale;
+	const data = new Uint8ClampedArray(width * width * 4).fill(255);
+	for (const [, c, r] of path.matchAll(/M(\d+),(\d+)/g)) {
+		for (let y = 0; y < scale; y++) {
+			for (let x = 0; x < scale; x++) {
+				const i = (((+r + quiet) * scale + y) * width + (+c + quiet) * scale + x) * 4;
+				data.fill(0, i, i + 3);
+			}
+		}
+	}
+	return { width, height: width, data };
+}
 
 // The QR on the print sheet is the one figure a reader cannot check by eye, and
 // until these pins the suite only asserted "some path, at least 21 wide": a
-// transposed grid (`isDark(r, c)` painted at `M${r},${c}`) or an off-by-one in
+// transposed grid (`grid[r][c]` painted at `M${r},${c}`) or an off-by-one in
 // either loop passed at 100 % coverage. The literals below were read off the
-// shipped `qrcode-generator` output once; a change in any of them is a change
-// in what the phone scans.
+// shipped `qr` output once; a change in any of them is a change in what the
+// phone scans, and the round-trip test says whether the phone still reads it.
 describe('qrCode', () => {
 	const single = qrCode('a');
 	const modules = single.path.match(/M[^M]+/g) ?? [];
@@ -16,9 +33,9 @@ describe('qrCode', () => {
 		expect(single.size).toBe(21);
 	});
 
-	it('paints exactly the 226 dark modules of that code, one subpath each', () => {
-		expect(modules).toHaveLength(226);
-		expect(single.path).toHaveLength(2939);
+	it('paints exactly the 232 dark modules of that code, one subpath each', () => {
+		expect(modules).toHaveLength(232);
+		expect(single.path).toHaveLength(3036);
 		for (const m of modules) expect(m).toMatch(/^M\d+,\d+h1v1h-1z$/);
 	});
 
@@ -41,6 +58,11 @@ describe('qrCode', () => {
 
 	it('picks version 4 (33 modules) for a typical share URL', () => {
 		expect(qrCode('https://janwelker.github.io/knead-time/?v=2&n=6&b=280').size).toBe(33);
+	});
+
+	it('decodes back to the share URL it encodes', () => {
+		const url = 'https://kneadtime.pizza/?v=8&n=6&b=280';
+		expect(decodeQR(rasterise(qrCode(url)))).toBe(url);
 	});
 
 	it('produces different output for different content', () => {
