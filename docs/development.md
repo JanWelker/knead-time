@@ -36,7 +36,7 @@ npm run preview    # serve ./build/ locally
 | `npm run build`         | Production build → `./build/` (static site)                                                                                                           |
 | `npm run preview`       | Serve the built site locally                                                                                                                          |
 
-Husky + lint-staged are configured in `.husky/pre-commit`. The hook runs lint-staged (Prettier on everything `npm run lint` checks, including the YAML under `.github/`, and ESLint on scripts and components) and then `npm test` on every commit. It skips coverage, so run `npm run test:coverage` yourself before opening a PR.
+The pre-commit hook is `.githooks/pre-commit`; `npm install` points `core.hooksPath` at that directory. The hook runs lint-staged (Prettier on everything `npm run lint` checks, including the YAML under `.github/`, and ESLint on scripts and components) and then `npm test` on every commit. It skips coverage, so run `npm run test:coverage` yourself before opening a PR.
 
 `npm install` also runs `svelte-kit sync`, which writes `.svelte-kit/tsconfig.json` — the file `tsconfig.json` extends. Without it a fresh clone shows type errors in the editor until the first `npm run check` or `npm run build`.
 
