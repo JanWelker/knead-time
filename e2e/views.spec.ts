@@ -293,7 +293,12 @@ test('the sign on the questions is the way to the plan', async ({ page }) => {
 	// masthead test asserts the sign is *not* a button there.
 	await openRecipe(page, RECIPE, '#ask/pizzas');
 
-	await page.locator('header').getByRole('button', { name: 'Your plan', exact: true }).click();
+	// Named by the sign it shows, not by where it goes: axe 4.14 enforces WCAG
+	// 2.5.3 (label in name), and an aria-label of "Your plan" hid the words a
+	// speech-input user would say. The destination is the description.
+	const sign = page.locator('header').getByRole('button', { name: 'Knead Time', exact: true });
+	await expect(sign).toHaveAccessibleDescription('Your plan');
+	await sign.click();
 	await expect.poll(() => currentView(page)).toBe('plan');
 	expect(new URL(page.url()).hash).toBe('#plan');
 });

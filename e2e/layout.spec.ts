@@ -120,7 +120,7 @@ test.describe('tap targets', () => {
 		await page.getByRole('button', { name: 'Done', exact: true }).click();
 
 		// The fit-score disclosure is a <summary>, not a button.
-		const fit = await page.locator('summary[aria-label^="Recipe fit"]').boundingBox();
+		const fit = await page.locator('summary[aria-label$="of 5 stars"]').boundingBox();
 		expect(fit!.height).toBeGreaterThanOrEqual(24);
 
 		// Delete lives in the recipe library now, not at the foot of the page.

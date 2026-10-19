@@ -38,7 +38,7 @@ test('the fit-score panel closes on Escape and on an outside click', async ({ pa
 	// Get nerdy panel, which explains the fit score.
 	const details = page
 		.locator('details')
-		.filter({ has: page.locator('summary[aria-label^="Recipe fit"]') });
+		.filter({ has: page.locator('summary[aria-label$="of 5 stars"]') });
 	const trigger = details.locator('summary');
 
 	await trigger.click();

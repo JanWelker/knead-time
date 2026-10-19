@@ -776,7 +776,7 @@ const en: Messages = {
 			'Pre-ferment held at the 24 h ceiling; the kitchen is colder than the recipe assumes.',
 		fit_heading: 'fit',
 		fit_perfect: 'Schedule and recipe match the contemporary Neapolitan ideal.',
-		fit_aria: 'Recipe fit {stars} of 5 stars',
+		fit_aria: '{stars}/5 fit, recipe rated {stars} of 5 stars',
 		factor_cold_bulk_shifted: 'Cold bulk shortened by {delta} h to dodge a baker step at night.',
 		factor_cold_bulk_clamped_short: 'Window forces cold bulk {delta} h above the natural duration.',
 		factor_cold_bulk_clamped_long:
@@ -1332,7 +1332,7 @@ const de: Messages = {
 			'Vorteig am 24-Stunden-Limit; die Küche ist kälter als angenommen.',
 		fit_heading: 'Bewertung',
 		fit_perfect: 'Zeitplan und Rezept entsprechen dem zeitgemäßen neapolitanischen Ideal.',
-		fit_aria: 'Rezeptbewertung {stars} von 5 Sternen',
+		fit_aria: '{stars}/5 Bewertung, Rezept mit {stars} von 5 Sternen bewertet',
 		factor_cold_bulk_shifted: 'Kühl-Reifezeit um {delta} h verkürzt, um die Nacht zu meiden.',
 		factor_cold_bulk_clamped_short:
 			'Zeitfenster zwingt die Kühl-Reifezeit {delta} h über die natürliche Dauer.',
@@ -1894,7 +1894,7 @@ const it: Messages = {
 			'Preimpasto al limite di 24 h; la cucina è più fredda del previsto.',
 		fit_heading: 'valutazione',
 		fit_perfect: 'Programma e ricetta corrispondono al canone napoletano contemporaneo.',
-		fit_aria: 'Valutazione ricetta {stars} stelle su 5',
+		fit_aria: '{stars}/5 valutazione, ricetta valutata {stars} stelle su 5',
 		factor_cold_bulk_shifted:
 			'Maturazione in frigo accorciata di {delta} h per evitare un passo notturno.',
 		factor_cold_bulk_clamped_short:
@@ -2461,7 +2461,7 @@ const fr: Messages = {
 			'Pré-ferment au plafond de 24 h ; la cuisine est plus froide que prévu.',
 		fit_heading: 'note',
 		fit_perfect: 'Le programme et la recette correspondent au canon napolitain contemporain.',
-		fit_aria: 'Note de la recette {stars} étoiles sur 5',
+		fit_aria: '{stars}/5 note, recette notée {stars} étoiles sur 5',
 		factor_cold_bulk_shifted:
 			'Pointage au frigo raccourci de {delta} h pour éviter une étape la nuit.',
 		factor_cold_bulk_clamped_short:
@@ -3026,7 +3026,7 @@ const nl: Messages = {
 			'Voordeeg op het 24-uursplafond; de keuken is kouder dan verwacht.',
 		fit_heading: 'beoordeling',
 		fit_perfect: 'Schema en recept voldoen aan het hedendaagse Napolitaanse ideaal.',
-		fit_aria: 'Receptbeoordeling {stars} van 5 sterren',
+		fit_aria: '{stars}/5 beoordeling, recept beoordeeld met {stars} van 5 sterren',
 		factor_cold_bulk_shifted:
 			'Koelrijs met {delta} u ingekort om een nachtelijke stap te vermijden.',
 		factor_cold_bulk_clamped_short:

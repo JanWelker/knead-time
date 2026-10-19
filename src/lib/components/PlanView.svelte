@@ -433,7 +433,6 @@
 						class="btn-edit-sm"
 						onclick={() => form.roundBallWeight()}
 						title={t.form.ballWeight_round_help}
-						aria-label={t.form.ballWeight_round_help}
 					>
 						<span aria-hidden="true">↻</span>
 						{t.form.ballWeight_round}
