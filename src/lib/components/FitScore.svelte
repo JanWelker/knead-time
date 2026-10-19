@@ -58,7 +58,7 @@
      focus: this is a disclosure, not a menu, so its content is read in place.
      Its name opens with what the seal shows ("5/5 fit") so a speech-input user
      can say what they see (WCAG 2.5.3, enforced by axe since 4.14). -->
-<details {@attach dismissable()} class="group relative inline-block">
+<details {@attach dismissable()} class="group inline-block">
 	<summary
 		class="text-accent-ink cursor-pointer list-none select-none"
 		title={summaryTooltip}

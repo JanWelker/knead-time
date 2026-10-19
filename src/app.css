@@ -339,8 +339,9 @@ html.dark {
 		box-shadow: 4px 4px 0 0 var(--kt-rule);
 	}
 
-	/* Both modals and the adjust sheet: a native <dialog>. Width and position
-	   are the caller's, everything else is shared. */
+	/* Both modals and the adjust sheet: a native <dialog>. The caller sets the
+	   cap (`max-w-sm`, `max-w-md`); the adjust sheet overrides all of this with
+	   its own position, margin and width utilities. */
 	.dialog-panel {
 		/* The scrim is the ink at half strength, not a raw `stone-950`: it was
 		   the last colour in src/ reaching past the roles, and the one surface
@@ -348,6 +349,16 @@ html.dark {
 		   night shift. */
 		@apply border-rule bg-sheet text-ink backdrop:bg-ink/50 rounded-[2px] border-2 p-0 text-sm;
 		box-shadow: 6px 6px 0 0 var(--kt-rule);
+		/* A modal is centred by the UA's `margin: auto` inside its `inset: 0`
+		   box, and preflight resets every margin to 0 — so every modal opened
+		   pinned to the top-left corner, on a phone touching both edges with the
+		   offset block cut off at the right (issue #468). The width is the
+		   phone's gutter: at 390 px the caller's cap is wider than the screen,
+		   so this is what keeps 1 rem of page either side of the sheet and its
+		   shadow; above that the caller's `max-w-*` wins. Pinned in
+		   e2e/layout.spec.ts. */
+		margin: auto;
+		width: calc(100% - 2rem);
 	}
 
 	/* A checkbox or radio with its label on one line. The sheet wrote the row
@@ -563,16 +574,22 @@ html.dark {
 
 	/* The panel a seal opens: what the mark means, in prose. Both seals use it,
 	   so it is one width in one place — `max-w-sm` let the box shrink to its
-	   longest unbreakable run and set two-thirds of a sentence per line. It is
-	   sized against the viewport too, so it cannot hang off a phone. */
+	   longest unbreakable run and set two-thirds of a sentence per line. */
 	.seal-panel {
 		/* NOT `@apply … block-shadow …`: @apply takes utilities, and reaching for
 		   another @layer components class makes Tailwind drop the WHOLE
 		   declaration without erroring. This box lost its position, its border,
 		   its fill and its shadow at once, and the build stayed green — the text
 		   simply sat loose on the card. Spell the shadow out instead. */
-		@apply border-rule bg-sheet text-ink-soft absolute z-20 mt-2 rounded-[2px] border-2 p-4 text-sm leading-snug;
-		width: min(26rem, calc(100vw - 2.5rem));
+		@apply border-rule bg-sheet text-ink-soft absolute left-0 z-20 mt-2 rounded-[2px] border-2 p-4 text-sm leading-snug;
+		/* Hung from the row the seals stand in (PlanView's lede, which is
+		   `relative`), not from the seal: anchored to its own <details>, the fit
+		   seal's panel started where that seal does and ran 178 px past the
+		   right edge of a phone, and the mode seal's fitted with 2 px to spare
+		   (issue #468). The row is as wide as
+		   the card, so `100%` of it can never leave the screen; the 4 px shadow
+		   sits in the card's padding. Pinned in e2e/layout.spec.ts. */
+		width: min(26rem, calc(100% - 4px));
 		box-shadow: 4px 4px 0 0 var(--kt-rule);
 	}
 

@@ -49,7 +49,7 @@
 		}
 	},
 	"e2e": {
-		"total": 214,
+		"total": 222,
 		"files": {
 			"announcements.spec.ts": 5,
 			"ask-flow.spec.ts": 5,
@@ -62,7 +62,7 @@
 			"help-text.spec.ts": 5,
 			"info-panel.spec.ts": 1,
 			"landmarks.spec.ts": 6,
-			"layout.spec.ts": 9,
+			"layout.spec.ts": 17,
 			"no-fridge.spec.ts": 3,
 			"persistence.spec.ts": 7,
 			"print-sheet.spec.ts": 11,

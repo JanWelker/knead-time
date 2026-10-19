@@ -1,5 +1,14 @@
 import { expect, test } from '@playwright/test';
-import { openAdjust, openLibrary, openQuestion, openRecipe, region, sheet, view } from './helpers';
+import {
+	openAdjust,
+	openLibrary,
+	openMenu,
+	openQuestion,
+	openRecipe,
+	region,
+	sheet,
+	view
+} from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -188,6 +197,105 @@ test.describe('nothing paints past the edge of the page', () => {
 		await noSidewaysScroll(page);
 	});
 });
+
+// Every modal opened pinned to the top-left corner of the screen (issue #468).
+// A modal <dialog> is centred by the user agent's `margin: auto` inside its
+// `inset: 0` box, and Tailwind's preflight resets every margin to 0, so
+// `.dialog-panel` lost it without a word; on a phone the dialogs also touched
+// both edges and the offset block was cut off on the right. It was missed
+// because every dialog spec asserts what is IN the dialog, never where it is,
+// and the phone-width check above never opens one. The adjust sheet is the
+// deliberate exception — a bottom sheet on a phone, a right-hand drawer on a
+// desktop — so it is held to that shape instead.
+type Box = { x: number; y: number; width: number; height: number };
+
+async function openSaveDialog(page: import('@playwright/test').Page) {
+	await openMenu(page);
+	await page.getByRole('menuitem', { name: 'Save recipe' }).click();
+	return page.getByRole('dialog', { name: 'Save recipe' });
+}
+
+async function openRemindersDialog(page: import('@playwright/test').Page) {
+	await openMenu(page);
+	await page.getByRole('menuitem', { name: 'Remind me on this device…' }).click();
+	return page.getByRole('dialog', { name: 'Step reminders on this device' });
+}
+
+for (const viewport of [
+	{ width: 390, height: 844 },
+	{ width: 1280, height: 800 }
+]) {
+	test.describe(`modal dialogs at ${viewport.width} px`, () => {
+		test.use({ viewport });
+
+		for (const [name, open] of [
+			['save recipe', openSaveDialog],
+			['reminders', openRemindersDialog]
+		] as const) {
+			test(`the ${name} dialog opens centred, with room for its offset block`, async ({ page }) => {
+				await openRecipe(page, RECIPE);
+				const dialog = await open(page);
+				await expect(dialog).toBeVisible();
+				const box = (await dialog.boundingBox()) as Box;
+				expect(box).not.toBeNull();
+
+				const left = box.x;
+				const right = viewport.width - (box.x + box.width);
+				const top = box.y;
+				const bottom = viewport.height - (box.y + box.height);
+				expect(Math.abs(left - right), `left ${left}, right ${right}`).toBeLessThanOrEqual(1);
+				expect(Math.abs(top - bottom), `top ${top}, bottom ${bottom}`).toBeLessThanOrEqual(1);
+				// A gutter either side, wide enough for the 6 px block the sheet
+				// stands on to stay on screen.
+				expect(left).toBeGreaterThanOrEqual(15);
+				expect(right).toBeGreaterThanOrEqual(15);
+			});
+		}
+
+		test('the adjust sheet keeps its sheet or drawer shape', async ({ page }) => {
+			await openRecipe(page, RECIPE);
+			const box = (await (await openAdjust(page)).boundingBox()) as Box;
+			expect(box).not.toBeNull();
+			// Flush with the bottom edge on a phone, flush with the right on a
+			// desktop — centring it would float it in the middle of the page.
+			expect(Math.abs(box.x + box.width - viewport.width)).toBeLessThanOrEqual(1);
+			expect(Math.abs(box.y + box.height - viewport.height)).toBeLessThanOrEqual(1);
+			if (viewport.width < 1024) {
+				expect(box.x).toBeLessThanOrEqual(1);
+				expect(box.y).toBeGreaterThan(0);
+			} else {
+				expect(box.y).toBeLessThanOrEqual(1);
+				expect(box.x).toBeGreaterThan(viewport.width / 2);
+			}
+		});
+
+		// The fit seal's panel hung from its own <details>, so it began where the
+		// second seal does and ran about 178 px past the right edge of a 390 px
+		// phone; the mode seal's panel fitted with 2 px to spare (issue #468).
+		// The panels are closed by default, so no layout check ever saw one.
+		test('both seal panels open inside the screen', async ({ page }) => {
+			await openRecipe(page, RECIPE);
+			const seals = page.locator('details:has(.seal-panel)');
+			await expect(seals).toHaveCount(2);
+			for (const i of [0, 1]) {
+				const seal = seals.nth(i);
+				await seal.locator('summary').click();
+				const panel = seal.locator('.seal-panel');
+				await expect(panel).toBeVisible();
+				const box = (await panel.boundingBox()) as Box;
+				expect(box).not.toBeNull();
+				expect(box.x).toBeGreaterThanOrEqual(0);
+				// The panel's 4 px offset shadow has to land on screen as well.
+				expect(box.x + box.width + 4, `seal ${i}`).toBeLessThanOrEqual(viewport.width);
+				// ...and it still opens beneath the seal that opened it.
+				const summary = (await seal.locator('summary').boundingBox()) as Box;
+				expect(box.y).toBeGreaterThanOrEqual(summary.y + summary.height);
+				await page.keyboard.press('Escape');
+				await expect(panel).not.toBeVisible();
+			}
+		});
+	});
+}
 
 // A header band and a day divider are reversed out of the ink and have to run
 // the full width of their sheet — that is what makes them read as a band rather
