@@ -21,7 +21,9 @@
 <header>
 	<div class="view-pad flex flex-wrap items-center justify-between gap-3 py-4 sm:py-5">
 		{#if home}
-			<button type="button" class="wordmark" onclick={home} aria-label={t.nav.plan}>
+			<!-- The sign is what a speech-input user sees and says, so it stays the
+			     name (WCAG 2.5.3); where it goes is the description. -->
+			<button type="button" class="wordmark" onclick={home} title={t.nav.plan}>
 				{t.app.title}
 			</button>
 		{:else}
