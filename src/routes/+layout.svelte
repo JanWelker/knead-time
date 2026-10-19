@@ -28,9 +28,13 @@
 			return;
 		}
 		// A persisted user choice wins over navigator detect so a full
-		// reload (e.g. via a community Open link) doesn't snap back.
+		// reload (e.g. via a community Open link) doesn't snap back. Resolving
+		// is not choosing, so nothing is written here: only the menu's language
+		// rows remember. Persisting the detected locale pinned every first
+		// visit to the browser's language of that day, and a device reset
+		// (issue #469) found the slot written again by the reload it ends in.
 		const stored = loadStoredLocale(safeLocalStorage());
-		i18n.set(stored ?? detectLocale(navigator.languages));
+		i18n.set(stored ?? detectLocale(navigator.languages), { persist: false });
 		// Returned so the system-preference listener it attaches is torn down
 		// with the layout rather than outliving it.
 		return theme.init();

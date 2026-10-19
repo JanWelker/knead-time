@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
-import { openAdjust, openMenu, openRecipe, sheetField } from './helpers';
+import { openAdjust, openMenu, openRecipe, resetDevice, sheetField } from './helpers';
 
 const RECIPE =
 	'v=7&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -30,7 +30,8 @@ async function fakeService(page: Page, putStatus = 200) {
 		const request = route.request();
 		const method = request.method();
 		const cors = {
-			'Access-Control-Allow-Origin': 'http://localhost:4173',
+			// The page's own origin, whatever port E2E_PORT put the build on.
+			'Access-Control-Allow-Origin': request.headers()['origin'] ?? 'http://localhost:4173',
 			'Access-Control-Allow-Methods': 'GET, PUT, DELETE',
 			'Access-Control-Allow-Headers': 'Content-Type',
 			'Content-Type': 'application/json'
@@ -79,6 +80,9 @@ async function fakePushManager(page: Page) {
 				toJSON: () => ({ endpoint, keys: { p256dh: 'BFake', auth: 'fake' } }),
 				unsubscribe: async () => {
 					state.sub = null;
+					// Session storage outlives the reload a device reset ends in,
+					// where this page's own state does not.
+					sessionStorage.setItem('fake-push:unsubscribed', endpoint);
 					return true;
 				}
 			}) as unknown as PushSubscription;
@@ -287,4 +291,38 @@ test('the schedule plaque waits for a feasible plan like the menu item', async (
 		'v=7&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-05T17%3A00%3A00.000Z'
 	);
 	await expect(page.getByRole('button', { name: 'Remind me', exact: true })).toBeDisabled();
+});
+
+// A device reset (issue #469) has to forget the reminders on the service too:
+// clearing the stored fingerprint alone leaves the schedule there, and the
+// service keeps sending. It is the one request the reset makes, and only
+// because the user tapped it — the same footing as "Remind me".
+test('a device reset drops the schedule on the service and unsubscribes the browser', async ({
+	page
+}) => {
+	const seen = await fakeService(page);
+	await openRecipe(page, RECIPE);
+	const dialog = await openDialog(page);
+	await dialog.getByRole('button', { name: 'Set reminders' }).click();
+	await expect(status(page)).toContainText('Reminders set');
+	await dialog.getByRole('button', { name: 'Close' }).click();
+
+	await resetDevice(page);
+
+	expect(seen.map((s) => `${s.method} ${s.path}`)).toEqual([
+		'GET /v1/vapid',
+		'PUT /v1/schedules',
+		`DELETE /v1/schedules?endpoint=${encodeURIComponent(ENDPOINT)}`
+	]);
+	expect(await page.evaluate(() => sessionStorage.getItem('fake-push:unsubscribed'))).toBe(
+		ENDPOINT
+	);
+	expect(await page.evaluate(() => localStorage.getItem('kneadtime:reminders'))).toBeNull();
+});
+
+test('a device reset on a device without reminders makes no request at all', async ({ page }) => {
+	const seen = await fakeService(page);
+	await openRecipe(page, RECIPE);
+	await resetDevice(page);
+	expect(seen).toEqual([]);
 });

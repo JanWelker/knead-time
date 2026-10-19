@@ -386,6 +386,23 @@ export interface Messages {
 		receipt_title: string;
 		guide: string;
 	};
+	reset: {
+		group: string;
+		menu_item: string;
+		heading: string;
+		intro: string;
+		goes: string;
+		item_recipe: string;
+		item_reminders: string;
+		item_view: string;
+		item_verbosity: string;
+		item_theme: string;
+		item_language: string;
+		kept: string;
+		permission: string;
+		confirm: string;
+		working: string;
+	};
 	warnings: {
 		// Spoken prefix so severity is not carried by colour alone.
 		severity_danger: string;
@@ -874,6 +891,26 @@ const en: Messages = {
 		stale: 'The reminders on this device are for an earlier version of this plan.',
 		receipt_title: 'Reminders set',
 		guide: 'How reminders work'
+	},
+	reset: {
+		group: 'This device',
+		menu_item: 'Reset this device…',
+		heading: 'Reset this device',
+		intro:
+			'Knead Time forgets what it remembers on this device and starts again from the first question.',
+		goes: 'Forgotten:',
+		item_recipe: 'the recipe you were working on',
+		item_reminders:
+			'step reminders — the reminder service is asked to delete this device’s schedule',
+		item_view: 'simple or all options',
+		item_verbosity: 'short or detailed steps',
+		item_theme: 'the theme',
+		item_language: 'the language',
+		kept: 'Your saved recipes stay.',
+		permission:
+			'The browser’s permission to show notifications stays as it is: a page cannot take it back. You can change it in the browser’s settings.',
+		confirm: 'Reset',
+		working: 'Resetting…'
 	},
 	warnings: {
 		severity_danger: 'Warning',
@@ -1437,6 +1474,26 @@ const de: Messages = {
 		receipt_title: 'Erinnerungen eingerichtet',
 		guide: 'So funktionieren Erinnerungen'
 	},
+	reset: {
+		group: 'Dieses Gerät',
+		menu_item: 'Dieses Gerät zurücksetzen…',
+		heading: 'Dieses Gerät zurücksetzen',
+		intro:
+			'Knead Time vergisst, was es sich auf diesem Gerät gemerkt hat, und beginnt wieder bei der ersten Frage.',
+		goes: 'Vergessen wird:',
+		item_recipe: 'das Rezept, an dem du gerade arbeitest',
+		item_reminders:
+			'die Schritt-Erinnerungen — der Server für die Erinnerungen wird gebeten, den Plan dieses Geräts zu löschen',
+		item_view: 'einfach oder alle Optionen',
+		item_verbosity: 'kurze oder ausführliche Schritte',
+		item_theme: 'das Erscheinungsbild',
+		item_language: 'die Sprache',
+		kept: 'Deine gespeicherten Rezepte bleiben.',
+		permission:
+			'Die Erlaubnis des Browsers, Benachrichtigungen zu zeigen, bleibt bestehen: Eine Webseite kann sie nicht zurücknehmen. Du kannst sie in den Einstellungen des Browsers ändern.',
+		confirm: 'Zurücksetzen',
+		working: 'Wird zurückgesetzt…'
+	},
 	warnings: {
 		severity_danger: 'Warnung',
 		severity_info: 'Hinweis',
@@ -1999,6 +2056,26 @@ const it: Messages = {
 			'I promemoria su questo dispositivo si riferiscono a una versione precedente di questo programma.',
 		receipt_title: 'Promemoria impostati',
 		guide: 'Come funzionano i promemoria'
+	},
+	reset: {
+		group: 'Questo dispositivo',
+		menu_item: 'Reimposta questo dispositivo…',
+		heading: 'Reimposta questo dispositivo',
+		intro:
+			'Knead Time dimentica ciò che ricorda su questo dispositivo e ricomincia dalla prima domanda.',
+		goes: 'Viene dimenticato:',
+		item_recipe: 'la ricetta su cui stavi lavorando',
+		item_reminders:
+			'i promemoria dei passaggi — al server dei promemoria viene chiesto di cancellare il piano di questo dispositivo',
+		item_view: 'semplice o tutte le opzioni',
+		item_verbosity: 'passaggi brevi o dettagliati',
+		item_theme: 'il tema',
+		item_language: 'la lingua',
+		kept: 'Le tue ricette salvate restano.',
+		permission:
+			'Il permesso del browser di mostrare notifiche resta com’è: una pagina non può revocarlo. Puoi cambiarlo nelle impostazioni del browser.',
+		confirm: 'Reimposta',
+		working: 'Reimpostazione…'
 	},
 	warnings: {
 		severity_danger: 'Attenzione',
@@ -2567,6 +2644,26 @@ const fr: Messages = {
 		receipt_title: 'Rappels activés',
 		guide: 'Comment fonctionnent les rappels'
 	},
+	reset: {
+		group: 'Cet appareil',
+		menu_item: 'Réinitialiser cet appareil…',
+		heading: 'Réinitialiser cet appareil',
+		intro:
+			'Knead Time oublie ce qu’il a retenu sur cet appareil et reprend à la première question.',
+		goes: 'Sont oubliés :',
+		item_recipe: 'la recette sur laquelle vous travailliez',
+		item_reminders:
+			'les rappels des étapes — le serveur des rappels est prié de supprimer le planning de cet appareil',
+		item_view: 'simple ou toutes les options',
+		item_verbosity: 'étapes courtes ou détaillées',
+		item_theme: 'le thème',
+		item_language: 'la langue',
+		kept: 'Vos recettes enregistrées restent.',
+		permission:
+			'L’autorisation du navigateur d’afficher des notifications reste telle quelle : une page ne peut pas la retirer. Vous pouvez la modifier dans les réglages du navigateur.',
+		confirm: 'Réinitialiser',
+		working: 'Réinitialisation…'
+	},
 	warnings: {
 		severity_danger: 'Avertissement',
 		severity_info: 'Remarque',
@@ -3127,6 +3224,26 @@ const nl: Messages = {
 		stale: 'De herinneringen op dit apparaat horen bij een eerdere versie van dit plan.',
 		receipt_title: 'Herinneringen ingesteld',
 		guide: 'Hoe herinneringen werken'
+	},
+	reset: {
+		group: 'Dit apparaat',
+		menu_item: 'Dit apparaat resetten…',
+		heading: 'Dit apparaat resetten',
+		intro:
+			'Knead Time vergeet wat het op dit apparaat heeft onthouden en begint weer bij de eerste vraag.',
+		goes: 'Vergeten wordt:',
+		item_recipe: 'het recept waaraan je werkte',
+		item_reminders:
+			'de stapherinneringen — de server voor de herinneringen wordt gevraagd het schema van dit apparaat te verwijderen',
+		item_view: 'eenvoudig of alle opties',
+		item_verbosity: 'korte of uitgebreide stappen',
+		item_theme: 'het thema',
+		item_language: 'de taal',
+		kept: 'Je opgeslagen recepten blijven.',
+		permission:
+			'De toestemming van de browser om meldingen te tonen blijft zoals ze is: een pagina kan die niet intrekken. Je kunt haar wijzigen in de instellingen van de browser.',
+		confirm: 'Resetten',
+		working: 'Bezig met resetten…'
 	},
 	warnings: {
 		severity_danger: 'Waarschuwing',

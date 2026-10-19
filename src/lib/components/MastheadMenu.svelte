@@ -4,12 +4,14 @@
 	import { LOCALES, type Locale } from '#lib/i18n/messages.js';
 	import { theme, type ThemeChoice } from '#lib/theme.svelte.js';
 	import { dismissable } from './dismiss.svelte';
+	import ResetDeviceDialog from './ResetDeviceDialog.svelte';
 
 	// The masthead's one dropdown. Everything that is not the view's primary
 	// control lives in here: the view's own items on top, then the two device
 	// preferences. Language and theme used to be two pill strips standing in the
 	// row itself — eleven boxes across five groups, which read as debris beside
-	// a single red plaque and left nothing looking primary.
+	// a single red plaque and left nothing looking primary. Last comes the
+	// device's own reset (issue #469).
 	//
 	// The view passes its items as a snippet and gets `close` handed back, so it
 	// can shut the menu before opening a dialog: a dialog is invalid ARIA-menu
@@ -36,6 +38,10 @@
 
 	let open = $state(false);
 	const close = () => (open = false);
+
+	// Outside the <details>, not in the menu: a dialog is invalid ARIA-menu
+	// content, so the item shuts the menu and then opens this.
+	let resetDialog: ReturnType<typeof ResetDeviceDialog> | null = $state(null);
 
 	// The role="menu" contract: enabled items in DOM order. Radios count — the
 	// language and theme rows are menuitemradio, which is what a menu uses for a
@@ -133,5 +139,24 @@
 				</button>
 			{/each}
 		</div>
+
+		<!-- Here rather than in a view's snippet, like language and theme: what a
+		     device remembers is the same on every view, so its reset is too. -->
+		<div role="group" aria-label={t.reset.group} class="menu-group">
+			<p class="menu-heading" aria-hidden="true">{t.reset.group}</p>
+			<button
+				type="button"
+				role="menuitem"
+				aria-haspopup="dialog"
+				class="menu-item"
+				onclick={() => {
+					close();
+					resetDialog?.open();
+				}}
+			>
+				{t.reset.menu_item}
+			</button>
+		</div>
 	</div>
 </details>
+<ResetDeviceDialog bind:this={resetDialog} />

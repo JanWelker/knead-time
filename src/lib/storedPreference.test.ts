@@ -8,6 +8,7 @@ import { LOCALE_STORAGE_KEY } from './i18n/storedLocale';
 import { REMINDERS_STORAGE_KEY } from './push/stored';
 import { LAST_RECIPE_KEY, RECIPES_KEY } from './storedRecipes';
 import { scopedStorageKey, storageScopeFor } from './storageScope';
+import { KEPT_KEYS, RESET_KEYS } from './resetDevice';
 
 // Every slot the app writes on a device. Listed here rather than sampled: the
 // factory made these four one call each, and a copy-pasted call carrying the
@@ -64,6 +65,14 @@ describe('the storage slots', () => {
 			'kneadtime:pr-preview-pr-12:recipes'
 		]);
 		for (const key of scoped) expect(ALL_KEYS).not.toContain(key);
+	});
+
+	// "Reset this device" (issue #469) forgets some slots and keeps others. A new
+	// slot that is in neither list would quietly survive every reset, so each
+	// one has to be placed — and none may be in both.
+	it('each decide whether a device reset forgets them', () => {
+		expect([...RESET_KEYS, ...KEPT_KEYS].sort()).toEqual([...ALL_KEYS].sort());
+		for (const key of RESET_KEYS) expect(KEPT_KEYS).not.toContain(key);
 	});
 });
 

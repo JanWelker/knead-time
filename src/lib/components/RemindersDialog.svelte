@@ -6,8 +6,8 @@
 	import { interpolate } from '#lib/i18n/interpolate.js';
 	import { safeLocalStorage } from '#lib/safeStorage.js';
 	import {
-		deleteSchedule,
 		fetchVapidKey,
+		forgetSubscription,
 		putSchedule,
 		type PushSubscriptionInfo
 	} from '#lib/push/api.js';
@@ -159,10 +159,7 @@
 	async function disable(): Promise<void> {
 		status = 'working';
 		const sub = await currentSubscription();
-		if (sub) {
-			await deleteSchedule(sub.endpoint);
-			await sub.unsubscribe();
-		}
+		if (sub) await forgetSubscription(sub);
 		clearRemindersFingerprint(safeLocalStorage());
 		subscribed = false;
 		status = 'off';
