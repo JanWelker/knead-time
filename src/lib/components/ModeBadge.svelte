@@ -41,7 +41,7 @@
 		<!-- Same dismissal contract as the fit seal and the menu. It lives on the
 		     <details> itself, so the seal without a panel — the ask flow's stub and
 		     the adjust sheet's header — attaches nothing at all. -->
-		<details {@attach dismissable()} class="relative inline-block">
+		<details {@attach dismissable()} class="inline-block">
 			<summary class="cursor-pointer list-none select-none" title={blurb}>
 				<GuildSeal label={mode === 'cold' ? t.mode.cold : t.mode.room}>
 					{@render mark()}

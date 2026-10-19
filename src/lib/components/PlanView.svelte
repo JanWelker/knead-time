@@ -510,8 +510,10 @@
 					<!-- Two marks, and each opens what it means. The mode's sentence used
 					     to sit beside them as running prose, which made the row a caption
 					     with two icons rather than two seals; it reads the same way the
-					     fit's factors do now. -->
-					<div class="mb-6 flex flex-wrap items-center gap-x-7 gap-y-4">
+					     fit's factors do now. The row is the panels' containing block,
+					     not either seal: a panel hung from the second seal started half
+					     a phone in and ran off the right edge (issue #468). -->
+					<div class="relative mb-6 flex flex-wrap items-center gap-x-7 gap-y-4">
 						<ModeBadge mode={form.schedule.mode} explain />
 						<FitScore schedule={form.schedule} inputs={form.serializable()} />
 					</div>
