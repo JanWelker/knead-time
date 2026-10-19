@@ -68,6 +68,7 @@ src/
 │   ├── mode.svelte.ts / storedMode.ts           ← beginner/expert view mode (+ localStorage)
 │   ├── verbosity.svelte.ts / storedVerbosity.ts ← schedule short/detailed switch (+ localStorage)
 │   ├── storedRecipes.ts  ← last-recipe restore + named recipe book (localStorage)
+│   ├── resetDevice.ts    ← which slots "Reset this device" clears and which it keeps (the recipe book)
 │   ├── format.ts         ← grams, percentages, durations, datetime input glue
 │   └── stepCopy.ts       ← maps ScheduleStepKind → i18n key + interpolates schedule context
 ├── hooks.server.ts       ← the one server hook: stamps `<html lang>` per prerendered print sheet

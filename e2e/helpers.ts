@@ -180,3 +180,27 @@ export async function arrowCentreX(page: Page, dir: 'up' | 'down'): Promise<numb
 	const box = await svg.first().boundingBox();
 	return box ? box.x + box.width / 2 : null;
 }
+
+/** The confirmation behind the menu's "Reset this device…" (issue #469). */
+export async function openResetDialog(page: Page) {
+	await openMenu(page);
+	await page.getByRole('menuitem', { name: 'Reset this device…', exact: true }).click();
+	const dialog = page.locator('dialog[open]', {
+		has: page.getByRole('heading', { name: 'Reset this device' })
+	});
+	await expect(dialog).toBeVisible();
+	return dialog;
+}
+
+/**
+ * Reset through the menu and wait for the reload it ends in. The reset lands
+ * on a bare URL, so the next page is hydrated once the app has stamped its
+ * default recipe back into the query.
+ */
+export async function resetDevice(page: Page) {
+	const dialog = await openResetDialog(page);
+	const reloaded = page.waitForEvent('load');
+	await dialog.getByRole('button', { name: 'Reset', exact: true }).click();
+	await reloaded;
+	await waitForHydration(page);
+}

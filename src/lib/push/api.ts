@@ -89,3 +89,29 @@ export function deleteSchedule(
 		async () => undefined
 	);
 }
+
+/** The part of a browser PushSubscription that forgetting it needs. */
+export interface Unsubscribable {
+	readonly endpoint: string;
+	unsubscribe(): Promise<boolean>;
+}
+
+/**
+ * Forget a subscription on both ends: ask the service to drop its schedule,
+ * then unsubscribe the browser's copy. The unsubscribe happens whatever the
+ * service answered — offline, or a 404 for a schedule it already retired — so
+ * nothing on the device stays subscribed; a subscription the service still
+ * holds is answered 404/410 by the push service on its next send, which
+ * retires it there too. Never throws, like the requests above.
+ */
+export async function forgetSubscription(
+	subscription: Unsubscribable,
+	fetchImpl: typeof fetch = fetch
+): Promise<void> {
+	await deleteSchedule(subscription.endpoint, fetchImpl);
+	try {
+		await subscription.unsubscribe();
+	} catch {
+		// Already gone, or the browser refused: either way there is nothing left to undo.
+	}
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { deleteSchedule, fetchVapidKey, PUSH_ORIGIN, putSchedule } from './api';
+import { deleteSchedule, fetchVapidKey, forgetSubscription, PUSH_ORIGIN, putSchedule } from './api';
 
 const SUB = { endpoint: 'https://web.push.apple.com/abc', keys: { p256dh: 'p', auth: 'a' } };
 const PAYLOAD = { receipt: { title: 'Set', body: '3' }, reminders: [] };
@@ -108,5 +108,49 @@ describe('deleteSchedule', () => {
 	it('reports an unknown subscription', async () => {
 		const result = await deleteSchedule('x', replying(404, { detail: 'unknown subscription' }));
 		expect(result).toEqual({ ok: false, status: 404, message: 'unknown subscription' });
+	});
+});
+
+describe('forgetSubscription', () => {
+	// Turning reminders off and resetting the device (issue #469) both forget
+	// the subscription. Clearing only the stored fingerprint left the service
+	// holding the schedule, and it would have kept sending.
+	it('asks the service to drop the schedule, then unsubscribes the browser', async () => {
+		const order: string[] = [];
+		const f = vi.fn(async () => {
+			order.push('DELETE');
+			return new Response(null, { status: 204 });
+		}) as unknown as typeof fetch;
+		const unsubscribe = vi.fn(async () => {
+			order.push('unsubscribe');
+			return true;
+		});
+		await forgetSubscription({ endpoint: SUB.endpoint, unsubscribe }, f);
+		expect(f).toHaveBeenCalledWith(
+			`${PUSH_ORIGIN}/v1/schedules?endpoint=${encodeURIComponent(SUB.endpoint)}`,
+			{ method: 'DELETE' }
+		);
+		expect(order).toEqual(['DELETE', 'unsubscribe']);
+	});
+
+	// Offline, or a schedule the service already retired: the device must still
+	// stop being subscribed, or a reset would leave it half done.
+	it('unsubscribes even when the service cannot be reached', async () => {
+		const f = vi.fn(async () => {
+			throw new TypeError('Failed to fetch');
+		}) as unknown as typeof fetch;
+		const unsubscribe = vi.fn(async () => true);
+		await forgetSubscription({ endpoint: SUB.endpoint, unsubscribe }, f);
+		expect(unsubscribe).toHaveBeenCalledOnce();
+	});
+
+	it('does not throw when the browser refuses to unsubscribe', async () => {
+		const f = vi.fn(async () => new Response(null, { status: 204 })) as unknown as typeof fetch;
+		const unsubscribe = vi.fn(async () => {
+			throw new Error('InvalidStateError');
+		});
+		await expect(forgetSubscription({ endpoint: SUB.endpoint, unsubscribe }, f)).resolves.toBe(
+			undefined
+		);
 	});
 });

@@ -110,6 +110,16 @@ test('a chosen locale survives a full reload', async ({ page }) => {
 	expect(await page.evaluate(() => localStorage.getItem('kneadtime:locale'))).toBe('de');
 });
 
+// The layout resolved the language on every load through the same call the
+// menu uses to remember a choice, so a first visit wrote the browser's
+// language into storage as if the baker had picked it — and a device reset
+// (issue #469) found the slot back the moment its own reload landed.
+test('a detected language is not remembered as a choice', async ({ page }) => {
+	await openRecipe(page, MINE);
+	await expect(page.getByRole('heading', { name: 'Schedule' })).toBeVisible();
+	expect(await page.evaluate(() => localStorage.getItem('kneadtime:locale'))).toBeNull();
+});
+
 test('a legacy bare "theme" value migrates once into the namespaced key', async ({
 	page,
 	context

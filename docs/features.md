@@ -2,6 +2,12 @@
 
 What Knead Time does, by feature and by the version that brought it. The major version tracks the share-link schema, so a link stamped `v=8` was written by an 8.x app; every older link still reproduces its recipe, gram for gram.
 
+## Reset this device, keeping the recipe book (v8.6)
+
+**Reset this device…**, at the foot of the menu on every view, forgets what Knead Time remembers on this device and starts again from the first question ([issue #469](https://github.com/JanWelker/knead-time/issues/469)): the recipe you were working on, the step reminders, simple or all options, short or detailed steps, the theme and the language. **My recipes stay.** A confirmation lists all of it first. If the device has reminders set, the reminder service is asked to delete its schedule and the browser's subscription is dropped, the same as **Turn off**; that is the only request a reset makes, and without reminders it makes none. The browser's permission to show notifications is the one thing a page cannot take back, so the confirmation says so and points at the browser's settings.
+
+The language you never chose is no longer remembered as if you had: a first visit used to write the browser's language into storage, which pinned it there even after the browser's own setting changed.
+
 ## Three blanks, and warnings on the bake box (v8.5)
 
 The plan's header now shows the three values a bake succeeds or fails on that the ticket does not already carry: **pizzas**, the **fermentation window** and the **room temperature**, the kitchen the yeast amount was solved for ([issue #315](https://github.com/JanWelker/knead-time/issues/315)). Flour, hydration and salt left the row, because the ingredient ticket already names the flour and weighs the other two, and the row no longer changes with the view mode, so two people opening one link see the same ticket.

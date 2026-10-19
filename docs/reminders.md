@@ -8,7 +8,7 @@ A notification for every hands-on step of a plan, at its time, with the app clos
 2. Open your plan and press **Remind me** on the schedule’s header band (the actions menu carries the same entry as **Remind me on this device…**). The dialog says how many reminders the plan has left and when the first is due.
 3. Tap **Set reminders**. The browser asks for notification permission, subscribes, and the schedule goes to the service. A test notification arrives at once so you know the path works.
 
-Change the plan afterwards and it says so: the reminders belong to the plan they were set for, and an info line above the schedule offers to update them. Nothing is sent until you tap. **Turn off** in the same dialog forgets the device on the service and in the browser.
+Change the plan afterwards and it says so: the reminders belong to the plan they were set for, and an info line above the schedule offers to update them. Nothing is sent until you tap. **Turn off** in the same dialog forgets the device on the service and in the browser, and so does **Reset this device…** in the menu, which forgets everything else the app remembers here too, apart from the saved recipes. Neither can withdraw the browser's permission to show notifications; that lives in the browser's settings.
 
 If the icon is removed from the Home Screen, iOS drops the subscription; the dialog reports that the next time it opens rather than pretending the reminders still exist.
 
@@ -29,7 +29,7 @@ On the tap, and only then:
 | The time of each step       | When to send                                                                                                                                                    |
 | The receipt text            | The test notification, also already in your language                                                                                                            |
 
-Not sent: the recipe, the weights, the flour, your name, anything about the browser. Reminders are deleted a day after they are sent; a subscription with nothing pending is deleted after thirty days, or at once on **Turn off**. The service logs counts, never endpoints. It runs on a homelab at `kneadtime.k8s.wlkr.ch`; the whole thing, manifests included, is in this repository and the two homelab repositories linked from [`push/README.md`](../push/README.md).
+Not sent: the recipe, the weights, the flour, your name, anything about the browser. Reminders are deleted a day after they are sent; a subscription with nothing pending is deleted after thirty days, or at once on **Turn off** or a device reset. The service logs counts, never endpoints. It runs on a homelab at `kneadtime.k8s.wlkr.ch`; the whole thing, manifests included, is in this repository and the two homelab repositories linked from [`push/README.md`](../push/README.md).
 
 The one-origin promise in [features.md](features.md#privacy-and-performance) stands with one exception: an explicit tap, to one named host. `e2e/self-hosted.spec.ts` still expects zero requests to any other origin on a plain visit, and `e2e/reminders.spec.ts` pins that the tap makes exactly the requests above.
 
@@ -39,7 +39,7 @@ The service is small enough to read; `push/README.md` lists the routes. The cont
 
 - `GET /v1/vapid` returns `{"publicKey"}`, the application server key the browser subscribes with.
 - `PUT /v1/schedules` takes `{subscription, receipt, reminders[]}` and **replaces** everything queued for that subscription, so an update is one call and an abandoned plan never buzzes. Reminders already in the past are dropped and counted in the reply; one more than fourteen days out is refused.
-- `DELETE /v1/schedules?endpoint=…` forgets the subscription.
+- `DELETE /v1/schedules?endpoint=…` forgets the subscription. **Turn off** and a device reset both call it, then unsubscribe the browser whatever it answered.
 
 The service accepts subscriptions only on the push-service hosts its network policy lets it reach, refuses more than sixteen reminders per schedule, allows thirty requests a minute per client address (a `429` with `Retry-After` beyond that), and treats a `401`, `403`, `404` or `410` from a push service as the end of that subscription.
 

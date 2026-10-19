@@ -6,15 +6,17 @@ function isThemeChoice(value: unknown): value is ThemeChoice {
 	return value === 'system' || value === 'light' || value === 'dark';
 }
 
+// Pre-prefix key from when the app deployed to a shared *.github.io origin,
+// where the bare 'theme' slot was visible to every other project page. Only
+// ever written at the root, so it stays unscoped. The inline boot script in
+// app.html reads it as a fallback too, so the pre-migration first paint
+// still honours a stored choice.
+export const THEME_LEGACY_KEY = 'theme';
+
 const pref = storedPreference<ThemeChoice>({
 	key: storageKey('theme'),
 	isValid: isThemeChoice,
-	// Pre-prefix key from when the app deployed to a shared *.github.io origin,
-	// where the bare 'theme' slot was visible to every other project page. Only
-	// ever written at the root, so it stays unscoped. The inline boot script in
-	// app.html reads it as a fallback too, so the pre-migration first paint
-	// still honours a stored choice.
-	legacyKey: 'theme',
+	legacyKey: THEME_LEGACY_KEY,
 	// 'system' is the absence of a user choice, so we clear the slot rather than
 	// write it — keeps storage tidy and gives a clean fresh-install signal.
 	clearOn: 'system'

@@ -118,3 +118,41 @@ test('the theme boot script reads the scoped slot, not the root one', async ({ c
 	expect(html).toContain(`localStorage.getItem('kneadtime:${SCOPE}:theme')`);
 	expect(html).not.toContain('%storage-scope%');
 });
+
+// A reset on a preview (issue #469) must forget the preview's own slots and
+// none of the live site's: the two share one origin, and a maintainer trying a
+// preview would otherwise wipe the language, theme and current recipe of the
+// app they actually bake with.
+test('a reset on a preview clears its scoped slots and leaves the live site’s alone', async ({
+	page
+}) => {
+	await openAtBase(page);
+	const names = ['lastRecipe', 'reminders', 'mode', 'scheduleVerbosity', 'theme', 'locale'];
+	const book = JSON.stringify([
+		{ name: 'Friday', search: 'v=8&n=4', savedAt: '2026-08-28T18:00:00.000Z' }
+	]);
+	const live: Record<string, string> = { 'kneadtime:recipes': book };
+	const preview: Record<string, string> = { [`kneadtime:${SCOPE}:recipes`]: book };
+	for (const name of names) {
+		live[`kneadtime:${name}`] = name === 'theme' ? 'dark' : name === 'mode' ? 'expert' : 'x';
+		preview[`kneadtime:${SCOPE}:${name}`] = live[`kneadtime:${name}`];
+	}
+	await page.evaluate(
+		(entries) => {
+			for (const [key, value] of Object.entries(entries)) localStorage.setItem(key, value);
+		},
+		{ ...live, ...preview }
+	);
+
+	await page.locator('summary').filter({ hasText: 'Menu' }).click();
+	await page.getByRole('menuitem', { name: 'Reset this device…', exact: true }).click();
+	const reloaded = page.waitForEvent('load');
+	await page.locator('dialog[open]').getByRole('button', { name: 'Reset', exact: true }).click();
+	await reloaded;
+	await expect(view(page)).toBeVisible();
+
+	// Reloaded to the bare URL under the base, not to the live site's root.
+	expect(new URL(page.url()).pathname).toBe(`${BASE}/`);
+	const after = await page.evaluate(() => ({ ...localStorage }));
+	expect(after).toEqual({ ...live, [`kneadtime:${SCOPE}:recipes`]: book });
+});
