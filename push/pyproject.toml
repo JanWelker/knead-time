@@ -1,9 +1,9 @@
 [project]
 name = "kneadtime-push"
-version = "0.2.1"
+version = "0.2.2"
 description = "Web Push step reminders for Knead Time"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 license = "MIT"
 dependencies = [
   "fastapi>=0.115",
@@ -29,7 +29,7 @@ packages = ["kneadtime_push"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
