@@ -9,7 +9,7 @@ due. What it is for, what it stores and how a phone opts in is in
 
 ```bash
 cd push
-uv sync                       # Python 3.13, deps and dev tools into .venv
+uv sync                       # Python 3.14, deps and dev tools into .venv
 uv run pytest                 # needs PostgreSQL: DATABASE_URL, or a local install (initdb on PATH
                               # or under /opt/homebrew/opt/postgresql@18) for a throwaway cluster
 uv run ruff check . && uv run ruff format --check .
@@ -61,8 +61,9 @@ The image is built by `push-image.yml` on every push to `main` that touches
 `push/`, tagged with the version in `pyproject.toml`, and published to
 `ghcr.io/janwelker/knead-time-push`.
 
-The runtime stage is `gcr.io/distroless/python3-debian13`: no shell and no package
-manager, so there is nothing in it to patch but Python and libc. Its interpreter is
-Debian's, so the build stage must resolve wheels for the same minor version; the
-`COPY` names that version's `site-packages` and the import check after it fails the
-build when the two drift. Debug with `python3 -c`, the only thing there is to exec.
+The runtime stage is `gcr.io/distroless/cc-debian13`: no shell and no package
+manager, so there is nothing in it to patch but libc. The build stage installs uv's
+standalone Python for the minor in `.python-version` into `/python` and copies it in
+with the venv, so the image runs the interpreter CI tests on; the import check fails
+the build when a compiled wheel does not load. Debug with `python -c`, the only thing
+there is to exec.

@@ -50,10 +50,16 @@
 			"allowedVersions": "^6.0.0"
 		},
 		{
-			"description": "The reminder service under push/ runs on the cluster against a pinned Postgres 18 and a pinned Python; a runtime bump there is a deploy decision, not a dependency chore.",
-			"matchPackageNames": ["python", "postgres", "ghcr.io/astral-sh/uv"],
-			"matchUpdateTypes": ["major", "minor"],
-			"automerge": false
+			"description": "requires-python names the minor only: push/.python-version already picks the interpreter.",
+			"matchManagers": ["pep621"],
+			"matchDepTypes": ["requires-python"],
+			"rangeStrategy": "replace"
+		},
+		{
+			"description": "push/.python-version picks the interpreter for CI and the image alike, and requires-python must name the same minor: one PR for both. Held at 3.14 with the homelab repositories.",
+			"matchDepNames": ["python"],
+			"groupName": "python",
+			"allowedVersions": "/^3\\.14([.-]|$)/"
 		}
 	]
 }
