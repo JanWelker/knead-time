@@ -65,8 +65,15 @@ jobs:
           path: coverage/
           retention-days: 14
 
+      # Not on Renovate's PRs: by this step the PR's new dependencies have run
+      # their install scripts, and the token should not sit in that job. The
+      # summary and artifact above still carry the numbers; main's push run
+      # feeds the baseline after the merge.
       - name: Upload coverage to Codecov
-        if: always()
+        if: >-
+          always()
+          && (github.event_name == 'push'
+          || github.event.pull_request.user.login != 'renovate[bot]')
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: coverage/lcov.info
