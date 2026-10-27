@@ -8,6 +8,7 @@ name: CI OK
 
 permissions:
   checks: read
+  statuses: read
 
 concurrency:
   group: ci-ok-${{ github.event.pull_request.number }}
@@ -15,4 +16,4 @@ concurrency:
 
 jobs:
   ci-ok:
-    uses: JanWelker/renovate-config/.github/workflows/wait-for-checks.yaml@57ce7118472deaff3b83fd558456c12f8f116466 # v1.2.0
+    uses: JanWelker/renovate-config/.github/workflows/wait-for-checks.yaml@59de31fc0a3796828a41f997f7746a79dff3f9ec # v1.3.0
