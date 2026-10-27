@@ -12,7 +12,7 @@ The app is a static site on GitHub Pages, live at [kneadtime.pizza](https://knea
 
 `verify` and `e2e` are **required status checks** on `main`; `push` is not yet, but the deploy waits for the whole workflow, so a red `push` holds the site too. Note that `main` is guarded by a repository _ruleset_, so the classic branch-protection API reports it as unprotected; see `gh api repos/JanWelker/knead-time/rulesets`. Adding a CI job does not make it required; that is a separate change to the ruleset.
 
-The `main` runs exist so Codecov gets a main-branch baseline (the README badge points at `branch/main`) and so the deploy has something to wait for. They are deliberately **not** cancelled when a newer commit lands, since cancelling one would leave that commit undeployed, untagged and out of the baseline; PR runs still supersede each other. The CI badge covers the whole workflow, so a failing `e2e` turns it red too.
+Renovate's PRs skip the Codecov upload, so the token never sits in a job that has just installed an unreviewed dependency. The `main` runs exist so Codecov gets a main-branch baseline (the README badge points at `branch/main`) and so the deploy has something to wait for. They are deliberately **not** cancelled when a newer commit lands, since cancelling one would leave that commit undeployed, untagged and out of the baseline; PR runs still supersede each other. The CI badge covers the whole workflow, so a failing `e2e` turns it red too.
 
 ## Deployment
 
@@ -47,6 +47,8 @@ In the repository settings, set **Pages → Build and deployment → Source = De
 ## PR previews
 
 `.github/workflows/preview.yml` builds every PR opened from a branch in this repository and publishes it as an isolated preview under `gh-pages:/pr-preview/pr-<number>/`. PRs from forks are skipped on purpose: a fork's `GITHUB_TOKEN` is read-only whatever the workflow's `permissions` block says, so the push to `gh-pages` would fail and paint a red X on every external contribution. The workflow uses [`rossjrw/pr-preview-action`](https://github.com/rossjrw/pr-preview-action), which posts and updates a sticky comment on the PR with the preview URL and removes the directory when the PR is closed or merged.
+
+The workflow is two jobs. `build` runs `npm ci` and the build with a read-only token and uploads `build/` as an artifact; `deploy` downloads it and publishes it without running npm or any of the PR's local actions, so a dependency's install script never holds a token that can write `gh-pages`, the branch production is served from.
 
 The preview build sets `BASE_PATH=/<repo>/pr-preview/pr-<number>` (or `/pr-preview/pr-<number>` on user/org sites and custom domains) so all `$app/paths`-relative links resolve correctly inside the subdirectory.
 
