@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openAdjust, openMenu, openQuestion, openRecipe, sheet } from './helpers';
+import { focusRing, openAdjust, openMenu, openQuestion, openRecipe, RING, sheet } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
@@ -39,16 +39,8 @@ test('every control keeps the focus ring, including a dialog text field', async 
 	await openRecipe(page, RECIPE);
 	await openAdjust(page);
 
-	const ring = (loc: ReturnType<typeof page.locator>) =>
-		loc.first().evaluate((el: HTMLElement) => {
-			el.focus();
-			return getComputedStyle(el).outline;
-		});
-
-	expect(await ring(sheet(page).locator('input[type="number"]'))).toBe(
-		'rgb(200, 64, 26) solid 3px'
-	);
-	expect(await ring(sheet(page).locator('select'))).toBe('rgb(200, 64, 26) solid 3px');
+	expect(await focusRing(sheet(page).locator('input[type="number"]'))).toEqual(RING);
+	expect(await focusRing(sheet(page).locator('select'))).toEqual(RING);
 	await page.getByRole('button', { name: 'Done', exact: true }).click();
 
 	await openMenu(page);
@@ -57,7 +49,7 @@ test('every control keeps the focus ring, including a dialog text field', async 
 	// adjust sheet is a dialog with text fields too.
 	const name = page.getByRole('textbox', { name: 'Name this recipe:' });
 	await expect(name).toBeVisible();
-	expect(await ring(name)).toBe('rgb(200, 64, 26) solid 3px');
+	expect(await focusRing(name)).toEqual(RING);
 });
 
 // The two fermentation-band fills — the room band and the cold band on the

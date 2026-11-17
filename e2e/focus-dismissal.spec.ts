@@ -1,10 +1,8 @@
 import { expect, test } from '@playwright/test';
-import { menuTrigger, openAdjust, openMenu, openRecipe, sheet } from './helpers';
+import { focusRing, menuTrigger, openAdjust, openMenu, openRecipe, RING, sheet } from './helpers';
 
 const RECIPE =
 	'v=6&n=6&b=280&h=70&s=3&y=f&t=22&ft=4&fw=265&r=2026-09-05T17%3A00%3A00.000Z&sa=2026-09-04T09%3A00%3A00.000Z';
-
-const RING = 'rgb(200, 64, 26) solid 3px';
 
 // The global focus rule listed input, select, button and textarea. Both of the
 // element types it left out are used here as primary controls, not as prose:
@@ -14,18 +12,12 @@ const RING = 'rgb(200, 64, 26) solid 3px';
 test('links and disclosure triggers get the same focus ring as the rest', async ({ page }) => {
 	await openRecipe(page, RECIPE);
 
-	const ring = (loc: ReturnType<typeof page.locator>) =>
-		loc.first().evaluate((el: HTMLElement) => {
-			el.focus();
-			return getComputedStyle(el).outline;
-		});
-
-	expect(await ring(page.locator('footer a')), 'a footer link').toBe(RING);
-	expect(await ring(page.locator('summary')), 'a disclosure trigger').toBe(RING);
+	expect(await focusRing(page.locator('footer a')), 'a footer link').toEqual(RING);
+	expect(await focusRing(page.locator('summary')), 'a disclosure trigger').toEqual(RING);
 
 	await openAdjust(page);
 	// unchanged, and the reason the rule exists
-	expect(await ring(sheet(page).locator('input[type="number"]'))).toBe(RING);
+	expect(await focusRing(sheet(page).locator('input[type="number"]'))).toEqual(RING);
 });
 
 // The actions menu beside it dismisses on outside-click and Escape; this panel
