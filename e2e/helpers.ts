@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 // A fixed "now" for every spec. The schedule is wall-clock arithmetic — which
 // stops are still reachable, whether a step falls at night, how long is left
@@ -203,4 +203,20 @@ export async function resetDevice(page: Page) {
 	await dialog.getByRole('button', { name: 'Reset', exact: true }).click();
 	await reloaded;
 	await waitForHydration(page);
+}
+
+/** The app's focus ring, as `focusRing` reports it. */
+export const RING = { width: '3px', style: 'solid', color: 'rgb(200, 64, 26)' };
+
+/**
+ * Focus the first match and read its outline. By longhand: the order the
+ * `outline` shorthand serialises in is the engine's choice, and Chromium
+ * changed it under Playwright 1.65.1 with the ring itself untouched.
+ */
+export function focusRing(loc: Locator) {
+	return loc.first().evaluate((el: HTMLElement) => {
+		el.focus();
+		const cs = getComputedStyle(el);
+		return { width: cs.outlineWidth, style: cs.outlineStyle, color: cs.outlineColor };
+	});
 }
