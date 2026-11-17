@@ -14,7 +14,7 @@ COPY kneadtime_push ./kneadtime_push
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev --no-editable
 
-FROM gcr.io/distroless/cc-debian13:nonroot@sha256:cc66d222f0a7ec996b78a99fe76a969bc80b539a5016ad866c14d1949bc6d0ab
+FROM gcr.io/distroless/cc-debian13:nonroot@sha256:cb87acc574abe719b6e5c547384defa2f7b1f24af9605d3f618cf852495d8be2
 # The venv's interpreter links into /python, the same path in both stages.
 COPY --from=build /python /python
 COPY --from=build /app/.venv /app/.venv
