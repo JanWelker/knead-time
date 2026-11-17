@@ -2,7 +2,7 @@
 # The runtime is distroless: Debian 13's libc, no shell, no package manager.
 # Python is uv's standalone build of the minor in .python-version, copied in
 # whole, so the image runs the interpreter CI tests on. See README.md, Tooling.
-FROM ghcr.io/astral-sh/uv:trixie-slim@sha256:f6da342fe598dc462a7e6f61e7b3bf7fc84e381467efbdf29ccc1d32f2fc68a4 AS build
+FROM ghcr.io/astral-sh/uv:trixie-slim@sha256:2e5596835973a75bed0d37a980625b5089e87ffbd1026f11012ca0fe254ccac5 AS build
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_INSTALL_DIR=/python UV_PYTHON_PREFERENCE=only-managed
 WORKDIR /app
 COPY .python-version ./
