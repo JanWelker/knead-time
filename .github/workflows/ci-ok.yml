@@ -16,4 +16,4 @@ concurrency:
 
 jobs:
   ci-ok:
-    uses: JanWelker/renovate-config/.github/workflows/wait-for-checks.yaml@51c8fcbcbd06395dd0080bbd2ac7c298329a88ae # v1.3.1
+    uses: JanWelker/renovate-config/.github/workflows/wait-for-checks.yaml@afcf04366e80bf2315cba3e84c14c16d9616fc6a # v1.5.1
